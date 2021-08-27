@@ -1,0 +1,218 @@
+﻿using IniParser;
+using IniParser.Model;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+
+namespace ExcelTool
+{
+    public static class IniHelper
+    {
+        public static void CheckAndCreateIniFile() 
+        {
+            FileIniDataParser parser = new FileIniDataParser();
+
+            if (File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            IniData parsedINIDataToBeSaved = new IniData();
+            parsedINIDataToBeSaved.Sections.AddSection("Thread");
+            parsedINIDataToBeSaved["Thread"].AddKey("MaxThreadCount", "25");
+            parsedINIDataToBeSaved["Thread"].AddKey("TotalTimeoutLimit", "120000");
+            parsedINIDataToBeSaved["Thread"].AddKey("PerTimeoutLimit", "60000");
+            parsedINIDataToBeSaved.Sections.AddSection("Window");
+            parsedINIDataToBeSaved["Window"].AddKey("MainWindowWidth", "750");
+            parsedINIDataToBeSaved["Window"].AddKey("MainWindowHeight", "800");
+            parsedINIDataToBeSaved["Window"].AddKey("AnalyzerEditorWidth", "800");
+            parsedINIDataToBeSaved["Window"].AddKey("AnalyzerEditorHeight", "450");
+            parsedINIDataToBeSaved["Window"].AddKey("SheetExplainerEditorWidth", "800");
+            parsedINIDataToBeSaved["Window"].AddKey("SheetExplainerEditorHeight", "450");
+            parsedINIDataToBeSaved.Sections.AddSection("Value");
+            parsedINIDataToBeSaved["Value"].AddKey("DefaultBasePath", "");
+            parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputPath", Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
+            parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputFileName", "输出");
+
+            //保存文件
+            parser.WriteFile("Setting.ini", parsedINIDataToBeSaved);
+        }
+
+        public static void SetMaxThreadCount(int count)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Thread"]["MaxThreadCount"] = count.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static int GetMaxThreadCount()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return -1;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return Int32.Parse(data["Thread"]["MaxThreadCount"]);
+        }
+        public static void SetTotalTimeoutLimit(int count)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Thread"]["TotalTimeoutLimit"] = count.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static int GetTotalTimeoutLimit()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return -1;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return Int32.Parse(data["Thread"]["TotalTimeoutLimit"]);
+        }
+        public static void SetPerTimeoutLimit(int count)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Thread"]["PerTimeoutLimit"] = count.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static int GetPerTimeoutLimit()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return -1;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return Int32.Parse(data["Thread"]["PerTimeoutLimit"]);
+        }
+        public static void SetWindowSize(String wndName, Point point)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Window"][$"{wndName}Width"] = point.X.ToString();
+            data["Window"][$"{wndName}Height"] = point.Y.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static Point GetWindowSize(String wndName)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return new Point(-1, -1);
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return new Point(Double.Parse(data["Window"][$"{wndName}Width"]), Double.Parse(data["Window"][$"{wndName}Height"]));
+        }
+
+        public static void SetBasePath(String basePath)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Value"]["DefaultBasePath"] = basePath;
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static String GetBasePath()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return null;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return data["Value"]["DefaultBasePath"];
+        }
+
+        public static void SetOutputPath(String output)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Value"]["DefaultOutputPath"] = output;
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static String GetOutputPath()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return null;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return data["Value"]["DefaultOutputPath"];
+        }
+
+        public static void SetOutputFileName(String outputFileName)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Value"]["DefaultOutputFileName"] = outputFileName;
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static String GetOutputFileName()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return null;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return data["Value"]["DefaultOutputFileName"];
+        }
+    }
+}
