@@ -405,53 +405,58 @@ namespace ExcelTool
                     filePath = $"{resPath}/{tb_output_name.Text}.xlsx";
                 }
 
+                Boolean hasError = false;
                 foreach(ConcurrentDictionary< ResultType, Object > result in resultList.Keys)
                 {
-                    SetResult(workbook, result, resultList[result], resultList.Count);
+                    if (!SetResult(workbook, result, resultList[result], resultList.Count))
+                    {
+                        hasError = true;
+                    }
+                }
+                if (!hasError)
+                {
+                    bool saveResult = false;
+                    SaveFile(filePath, workbook, out saveResult);
+                    if (!saveResult)
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, "file not saved.", "info");
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            btn_start.IsEnabled = true;
+                            btn_stop.IsEnabled = false;
+                        });
+                        return;
+                    }
+
+                    Button btnOpenFile = new Button();
+                    btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                    btnOpenFile.Content = "open file";
+                    btnOpenFile.Click += (s, ee) =>
+                    {
+                        System.Diagnostics.Process.Start(filePath);
+                        CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
+                    };
+
+                    Button btnOpenPath = new Button();
+                    btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                    btnOpenPath.Content = "open path";
+                    btnOpenPath.Click += (s, ee) =>
+                    {
+                        System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
+                        CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
+                    };
+
+                    Button btnClose = new Button();
+                    btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                    btnClose.Content = "close";
+                    btnClose.Click += (s, ee) =>
+                    {
+                        CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
+                    };
+
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "ファイルを保存しました。", "OK");
                 }
                 
-
-
-                bool saveResult = false;
-                SaveFile(filePath, workbook, out saveResult);
-                if (!saveResult)
-                {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, "file not saved.", "info");
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        btn_start.IsEnabled = true;
-                        btn_stop.IsEnabled = false;
-                    });
-                    return;
-                }
-
-                Button btnOpenFile = new Button();
-                btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnOpenFile.Content = "open file";
-                btnOpenFile.Click += (s, ee) =>
-                {
-                    System.Diagnostics.Process.Start(filePath);
-                    CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
-                };
-
-                Button btnOpenPath = new Button();
-                btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnOpenPath.Content = "open path";
-                btnOpenPath.Click += (s, ee) =>
-                {
-                    System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
-                    CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
-                };
-
-                Button btnClose = new Button();
-                btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnClose.Content = "close";
-                btnClose.Click += (s, ee) =>
-                {
-                    CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
-                };
-
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "ファイルを保存しました。", "OK");
             }
             this.Dispatcher.Invoke(() =>
             {
@@ -727,8 +732,10 @@ namespace ExcelTool
 
         }
 
-        private void SetResult(XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, int totalCount)
+        private Boolean SetResult(XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, int totalCount)
         {
+            Boolean res = true;
+
             CSharpCodeProvider objCSharpCodePrivoder = new CSharpCodeProvider();
 
             CompilerParameters objCompilerParameters = new CompilerParameters();
@@ -748,6 +755,8 @@ namespace ExcelTool
 
             if (cresult.Errors.HasErrors)
             {
+                res = false;
+
                 String str = "[ERROR: ]";
                 foreach (CompilerError err in cresult.Errors)
                 {
@@ -773,6 +782,7 @@ namespace ExcelTool
                 }
                 catch (Exception e)
                 {
+                    res = false;
                     this.Dispatcher.Invoke(() =>
                     {
                         tb_log.Text += $"[ERROR: ]\n    {e.InnerException.Message}\n    {analyzer.name}.SetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}\n";
@@ -781,7 +791,7 @@ namespace ExcelTool
                     Stop();
                 }
             }
-
+            return res;
         }
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
