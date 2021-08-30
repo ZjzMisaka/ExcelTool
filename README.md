@@ -11,6 +11,7 @@ Excel批量分析工具
 ![检索信息分析界面](https://www.iaders.com/wp-content/uploads/2021/08/2.png)
 ### 逻辑分析界面
 **用于设定对某一类Sheet进行怎样的分析, 分析完毕后如何进行输出 (或者如何处理并保留分析的结果供后续使用)**
+- 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
 ![逻辑分析界面](https://www.iaders.com/wp-content/uploads/2021/08/3.png)
 
 # 使用的开源库
