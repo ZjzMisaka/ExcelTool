@@ -34,7 +34,7 @@
 ##### SetResult函数
 |参数|类型|含义|备注|
 |----|----|----|----|
-|workbook|XLWorkbook|用于输出的excel文件||
+|workbook|XLWorkbook|用于输出的Excel文件||
 |result|ConcurrentDictionary<ResultType, Object>|存储某个Sheet分析的结果|详见上表|
 |globalObjects|Object|全局存在的变量|详见上表|
 |invokeCount|int|此函数被调用的次数|详见上表|
