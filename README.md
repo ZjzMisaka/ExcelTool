@@ -20,7 +20,7 @@
 <img src="https://www.iaders.com/wp-content/uploads/2021/08/3.png" width="400px" />
 
 #### 编码相关
-- 编码内容依赖ClosedXML开源库
+- 编码内容依赖[ClosedXML](https://github.com/ClosedXML/ClosedXML)开源库
 - 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
 
 ##### AnalyzeSheet函数
