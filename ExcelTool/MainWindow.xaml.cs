@@ -35,21 +35,26 @@ namespace ExcelTool
     {
         private enum ReadFileReturnType { ANALYZER, RESULT };
         private Boolean isStop;
-        private SmartThreadPool smartThreadPool = null;
+        private SmartThreadPool smartThreadPoolAnalyze = null;
+        private SmartThreadPool smartThreadPoolOutput = null;
         private ConcurrentDictionary<string, long> currentAnalizingDictionary;
+        private ConcurrentDictionary<string, long> currentOutputtingDictionary;
         private ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer> resultList;
         private int analyzeSheetInvokeCount;
         private int setResultInvokeCount;
         private int totalTimeoutLimit;
         private int perTimeoutLimit;
+        private String errorStr;
         public MainWindow()
         {
             InitializeComponent();
 
             currentAnalizingDictionary = new ConcurrentDictionary<string, long>();
+            currentOutputtingDictionary = new ConcurrentDictionary<string, long>();
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
+            errorStr = "";
 
             isStop = false;
         }
@@ -216,6 +221,7 @@ namespace ExcelTool
 
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
+            errorStr = "";
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
 
             List<String> sheetExplainersList = te_sheetexplainers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
@@ -233,9 +239,9 @@ namespace ExcelTool
             }
 
 
-            STPStartInfo stp = new STPStartInfo();
-            stp.CallToPostExecute = CallToPostExecute.WhenWorkItemNotCanceled;
-            stp.PostExecuteWorkItemCallback = delegate (IWorkItemResult wir)
+            STPStartInfo stpAnalyze = new STPStartInfo();
+            stpAnalyze.CallToPostExecute = CallToPostExecute.WhenWorkItemNotCanceled;
+            stpAnalyze.PostExecuteWorkItemCallback = delegate (IWorkItemResult wir)
             {
                 ConcurrentDictionary<ReadFileReturnType, Object> methodResult = null;
                 try
@@ -255,7 +261,26 @@ namespace ExcelTool
 
                 resultList.AddOrUpdate(result, (Analyzer)methodResult[ReadFileReturnType.ANALYZER], (key, oldValue) => null);
             };
-            RenewSmartThreadPool(stp);
+            RenewSmartThreadPoolAnalyze(stpAnalyze);
+
+            STPStartInfo stpOutput = new STPStartInfo();
+            stpOutput.CallToPostExecute = CallToPostExecute.WhenWorkItemNotCanceled;
+            stpOutput.PostExecuteWorkItemCallback = delegate (IWorkItemResult wir)
+            {
+                Object[] methodResult = null;
+                try
+                {
+                    methodResult = (Object[])wir.GetResult();
+                }
+                catch (Exception ex)
+                {
+                    methodResult = null;
+                }
+
+                long value;
+                currentOutputtingDictionary.TryRemove((String)((ConcurrentDictionary<ResultType, Object>)methodResult[1])[ResultType.FILEPATH], out value);
+            };
+            RenewSmartThreadPoolOutput(stpOutput);
 
 
             List<SheetExplainer> sheetExplainers = new List<SheetExplainer>();
@@ -321,20 +346,20 @@ namespace ExcelTool
                         List<String> pathSplit = filePath.Split('\\').ToList<string>();
                         String fileName = pathSplit[pathSplit.Count - 1];
                         fileName = fileName.Substring(0, fileName.LastIndexOf('.'));
-                        smartThreadPool.QueueWorkItem(new Func<String, String, SheetExplainer, Analyzer, Object>(ReadFile), filePath, fileName, sheetExplainer, analyzer);
+                        smartThreadPoolAnalyze.QueueWorkItem(new Func<String, String, SheetExplainer, Analyzer, Object>(ReadFile), filePath, fileName, sheetExplainer, analyzer);
                     }
                 }
             }
 
             long startSs = GetNowSs();
-            smartThreadPool.Join();
-            while (smartThreadPool.CurrentWorkItemsCount > 0)
+            smartThreadPoolAnalyze.Join();
+            while (smartThreadPoolAnalyze.CurrentWorkItemsCount > 0)
             {
                 long nowSs = GetNowSs();
                 long totalTimeCostSs = nowSs - startSs;
                 if (isStop || totalTimeCostSs >= totalTimeoutLimit)
                 {
-                    smartThreadPool.Dispose();
+                    smartThreadPoolAnalyze.Dispose();
                     this.Dispatcher.Invoke(() =>
                     {
                         btn_start.IsEnabled = true;
@@ -344,10 +369,12 @@ namespace ExcelTool
                     {
                         CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimit / 1000.0}(s)", "error", MessageBoxImage.Error);
                     }
+                    SetErrorLog();
                     return;
                 }
 
                 StringBuilder sb = new StringBuilder();
+                sb.Append("Analyzing...");
 
                 ICollection<string> keys = currentAnalizingDictionary.Keys;
                 foreach (string key in keys)
@@ -358,7 +385,7 @@ namespace ExcelTool
                         long timeCostSs = GetNowSs() - currentAnalizingDictionary[key];
                         if (timeCostSs >= perTimeoutLimit)
                         {
-                            smartThreadPool.Dispose();
+                            smartThreadPoolAnalyze.Dispose();
                             this.Dispatcher.Invoke(() =>
                             {
                                 btn_start.IsEnabled = true;
@@ -375,21 +402,13 @@ namespace ExcelTool
                 {
                     this.Dispatcher.Invoke(() =>
                     {
-                        l_process.Content = $"{smartThreadPool.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPool.ActiveThreads} -- InUseThreads: {smartThreadPool.InUseThreads}";
+                        l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolAnalyze.ActiveThreads} -- InUseThreads: {smartThreadPoolAnalyze.InUseThreads}";
                         tb_log.Text = $"{sb.ToString()}";
                     });
                 });
                 Thread.Sleep(100);
             }
-            await Task.Run(() =>
-            {
-                this.Dispatcher.Invoke(() =>
-                {
-                    l_process.Content = $"0/{totalCount}";
-                    tb_log.Text = $"";
-                });
-            });
-            smartThreadPool.Dispose();
+            smartThreadPoolAnalyze.Dispose();
 
             // 输出结果
             using (var workbook = new XLWorkbook())
@@ -405,64 +424,122 @@ namespace ExcelTool
                     filePath = $"{resPath}/{tb_output_name.Text}.xlsx";
                 }
 
-                Boolean hasError = false;
-                foreach(ConcurrentDictionary< ResultType, Object > result in resultList.Keys)
+                foreach (ConcurrentDictionary<ResultType, Object> result in resultList.Keys)
                 {
-                    if (!SetResult(workbook, result, resultList[result], resultList.Count))
-                    {
-                        hasError = true;
-                    }
+                    smartThreadPoolOutput.QueueWorkItem(new Func<XLWorkbook, ConcurrentDictionary<ResultType, Object>, Analyzer, int, Object[]>(SetResult), workbook, result, resultList[result], resultList.Count);
                 }
-                if (!hasError)
+                startSs = GetNowSs();
+                smartThreadPoolOutput.Join();
+                while (smartThreadPoolOutput.CurrentWorkItemsCount > 0)
                 {
-                    bool saveResult = false;
-                    SaveFile(filePath, workbook, out saveResult);
-                    if (!saveResult)
+                    long nowSs = GetNowSs();
+                    long totalTimeCostSs = nowSs - startSs;
+                    if (isStop || totalTimeCostSs >= totalTimeoutLimit)
                     {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, "file not saved.", "info");
+                        smartThreadPoolOutput.Dispose();
                         this.Dispatcher.Invoke(() =>
                         {
                             btn_start.IsEnabled = true;
                             btn_stop.IsEnabled = false;
                         });
+                        if (totalTimeCostSs >= totalTimeoutLimit)
+                        {
+                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimit / 1000.0}(s)", "error", MessageBoxImage.Error);
+                        }
+                        SetErrorLog();
                         return;
                     }
 
-                    Button btnOpenFile = new Button();
-                    btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                    btnOpenFile.Content = "open file";
-                    btnOpenFile.Click += (s, ee) =>
-                    {
-                        System.Diagnostics.Process.Start(filePath);
-                        CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
-                    };
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("Outputting...");
 
-                    Button btnOpenPath = new Button();
-                    btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                    btnOpenPath.Content = "open path";
-                    btnOpenPath.Click += (s, ee) =>
+                    ICollection<string> keys = currentOutputtingDictionary.Keys;
+                    foreach (string key in keys)
                     {
-                        System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
-                        CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
-                    };
+                        long value = new long();
+                        if (currentOutputtingDictionary.TryGetValue(key, out value))
+                        {
+                            long timeCostSs = GetNowSs() - currentOutputtingDictionary[key];
+                            if (timeCostSs >= perTimeoutLimit)
+                            {
+                                smartThreadPoolOutput.Dispose();
+                                this.Dispatcher.Invoke(() =>
+                                {
+                                    btn_start.IsEnabled = true;
+                                    btn_stop.IsEnabled = false;
+                                });
+                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimit / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                return;
+                            }
+                            sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
+                        }
+                    }
 
-                    Button btnClose = new Button();
-                    btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                    btnClose.Content = "close";
-                    btnClose.Click += (s, ee) =>
+                    await Task.Run(() =>
                     {
-                        CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
-                    };
-
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "ファイルを保存しました。", "OK");
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolOutput.ActiveThreads} -- InUseThreads: {smartThreadPoolOutput.InUseThreads}";
+                            tb_log.Text = $"{sb.ToString()}";
+                        });
+                    });
+                    Thread.Sleep(100);
                 }
-                
+                smartThreadPoolOutput.Dispose();
+
+                if (SetErrorLog())
+                {
+                    btn_start.IsEnabled = true;
+                    btn_stop.IsEnabled = false;
+                    return;
+                }
+                else
+                {
+                    tb_log.Text = "";
+                }
+
+                bool saveResult = false;
+                SaveFile(filePath, workbook, out saveResult);
+                if (!saveResult)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, "file not saved.", "info");
+
+                    btn_start.IsEnabled = true;
+                    btn_stop.IsEnabled = false;
+                    return;
+                }
+
+                Button btnOpenFile = new Button();
+                btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                btnOpenFile.Content = "open file";
+                btnOpenFile.Click += (s, ee) =>
+                {
+                    System.Diagnostics.Process.Start(filePath);
+                    CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
+                };
+
+                Button btnOpenPath = new Button();
+                btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                btnOpenPath.Content = "open path";
+                btnOpenPath.Click += (s, ee) =>
+                {
+                    System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
+                    CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
+                };
+
+                Button btnClose = new Button();
+                btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                btnClose.Content = "close";
+                btnClose.Click += (s, ee) =>
+                {
+                    CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
+                };
+
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "ファイルを保存しました。", "OK");
             }
-            this.Dispatcher.Invoke(() =>
-            {
-                btn_start.IsEnabled = true;
-                btn_stop.IsEnabled = false;
-            });
+                
+            btn_start.IsEnabled = true;
+            btn_stop.IsEnabled = false;
         }
 
         private void SaveFile(string filePath, XLWorkbook workbook, out bool result)
@@ -701,11 +778,8 @@ namespace ExcelTool
                 {
                     str = $"{str}\n    {err.ErrorText} in line {err.Line}"; 
                 }
-                this.Dispatcher.Invoke(() =>
-                {
-                    tb_log.Text = str;
-                    tb_log.Text = tb_log.Text.Substring(tb_log.Text.IndexOf("[ERROR: ]"));
-                });
+
+                errorStr = str;
                 Stop();
             }
             else
@@ -721,20 +795,22 @@ namespace ExcelTool
                 }
                 catch (Exception e)
                 {
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        tb_log.Text += $"[ERROR: ]\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}\n";
-                        tb_log.Text = tb_log.Text.Substring(tb_log.Text.IndexOf("[ERROR: ]"));
-                    });
+                    errorStr += $"[ERROR: ]\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}\n";
                     Stop();
                 }
             }
 
         }
 
-        private Boolean SetResult(XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, int totalCount)
+        private Object[] SetResult(XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, int totalCount)
         {
-            Boolean res = true;
+            Boolean resBoolean = true;
+
+            Object filePath = null;
+            if(result.TryGetValue(ResultType.FILEPATH, out filePath))
+            {
+                currentOutputtingDictionary.AddOrUpdate(filePath.ToString(), GetNowSs(), (key, oldValue) => GetNowSs());
+            }
 
             CSharpCodeProvider objCSharpCodePrivoder = new CSharpCodeProvider();
 
@@ -755,18 +831,14 @@ namespace ExcelTool
 
             if (cresult.Errors.HasErrors)
             {
-                res = false;
+                resBoolean = false;
 
                 String str = "[ERROR: ]";
                 foreach (CompilerError err in cresult.Errors)
                 {
                     str = $"{str}\n    {err.ErrorText} in line {err.Line}";
                 }
-                this.Dispatcher.Invoke(() =>
-                {
-                    tb_log.Text = str;
-                    tb_log.Text = tb_log.Text.Substring(tb_log.Text.IndexOf("[ERROR: ]"));
-                });
+                errorStr = str;
                 Stop();
             }
             else
@@ -782,16 +854,12 @@ namespace ExcelTool
                 }
                 catch (Exception e)
                 {
-                    res = false;
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        tb_log.Text += $"[ERROR: ]\n    {e.InnerException.Message}\n    {analyzer.name}.SetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}\n";
-                        tb_log.Text = tb_log.Text.Substring(tb_log.Text.IndexOf("[ERROR: ]"));
-                    });
+                    errorStr += $"[ERROR: ]\n    {e.InnerException.Message}\n    {analyzer.name}.SetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}\n";
+                    resBoolean = false;
                     Stop();
                 }
             }
-            return res;
+            return new Object[] { resBoolean, result };
         }
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -802,14 +870,35 @@ namespace ExcelTool
             IniHelper.SetOutputFileName(tb_output_name.Text);
         }
 
-        private void RenewSmartThreadPool(STPStartInfo stp)
+        private void RenewSmartThreadPoolAnalyze(STPStartInfo stp)
         {
-            smartThreadPool = new SmartThreadPool(stp);
+            smartThreadPoolAnalyze = new SmartThreadPool(stp);
             int maxThreadCount = IniHelper.GetMaxThreadCount();
             if (maxThreadCount > 0)
             {
-                smartThreadPool.MaxThreads = maxThreadCount;
+                smartThreadPoolAnalyze.MaxThreads = maxThreadCount;
             }
+        }
+
+        private void RenewSmartThreadPoolOutput(STPStartInfo stp)
+        {
+            smartThreadPoolOutput = new SmartThreadPool(stp);
+            int maxThreadCount = IniHelper.GetMaxThreadCount();
+            if (maxThreadCount > 0)
+            {
+                smartThreadPoolOutput.MaxThreads = maxThreadCount;
+            }
+        }
+
+        private Boolean SetErrorLog()
+        {
+            if (errorStr != "")
+            {
+                tb_log.Text += errorStr;
+                tb_log.Text = tb_log.Text.Substring(tb_log.Text.IndexOf("[ERROR: ]"));
+                return true;
+            }
+            return false;
         }
     }
 }
