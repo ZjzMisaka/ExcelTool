@@ -42,8 +42,10 @@ namespace ExcelTool
         private ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer> resultList;
         private int analyzeSheetInvokeCount;
         private int setResultInvokeCount;
-        private int totalTimeoutLimit;
-        private int perTimeoutLimit;
+        private int totalTimeoutLimitAnalyze;
+        private int perTimeoutLimitAnalyze;
+        private int totalTimeoutLimitOutput;
+        private int perTimeoutLimitOutput;
         private String errorStr;
         public MainWindow()
         {
@@ -79,8 +81,10 @@ namespace ExcelTool
             tb_output_path.Text = IniHelper.GetOutputPath();
             tb_output_name.Text = IniHelper.GetOutputFileName();
 
-            totalTimeoutLimit = IniHelper.GetTotalTimeoutLimit();
-            perTimeoutLimit = IniHelper.GetPerTimeoutLimit();
+            totalTimeoutLimitAnalyze = IniHelper.GetTotalTimeoutLimitAnalyze();
+            perTimeoutLimitAnalyze = IniHelper.GetPerTimeoutLimitAnalyze();
+            totalTimeoutLimitOutput = IniHelper.GetTotalTimeoutLimitOutput();
+            perTimeoutLimitOutput = IniHelper.GetPerTimeoutLimitOutput();
 
             LoadFiles();
         }
@@ -357,7 +361,7 @@ namespace ExcelTool
             {
                 long nowSs = GetNowSs();
                 long totalTimeCostSs = nowSs - startSs;
-                if (isStop || totalTimeCostSs >= totalTimeoutLimit)
+                if (isStop || totalTimeCostSs >= totalTimeoutLimitAnalyze)
                 {
                     smartThreadPoolAnalyze.Dispose();
                     this.Dispatcher.Invoke(() =>
@@ -365,9 +369,9 @@ namespace ExcelTool
                         btn_start.IsEnabled = true;
                         btn_stop.IsEnabled = false;
                     });
-                    if (totalTimeCostSs >= totalTimeoutLimit)
+                    if (totalTimeCostSs >= totalTimeoutLimitAnalyze)
                     {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimit / 1000.0}(s)", "error", MessageBoxImage.Error);
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
                     }
                     SetErrorLog();
                     return;
@@ -383,7 +387,7 @@ namespace ExcelTool
                     if (currentAnalizingDictionary.TryGetValue(key, out value))
                     {
                         long timeCostSs = GetNowSs() - currentAnalizingDictionary[key];
-                        if (timeCostSs >= perTimeoutLimit)
+                        if (timeCostSs >= perTimeoutLimitAnalyze)
                         {
                             smartThreadPoolAnalyze.Dispose();
                             this.Dispatcher.Invoke(() =>
@@ -391,7 +395,7 @@ namespace ExcelTool
                                 btn_start.IsEnabled = true;
                                 btn_stop.IsEnabled = false;
                             });
-                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimit / 1000.0}(s)", "error", MessageBoxImage.Error);
+                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
                             return;
                         }
                         sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
@@ -434,7 +438,7 @@ namespace ExcelTool
                 {
                     long nowSs = GetNowSs();
                     long totalTimeCostSs = nowSs - startSs;
-                    if (isStop || totalTimeCostSs >= totalTimeoutLimit)
+                    if (isStop || totalTimeCostSs >= totalTimeoutLimitOutput)
                     {
                         smartThreadPoolOutput.Dispose();
                         this.Dispatcher.Invoke(() =>
@@ -442,9 +446,9 @@ namespace ExcelTool
                             btn_start.IsEnabled = true;
                             btn_stop.IsEnabled = false;
                         });
-                        if (totalTimeCostSs >= totalTimeoutLimit)
+                        if (totalTimeCostSs >= totalTimeoutLimitOutput)
                         {
-                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimit / 1000.0}(s)", "error", MessageBoxImage.Error);
+                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitOutput / 1000.0}(s)", "error", MessageBoxImage.Error);
                         }
                         SetErrorLog();
                         return;
@@ -460,7 +464,7 @@ namespace ExcelTool
                         if (currentOutputtingDictionary.TryGetValue(key, out value))
                         {
                             long timeCostSs = GetNowSs() - currentOutputtingDictionary[key];
-                            if (timeCostSs >= perTimeoutLimit)
+                            if (timeCostSs >= perTimeoutLimitAnalyze)
                             {
                                 smartThreadPoolOutput.Dispose();
                                 this.Dispatcher.Invoke(() =>
@@ -468,7 +472,7 @@ namespace ExcelTool
                                     btn_start.IsEnabled = true;
                                     btn_stop.IsEnabled = false;
                                 });
-                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimit / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
                                 return;
                             }
                             sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");

@@ -24,8 +24,10 @@ namespace ExcelTool
             IniData parsedINIDataToBeSaved = new IniData();
             parsedINIDataToBeSaved.Sections.AddSection("Thread");
             parsedINIDataToBeSaved["Thread"].AddKey("MaxThreadCount", "25");
-            parsedINIDataToBeSaved["Thread"].AddKey("TotalTimeoutLimit", "120000");
-            parsedINIDataToBeSaved["Thread"].AddKey("PerTimeoutLimit", "60000");
+            parsedINIDataToBeSaved["Thread"].AddKey("TotalTimeoutLimitAnalyze", "120000");
+            parsedINIDataToBeSaved["Thread"].AddKey("PerTimeoutLimitAnalyze", "60000");
+            parsedINIDataToBeSaved["Thread"].AddKey("TotalTimeoutLimitOutput", "120000");
+            parsedINIDataToBeSaved["Thread"].AddKey("PerTimeoutLimitOutput", "60000");
             parsedINIDataToBeSaved.Sections.AddSection("Window");
             parsedINIDataToBeSaved["Window"].AddKey("MainWindowWidth", "750");
             parsedINIDataToBeSaved["Window"].AddKey("MainWindowHeight", "800");
@@ -66,7 +68,7 @@ namespace ExcelTool
             IniData data = parser.ReadFile("Setting.ini");
             return Int32.Parse(data["Thread"]["MaxThreadCount"]);
         }
-        public static void SetTotalTimeoutLimit(int count)
+        public static void SetTotalTimeoutLimitAnalyze(int count)
         {
             if (!File.Exists("Setting.ini"))
             {
@@ -75,11 +77,11 @@ namespace ExcelTool
 
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
-            data["Thread"]["TotalTimeoutLimit"] = count.ToString();
+            data["Thread"]["TotalTimeoutLimitAnalyze"] = count.ToString();
             parser.WriteFile("Setting.ini", data);
         }
 
-        public static int GetTotalTimeoutLimit()
+        public static int GetTotalTimeoutLimitAnalyze()
         {
             if (!File.Exists("Setting.ini"))
             {
@@ -88,9 +90,9 @@ namespace ExcelTool
 
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
-            return Int32.Parse(data["Thread"]["TotalTimeoutLimit"]);
+            return Int32.Parse(data["Thread"]["TotalTimeoutLimitAnalyze"]);
         }
-        public static void SetPerTimeoutLimit(int count)
+        public static void SetPerTimeoutLimitAnalyze(int count)
         {
             if (!File.Exists("Setting.ini"))
             {
@@ -99,11 +101,11 @@ namespace ExcelTool
 
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
-            data["Thread"]["PerTimeoutLimit"] = count.ToString();
+            data["Thread"]["PerTimeoutLimitAnalyze"] = count.ToString();
             parser.WriteFile("Setting.ini", data);
         }
 
-        public static int GetPerTimeoutLimit()
+        public static int GetPerTimeoutLimitAnalyze()
         {
             if (!File.Exists("Setting.ini"))
             {
@@ -112,8 +114,58 @@ namespace ExcelTool
 
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
-            return Int32.Parse(data["Thread"]["PerTimeoutLimit"]);
+            return Int32.Parse(data["Thread"]["PerTimeoutLimitAnalyze"]);
         }
+
+        public static void SetTotalTimeoutLimitOutput(int count)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Thread"]["TotalTimeoutLimitOutput"] = count.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static int GetTotalTimeoutLimitOutput()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return -1;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return Int32.Parse(data["Thread"]["TotalTimeoutLimitOutput"]);
+        }
+        public static void SetPerTimeoutLimitOutput(int count)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Thread"]["PerTimeoutLimitOutput"] = count.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static int GetPerTimeoutLimitOutput()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return -1;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return Int32.Parse(data["Thread"]["PerTimeoutLimitOutput"]);
+        }
+
         public static void SetWindowSize(String wndName, Point point)
         {
             if (!File.Exists("Setting.ini"))
