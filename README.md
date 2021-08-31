@@ -16,10 +16,29 @@
 ### 逻辑分析界面
 **用于设定对某一类Sheet进行怎样的分析, 分析完毕后如何进行输出 (或者如何处理并保留分析的结果供后续使用)**
 - 在编辑器中编写代码, 在分析阶段程序会调用AnalyzeSheet函数, 在输出阶段会调用SetResult函数. 
-- 编码内容依赖ClosedXML开源库
-- 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
 - 设定完成后可保存以便后续使用
 <img src="https://www.iaders.com/wp-content/uploads/2021/08/3.png" width="400px" />
+
+#### 编码相关
+- 编码内容依赖ClosedXML开源库
+- 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
+
+##### AnalyzeSheet函数
+|参数|类型|含义|备注|
+|----|----|----|----|
+|sheet|IXLWorksheet|当前被分析的sheet||
+|result|ConcurrentDictionary<ResultType, Object>|存储当前分析的结果, 初始存有文件路径 (ResultType.FILEPATH), 文件名 (ResultType.FILENAME), (报错) 消息 (ResultType.MESSAGE), 用户可通过ResultType.RESULTOBJECT键存入自己的东西|当此Sheet对应的SetResult函数调用时, 会传入此变量|
+|globalObjects|Object|全局存在的变量, 当有需要和其它Sheet共享的数据或保存当前行号等全局变量的需求时可保存至此|每次调用AnalyzeSheet或SetResult函数时都会传入此变量上次保存的结果. 通过GlobalObjects.GlobalObjects.SetGlobalParam(globalObjects);可进行保存|
+|invokeCount|int|此函数被调用的次数|第一次调用时值为1|
+
+##### SetResult函数
+|参数|类型|含义|备注|
+|----|----|----|----|
+|workbook|XLWorkbook|用于输出的excel文件||
+|result|ConcurrentDictionary<ResultType, Object>|存储某个Sheet分析的结果|详见上表|
+|globalObjects|Object|全局存在的变量|详见上表|
+|invokeCount|int|此函数被调用的次数|详见上表|
+|totalCount|int|总共需要调用的输出函数的次数|当invokeCount与totalCount值相同时即为最后一次调用|
 
 # 使用的开源库
 |开源库|开源协议|
