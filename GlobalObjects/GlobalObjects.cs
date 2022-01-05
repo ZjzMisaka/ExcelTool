@@ -89,9 +89,9 @@ namespace AnalyzeCode
         /// </summary>
         /// <param name=""sheet"">被分析的sheet</param>
         /// <param name=""result"">ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }</param>
-        /// <param name=""globalObjects"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
+        /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
         /// <param name=""invokeCount"">此分析函数被调用的次数</param>
-        public void AnalyzeSheet(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, Object globalObjects, int invokeCount)
+        public void AnalyzeSheet(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, ref Object globalObject, int invokeCount)
         {
             
         }
@@ -101,10 +101,10 @@ namespace AnalyzeCode
         /// </summary>
         /// <param name=""workbook"">用于输出的excel文件</param>
         /// <param name=""result"">ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }</param>
-        /// <param name=""globalObjects"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
+        /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
         /// <param name=""invokeCount"">此输出函数被调用的次数</param>
         /// <param name=""totalCount"">总共需要调用的输出函数的个数</param>
-        public void SetResult(XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, Object globalObjects, int invokeCount, int totalCount)
+        public void SetResult(XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, Object globalObject, int invokeCount, int totalCount)
         {
             
         }

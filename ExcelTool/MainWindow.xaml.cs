@@ -1,8 +1,6 @@
 ﻿using Amib.Threading;
 using ClosedXML.Excel;
-using CustomizableMessageBox;
 using GlobalObjects;
-using ICSharpCode.AvalonEdit.Search;
 using Microsoft.CSharp;
 using Newtonsoft.Json;
 using System;
@@ -18,13 +16,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using CustomizableMessageBox;
 
 namespace ExcelTool
 {
@@ -227,6 +220,7 @@ namespace ExcelTool
             setResultInvokeCount = 0;
             errorStr = "";
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
+            GlobalObjects.GlobalObjects.SetGlobalParam(null);
 
             List<String> sheetExplainersList = te_sheetexplainers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
             List<String> analyzersList = te_analyzers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
@@ -795,7 +789,9 @@ namespace ExcelTool
                     object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                     MethodInfo objMI = obj.GetType().GetMethod("AnalyzeSheet");
                     ++analyzeSheetInvokeCount;
-                    objMI.Invoke(obj, new object[] { sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(), analyzeSheetInvokeCount });
+                    object[] objList = new object[] { sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(), analyzeSheetInvokeCount };
+                    objMI.Invoke(obj, objList);
+                    GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
                 }
                 catch (Exception e)
                 {
