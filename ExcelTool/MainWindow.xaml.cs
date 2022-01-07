@@ -236,6 +236,18 @@ namespace ExcelTool
                 return;
             }
 
+            string paramStr = tb_params.Text;
+            string[] splitedParams = paramStr.Split('|');
+            Dictionary<string, string> paramDic = new Dictionary<string, string>();
+            foreach (string param in splitedParams)
+            {
+                string[] kv = param.Split(':');
+                if (kv.Length == 2)
+                {
+                    paramDic.Add(kv[0], kv[1]);
+                }
+            }
+
 
             STPStartInfo stpAnalyze = new STPStartInfo();
             stpAnalyze.CallToPostExecute = CallToPostExecute.WhenWorkItemNotCanceled;
@@ -344,7 +356,13 @@ namespace ExcelTool
                         List<String> pathSplit = filePath.Split('\\').ToList<string>();
                         String fileName = pathSplit[pathSplit.Count - 1];
                         fileName = fileName.Substring(0, fileName.LastIndexOf('.'));
-                        smartThreadPoolAnalyze.QueueWorkItem(new Func<String, String, SheetExplainer, Analyzer, Object>(ReadFile), filePath, fileName, sheetExplainer, analyzer);
+                        List<object> readFileParams = new List<object>();
+                        readFileParams.Add(filePath);
+                        readFileParams.Add(fileName);
+                        readFileParams.Add(sheetExplainer);
+                        readFileParams.Add(analyzer);
+                        readFileParams.Add(paramDic);
+                        smartThreadPoolAnalyze.QueueWorkItem(new Func<List<object>, Object>(ReadFile), readFileParams);
                     }
                 }
             }
@@ -424,7 +442,13 @@ namespace ExcelTool
 
                 foreach (ConcurrentDictionary<ResultType, Object> result in resultList.Keys)
                 {
-                    smartThreadPoolOutput.QueueWorkItem(new Func<XLWorkbook, ConcurrentDictionary<ResultType, Object>, Analyzer, int, Object[]>(SetResult), workbook, result, resultList[result], resultList.Count);
+                    List<object> setResultParams = new List<object>();
+                    setResultParams.Add(workbook);
+                    setResultParams.Add(result);
+                    setResultParams.Add(resultList[result]);
+                    setResultParams.Add(resultList.Count);
+                    setResultParams.Add(paramDic);
+                    smartThreadPoolOutput.QueueWorkItem(new Func<List<object>, Object[]>(SetResult), setResultParams);
                 }
                 startSs = GetNowSs();
                 smartThreadPoolOutput.Join();
@@ -496,6 +520,48 @@ namespace ExcelTool
                     tb_log.Text = "";
                 }
 
+                String paramStrFromFile = File.ReadAllText(".\\Params.txt");
+                List<string> paramsList = paramStrFromFile.Split('\n').ToList<string>();
+                List<string> newParamsList = new List<string>();
+                foreach (string param in paramsList)
+                {
+                    if (param.Trim() != "")
+                    {
+                        newParamsList.Add(param.Trim());
+                    }
+                }
+                paramsList = newParamsList;
+                if (paramsList.Count >= 5 && !paramsList.Contains(paramStr))
+                {
+                    paramsList.RemoveAt(4);
+                }
+                if (paramsList.Contains(paramStr))
+                {
+                    paramsList.Remove(paramStr);
+                }
+                paramsList.Insert(0, paramStr);
+
+                try
+                {
+                    if (!File.Exists(".\\Params.txt"))
+                    {
+                        FileStream fs = null;
+                        fs = File.Create(".\\Params.txt");
+                        fs.Close();
+                    }
+                    StreamWriter sw = File.CreateText(".\\Params.txt");
+                    foreach (string param in paramsList)
+                    {
+                        sw.WriteLine(param);
+                    }
+                    sw.Flush();
+                    sw.Close();
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
                 bool saveResult = false;
                 SaveFile(filePath, workbook, out saveResult);
                 if (!saveResult)
@@ -561,8 +627,14 @@ namespace ExcelTool
             }
         }
 
-        private ConcurrentDictionary<ReadFileReturnType, Object> ReadFile(String filePath, String fileName, SheetExplainer sheetExplainer, Analyzer analyzer)
+        private ConcurrentDictionary<ReadFileReturnType, Object> ReadFile(List<object> readFileParams)
         {
+            String filePath = (String)readFileParams[0];
+            String fileName = (String)readFileParams[1];
+            SheetExplainer sheetExplainer = (SheetExplainer)readFileParams[2];
+            Analyzer analyzer = (Analyzer)readFileParams[3];
+            Dictionary<string, string> paramDic = (Dictionary<string, string>)readFileParams[4];
+
             ConcurrentDictionary<ReadFileReturnType, Object> methodResult = new ConcurrentDictionary<ReadFileReturnType, object>();
             methodResult.AddOrUpdate(ReadFileReturnType.ANALYZER, analyzer, (key, oldValue) => null);
 
@@ -599,7 +671,7 @@ namespace ExcelTool
                     {
                         if (sheet.Name.Equals(str))
                         {
-                            Analyze(sheet, result, analyzer);
+                            Analyze(sheet, result, analyzer, paramDic);
                         }
                     }
                 }
@@ -609,7 +681,7 @@ namespace ExcelTool
                     {
                         if (sheet.Name.Contains(str))
                         {
-                            Analyze(sheet, result, analyzer);
+                            Analyze(sheet, result, analyzer, paramDic);
                         }
                     }
                 }
@@ -620,7 +692,7 @@ namespace ExcelTool
                         Regex rgx = new Regex(str);
                         if (rgx.IsMatch(sheet.Name))
                         {
-                            Analyze(sheet, result, analyzer);
+                            Analyze(sheet, result, analyzer, paramDic);
                         }
                     }
                 }
@@ -742,6 +814,38 @@ namespace ExcelTool
                 }
             }
             cb_analyzers.ItemsSource = AnalyzersList;
+
+            if (!File.Exists(".\\Params.txt")) 
+            {
+                FileStream fs = null;
+                try
+                {
+                    fs = File.Create(".\\Params.txt");
+                    fs.Close();
+                    StreamWriter sw = File.CreateText(".\\Params.txt");
+                    sw.Write("key1:value1|key2:value2|key3:value3");
+                    sw.Flush();
+                    sw.Close();
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            String paramStr = File.ReadAllText(".\\Params.txt");
+            List<string> paramsList = paramStr.Split('\n').ToList<string>();
+            List<string> newParamsList = new List<string>();
+            foreach (string param in paramsList) 
+            {
+                if (param.Trim() != "")
+                {
+                    newParamsList.Add(param.Trim());
+                }
+            }
+
+            newParamsList.Insert(0, "");
+
+            cb_params.ItemsSource = newParamsList;
         }
 
         private long GetNowSs()
@@ -749,18 +853,17 @@ namespace ExcelTool
             return (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
         }
 
-        private void Analyze(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer) 
+        private void Analyze(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, Dictionary<string, string> paramDic) 
         {
             CSharpCodeProvider objCSharpCodePrivoder = new CSharpCodeProvider();
 
             CompilerParameters objCompilerParameters = new CompilerParameters();
 
-            objCompilerParameters.ReferencedAssemblies.Add("System.dll");
-            objCompilerParameters.ReferencedAssemblies.Add("System.Data.dll");
-            objCompilerParameters.ReferencedAssemblies.Add("System.Drawing.dll");
-            objCompilerParameters.ReferencedAssemblies.Add("ClosedXML.dll");
-            objCompilerParameters.ReferencedAssemblies.Add("System.Xml.dll");
-            objCompilerParameters.ReferencedAssemblies.Add("GlobalObjects.dll");
+            string[] dlls = IniHelper.GetDlls().Split('|');
+            foreach (string dll in dlls) 
+            {
+                objCompilerParameters.ReferencedAssemblies.Add(dll);
+            }
 
             objCompilerParameters.GenerateExecutable = false;
             objCompilerParameters.GenerateInMemory = true;
@@ -789,7 +892,7 @@ namespace ExcelTool
                     object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                     MethodInfo objMI = obj.GetType().GetMethod("AnalyzeSheet");
                     ++analyzeSheetInvokeCount;
-                    object[] objList = new object[] { sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(), analyzeSheetInvokeCount };
+                    object[] objList = new object[] { paramDic, sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(), analyzeSheetInvokeCount };
                     objMI.Invoke(obj, objList);
                     GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
                 }
@@ -802,8 +905,15 @@ namespace ExcelTool
 
         }
 
-        private Object[] SetResult(XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, int totalCount)
+        private Object[] SetResult(List<object> setResultParams)
         {
+            XLWorkbook workbook = (XLWorkbook)setResultParams[0];
+            ConcurrentDictionary<ResultType, Object> result = (ConcurrentDictionary<ResultType, Object>)setResultParams[1];
+            Analyzer analyzer = (Analyzer)setResultParams[2];
+            int totalCount = (int)setResultParams[3];
+            Dictionary<string, string> paramDic = (Dictionary<string, string>)setResultParams[4];
+
+
             Boolean resBoolean = true;
 
             Object filePath = null;
@@ -816,12 +926,11 @@ namespace ExcelTool
 
             CompilerParameters objCompilerParameters = new CompilerParameters();
 
-            objCompilerParameters.ReferencedAssemblies.Add("System.dll");
-            objCompilerParameters.ReferencedAssemblies.Add("System.Data.dll");
-            objCompilerParameters.ReferencedAssemblies.Add("System.Drawing.dll");
-            objCompilerParameters.ReferencedAssemblies.Add("ClosedXML.dll");
-            objCompilerParameters.ReferencedAssemblies.Add("System.Xml.dll");
-            objCompilerParameters.ReferencedAssemblies.Add("GlobalObjects.dll");
+            string[] dlls = IniHelper.GetDlls().Split('|');
+            foreach (string dll in dlls)
+            {
+                objCompilerParameters.ReferencedAssemblies.Add(dll);
+            }
 
             objCompilerParameters.GenerateExecutable = false;
             objCompilerParameters.GenerateInMemory = true;
@@ -850,7 +959,7 @@ namespace ExcelTool
                     object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                     MethodInfo objMI = obj.GetType().GetMethod("SetResult");
                     ++setResultInvokeCount;
-                    objMI.Invoke(obj, new object[] { workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(), setResultInvokeCount, totalCount });
+                    objMI.Invoke(obj, new object[] { paramDic, workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(), setResultInvokeCount, totalCount });
                 }
                 catch (Exception e)
                 {
@@ -899,6 +1008,25 @@ namespace ExcelTool
                 return true;
             }
             return false;
+        }
+
+        private void CbParamsSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            tb_params.TextChanged -= TbParamsTextChanged;
+            tb_params.Text = $"{cb_params.SelectedItem}";
+            tb_params.TextChanged += TbParamsTextChanged;
+        }
+
+        private void CbParamsPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            LoadFiles();
+        }
+
+        private void TbParamsTextChanged(object sender, TextChangedEventArgs e)
+        {
+            cb_params.SelectionChanged -= CbParamsSelectionChanged;
+            cb_params.SelectedIndex = 0;
+            cb_params.SelectionChanged += CbParamsSelectionChanged;
         }
     }
 }
