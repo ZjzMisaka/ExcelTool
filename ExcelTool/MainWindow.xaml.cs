@@ -301,6 +301,11 @@ namespace ExcelTool
                 try
                 {
                     sheetExplainer = JsonConvert.DeserializeObject<SheetExplainer>(File.ReadAllText($".\\SheetExplainers\\{name}.json"));
+                    if (sheetExplainer.relativePathes == null || sheetExplainer.relativePathes.Count == 0)
+                    {
+                        sheetExplainer.relativePathes = new List<string>();
+                        sheetExplainer.relativePathes.Add("");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -345,7 +350,7 @@ namespace ExcelTool
                 foreach (String str in sheetExplainer.relativePathes) 
                 {
                     List<String> filePathList = new List<String>();
-                    String basePath = $"{tb_base_path.Text}{str}".Trim();
+                    String basePath = Path.Combine(tb_base_path.Text.Trim(), str.Trim());
 
                     FileTraverse(basePath, sheetExplainer, filePathList);
                     totalCount += filePathList.Count;
