@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<SyntaxDefinition name="Custom Highlighting" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+    <Color name="|" foreground="Green" />
+    <Color name=":" foreground="Blue" />
+ 
+    <!-- This is the main ruleset. -->
+    <RuleSet>
+        <Rule foreground="Blue">
+            [:]{1}
+        </Rule>
+        <Rule foreground="Red">
+            [|]{1}
+        </Rule>
+    </RuleSet>
+</SyntaxDefinition>

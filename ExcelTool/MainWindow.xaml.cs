@@ -18,6 +18,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using CustomizableMessageBox;
+using System.Xml;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Document;
 
 namespace ExcelTool
 {
@@ -80,6 +83,32 @@ namespace ExcelTool
             perTimeoutLimitOutput = IniHelper.GetPerTimeoutLimitOutput();
 
             LoadFiles();
+
+
+            foreach (var commandBinding in te_params.TextArea.CommandBindings.Cast<CommandBinding>())
+            {
+                if (commandBinding.Command == ApplicationCommands.Paste)
+                {
+                    commandBinding.PreviewCanExecute += new CanExecuteRoutedEventHandler(PasteCommandBindingPreviewCanExecute);
+                    break;
+                }
+            }
+
+
+            IHighlightingDefinition ch;
+            using (Stream s = new FileStream(@"ParamHighlighting.xshd", FileMode.Open))
+            {
+                if (s == null)
+                    throw new InvalidOperationException("Could not find embedded resource");
+                using (XmlReader reader = new XmlTextReader(s))
+                {
+                    //解析xshd
+                    ch = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                }
+            }
+            //注册数据
+            HighlightingManager.Instance.RegisterHighlighting("param", new string[] { }, ch);
+            te_params.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("param");
         }
 
         private void CbSheetExplainersSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -236,7 +265,8 @@ namespace ExcelTool
                 return;
             }
 
-            string paramStr = tb_params.Text;
+            te_params.Text = $"{te_params.Text.Replace("\n\r", "").Replace("\r\n", "").Replace("\n", "").Replace("\r", "")}";
+            string paramStr = te_params.Text;
             string[] splitedParams = paramStr.Split('|');
             Dictionary<string, string> paramDic = new Dictionary<string, string>();
             foreach (string param in splitedParams)
@@ -991,9 +1021,9 @@ namespace ExcelTool
 
         private void CbParamsSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            tb_params.TextChanged -= TbParamsTextChanged;
-            tb_params.Text = $"{cb_params.SelectedItem}";
-            tb_params.TextChanged += TbParamsTextChanged;
+            te_params.TextChanged -= TbParamsTextChanged;
+            te_params.Text = $"{cb_params.SelectedItem}";
+            te_params.TextChanged += TbParamsTextChanged;
         }
 
         private void CbParamsPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -1001,7 +1031,7 @@ namespace ExcelTool
             LoadFiles();
         }
 
-        private void TbParamsTextChanged(object sender, TextChangedEventArgs e)
+        private void TbParamsTextChanged(object sender, EventArgs e)
         {
             cb_params.SelectionChanged -= CbParamsSelectionChanged;
             cb_params.SelectedIndex = 0;
@@ -1025,6 +1055,30 @@ namespace ExcelTool
             objCompilerParameters.IncludeDebugInformation = true;
 
             return objCSharpCodePrivoder.CompileAssemblyFromSource(objCompilerParameters, analyzer.code);
+        }
+
+        void PasteCommandBindingPreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            // Get clipboard data and stuff
+            var dataObject = Clipboard.GetDataObject();
+            var text = (string)dataObject.GetData(DataFormats.UnicodeText);
+            // normalize newlines so we definitely get all the newlines
+            text = TextUtilities.NormalizeNewLines(text, Environment.NewLine);
+
+            // if the text contains newlines - replace them and paste again :)
+            if (text.Contains(Environment.NewLine))
+            {
+                e.CanExecute = false;
+                e.Handled = true;
+                text = text.Replace(Environment.NewLine, " ");
+                Clipboard.SetText(text);
+                te_params.Paste();
+            }
+        }
+
+        private void TbParamsLostFocus(object sender, RoutedEventArgs e)
+        {
+            te_params.Text = $"{te_params.Text.Replace("\n\r", "").Replace("\r\n", "").Replace("\n", "").Replace("\r", "")}";
         }
     }
 }
