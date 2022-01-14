@@ -899,7 +899,7 @@ namespace ExcelTool
                     ++analyzeSheetInvokeCount;
                     object[] objList = new object[] { paramDic, sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(), analyzeSheetInvokeCount };
                     objMI.Invoke(obj, objList);
-                    GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
+                    GlobalObjects.GlobalObjects.SetGlobalParam(objList[3]);
                 }
                 catch (Exception e)
                 {
