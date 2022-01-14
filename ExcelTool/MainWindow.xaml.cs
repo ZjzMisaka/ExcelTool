@@ -346,7 +346,9 @@ namespace ExcelTool
             {
                 SheetExplainer sheetExplainer = sheetExplainers[i];
                 Analyzer analyzer = analyzers[i];
-                
+
+                CompilerResults cresult = GetCresult(analyzer);
+
                 foreach (String str in sheetExplainer.relativePathes) 
                 {
                     List<String> filePathList = new List<String>();
@@ -367,6 +369,7 @@ namespace ExcelTool
                         readFileParams.Add(sheetExplainer);
                         readFileParams.Add(analyzer);
                         readFileParams.Add(paramDic);
+                        readFileParams.Add(cresult);
                         smartThreadPoolAnalyze.QueueWorkItem(new Func<List<object>, Object>(ReadFile), readFileParams);
                     }
                 }
@@ -639,6 +642,7 @@ namespace ExcelTool
             SheetExplainer sheetExplainer = (SheetExplainer)readFileParams[2];
             Analyzer analyzer = (Analyzer)readFileParams[3];
             Dictionary<string, string> paramDic = (Dictionary<string, string>)readFileParams[4];
+            CompilerResults cresult = (CompilerResults)readFileParams[5];
 
             ConcurrentDictionary<ReadFileReturnType, Object> methodResult = new ConcurrentDictionary<ReadFileReturnType, object>();
             methodResult.AddOrUpdate(ReadFileReturnType.ANALYZER, analyzer, (key, oldValue) => null);
@@ -676,7 +680,7 @@ namespace ExcelTool
                     {
                         if (sheet.Name.Equals(str))
                         {
-                            Analyze(sheet, result, analyzer, paramDic);
+                            Analyze(sheet, result, analyzer, paramDic, cresult);
                         }
                     }
                 }
@@ -686,7 +690,7 @@ namespace ExcelTool
                     {
                         if (sheet.Name.Contains(str))
                         {
-                            Analyze(sheet, result, analyzer, paramDic);
+                            Analyze(sheet, result, analyzer, paramDic, cresult);
                         }
                     }
                 }
@@ -697,7 +701,7 @@ namespace ExcelTool
                         Regex rgx = new Regex(str);
                         if (rgx.IsMatch(sheet.Name))
                         {
-                            Analyze(sheet, result, analyzer, paramDic);
+                            Analyze(sheet, result, analyzer, paramDic, cresult);
                         }
                     }
                 }
@@ -858,24 +862,8 @@ namespace ExcelTool
             return (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
         }
 
-        private void Analyze(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, Dictionary<string, string> paramDic) 
+        private void Analyze(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, Dictionary<string, string> paramDic, CompilerResults cresult) 
         {
-            CSharpCodeProvider objCSharpCodePrivoder = new CSharpCodeProvider();
-
-            CompilerParameters objCompilerParameters = new CompilerParameters();
-
-            string[] dlls = IniHelper.GetDlls().Split('|');
-            foreach (string dll in dlls) 
-            {
-                objCompilerParameters.ReferencedAssemblies.Add(dll);
-            }
-
-            objCompilerParameters.GenerateExecutable = false;
-            objCompilerParameters.GenerateInMemory = true;
-            objCompilerParameters.IncludeDebugInformation = true;
-
-            CompilerResults cresult = objCSharpCodePrivoder.CompileAssemblyFromSource(objCompilerParameters, analyzer.code);
-
             if (cresult.Errors.HasErrors)
             {
 
@@ -927,21 +915,7 @@ namespace ExcelTool
                 currentOutputtingDictionary.AddOrUpdate(filePath.ToString(), GetNowSs(), (key, oldValue) => GetNowSs());
             }
 
-            CSharpCodeProvider objCSharpCodePrivoder = new CSharpCodeProvider();
-
-            CompilerParameters objCompilerParameters = new CompilerParameters();
-
-            string[] dlls = IniHelper.GetDlls().Split('|');
-            foreach (string dll in dlls)
-            {
-                objCompilerParameters.ReferencedAssemblies.Add(dll);
-            }
-
-            objCompilerParameters.GenerateExecutable = false;
-            objCompilerParameters.GenerateInMemory = true;
-            objCompilerParameters.IncludeDebugInformation = true;
-
-            CompilerResults cresult = objCSharpCodePrivoder.CompileAssemblyFromSource(objCompilerParameters, analyzer.code);
+            CompilerResults cresult = GetCresult(analyzer);
 
             if (cresult.Errors.HasErrors)
             {
@@ -1032,6 +1006,25 @@ namespace ExcelTool
             cb_params.SelectionChanged -= CbParamsSelectionChanged;
             cb_params.SelectedIndex = 0;
             cb_params.SelectionChanged += CbParamsSelectionChanged;
+        }
+
+        private CompilerResults GetCresult(Analyzer analyzer) 
+        {
+            CSharpCodeProvider objCSharpCodePrivoder = new CSharpCodeProvider();
+
+            CompilerParameters objCompilerParameters = new CompilerParameters();
+
+            string[] dlls = IniHelper.GetDlls().Split('|');
+            foreach (string dll in dlls)
+            {
+                objCompilerParameters.ReferencedAssemblies.Add(dll);
+            }
+
+            objCompilerParameters.GenerateExecutable = false;
+            objCompilerParameters.GenerateInMemory = true;
+            objCompilerParameters.IncludeDebugInformation = true;
+
+            return objCSharpCodePrivoder.CompileAssemblyFromSource(objCompilerParameters, analyzer.code);
         }
     }
 }
