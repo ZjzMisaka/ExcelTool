@@ -8,7 +8,7 @@ using System.Windows.Media;
 namespace GlobalObjects
 {
     public enum ResultType { FILEPATH, FILENAME, MESSAGE, RESULTOBJECT };
-    
+
     public static class GlobalObjects
     {
         private static Object globalParam;
@@ -69,7 +69,7 @@ namespace GlobalObjects
                 buttonStyleList.Add(GetBtnStyle());
                 ps.ButtonStyleList = buttonStyleList;
             }
-          
+
             return ps;
         }
         public static String GetDefaultCode()
@@ -106,13 +106,39 @@ namespace AnalyzeCode
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
         /// <param name=""invokeCount"">此输出函数被调用的次数</param>
         /// <param name=""totalCount"">总共需要调用的输出函数的个数</param>
-        public void SetResult(Dictionary<string, string> paramDic, XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, Object globalObject, int invokeCount, int totalCount)
+        public void SetResult(Dictionary<string, string> paramDic, XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, ref Object globalObject, int invokeCount, int totalCount)
         {
             
         }
     }
 }
 ";
+        }
+    }
+
+    public static class Logger
+    {
+        private static string log = "";
+
+        public static void Info(string info)
+        {
+            log = $"{log}[Info] {info}\n";
+        }
+
+        public static void Error(string error)
+        {
+            log = $"{log}[Error] {error}\n";
+        }
+        public static void Print(string str)
+        {
+            log = $"{log}{str}\n";
+        }
+
+        public static string Get()
+        {
+            string logTemp = log;
+            log = "";
+            return logTemp;
         }
     }
 }

@@ -42,7 +42,6 @@ namespace ExcelTool
         private int perTimeoutLimitAnalyze;
         private int totalTimeoutLimitOutput;
         private int perTimeoutLimitOutput;
-        private String errorStr;
         public MainWindow()
         {
             InitializeComponent();
@@ -52,7 +51,6 @@ namespace ExcelTool
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
-            errorStr = "";
 
             isStop = false;
         }
@@ -85,20 +83,35 @@ namespace ExcelTool
             LoadFiles();
 
 
-            IHighlightingDefinition ch;
-            using (Stream s = new FileStream(@"ParamHighlighting.xshd", FileMode.Open))
+            IHighlightingDefinition chParam;
+            using (Stream s = new FileStream(@"Highlighting\ParamHighlighting.xshd", FileMode.Open))
             {
                 if (s == null)
                     throw new InvalidOperationException("Could not find embedded resource");
                 using (XmlReader reader = new XmlTextReader(s))
                 {
                     //解析xshd
-                    ch = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                    chParam = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader, HighlightingManager.Instance);
                 }
             }
             //注册数据
-            HighlightingManager.Instance.RegisterHighlighting("param", new string[] { }, ch);
+            HighlightingManager.Instance.RegisterHighlighting("param", new string[] { }, chParam);
             te_params.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("param");
+
+            IHighlightingDefinition chLog;
+            using (Stream s = new FileStream(@"Highlighting\LogHighlighting.xshd", FileMode.Open))
+            {
+                if (s == null)
+                    throw new InvalidOperationException("Could not find embedded resource");
+                using (XmlReader reader = new XmlTextReader(s))
+                {
+                    //解析xshd
+                    chLog = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                }
+            }
+            //注册数据
+            HighlightingManager.Instance.RegisterHighlighting("log", new string[] { }, chLog);
+            te_log.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("log");
         }
 
         private void CbSheetExplainersSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -237,9 +250,9 @@ namespace ExcelTool
 
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
-            errorStr = "";
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             GlobalObjects.GlobalObjects.SetGlobalParam(null);
+            te_log.Text = "";
 
             List<String> sheetExplainersList = te_sheetexplainers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
             List<String> analyzersList = te_analyzers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
@@ -447,7 +460,7 @@ namespace ExcelTool
                     this.Dispatcher.Invoke(() =>
                     {
                         l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolAnalyze.ActiveThreads} -- InUseThreads: {smartThreadPoolAnalyze.InUseThreads}";
-                        tb_log.Text = $"{sb.ToString()}";
+                        tb_status.Text = $"{sb.ToString()}";
                     });
                 });
                 Thread.Sleep(100);
@@ -530,7 +543,7 @@ namespace ExcelTool
                         this.Dispatcher.Invoke(() =>
                         {
                             l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolOutput.ActiveThreads} -- InUseThreads: {smartThreadPoolOutput.InUseThreads}";
-                            tb_log.Text = $"{sb.ToString()}";
+                            tb_status.Text = $"{sb.ToString()}";
                         });
                     });
                     Thread.Sleep(100);
@@ -545,8 +558,9 @@ namespace ExcelTool
                 }
                 else
                 {
-                    tb_log.Text = "";
+                    te_log.Text = "";
                 }
+                tb_status.Text = "";
 
                 String paramStrFromFile = File.ReadAllText(".\\Params.txt");
                 List<string> paramsList = paramStrFromFile.Split('\n').ToList<string>();
@@ -887,13 +901,13 @@ namespace ExcelTool
             if (cresult.Errors.HasErrors)
             {
 
-                String str = "[ERROR: ]";
+                String str = "";
                 foreach (CompilerError err in cresult.Errors)
                 {
                     str = $"{str}\n    {err.ErrorText} in line {err.Line}"; 
                 }
 
-                errorStr = str;
+                Logger.Error(str);
                 Stop();
             }
             else
@@ -911,7 +925,7 @@ namespace ExcelTool
                 }
                 catch (Exception e)
                 {
-                    errorStr += $"[ERROR: ]\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}\n";
+                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
                     Stop();
                 }
             }
@@ -941,12 +955,12 @@ namespace ExcelTool
             {
                 resBoolean = false;
 
-                String str = "[ERROR: ]";
+                String str = "";
                 foreach (CompilerError err in cresult.Errors)
                 {
                     str = $"{str}\n    {err.ErrorText} in line {err.Line}";
                 }
-                errorStr = str;
+                Logger.Error(str);
                 Stop();
             }
             else
@@ -958,11 +972,13 @@ namespace ExcelTool
                     object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                     MethodInfo objMI = obj.GetType().GetMethod("SetResult");
                     ++setResultInvokeCount;
-                    objMI.Invoke(obj, new object[] { paramDic, workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(), setResultInvokeCount, totalCount });
+                    object[] objList = new object[] { paramDic, workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(), setResultInvokeCount, totalCount };
+                    objMI.Invoke(obj, objList);
+                    GlobalObjects.GlobalObjects.SetGlobalParam(objList[3]);
                 }
                 catch (Exception e)
                 {
-                    errorStr += $"[ERROR: ]\n    {e.InnerException.Message}\n    {analyzer.name}.SetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}\n";
+                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.SetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
                     resBoolean = false;
                     Stop();
                 }
@@ -1000,10 +1016,10 @@ namespace ExcelTool
 
         private Boolean SetErrorLog()
         {
-            if (errorStr != "")
+            string log = Logger.Get();
+            if (log != null && log != "")
             {
-                tb_log.Text += errorStr;
-                tb_log.Text = tb_log.Text.Substring(tb_log.Text.IndexOf("[ERROR: ]"));
+                te_log.Text += log;
                 return true;
             }
             return false;
