@@ -85,16 +85,6 @@ namespace ExcelTool
             LoadFiles();
 
 
-            foreach (var commandBinding in te_params.TextArea.CommandBindings.Cast<CommandBinding>())
-            {
-                if (commandBinding.Command == ApplicationCommands.Paste)
-                {
-                    commandBinding.PreviewCanExecute += new CanExecuteRoutedEventHandler(PasteCommandBindingPreviewCanExecute);
-                    break;
-                }
-            }
-
-
             IHighlightingDefinition ch;
             using (Stream s = new FileStream(@"ParamHighlighting.xshd", FileMode.Open))
             {
