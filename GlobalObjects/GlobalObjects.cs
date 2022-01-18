@@ -137,8 +137,13 @@ namespace AnalyzeCode
         public static string Get()
         {
             string logTemp = log;
-            log = "";
+            Clear();
             return logTemp;
+        }
+
+        public static void Clear()
+        {
+            log = "";
         }
     }
 }

@@ -42,6 +42,7 @@ namespace ExcelTool
         private int perTimeoutLimitAnalyze;
         private int totalTimeoutLimitOutput;
         private int perTimeoutLimitOutput;
+        private bool runNotSuccessed;
         public MainWindow()
         {
             InitializeComponent();
@@ -53,6 +54,7 @@ namespace ExcelTool
             setResultInvokeCount = 0;
 
             isStop = false;
+            runNotSuccessed = false;
         }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
@@ -253,6 +255,8 @@ namespace ExcelTool
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             GlobalObjects.GlobalObjects.SetGlobalParam(null);
             te_log.Text = "";
+            Logger.Clear();
+            runNotSuccessed = false;
 
             List<String> sheetExplainersList = te_sheetexplainers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
             List<String> analyzersList = te_analyzers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
@@ -461,6 +465,7 @@ namespace ExcelTool
                     {
                         l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolAnalyze.ActiveThreads} -- InUseThreads: {smartThreadPoolAnalyze.InUseThreads}";
                         tb_status.Text = $"{sb.ToString()}";
+                        te_log.Text += Logger.Get();
                     });
                 });
                 Thread.Sleep(100);
@@ -544,21 +549,18 @@ namespace ExcelTool
                         {
                             l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolOutput.ActiveThreads} -- InUseThreads: {smartThreadPoolOutput.InUseThreads}";
                             tb_status.Text = $"{sb.ToString()}";
+                            te_log.Text += Logger.Get();
                         });
                     });
                     Thread.Sleep(100);
                 }
                 smartThreadPoolOutput.Dispose();
 
-                if (SetErrorLog())
+                if (runNotSuccessed)
                 {
                     btn_start.IsEnabled = true;
                     btn_stop.IsEnabled = false;
                     return;
-                }
-                else
-                {
-                    te_log.Text = "";
                 }
                 tb_status.Text = "";
 
@@ -908,6 +910,7 @@ namespace ExcelTool
                 }
 
                 Logger.Error(str);
+                runNotSuccessed = true;
                 Stop();
             }
             else
@@ -926,6 +929,7 @@ namespace ExcelTool
                 catch (Exception e)
                 {
                     Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                    runNotSuccessed = true;
                     Stop();
                 }
             }
@@ -961,6 +965,7 @@ namespace ExcelTool
                     str = $"{str}\n    {err.ErrorText} in line {err.Line}";
                 }
                 Logger.Error(str);
+                runNotSuccessed = true;
                 Stop();
             }
             else
@@ -979,6 +984,7 @@ namespace ExcelTool
                 catch (Exception e)
                 {
                     Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.SetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                    runNotSuccessed = true;
                     resBoolean = false;
                     Stop();
                 }
