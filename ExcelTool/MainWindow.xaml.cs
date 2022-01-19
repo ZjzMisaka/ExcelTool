@@ -563,6 +563,7 @@ namespace ExcelTool
                     return;
                 }
                 tb_status.Text = "";
+                te_log.Text += Logger.Get();
 
                 String paramStrFromFile = File.ReadAllText(".\\Params.txt");
                 List<string> paramsList = paramStrFromFile.Split('\n').ToList<string>();

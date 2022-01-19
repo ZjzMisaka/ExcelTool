@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 <SyntaxDefinition name="Custom Highlighting" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
-    <Color name="|" foreground="Green" />
-    <Color name=":" foreground="Blue" />
  
     <!-- This is the main ruleset. -->
     <RuleSet>
         <Rule foreground="Red">
             \[Error\]{1}
         </Rule>
-        <Rule foreground="Yellow">
+        <Rule foreground="DarkOrange">
             \[Warn\]{1}
         </Rule>
         <Rule foreground="Blue">
