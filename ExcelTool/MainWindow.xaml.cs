@@ -1092,5 +1092,10 @@ namespace ExcelTool
         {
             te_params.Text = $"{te_params.Text.Replace("\n\r", "").Replace("\r\n", "").Replace("\n", "").Replace("\r", "")}";
         }
+
+        private void TeLogTextChanged(object sender, EventArgs e)
+        {
+            te_log.ScrollToEnd();
+        }
     }
 }

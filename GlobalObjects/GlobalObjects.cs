@@ -89,7 +89,7 @@ namespace AnalyzeCode
         /// </summary>
         /// <param name=""paramDic"">传入的参数</param>
         /// <param name=""sheet"">被分析的sheet</param>
-        /// <param name=""result"">ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }</param>
+        /// <param name=""result"">存储当前文件的信息 ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }</param>
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
         /// <param name=""invokeCount"">此分析函数被调用的次数</param>
         public void AnalyzeSheet(Dictionary<string, string> paramDic, IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, ref Object globalObject, int invokeCount)
@@ -102,7 +102,7 @@ namespace AnalyzeCode
         /// </summary>
         /// <param name=""paramDic"">传入的参数</param>
         /// <param name=""workbook"">用于输出的excel文件</param>
-        /// <param name=""result"">ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }</param>
+        /// <param name=""result"">存储当前文件的信息 ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }</param>
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
         /// <param name=""invokeCount"">此输出函数被调用的次数</param>
         /// <param name=""totalCount"">总共需要调用的输出函数的个数</param>
@@ -129,6 +129,12 @@ namespace AnalyzeCode
         {
             log = $"{log}[Error] {error}\n";
         }
+
+        public static void Warn(string warn)
+        {
+            log = $"{log}[Warn] {warn}\n";
+        }
+
         public static void Print(string str)
         {
             log = $"{log}{str}\n";

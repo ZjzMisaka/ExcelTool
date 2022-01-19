@@ -8,6 +8,9 @@
         <Rule foreground="Red">
             \[Error\]{1}
         </Rule>
+        <Rule foreground="Yellow">
+            \[Warn\]{1}
+        </Rule>
         <Rule foreground="Blue">
             \[Info\]{1}
         </Rule>

@@ -12,6 +12,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="8*"/>
                 <RowDefinition Height="*" MinHeight="50"/>
+                <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
@@ -36,8 +37,6 @@
                     <RowDefinition Height="25"/>
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="30"/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="25"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
@@ -65,12 +64,9 @@
                 <Label Height="25" Margin="10 2 10 0" Grid.Row="13" Grid.ColumnSpan="2" Content="输出文件名" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <TextBox Grid.Row="14" Grid.ColumnSpan="1" Name="tb_output_name" PreviewDragOver="DragOverFile" PreviewDrop="DropFile" AllowDrop="True" TextWrapping="NoWrap" Text="" Margin="10 2" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                 <Button Grid.Row="15" Grid.ColumnSpan="2" Height="25" Name="btn_select_output_filename" Click="SelectName" Margin="10 2" Content="选择" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Button Grid.Row="16" Grid.ColumnSpan="2" Height="25" Content="开始" Name="btn_start" Click="Start" HorizontalAlignment="Right" Margin="10 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Button Grid.Row="16" Grid.ColumnSpan="2" Height="25" Content="停止" Name="btn_stop" Click="Stop" IsEnabled="False" HorizontalAlignment="Right" Margin="10 2 95 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Label Grid.Row="17" Grid.ColumnSpan="2" FontSize="10" Name="l_process" Content="" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
             </Grid>
             <GridSplitter x:Name="gs_gridsplitter" BorderBrush="Black" BorderThickness="0, 1, 0, 1" Height="4" Grid.Row="1" Background="AntiqueWhite" HorizontalAlignment="Stretch" VerticalAlignment="Top" Panel.ZIndex="100"/>
-            <Label Grid.Row="1" FontSize="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+            <Label Grid.Row="1" FontSize="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" BorderThickness="1px" BorderBrush="Gray">
                 <ScrollViewer VerticalAlignment="Stretch" HorizontalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Disabled">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -83,10 +79,28 @@
 
                         <TextBlock Name="tb_status"  Grid.Row="0" Grid.Column="0" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
                         <GridSplitter x:Name="gs_gridsplitterbutton" BorderBrush="Black" BorderThickness="1, 0, 1, 0" Width="4" Grid.Row="1" Background="AntiqueWhite" HorizontalAlignment="Right" VerticalAlignment="Stretch" Panel.ZIndex="100"/>
-                        <avalonEdit:TextEditor Name="te_log" Grid.Row="0" Grid.Column="1" ShowLineNumbers="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False" WordWrap="True" Padding="3px" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
+                        <avalonEdit:TextEditor Name="te_log" Grid.Row="0" Grid.Column="1" ShowLineNumbers="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False" WordWrap="True" Padding="3px" IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextChanged="TeLogTextChanged"/>
                     </Grid>
                 </ScrollViewer>
             </Label>
+
+
+            <Grid  Grid.Row="2" Grid.ColumnSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="90" />
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" FontSize="10" Name="l_process" Content="" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+
+                <Button Grid.Row="0" Grid.Column="1" Height="25" Content="开始" Name="btn_start" Click="Start" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="0" Grid.Column="2" Height="25" Content="停止" Name="btn_stop" Click="Stop" IsEnabled="False" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+            </Grid>
+
         </Grid>
     </Grid>
 </Window>
