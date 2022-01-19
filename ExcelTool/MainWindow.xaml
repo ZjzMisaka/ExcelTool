@@ -97,8 +97,8 @@
 
                 <Label Grid.Row="0" Grid.Column="0" FontSize="10" Name="l_process" Content="" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
-                <Button Grid.Row="0" Grid.Column="1" Height="25" Content="开始" Name="btn_start" Click="Start" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Button Grid.Row="0" Grid.Column="2" Height="25" Content="停止" Name="btn_stop" Click="Stop" IsEnabled="False" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="0" Grid.Column="1" Height="25" Content="停止" Name="btn_stop" Click="Stop" IsEnabled="False" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="0" Grid.Column="2" Height="25" Content="开始" Name="btn_start" Click="Start" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
             </Grid>
 
         </Grid>

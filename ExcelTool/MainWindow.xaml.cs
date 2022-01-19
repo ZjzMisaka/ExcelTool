@@ -468,7 +468,7 @@ namespace ExcelTool
                         te_log.Text += Logger.Get();
                     });
                 });
-                Thread.Sleep(100);
+                await Task.Delay(100);
             }
             smartThreadPoolAnalyze.Dispose();
 
@@ -552,7 +552,7 @@ namespace ExcelTool
                             te_log.Text += Logger.Get();
                         });
                     });
-                    Thread.Sleep(100);
+                    await Task.Delay(100);
                 }
                 smartThreadPoolOutput.Dispose();
 
