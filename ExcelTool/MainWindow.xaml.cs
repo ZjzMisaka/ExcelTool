@@ -36,6 +36,7 @@ namespace ExcelTool
         private ConcurrentDictionary<string, long> currentAnalizingDictionary;
         private ConcurrentDictionary<string, long> currentOutputtingDictionary;
         private ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer> resultList;
+        private Dictionary<FileSystemWatcher, string> fileSystemWatcherDic;
         private int analyzeSheetInvokeCount;
         private int setResultInvokeCount;
         private int totalTimeoutLimitAnalyze;
@@ -50,6 +51,7 @@ namespace ExcelTool
             currentAnalizingDictionary = new ConcurrentDictionary<string, long>();
             currentOutputtingDictionary = new ConcurrentDictionary<string, long>();
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
+            fileSystemWatcherDic = new Dictionary<FileSystemWatcher, string>();
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
 
@@ -83,6 +85,36 @@ namespace ExcelTool
             perTimeoutLimitOutput = IniHelper.GetPerTimeoutLimitOutput();
 
             LoadFiles();
+
+            List<String> rulesList = Directory.GetFiles(".\\Rules", "*.json").ToList();
+            foreach (string path in rulesList)
+            {
+                RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText(path));
+
+                if (rule.watchPath != null && rule.watchPath != "")
+                {
+                    foreach (string analyzer in rule.analyzers.Split('\n'))
+                    {
+                        if (!cb_analyzers.Items.Contains(analyzer))
+                        {
+                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的Analyzer: {analyzer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                            cb_rules.SelectedIndex = 0;
+                            return;
+                        }
+                    }
+                    foreach (string sheetExplainer in rule.sheetExplainers.Split('\n'))
+                    {
+                        if (!cb_sheetexplainers.Items.Contains(sheetExplainer))
+                        {
+                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的SheetExplainers: {sheetExplainer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                            cb_rules.SelectedIndex = 0;
+                            return;
+                        }
+                    }
+
+                    SetAuto(rule, Path.GetFileNameWithoutExtension(path));
+                }
+            }
 
 
             IHighlightingDefinition chParam;
@@ -240,7 +272,49 @@ namespace ExcelTool
         {
             isStop = true;
         }
-        private async void Start(object sender, RoutedEventArgs e)
+
+        private void FileSystemWatcherInvoke(object sender, FileSystemEventArgs e)
+        {
+            FileSystemWatcher fileSystemWatcher = (FileSystemWatcher)sender;
+            if (fileSystemWatcherDic.ContainsKey(fileSystemWatcher))
+            {
+                string ruleName = fileSystemWatcherDic[fileSystemWatcher];
+
+                RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
+
+                foreach (string analyzer in rule.analyzers.Split('\n'))
+                {
+                    if (!cb_analyzers.Items.Contains(analyzer))
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的Analyzer: {analyzer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                        cb_rules.SelectedIndex = 0;
+                        return;
+                    }
+                }
+                foreach (string sheetExplainer in rule.sheetExplainers.Split('\n'))
+                {
+                    if (!cb_sheetexplainers.Items.Contains(sheetExplainer))
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的SheetExplainers: {sheetExplainer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                        cb_rules.SelectedIndex = 0;
+                        return;
+                    }
+
+                }
+                this.Dispatcher.Invoke(() =>
+                {
+                    Start(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName);
+                });
+            }
+
+        }
+
+        private void Start(object sender, RoutedEventArgs e)
+        {
+            Start(te_sheetexplainers.Text, te_analyzers.Text, te_params.Text, tb_base_path.Text, tb_output_path.Text, tb_output_name.Text);
+        }
+
+        private async void Start(string sheetExplainersStr, string analyzersStr, string paramStr, string basePath, string outputPath, string outputName)
         {
             this.Dispatcher.Invoke(() =>
             {
@@ -258,9 +332,9 @@ namespace ExcelTool
             Logger.Clear();
             runNotSuccessed = false;
 
-            List<String> sheetExplainersList = te_sheetexplainers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
-            List<String> analyzersList = te_analyzers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
-            if(sheetExplainersList.Count != analyzersList.Count || sheetExplainersList.Count == 0)
+            List<String> sheetExplainersList = sheetExplainersStr.Split('\n').Where(str => str.Trim() != "").ToList();
+            List<String> analyzersList = analyzersStr.Split('\n').Where(str => str.Trim() != "").ToList();
+            if (sheetExplainersList.Count != analyzersList.Count || sheetExplainersList.Count == 0)
             {
                 this.Dispatcher.Invoke(() =>
                 {
@@ -272,8 +346,7 @@ namespace ExcelTool
                 return;
             }
 
-            te_params.Text = $"{te_params.Text.Replace("\n\r", "").Replace("\r\n", "").Replace("\n", "").Replace("\r", "")}";
-            string paramStr = te_params.Text;
+            te_params.Text = $"{te_params.Text.Replace("\r\n", "").Replace("\n", "")}";
             string[] splitedParams = paramStr.Split('|');
             Dictionary<string, string> paramDic = new Dictionary<string, string>();
             foreach (string param in splitedParams)
@@ -379,24 +452,24 @@ namespace ExcelTool
             }
 
             int totalCount = 0;
-            for(int i = 0; i < sheetExplainersList.Count; ++i)
+            for (int i = 0; i < sheetExplainersList.Count; ++i)
             {
                 SheetExplainer sheetExplainer = sheetExplainers[i];
                 Analyzer analyzer = analyzers[i];
 
                 CompilerResults cresult = GetCresult(analyzer);
 
-                foreach (String str in sheetExplainer.relativePathes) 
+                foreach (String str in sheetExplainer.relativePathes)
                 {
                     List<String> filePathList = new List<String>();
-                    String basePath = Path.Combine(tb_base_path.Text.Trim(), str.Trim());
+                    basePath = Path.Combine(basePath.Trim(), str.Trim());
 
                     FileTraverse(basePath, sheetExplainer, filePathList);
                     totalCount += filePathList.Count;
 
                     int filesCount = filePathList.Count;
                     foreach (String filePath in filePathList)
-                    { 
+                    {
                         List<String> pathSplit = filePath.Split('\\').ToList<string>();
                         String fileName = pathSplit[pathSplit.Count - 1];
                         fileName = fileName.Substring(0, fileName.LastIndexOf('.'));
@@ -475,15 +548,15 @@ namespace ExcelTool
             // 输出结果
             using (var workbook = new XLWorkbook())
             {
-                string resPath = tb_output_path.Text.Replace("\\", "/");
+                string resPath = outputPath.Replace("\\", "/");
                 string filePath;
-                if (tb_output_path.Text.EndsWith("/"))
+                if (outputPath.EndsWith("/"))
                 {
-                    filePath = $"{resPath}{tb_output_name.Text}.xlsx";
+                    filePath = $"{resPath}{outputName}.xlsx";
                 }
                 else
                 {
-                    filePath = $"{resPath}/{tb_output_name.Text}.xlsx";
+                    filePath = $"{resPath}/{outputName}.xlsx";
                 }
 
                 foreach (ConcurrentDictionary<ResultType, Object> result in resultList.Keys)
@@ -646,7 +719,7 @@ namespace ExcelTool
 
                 CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "ファイルを保存しました。", "OK");
             }
-                
+
             btn_start.IsEnabled = true;
             btn_stop.IsEnabled = false;
         }
@@ -816,7 +889,7 @@ namespace ExcelTool
             }
         }
 
-        private void LoadFiles() 
+        private void LoadFiles()
         {
             try
             {
@@ -827,6 +900,10 @@ namespace ExcelTool
                 if (!Directory.Exists(".\\SheetExplainers"))
                 {
                     Directory.CreateDirectory(".\\SheetExplainers");
+                }
+                if (!Directory.Exists(".\\Rules"))
+                {
+                    Directory.CreateDirectory(".\\Rules");
                 }
             }
             catch (Exception ex)
@@ -848,20 +925,33 @@ namespace ExcelTool
             }
             cb_sheetexplainers.ItemsSource = sheetExplainersList;
 
-            List<String> AnalyzersList = Directory.GetFiles(".\\Analyzers", "*.json").ToList();
-            AnalyzersList.Insert(0, "");
-            for (int i = 0; i < AnalyzersList.Count; ++i)
+            List<String> analyzersList = Directory.GetFiles(".\\Analyzers", "*.json").ToList();
+            analyzersList.Insert(0, "");
+            for (int i = 0; i < analyzersList.Count; ++i)
             {
-                String str = AnalyzersList[i];
-                AnalyzersList[i] = str.Substring(str.LastIndexOf('\\') + 1);
-                if (AnalyzersList[i].Contains('.'))
+                String str = analyzersList[i];
+                analyzersList[i] = str.Substring(str.LastIndexOf('\\') + 1);
+                if (analyzersList[i].Contains('.'))
                 {
-                    AnalyzersList[i] = AnalyzersList[i].Substring(0, AnalyzersList[i].LastIndexOf('.'));
+                    analyzersList[i] = analyzersList[i].Substring(0, analyzersList[i].LastIndexOf('.'));
                 }
             }
-            cb_analyzers.ItemsSource = AnalyzersList;
+            cb_analyzers.ItemsSource = analyzersList;
 
-            if (!File.Exists(".\\Params.txt")) 
+            List<String> rulesList = Directory.GetFiles(".\\Rules", "*.json").ToList();
+            rulesList.Insert(0, "");
+            for (int i = 0; i < rulesList.Count; ++i)
+            {
+                String str = rulesList[i];
+                rulesList[i] = str.Substring(str.LastIndexOf('\\') + 1);
+                if (rulesList[i].Contains('.'))
+                {
+                    rulesList[i] = rulesList[i].Substring(0, rulesList[i].LastIndexOf('.'));
+                }
+            }
+            cb_rules.ItemsSource = rulesList;
+
+            if (!File.Exists(".\\Params.txt"))
             {
                 FileStream fs = null;
                 try
@@ -881,18 +971,17 @@ namespace ExcelTool
             String paramStr = File.ReadAllText(".\\Params.txt");
             List<string> paramsList = paramStr.Split('\n').ToList<string>();
             List<string> newParamsList = new List<string>();
-            foreach (string param in paramsList) 
+            foreach (string param in paramsList)
             {
                 if (param.Trim() != "")
                 {
                     newParamsList.Add(param.Trim());
                 }
             }
-
             newParamsList.Insert(0, "");
-
             cb_params.ItemsSource = newParamsList;
         }
+
 
         private long GetNowSs()
         {
@@ -1091,12 +1180,226 @@ namespace ExcelTool
 
         private void TbParamsLostFocus(object sender, RoutedEventArgs e)
         {
-            te_params.Text = $"{te_params.Text.Replace("\n\r", "").Replace("\r\n", "").Replace("\n", "").Replace("\r", "")}";
+            te_params.Text = $"{te_params.Text.Replace("\r\n", "").Replace("\n", "")}";
         }
 
         private void TeLogTextChanged(object sender, EventArgs e)
         {
             te_log.ScrollToEnd();
+        }
+
+        private void SaveRule(object sender, RoutedEventArgs e)
+        {
+            TextBox tbName = new TextBox();
+            tbName.Margin = new Thickness(5, 8, 5, 8);
+            tbName.VerticalContentAlignment = VerticalAlignment.Center;
+            if (cb_rules.SelectedIndex >= 1)
+            {
+                tbName.Text = $"Copy Of {cb_rules.SelectedItem}";
+            }
+            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, "OK", "CANCEL" }, "name", "saving", MessageBoxImage.Information);
+            if (result == 1)
+            {
+                RunningRule runningRule = new RunningRule();
+                runningRule.analyzers = te_analyzers.Text;
+                runningRule.sheetExplainers = te_sheetexplainers.Text;
+                runningRule.param = te_params.Text;
+                runningRule.basePath = tb_base_path.Text;
+                runningRule.outputPath = tb_output_path.Text;
+                runningRule.outputName = tb_output_name.Text;
+                string json = JsonConvert.SerializeObject(runningRule);
+
+                string fileName = $".\\Rules\\{tbName.Text}.json";
+                FileStream fs = null;
+                try
+                {
+                    fs = File.Create(fileName);
+                    fs.Close();
+                    StreamWriter sw = File.CreateText(fileName);
+                    sw.Write(json);
+                    sw.Flush();
+                    sw.Close();
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void DeleteRule(object sender, RoutedEventArgs e)
+        {
+            String path = $"{System.Environment.CurrentDirectory}\\Rules\\{cb_rules.SelectedItem.ToString()}.json";
+            MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"删除文件\n{path}", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (result == MessageBoxResult.OK)
+            {
+                File.Delete(path);
+                cb_analyzers.SelectedIndex = 0;
+            }
+        }
+
+        private void CbRulesPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            LoadFiles();
+        }
+
+        private void CbRulesChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            RunningRule rule = null;
+
+            if (cb_rules.SelectedIndex >= 1)
+            {
+                rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{cb_rules.SelectedItem.ToString()}.json"));
+
+                foreach (string analyzer in rule.analyzers.Split('\n'))
+                {
+                    if (!cb_analyzers.Items.Contains(analyzer))
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的Analyzer: {analyzer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                        cb_rules.SelectedIndex = 0;
+                        return;
+                    }
+                }
+                foreach (string sheetExplainer in rule.sheetExplainers.Split('\n'))
+                {
+                    if (!cb_sheetexplainers.Items.Contains(sheetExplainer))
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的SheetExplainers: {sheetExplainer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                        cb_rules.SelectedIndex = 0;
+                        return;
+                    }
+                }
+
+                btn_saverule.Visibility = Visibility.Hidden;
+                btn_deleterule.Visibility = Visibility.Visible;
+
+                if (rule.watchPath != null && rule.watchPath != "")
+                {
+                    btn_setauto.Visibility = Visibility.Hidden;
+                    btn_unsetauto.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    btn_setauto.Visibility = Visibility.Visible;
+                    btn_unsetauto.Visibility = Visibility.Hidden;
+                }
+
+                te_analyzers.Text = rule.analyzers;
+                te_sheetexplainers.Text = rule.sheetExplainers;
+                te_params.Text = rule.param;
+                tb_base_path.Text = rule.basePath;
+                tb_output_path.Text = rule.outputPath;
+                tb_output_name.Text = rule.outputName;
+            }
+            else
+            {
+                btn_saverule.Visibility = Visibility.Visible;
+                btn_deleterule.Visibility = Visibility.Hidden;
+
+                btn_setauto.Visibility = Visibility.Hidden;
+                btn_unsetauto.Visibility = Visibility.Hidden;
+
+                te_analyzers.Text = "";
+                te_sheetexplainers.Text = "";
+                te_params.Text = "";
+                tb_base_path.Text = "";
+                tb_output_path.Text = "";
+                tb_output_name.Text = "";
+            }
+        }
+
+        private void SetAuto(object sender, RoutedEventArgs e)
+        {
+            string ruleName = cb_rules.SelectedItem.ToString();
+            RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
+            TextBox tbPath = new TextBox();
+            tbPath.Margin = new Thickness(5, 8, 5, 8);
+            tbPath.VerticalContentAlignment = VerticalAlignment.Center;
+            TextBox tbFilter = new TextBox();
+            tbFilter.Margin = new Thickness(5, 8, 5, 8);
+            tbFilter.VerticalContentAlignment = VerticalAlignment.Center;
+            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbPath, tbFilter, "OK", "CANCEL" }, "watch path and filter", "saving", MessageBoxImage.Information);
+            if (result == 2)
+            {
+                rule.watchPath = tbPath.Text;
+                rule.filter = tbFilter.Text;
+            }
+
+            string json = JsonConvert.SerializeObject(rule);
+            string fileName = $".\\Rules\\{cb_rules.SelectedItem.ToString()}.json";
+            FileStream fs = null;
+            try
+            {
+                fs = File.Create(fileName);
+                fs.Close();
+                StreamWriter sw = File.CreateText(fileName);
+                sw.Write(json);
+                sw.Flush();
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            SetAuto(rule, ruleName);
+        }
+
+        private void SetAuto(RunningRule rule, string ruleName)
+        {
+            FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
+            fileSystemWatcher.Path = rule.watchPath;
+            fileSystemWatcher.Filter = rule.filter;
+            fileSystemWatcher.Deleted += FileSystemWatcherInvoke;
+            fileSystemWatcher.Created += FileSystemWatcherInvoke;
+            fileSystemWatcher.Changed += FileSystemWatcherInvoke;
+            fileSystemWatcher.Renamed += FileSystemWatcherInvoke;
+            fileSystemWatcher.IncludeSubdirectories = true;
+            fileSystemWatcher.EnableRaisingEvents = true;
+            fileSystemWatcherDic.Add(fileSystemWatcher, ruleName);
+
+            btn_setauto.Visibility = Visibility.Hidden;
+            btn_unsetauto.Visibility = Visibility.Visible;
+        }
+
+        private void UnsetAuto(object sender, RoutedEventArgs e)
+        {
+            string fileName = $".\\Rules\\{cb_rules.SelectedItem.ToString()}.json";
+
+            RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText(fileName));
+            if (rule == null)
+            {
+                return;
+            }
+            rule.watchPath = null;
+            rule.filter = null;
+
+            string json = JsonConvert.SerializeObject(rule);
+            FileStream fs = null;
+            try
+            {
+                fs = File.Create(fileName);
+                fs.Close();
+                StreamWriter sw = File.CreateText(fileName);
+                sw.Write(json);
+                sw.Flush();
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            FileSystemWatcher fileSystemWatcher = fileSystemWatcherDic.FirstOrDefault(q => q.Value == cb_rules.SelectedItem.ToString()).Key;
+            if (fileSystemWatcher != null)
+            {
+                fileSystemWatcher.EnableRaisingEvents = false;
+                fileSystemWatcherDic.Remove(fileSystemWatcher);
+            }
+
+            btn_setauto.Visibility = Visibility.Visible;
+            btn_unsetauto.Visibility = Visibility.Hidden;
         }
     }
 }

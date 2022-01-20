@@ -6,7 +6,7 @@
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:local="clr-namespace:ExcelTool"
         mc:Ignorable="d"
-        Title="Excel分析工具" Name="w_MainWindow" Height="850" Width="800" Loaded="WindowLoaded" Closing="WindowClosing" MinHeight="600" MinWidth="500">
+        Title="Excel分析工具" Name="w_MainWindow" Height="850" Width="800" Loaded="WindowLoaded" Closing="WindowClosing" MinHeight="685" MinWidth="500">
     <Grid>
         <Grid>
             <Grid.RowDefinitions>
@@ -37,6 +37,11 @@
                     <RowDefinition Height="25"/>
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="30"/>
+
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
@@ -64,6 +69,13 @@
                 <Label Height="25" Margin="10 2 10 0" Grid.Row="13" Grid.ColumnSpan="2" Content="输出文件名" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <TextBox Grid.Row="14" Grid.ColumnSpan="1" Name="tb_output_name" PreviewDragOver="DragOverFile" PreviewDrop="DropFile" AllowDrop="True" TextWrapping="NoWrap" Text="" Margin="10 2" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                 <Button Grid.Row="15" Grid.ColumnSpan="2" Height="25" Name="btn_select_output_filename" Click="SelectName" Margin="10 2" Content="选择" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+
+                <Label Height="25" Margin="10 2 10 0" Grid.Row="16" Grid.ColumnSpan="2" Content="规则" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                <ComboBox Name="cb_rules" Grid.Row="17" Margin="10 2" Grid.Column="0" SelectionChanged="CbRulesChanged" PreviewMouseLeftButtonDown="CbRulesPreviewMouseLeftButtonDown"/>
+                <Button Grid.Row="17" Grid.ColumnSpan="2" Height="25" Content="保存" Name="btn_saverule" Click="SaveRule" HorizontalAlignment="Right" Margin="10 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="17" Grid.ColumnSpan="2" Height="25" Content="删除" Name="btn_deleterule" Click="DeleteRule" HorizontalAlignment="Right" Margin="10 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75" Visibility="Hidden"/>
+                <Button Grid.Row="18" Grid.ColumnSpan="2" Height="25" Name="btn_setauto" Click="SetAuto" Margin="10 2" Content="设为自动" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75" Visibility="Hidden"/>
+                <Button Grid.Row="18" Grid.ColumnSpan="2" Height="25" Name="btn_unsetauto" Click="UnsetAuto" Margin="10 2" Content="设为手动" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75" Visibility="Hidden"/>
             </Grid>
             <GridSplitter x:Name="gs_gridsplitter" BorderBrush="Black" BorderThickness="0, 1, 0, 1" Height="4" Grid.Row="1" Background="AntiqueWhite" HorizontalAlignment="Stretch" VerticalAlignment="Top" Panel.ZIndex="100"/>
             <Label Grid.Row="1" FontSize="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" BorderThickness="1px" BorderBrush="Gray">
