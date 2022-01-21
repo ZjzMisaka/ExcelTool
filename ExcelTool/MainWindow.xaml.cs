@@ -21,6 +21,7 @@ using CustomizableMessageBox;
 using System.Xml;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Document;
+using System.Runtime.InteropServices;
 
 namespace ExcelTool
 {
@@ -93,23 +94,9 @@ namespace ExcelTool
 
                 if (rule.watchPath != null && rule.watchPath != "")
                 {
-                    foreach (string analyzer in rule.analyzers.Split('\n'))
+                    if (!CheckRule(rule))
                     {
-                        if (!cb_analyzers.Items.Contains(analyzer))
-                        {
-                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的Analyzer: {analyzer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                            cb_rules.SelectedIndex = 0;
-                            return;
-                        }
-                    }
-                    foreach (string sheetExplainer in rule.sheetExplainers.Split('\n'))
-                    {
-                        if (!cb_sheetexplainers.Items.Contains(sheetExplainer))
-                        {
-                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的SheetExplainers: {sheetExplainer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                            cb_rules.SelectedIndex = 0;
-                            return;
-                        }
+                        return;
                     }
 
                     SetAuto(rule, Path.GetFileNameWithoutExtension(path));
@@ -278,43 +265,37 @@ namespace ExcelTool
             FileSystemWatcher fileSystemWatcher = (FileSystemWatcher)sender;
             if (fileSystemWatcherDic.ContainsKey(fileSystemWatcher))
             {
-                string ruleName = fileSystemWatcherDic[fileSystemWatcher];
-
-                RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
-
-                foreach (string analyzer in rule.analyzers.Split('\n'))
+                try
                 {
-                    if (!cb_analyzers.Items.Contains(analyzer))
+                    fileSystemWatcher.EnableRaisingEvents = false;
+
+                    string ruleName = fileSystemWatcherDic[fileSystemWatcher];
+
+                    RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
+
+                    if (!CheckRule(rule))
                     {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的Analyzer: {analyzer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                        cb_rules.SelectedIndex = 0;
                         return;
                     }
-                }
-                foreach (string sheetExplainer in rule.sheetExplainers.Split('\n'))
-                {
-                    if (!cb_sheetexplainers.Items.Contains(sheetExplainer))
+                    this.Dispatcher.Invoke(() =>
                     {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的SheetExplainers: {sheetExplainer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                        cb_rules.SelectedIndex = 0;
-                        return;
-                    }
-
+                        Start(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName, true);
+                    });
                 }
-                this.Dispatcher.Invoke(() =>
+                finally
                 {
-                    Start(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName);
-                });
+                    fileSystemWatcher.EnableRaisingEvents = true;
+                }
             }
 
         }
 
         private void Start(object sender, RoutedEventArgs e)
         {
-            Start(te_sheetexplainers.Text, te_analyzers.Text, te_params.Text, tb_base_path.Text, tb_output_path.Text, tb_output_name.Text);
+            Start(te_sheetexplainers.Text, te_analyzers.Text, te_params.Text, tb_base_path.Text, tb_output_path.Text, tb_output_name.Text, false);
         }
 
-        private async void Start(string sheetExplainersStr, string analyzersStr, string paramStr, string basePath, string outputPath, string outputName)
+        private async void Start(string sheetExplainersStr, string analyzersStr, string paramStr, string basePath, string outputPath, string outputName, bool isAuto)
         {
             this.Dispatcher.Invoke(() =>
             {
@@ -328,8 +309,15 @@ namespace ExcelTool
             setResultInvokeCount = 0;
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             GlobalObjects.GlobalObjects.SetGlobalParam(null);
-            te_log.Text = "";
-            Logger.Clear();
+            if (!isAuto)
+            {
+                te_log.Text = "";
+                Logger.Clear();
+            }
+            else
+            {
+                Logger.Print("---- AUTO ANALYZE ----");
+            }
             runNotSuccessed = false;
 
             List<String> sheetExplainersList = sheetExplainersStr.Split('\n').Where(str => str.Trim() != "").ToList();
@@ -419,7 +407,14 @@ namespace ExcelTool
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (!isAuto)
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else 
+                    {
+                        Logger.Error(ex.Message);
+                    }
                     this.Dispatcher.Invoke(() =>
                     {
                         btn_start.IsEnabled = true;
@@ -439,7 +434,14 @@ namespace ExcelTool
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (!isAuto)
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        Logger.Error(ex.Message);
+                    }
                     this.Dispatcher.Invoke(() =>
                     {
                         btn_start.IsEnabled = true;
@@ -464,7 +466,7 @@ namespace ExcelTool
                     List<String> filePathList = new List<String>();
                     basePath = Path.Combine(basePath.Trim(), str.Trim());
 
-                    FileTraverse(basePath, sheetExplainer, filePathList);
+                    FileTraverse(isAuto, basePath, sheetExplainer, filePathList);
                     totalCount += filePathList.Count;
 
                     int filesCount = filePathList.Count;
@@ -501,7 +503,15 @@ namespace ExcelTool
                     });
                     if (totalTimeCostSs >= totalTimeoutLimitAnalyze)
                     {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                        if (!isAuto)
+                        {
+                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                        }
+                        else
+                        {
+                            Logger.Error($"Total time out. \n{totalTimeoutLimitAnalyze / 1000.0}(s)");
+                        }
+                        
                     }
                     SetErrorLog();
                     return;
@@ -525,21 +535,25 @@ namespace ExcelTool
                                 btn_start.IsEnabled = true;
                                 btn_stop.IsEnabled = false;
                             });
-                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                            if (!isAuto)
+                            {
+                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                            }
+                            else
+                            {
+                                Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                            }
                             return;
                         }
                         sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
                     }
                 }
 
-                await Task.Run(() =>
+                this.Dispatcher.Invoke(() =>
                 {
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolAnalyze.ActiveThreads} -- InUseThreads: {smartThreadPoolAnalyze.InUseThreads}";
-                        tb_status.Text = $"{sb.ToString()}";
-                        te_log.Text += Logger.Get();
-                    });
+                    l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolAnalyze.ActiveThreads} -- InUseThreads: {smartThreadPoolAnalyze.InUseThreads}";
+                    tb_status.Text = $"{sb.ToString()}";
+                    te_log.Text += Logger.Get();
                 });
                 await Task.Delay(100);
             }
@@ -585,7 +599,14 @@ namespace ExcelTool
                         });
                         if (totalTimeCostSs >= totalTimeoutLimitOutput)
                         {
-                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitOutput / 1000.0}(s)", "error", MessageBoxImage.Error);
+                            if (!isAuto)
+                            {
+                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitOutput / 1000.0}(s)", "error", MessageBoxImage.Error);
+                            }
+                            else
+                            {
+                                Logger.Error($"Total time out. \n{totalTimeoutLimitOutput / 1000.0}(s)");
+                            }
                         }
                         SetErrorLog();
                         return;
@@ -601,7 +622,7 @@ namespace ExcelTool
                         if (currentOutputtingDictionary.TryGetValue(key, out value))
                         {
                             long timeCostSs = GetNowSs() - currentOutputtingDictionary[key];
-                            if (timeCostSs >= perTimeoutLimitAnalyze)
+                            if (timeCostSs >= perTimeoutLimitOutput)
                             {
                                 smartThreadPoolOutput.Dispose();
                                 this.Dispatcher.Invoke(() =>
@@ -609,21 +630,25 @@ namespace ExcelTool
                                     btn_start.IsEnabled = true;
                                     btn_stop.IsEnabled = false;
                                 });
-                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                if (!isAuto)
+                                {
+                                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                }
+                                else
+                                {
+                                    Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                                }
                                 return;
                             }
                             sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
                         }
                     }
 
-                    await Task.Run(() =>
+                    this.Dispatcher.Invoke(() =>
                     {
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolOutput.ActiveThreads} -- InUseThreads: {smartThreadPoolOutput.InUseThreads}";
-                            tb_status.Text = $"{sb.ToString()}";
-                            te_log.Text += Logger.Get();
-                        });
+                        l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolOutput.ActiveThreads} -- InUseThreads: {smartThreadPoolOutput.InUseThreads}";
+                        tb_status.Text = $"{sb.ToString()}";
+                        te_log.Text += Logger.Get();
                     });
                     await Task.Delay(100);
                 }
@@ -636,7 +661,6 @@ namespace ExcelTool
                     return;
                 }
                 tb_status.Text = "";
-                te_log.Text += Logger.Get();
 
                 String paramStrFromFile = File.ReadAllText(".\\Params.txt");
                 List<string> paramsList = paramStrFromFile.Split('\n').ToList<string>();
@@ -677,14 +701,28 @@ namespace ExcelTool
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (!isAuto)
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        Logger.Error(ex.Message);
+                    }
                 }
 
                 bool saveResult = false;
-                SaveFile(filePath, workbook, out saveResult);
+                SaveFile(isAuto, filePath, workbook, out saveResult);
                 if (!saveResult)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, "file not saved.", "info");
+                    if (!isAuto)
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, "file not saved.", "info");
+                    }
+                    else
+                    {
+                        Logger.Error("file not saved.");
+                    }
 
                     btn_start.IsEnabled = true;
                     btn_stop.IsEnabled = false;
@@ -717,14 +755,26 @@ namespace ExcelTool
                     CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
                 };
 
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "ファイルを保存しました。", "OK");
+                if (!isAuto && cb_isautoopen.IsChecked == false)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "ファイルを保存しました。", "OK");
+                }
+                else
+                {
+                    Logger.Info($"ファイルを保存しました。\n{filePath}");
+                    if (cb_isautoopen.IsChecked == true)
+                    {
+                        System.Diagnostics.Process.Start(filePath);
+                    }
+                }
             }
 
+            te_log.Text += Logger.Get();
             btn_start.IsEnabled = true;
             btn_stop.IsEnabled = false;
         }
 
-        private void SaveFile(string filePath, XLWorkbook workbook, out bool result)
+        private void SaveFile(bool isAuto, string filePath, XLWorkbook workbook, out bool result)
         {
             try
             {
@@ -733,16 +783,39 @@ namespace ExcelTool
             }
             catch (Exception e)
             {
-                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "YES", "NO" }, $"保存失败 重试? \n{e.Message}", "error", MessageBoxImage.Question);
+                int res = 2;
+                if (!isAuto)
+                {
+                    res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "YES", "NO" }, $"保存失败 重试? \n{e.Message}", "error", MessageBoxImage.Question);
+                }
                 if (res == 2)
                 {
                     result = false;
                 }
                 else
                 {
-                    SaveFile(filePath, workbook, out result);
+                    SaveFile(isAuto, filePath, workbook, out result);
                 }
             }
+        }
+
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr _lopen(string lpPathName, int iReadWrite);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool CloseHandle(IntPtr hObject);
+
+        public const int OF_READWRITE = 2;
+        public const int OF_SHARE_DENY_NONE = 0x40;
+        public readonly IntPtr HFILE_ERROR = new IntPtr(-1);
+        private bool isFileUsing(string filePath)
+        {
+            IntPtr vHandle = _lopen(filePath, OF_READWRITE | OF_SHARE_DENY_NONE);
+            if (vHandle != HFILE_ERROR)
+            {
+                CloseHandle(vHandle);
+            }
+            return vHandle == HFILE_ERROR;
         }
 
         private ConcurrentDictionary<ReadFileReturnType, Object> ReadFile(List<object> readFileParams)
@@ -762,7 +835,7 @@ namespace ExcelTool
             result.AddOrUpdate(ResultType.FILENAME, fileName, (key, oldValue) => null);
             currentAnalizingDictionary.AddOrUpdate(filePath, GetNowSs(), (key, oldValue) => GetNowSs());
 
-            if (filePath.Contains("~$"))
+            if (filePath.Contains("~$") || isFileUsing(filePath))
             {
                 result.AddOrUpdate(ResultType.MESSAGE, "文件正在被使用中", (key, oldValue) => null);
                 methodResult.AddOrUpdate(ReadFileReturnType.RESULT, result, (key, oldValue) => null);
@@ -820,7 +893,7 @@ namespace ExcelTool
             return methodResult;
         }
 
-        private void FileTraverse(String folderPath, SheetExplainer sheetExplainer, List<String> filePathList)
+        private void FileTraverse(bool isAuto, String folderPath, SheetExplainer sheetExplainer, List<String> filePathList)
         {
             if (string.IsNullOrEmpty(folderPath))
             {
@@ -878,13 +951,20 @@ namespace ExcelTool
                     else
                     {
                         string pp = FSys.Name;
-                        FileTraverse(System.IO.Path.Combine(folderPath, FSys.ToString()), sheetExplainer, filePathList);
+                        FileTraverse(isAuto, System.IO.Path.Combine(folderPath, FSys.ToString()), sheetExplainer, filePathList);
                     }
                 }
             }
             catch (Exception ex)
             {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, ex.Message);
+                if (!isAuto)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    Logger.Error(ex.Message);
+                }
                 return;
             }
         }
@@ -1252,23 +1332,9 @@ namespace ExcelTool
             {
                 rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{cb_rules.SelectedItem.ToString()}.json"));
 
-                foreach (string analyzer in rule.analyzers.Split('\n'))
+                if (!CheckRule(rule))
                 {
-                    if (!cb_analyzers.Items.Contains(analyzer))
-                    {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的Analyzer: {analyzer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                        cb_rules.SelectedIndex = 0;
-                        return;
-                    }
-                }
-                foreach (string sheetExplainer in rule.sheetExplainers.Split('\n'))
-                {
-                    if (!cb_sheetexplainers.Items.Contains(sheetExplainer))
-                    {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的SheetExplainers: {sheetExplainer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                        cb_rules.SelectedIndex = 0;
-                        return;
-                    }
+                    return;
                 }
 
                 btn_saverule.Visibility = Visibility.Hidden;
@@ -1299,13 +1365,6 @@ namespace ExcelTool
 
                 btn_setauto.Visibility = Visibility.Hidden;
                 btn_unsetauto.Visibility = Visibility.Hidden;
-
-                te_analyzers.Text = "";
-                te_sheetexplainers.Text = "";
-                te_params.Text = "";
-                tb_base_path.Text = "";
-                tb_output_path.Text = "";
-                tb_output_name.Text = "";
             }
         }
 
@@ -1400,6 +1459,36 @@ namespace ExcelTool
 
             btn_setauto.Visibility = Visibility.Visible;
             btn_unsetauto.Visibility = Visibility.Hidden;
+        }
+
+        private bool CheckRule(RunningRule rule)
+        {
+            if (rule.watchPath != null && rule.watchPath != "" && !Directory.Exists(rule.watchPath))
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"监视路径不存在: {rule.watchPath}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                cb_rules.SelectedIndex = 0;
+                return false;
+            }
+            foreach (string analyzer in rule.analyzers.Split('\n'))
+            {
+                if (!cb_analyzers.Items.Contains(analyzer))
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的Analyzer: {analyzer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    cb_rules.SelectedIndex = 0;
+                    return false;
+                }
+            }
+            foreach (string sheetExplainer in rule.sheetExplainers.Split('\n'))
+            {
+                if (!cb_sheetexplainers.Items.Contains(sheetExplainer))
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的SheetExplainers: {sheetExplainer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    cb_rules.SelectedIndex = 0;
+                    return false;
+                }
+
+            }
+            return true;
         }
     }
 }
