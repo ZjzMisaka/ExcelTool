@@ -31,7 +31,8 @@ namespace ExcelTool
     public partial class MainWindow : Window
     {
         private enum ReadFileReturnType { ANALYZER, RESULT };
-        private Boolean isStop;
+        private Boolean isRunning;
+        private Boolean isStopByUser;
         private SmartThreadPool smartThreadPoolAnalyze = null;
         private SmartThreadPool smartThreadPoolOutput = null;
         private ConcurrentDictionary<string, long> currentAnalizingDictionary;
@@ -56,7 +57,8 @@ namespace ExcelTool
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
 
-            isStop = false;
+            isRunning = false;
+            isStopByUser = false;
             runNotSuccessed = false;
         }
 
@@ -85,23 +87,11 @@ namespace ExcelTool
             totalTimeoutLimitOutput = IniHelper.GetTotalTimeoutLimitOutput();
             perTimeoutLimitOutput = IniHelper.GetPerTimeoutLimitOutput();
 
+            cb_isautoopen.IsChecked = IniHelper.GetIsAutoOpen();
+
             LoadFiles();
 
-            List<String> rulesList = Directory.GetFiles(".\\Rules", "*.json").ToList();
-            foreach (string path in rulesList)
-            {
-                RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText(path));
-
-                if (rule.watchPath != null && rule.watchPath != "")
-                {
-                    if (!CheckRule(rule))
-                    {
-                        return;
-                    }
-
-                    SetAuto(rule, Path.GetFileNameWithoutExtension(path));
-                }
-            }
+            SetAutoAll();
 
 
             IHighlightingDefinition chParam;
@@ -257,7 +247,7 @@ namespace ExcelTool
         }
         private void Stop()
         {
-            isStop = true;
+            isStopByUser = true;
         }
 
         private void FileSystemWatcherInvoke(object sender, FileSystemEventArgs e)
@@ -284,6 +274,14 @@ namespace ExcelTool
                 }
                 finally
                 {
+
+
+                    while (isRunning)
+                    {
+                        Thread.Sleep(100);
+                    }
+
+
                     fileSystemWatcher.EnableRaisingEvents = true;
                 }
             }
@@ -303,7 +301,8 @@ namespace ExcelTool
                 btn_stop.IsEnabled = true;
             });
 
-            isStop = false;
+            isRunning = true;
+            isStopByUser = false;
 
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
@@ -330,7 +329,8 @@ namespace ExcelTool
                     btn_stop.IsEnabled = false;
                 });
 
-                isStop = false;
+                isRunning = false;
+                isStopByUser = false;
                 return;
             }
 
@@ -420,7 +420,9 @@ namespace ExcelTool
                         btn_start.IsEnabled = true;
                         btn_stop.IsEnabled = false;
                     });
-                    isStop = false;
+
+                    isRunning = false;
+                    isStopByUser = false;
                     return;
                 }
                 sheetExplainers.Add(sheetExplainer);
@@ -447,7 +449,9 @@ namespace ExcelTool
                         btn_start.IsEnabled = true;
                         btn_stop.IsEnabled = false;
                     });
-                    isStop = false;
+
+                    isRunning = false;
+                    isStopByUser = false;
                     return;
                 }
                 analyzers.Add(analyzer);
@@ -491,71 +495,87 @@ namespace ExcelTool
             smartThreadPoolAnalyze.Join();
             while (smartThreadPoolAnalyze.CurrentWorkItemsCount > 0)
             {
-                long nowSs = GetNowSs();
-                long totalTimeCostSs = nowSs - startSs;
-                if (isStop || totalTimeCostSs >= totalTimeoutLimitAnalyze)
+                try
                 {
-                    smartThreadPoolAnalyze.Dispose();
-                    this.Dispatcher.Invoke(() =>
+                    long nowSs = GetNowSs();
+                    long totalTimeCostSs = nowSs - startSs;
+                    if (isStopByUser || totalTimeCostSs >= totalTimeoutLimitAnalyze)
                     {
-                        btn_start.IsEnabled = true;
-                        btn_stop.IsEnabled = false;
-                    });
-                    if (totalTimeCostSs >= totalTimeoutLimitAnalyze)
-                    {
-                        if (!isAuto)
+                        smartThreadPoolAnalyze.Dispose();
+                        this.Dispatcher.Invoke(() =>
                         {
-                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
-                        }
-                        else
+                            btn_start.IsEnabled = true;
+                            btn_stop.IsEnabled = false;
+                        });
+                        if (totalTimeCostSs >= totalTimeoutLimitAnalyze)
                         {
-                            Logger.Error($"Total time out. \n{totalTimeoutLimitAnalyze / 1000.0}(s)");
-                        }
-                        
-                    }
-                    SetErrorLog();
-                    return;
-                }
-
-                StringBuilder sb = new StringBuilder();
-                sb.Append("Analyzing...");
-
-                ICollection<string> keys = currentAnalizingDictionary.Keys;
-                foreach (string key in keys)
-                {
-                    long value = new long();
-                    if (currentAnalizingDictionary.TryGetValue(key, out value))
-                    {
-                        long timeCostSs = GetNowSs() - currentAnalizingDictionary[key];
-                        if (timeCostSs >= perTimeoutLimitAnalyze)
-                        {
-                            smartThreadPoolAnalyze.Dispose();
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                btn_start.IsEnabled = true;
-                                btn_stop.IsEnabled = false;
-                            });
                             if (!isAuto)
                             {
-                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
                             }
                             else
                             {
-                                Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                                Logger.Error($"Total time out. \n{totalTimeoutLimitAnalyze / 1000.0}(s)");
                             }
-                            return;
-                        }
-                        sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
-                    }
-                }
 
-                this.Dispatcher.Invoke(() =>
+                        }
+                        SetErrorLog();
+
+                        isRunning = false;
+                        return;
+                    }
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("Analyzing...");
+
+                    ICollection<string> keys = currentAnalizingDictionary.Keys;
+                    foreach (string key in keys)
+                    {
+                        long value = new long();
+                        if (currentAnalizingDictionary.TryGetValue(key, out value))
+                        {
+                            long timeCostSs = GetNowSs() - currentAnalizingDictionary[key];
+                            if (timeCostSs >= perTimeoutLimitAnalyze)
+                            {
+                                smartThreadPoolAnalyze.Dispose();
+                                this.Dispatcher.Invoke(() =>
+                                {
+                                    btn_start.IsEnabled = true;
+                                    btn_stop.IsEnabled = false;
+                                });
+                                if (!isAuto)
+                                {
+                                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                }
+                                else
+                                {
+                                    Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                                }
+
+                                isRunning = false;
+                                return;
+                            }
+                            sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
+                        }
+                    }
+
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolAnalyze.ActiveThreads} -- InUseThreads: {smartThreadPoolAnalyze.InUseThreads}";
+                        tb_status.Text = $"{sb.ToString()}";
+                        te_log.Text += Logger.Get();
+                    });
+                    await Task.Delay(100);
+                }
+                catch (Exception e)
                 {
-                    l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolAnalyze.ActiveThreads} -- InUseThreads: {smartThreadPoolAnalyze.InUseThreads}";
-                    tb_status.Text = $"{sb.ToString()}";
-                    te_log.Text += Logger.Get();
-                });
-                await Task.Delay(100);
+                    smartThreadPoolAnalyze.Dispose();
+                    Logger.Error($"Exception has been throwed. \n{e.Message}");
+                    SetErrorLog();
+
+                    isRunning = false;
+                    return;
+                }
             }
             smartThreadPoolAnalyze.Dispose();
 
@@ -587,70 +607,84 @@ namespace ExcelTool
                 smartThreadPoolOutput.Join();
                 while (smartThreadPoolOutput.CurrentWorkItemsCount > 0)
                 {
-                    long nowSs = GetNowSs();
-                    long totalTimeCostSs = nowSs - startSs;
-                    if (isStop || totalTimeCostSs >= totalTimeoutLimitOutput)
+                    try
                     {
-                        smartThreadPoolOutput.Dispose();
-                        this.Dispatcher.Invoke(() =>
+                        long nowSs = GetNowSs();
+                        long totalTimeCostSs = nowSs - startSs;
+                        if (isStopByUser || totalTimeCostSs >= totalTimeoutLimitOutput)
                         {
-                            btn_start.IsEnabled = true;
-                            btn_stop.IsEnabled = false;
-                        });
-                        if (totalTimeCostSs >= totalTimeoutLimitOutput)
-                        {
-                            if (!isAuto)
+                            smartThreadPoolOutput.Dispose();
+                            this.Dispatcher.Invoke(() =>
                             {
-                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitOutput / 1000.0}(s)", "error", MessageBoxImage.Error);
-                            }
-                            else
+                                btn_start.IsEnabled = true;
+                                btn_stop.IsEnabled = false;
+                            });
+                            if (totalTimeCostSs >= totalTimeoutLimitOutput)
                             {
-                                Logger.Error($"Total time out. \n{totalTimeoutLimitOutput / 1000.0}(s)");
-                            }
-                        }
-                        SetErrorLog();
-                        return;
-                    }
-
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append("Outputting...");
-
-                    ICollection<string> keys = currentOutputtingDictionary.Keys;
-                    foreach (string key in keys)
-                    {
-                        long value = new long();
-                        if (currentOutputtingDictionary.TryGetValue(key, out value))
-                        {
-                            long timeCostSs = GetNowSs() - currentOutputtingDictionary[key];
-                            if (timeCostSs >= perTimeoutLimitOutput)
-                            {
-                                smartThreadPoolOutput.Dispose();
-                                this.Dispatcher.Invoke(() =>
-                                {
-                                    btn_start.IsEnabled = true;
-                                    btn_stop.IsEnabled = false;
-                                });
                                 if (!isAuto)
                                 {
-                                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitOutput / 1000.0}(s)", "error", MessageBoxImage.Error);
                                 }
                                 else
                                 {
-                                    Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                                    Logger.Error($"Total time out. \n{totalTimeoutLimitOutput / 1000.0}(s)");
                                 }
-                                return;
                             }
-                            sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
-                        }
-                    }
+                            SetErrorLog();
 
-                    this.Dispatcher.Invoke(() =>
+                            isRunning = false;
+                            return;
+                        }
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("Outputting...");
+
+                        ICollection<string> keys = currentOutputtingDictionary.Keys;
+                        foreach (string key in keys)
+                        {
+                            long value = new long();
+                            if (currentOutputtingDictionary.TryGetValue(key, out value))
+                            {
+                                long timeCostSs = GetNowSs() - currentOutputtingDictionary[key];
+                                if (timeCostSs >= perTimeoutLimitOutput)
+                                {
+                                    smartThreadPoolOutput.Dispose();
+                                    this.Dispatcher.Invoke(() =>
+                                    {
+                                        btn_start.IsEnabled = true;
+                                        btn_stop.IsEnabled = false;
+                                    });
+                                    if (!isAuto)
+                                    {
+                                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                    }
+                                    else
+                                    {
+                                        Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                                    }
+
+                                    isRunning = false;
+                                    return;
+                                }
+                                sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
+                            }
+                        }
+
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolOutput.ActiveThreads} -- InUseThreads: {smartThreadPoolOutput.InUseThreads}";
+                            tb_status.Text = $"{sb.ToString()}";
+                            te_log.Text += Logger.Get();
+                        });
+                        await Task.Delay(100);
+                    }
+                    catch (Exception e)
                     {
-                        l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolOutput.ActiveThreads} -- InUseThreads: {smartThreadPoolOutput.InUseThreads}";
-                        tb_status.Text = $"{sb.ToString()}";
-                        te_log.Text += Logger.Get();
-                    });
-                    await Task.Delay(100);
+                        smartThreadPoolOutput.Dispose();
+                        Logger.Error($"Exception has been throwed. \n{e.Message}");
+                        SetErrorLog();
+                        return;
+                    }
                 }
                 smartThreadPoolOutput.Dispose();
 
@@ -658,6 +692,8 @@ namespace ExcelTool
                 {
                     btn_start.IsEnabled = true;
                     btn_stop.IsEnabled = false;
+
+                    isRunning = false;
                     return;
                 }
                 tb_status.Text = "";
@@ -722,10 +758,13 @@ namespace ExcelTool
                     else
                     {
                         Logger.Error("file not saved.");
+                        te_log.Text += Logger.Get();
                     }
 
                     btn_start.IsEnabled = true;
                     btn_stop.IsEnabled = false;
+
+                    isRunning = false;
                     return;
                 }
 
@@ -770,6 +809,7 @@ namespace ExcelTool
             }
 
             te_log.Text += Logger.Get();
+            isRunning = false;
             btn_start.IsEnabled = true;
             btn_stop.IsEnabled = false;
         }
@@ -1168,6 +1208,15 @@ namespace ExcelTool
             IniHelper.SetBasePath(tb_base_path.Text);
             IniHelper.SetOutputPath(tb_output_path.Text);
             IniHelper.SetOutputFileName(tb_output_name.Text);
+
+            if (cb_isautoopen.IsChecked == true)
+            {
+                IniHelper.SetIsAutoOpen(true);
+            }
+            else
+            {
+                IniHelper.SetIsAutoOpen(false);
+            }
         }
 
         private void RenewSmartThreadPoolAnalyze(STPStartInfo stp)
@@ -1241,13 +1290,10 @@ namespace ExcelTool
 
         void PasteCommandBindingPreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            // Get clipboard data and stuff
             var dataObject = Clipboard.GetDataObject();
             var text = (string)dataObject.GetData(DataFormats.UnicodeText);
-            // normalize newlines so we definitely get all the newlines
             text = TextUtilities.NormalizeNewLines(text, Environment.NewLine);
 
-            // if the text contains newlines - replace them and paste again :)
             if (text.Contains(Environment.NewLine))
             {
                 e.CanExecute = false;
@@ -1384,6 +1430,10 @@ namespace ExcelTool
                 rule.watchPath = tbPath.Text;
                 rule.filter = tbFilter.Text;
             }
+            else
+            {
+                return;
+            }
 
             string json = JsonConvert.SerializeObject(rule);
             string fileName = $".\\Rules\\{cb_rules.SelectedItem.ToString()}.json";
@@ -1407,19 +1457,41 @@ namespace ExcelTool
 
         private void SetAuto(RunningRule rule, string ruleName)
         {
-            FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
-            fileSystemWatcher.Path = rule.watchPath;
-            fileSystemWatcher.Filter = rule.filter;
-            fileSystemWatcher.Deleted += FileSystemWatcherInvoke;
-            fileSystemWatcher.Created += FileSystemWatcherInvoke;
-            fileSystemWatcher.Changed += FileSystemWatcherInvoke;
-            fileSystemWatcher.Renamed += FileSystemWatcherInvoke;
-            fileSystemWatcher.IncludeSubdirectories = true;
-            fileSystemWatcher.EnableRaisingEvents = true;
-            fileSystemWatcherDic.Add(fileSystemWatcher, ruleName);
+            if (!fileSystemWatcherDic.ContainsValue(ruleName))
+            {
+                FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
+                fileSystemWatcher.Path = rule.watchPath;
+                fileSystemWatcher.Filter = rule.filter;
+                fileSystemWatcher.Deleted += FileSystemWatcherInvoke;
+                fileSystemWatcher.Created += FileSystemWatcherInvoke;
+                fileSystemWatcher.Changed += FileSystemWatcherInvoke;
+                fileSystemWatcher.Renamed += FileSystemWatcherInvoke;
+                fileSystemWatcher.IncludeSubdirectories = true;
+                fileSystemWatcher.EnableRaisingEvents = true;
+                fileSystemWatcherDic.Add(fileSystemWatcher, ruleName);
 
-            btn_setauto.Visibility = Visibility.Hidden;
-            btn_unsetauto.Visibility = Visibility.Visible;
+                btn_setauto.Visibility = Visibility.Hidden;
+                btn_unsetauto.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void SetAutoAll()
+        {
+            List<String> rulesList = Directory.GetFiles(".\\Rules", "*.json").ToList();
+            foreach (string path in rulesList)
+            {
+                RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText(path));
+
+                if (rule.watchPath != null && rule.watchPath != "")
+                {
+                    if (!CheckRule(rule))
+                    {
+                        continue;
+                    }
+
+                    SetAuto(rule, Path.GetFileNameWithoutExtension(path));
+                }
+            }
         }
 
         private void UnsetAuto(object sender, RoutedEventArgs e)

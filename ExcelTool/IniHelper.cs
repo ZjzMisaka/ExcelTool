@@ -35,6 +35,7 @@ namespace ExcelTool
             parsedINIDataToBeSaved["Window"].AddKey("AnalyzerEditorHeight", "450");
             parsedINIDataToBeSaved["Window"].AddKey("SheetExplainerEditorWidth", "800");
             parsedINIDataToBeSaved["Window"].AddKey("SheetExplainerEditorHeight", "450");
+            parsedINIDataToBeSaved["Window"].AddKey("IsAutoOpen", "False");
             parsedINIDataToBeSaved.Sections.AddSection("Value");
             parsedINIDataToBeSaved["Value"].AddKey("DefaultBasePath", "");
             parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputPath", Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
@@ -192,6 +193,31 @@ namespace ExcelTool
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
             return new Point(Double.Parse(data["Window"][$"{wndName}Width"]), Double.Parse(data["Window"][$"{wndName}Height"]));
+        }
+
+        public static void SetIsAutoOpen(bool isAutoOpen)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Window"]["IsAutoOpen"] = isAutoOpen.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetIsAutoOpen()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return false;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Window"]["IsAutoOpen"]);
         }
 
         public static void SetBasePath(String basePath)
