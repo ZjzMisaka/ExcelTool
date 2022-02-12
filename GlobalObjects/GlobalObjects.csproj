@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CustomizableMessageBox">
-      <HintPath>C:\Users\Administrator\Desktop\CustomizableMessageBox.dll</HintPath>
+      <HintPath>..\..\CustomizableMessageBox\CustomizableMessageBox\bin\Release\CustomizableMessageBox.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />

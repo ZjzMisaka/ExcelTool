@@ -39,7 +39,7 @@
       <HintPath>..\packages\ClosedXML.0.95.4\lib\net46\ClosedXML.dll</HintPath>
     </Reference>
     <Reference Include="CustomizableMessageBox">
-      <HintPath>C:\Users\Administrator\Desktop\CustomizableMessageBox.dll</HintPath>
+      <HintPath>..\..\CustomizableMessageBox\CustomizableMessageBox\bin\Release\CustomizableMessageBox.dll</HintPath>
     </Reference>
     <Reference Include="DocumentFormat.OpenXml, Version=2.7.2.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
       <HintPath>..\packages\DocumentFormat.OpenXml.2.7.2\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
@@ -93,7 +93,9 @@
     <Compile Include="AnalyzerEditor.xaml.cs">
       <DependentUpon>AnalyzerEditor.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Code.cs" />
     <Compile Include="IniHelper.cs" />
+    <Compile Include="RunningRule.cs" />
     <Compile Include="SheetExplainer.cs" />
     <Compile Include="SheetExplainerEditor.xaml.cs">
       <DependentUpon>SheetExplainerEditor.xaml</DependentUpon>
@@ -137,10 +139,20 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="bin\Debug\ParamHighlighting.xshd" />
+    <None Include="Highlighting\LogHighlighting.xshd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Highlighting\ParamHighlighting.xshd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Setting.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +163,11 @@
       <Project>{be1fc276-dd3c-4e11-9dc1-8a37a992603a}</Project>
       <Name>GlobalObjects</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Params.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
