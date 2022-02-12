@@ -1,10 +1,21 @@
 ﻿using CustomizableMessageBox;
 using ICSharpCode.AvalonEdit.Search;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Scripting.Hosting;
+using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.CodeAnalysis.Scripting.Hosting;
 using Newtonsoft.Json;
+using RoslynPad.Editor;
+using RoslynPad.Roslyn;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -23,11 +34,15 @@ namespace ExcelTool
     /// </summary>
     public partial class AnalyzerEditor : Window
     {
+        private readonly ObservableCollection<DocumentViewModel> _documents;
+        private RoslynHost _host;
+        RoslynCodeEditor editor;
         public AnalyzerEditor()
         {
             InitializeComponent();
 
-            SearchPanel.Install(te_editor);
+            _documents = new ObservableCollection<DocumentViewModel>();
+            Items.ItemsSource = _documents;
         }
 
         private void BtnSaveClick(object sender, RoutedEventArgs e)
@@ -43,7 +58,7 @@ namespace ExcelTool
             if (result == 1)
             {
                 Analyzer analyzer = new Analyzer();
-                analyzer.code = te_editor.Text;
+                analyzer.code = editor.Text;
                 analyzer.name = tbName.Text;
                 string json = JsonConvert.SerializeObject(analyzer);
 
@@ -84,21 +99,66 @@ namespace ExcelTool
                 this.Height = height;
             }
 
-            te_editor.Text = GlobalObjects.GlobalObjects.GetDefaultCode();
+            List<Assembly> assemblies = new List<Assembly>();
+            assemblies.Add(typeof(object).Assembly);
+            assemblies.Add(typeof(System.Text.RegularExpressions.Regex).Assembly);
+            assemblies.Add(typeof(System.Linq.Enumerable).Assembly);
+            assemblies.Add(Assembly.Load("ClosedXML"));
+            assemblies.Add(Assembly.Load("GlobalObjects"));
+
+            _host = new RoslynHost(additionalAssemblies: new[]
+            {
+                Assembly.Load("RoslynPad.Roslyn.Windows"),
+                Assembly.Load("RoslynPad.Editor.Windows")
+            }, RoslynHostReferences.NamespaceDefault.With(assemblyReferences: assemblies));
+            AddNewDocument();
+        }
+
+        private void AddNewDocument(DocumentViewModel previous = null)
+        {
+            _documents.Add(new DocumentViewModel(_host, previous));
+        }
+
+        private void OnItemLoaded(object sender, EventArgs e)
+        {
+            editor = (RoslynCodeEditor)sender;
+            editor.Loaded -= OnItemLoaded;
+            editor.Focus();
+
+            var viewModel = (DocumentViewModel)editor.DataContext;
+            var workingDirectory = Directory.GetCurrentDirectory();
+
+            var previous = viewModel.LastGoodPrevious;
+            if (previous != null)
+            {
+                editor.CreatingDocument += (o, args) =>
+                {
+                    args.DocumentId = _host.AddRelatedDocument(previous.Id, new DocumentCreationArgs(
+                        args.TextContainer, workingDirectory, args.ProcessDiagnostics,
+                        args.TextContainer.UpdateText));
+                };
+            }
+
+            var documentId = editor.Initialize(_host, new ClassificationHighlightColors(),
+                workingDirectory, string.Empty);
+
+            viewModel.Initialize(documentId);
+
+            editor.Text = GlobalObjects.GlobalObjects.GetDefaultCode();
         }
 
         private void CbAnalyzersSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             btn_delete.IsEnabled = cb_analyzers.SelectedIndex >= 1 ? true : false;
 
-            te_editor.Text = GlobalObjects.GlobalObjects.GetDefaultCode();
+            editor.Text = GlobalObjects.GlobalObjects.GetDefaultCode();
 
             if (cb_analyzers.SelectedIndex == 0)
             {
                 return;
             }
             Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{cb_analyzers.SelectedItem.ToString()}.json"));
-            te_editor.Text = analyzer.code;
+            editor.Text = analyzer.code;
         }
 
         private void CbAnalyzersPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -145,6 +205,77 @@ namespace ExcelTool
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             IniHelper.SetWindowSize(this.Name.Substring(2), new Point(this.Width, this.Height));
+        }
+
+        class DocumentViewModel : INotifyPropertyChanged
+        {
+            private bool _isReadOnly;
+            private readonly RoslynHost _host;
+            private string _result;
+
+            public DocumentViewModel(RoslynHost host, DocumentViewModel previous)
+            {
+                _host = host;
+                Previous = previous;
+            }
+
+            internal void Initialize(DocumentId id)
+            {
+                Id = id;
+            }
+
+
+            public DocumentId Id { get; private set; }
+
+            public bool IsReadOnly
+            {
+                get { return _isReadOnly; }
+                private set { SetProperty(ref _isReadOnly, value); }
+            }
+
+            public DocumentViewModel Previous { get; }
+
+            public DocumentViewModel LastGoodPrevious
+            {
+                get
+                {
+                    var previous = Previous;
+
+                    while (previous != null && previous.HasError)
+                    {
+                        previous = previous.Previous;
+                    }
+
+                    return previous;
+                }
+            }
+
+            public Script<object> Script { get; private set; }
+
+            public string Text { get; set; }
+
+            public bool HasError { get; private set; }
+
+            private static MethodInfo HasSubmissionResult { get; } =
+                typeof(Compilation).GetMethod(nameof(HasSubmissionResult), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+            {
+                if (!EqualityComparer<T>.Default.Equals(field, value))
+                {
+                    field = value;
+                    OnPropertyChanged(propertyName);
+                    return true;
+                }
+                return false;
+            }
+
+            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
     }
 }
