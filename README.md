@@ -23,7 +23,7 @@
 <img src="https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool02.png" width="400px" />
 
 #### 编码相关
-- 编码内容依赖[ClosedXML](https://github.com/ClosedXML/ClosedXML)开源库
+- 编码内容依赖[ClosedXML](https://github.com/ClosedXML/ClosedXML)开源库 **(支持自动补全等功能)**
 - 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
 
 ##### AnalyzeSheet函数
