@@ -14,6 +14,7 @@ namespace ExcelTool
         public string basePath;
         public string outputPath;
         public string outputName;
+        public string sheetName;
 
         public string watchPath;
         public string filter;

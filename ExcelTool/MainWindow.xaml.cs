@@ -269,7 +269,7 @@ namespace ExcelTool
                     }
                     this.Dispatcher.Invoke(() =>
                     {
-                        Start(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName, true);
+                        Start(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName, rule.sheetName, true);
                     });
                 }
                 finally
@@ -290,10 +290,10 @@ namespace ExcelTool
 
         private void Start(object sender, RoutedEventArgs e)
         {
-            Start(te_sheetexplainers.Text, te_analyzers.Text, te_params.Text, tb_base_path.Text, tb_output_path.Text, tb_output_name.Text, false);
+            Start(te_sheetexplainers.Text, te_analyzers.Text, te_params.Text, tb_base_path.Text, tb_output_path.Text, tb_output_name.Text, tb_sheet_name.Text, false);
         }
 
-        private async void Start(string sheetExplainersStr, string analyzersStr, string paramStr, string basePath, string outputPath, string outputName, bool isAuto)
+        private async void Start(string sheetExplainersStr, string analyzersStr, string paramStr, string basePath, string outputPath, string outputName, string sheetName, bool isAuto)
         {
             this.Dispatcher.Invoke(() =>
             {
@@ -582,6 +582,11 @@ namespace ExcelTool
             // 输出结果
             using (var workbook = new XLWorkbook())
             {
+                if (sheetName != "")
+                {
+                    workbook.AddWorksheet(sheetName);
+                }
+                
                 string resPath = outputPath.Replace("\\", "/");
                 string filePath;
                 if (outputPath.EndsWith("/"))
@@ -1333,6 +1338,7 @@ namespace ExcelTool
                 runningRule.basePath = tb_base_path.Text;
                 runningRule.outputPath = tb_output_path.Text;
                 runningRule.outputName = tb_output_name.Text;
+                runningRule.sheetName = tb_sheet_name.Text;
                 string json = JsonConvert.SerializeObject(runningRule);
 
                 string fileName = $".\\Rules\\{tbName.Text}.json";
