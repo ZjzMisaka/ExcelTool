@@ -20,8 +20,7 @@
         </Grid.ColumnDefinitions>
         <ComboBox Name="cb_analyzers" Grid.Row="0" Margin="10 2" Width="300" VerticalContentAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" Grid.ColumnSpan="2" SelectionChanged="CbAnalyzersSelectionChanged" PreviewMouseLeftButtonDown="CbAnalyzersPreviewMouseLeftButtonDown"/>
         <Button Name="btn_delete" Content="删除" IsEnabled="False" Height="25" Width="50" Grid.Row="0" Grid.ColumnSpan="2" Margin="10 2" HorizontalAlignment="Right" Click="BtnDeleteClick"/>
-        <!--<avalonEdit:TextEditor Margin="10 2" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="te_editor" FontSize="14" SyntaxHighlighting="C#" ShowLineNumbers="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>-->
-        <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <ScrollViewer Name="sv_editor" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" PreviewMouseWheel="ScrollViewerPreviewMouseWheel">
             <ItemsControl Name="Items" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

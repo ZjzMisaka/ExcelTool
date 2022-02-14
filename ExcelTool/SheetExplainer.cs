@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ExcelTool
 {
-    public enum FindingMethod { SAME, CONTAIN, REGEX }
+    public enum FindingMethod { SAME, CONTAIN, REGEX, ALL }
     public class SheetExplainer
     {
         public List<String> relativePathes = new List<String>();

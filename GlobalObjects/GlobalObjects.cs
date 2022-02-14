@@ -85,6 +85,16 @@ namespace AnalyzeCode
     class Analyze
     {
         /// <summary>
+        /// 在所有分析前调用
+        /// </summary>
+        /// <param name=""paramDic"">传入的参数</param>
+        /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
+        public void RunBeforeAnalyze(Dictionary<string, string> paramDic, ref Object globalObject)
+        {
+            
+        }
+
+        /// <summary>
         /// 分析一个sheet
         /// </summary>
         /// <param name=""paramDic"">传入的参数</param>
@@ -98,6 +108,17 @@ namespace AnalyzeCode
         }
 
         /// <summary>
+        /// 在所有输出前调用
+        /// </summary>
+        /// <param name=""paramDic"">传入的参数</param>
+        /// <param name=""workbook"">用于输出的excel文件</param>
+        /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
+        public void RunBeforeSetResult(Dictionary<string, string> paramDic, XLWorkbook workbook, ref Object globalObject)
+        {
+            
+        }
+
+        /// <summary>
         /// 根据分析结果输出到excel中
         /// </summary>
         /// <param name=""paramDic"">传入的参数</param>
@@ -105,7 +126,7 @@ namespace AnalyzeCode
         /// <param name=""result"">存储当前文件的信息 ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }</param>
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
         /// <param name=""invokeCount"">此输出函数被调用的次数</param>
-        /// <param name=""totalCount"">总共需要调用的输出函数的个数</param>
+        /// <param name=""totalCount"">总共需要调用的输出函数的次数</param>
         public void SetResult(Dictionary<string, string> paramDic, XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, ref Object globalObject, int invokeCount, int totalCount)
         {
             

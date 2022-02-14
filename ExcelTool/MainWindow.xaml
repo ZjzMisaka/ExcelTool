@@ -68,9 +68,7 @@
                 <Button Grid.Row="12" Grid.ColumnSpan="2" Height="25" Name="btn_open_result_path" Click="OpenPath" Margin="95 2 10 2" Content="打开" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
                 <Label Height="25" Margin="10 2 10 0" Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="1" Content="输出文件名" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <TextBox Grid.Row="14" Grid.ColumnSpan="1" Grid.Column="0" Name="tb_output_name" PreviewDragOver="DragOverFile" PreviewDrop="DropFile" AllowDrop="True" TextWrapping="NoWrap" Text="" Margin="10 2" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                <Label Height="25" Margin="10 2 10 0" Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="1" Content="创建sheet名" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
-                <TextBox Grid.Row="14" Grid.ColumnSpan="1" Grid.Column="1" Name="tb_sheet_name" PreviewDragOver="DragOverFile" PreviewDrop="DropFile" AllowDrop="True" TextWrapping="NoWrap" Text="" Margin="10 2" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                
+
                 <Button Grid.Row="15" Grid.ColumnSpan="2" Height="25" Name="btn_select_output_filename" Click="SelectName" Margin="10 2" Content="选择" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
 
                 <Label Height="25" Margin="10 2 10 0" Grid.Row="16" Grid.ColumnSpan="2" Content="规则" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>

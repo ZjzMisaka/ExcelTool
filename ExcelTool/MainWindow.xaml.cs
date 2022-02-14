@@ -269,7 +269,7 @@ namespace ExcelTool
                     }
                     this.Dispatcher.Invoke(() =>
                     {
-                        Start(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName, rule.sheetName, true);
+                        Start(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName, true);
                     });
                 }
                 finally
@@ -290,10 +290,10 @@ namespace ExcelTool
 
         private void Start(object sender, RoutedEventArgs e)
         {
-            Start(te_sheetexplainers.Text, te_analyzers.Text, te_params.Text, tb_base_path.Text, tb_output_path.Text, tb_output_name.Text, tb_sheet_name.Text, false);
+            Start(te_sheetexplainers.Text, te_analyzers.Text, te_params.Text, tb_base_path.Text, tb_output_path.Text, tb_output_name.Text, false);
         }
 
-        private async void Start(string sheetExplainersStr, string analyzersStr, string paramStr, string basePath, string outputPath, string outputName, string sheetName, bool isAuto)
+        private async void Start(string sheetExplainersStr, string analyzersStr, string paramStr, string basePath, string outputPath, string outputName, bool isAuto)
         {
             this.Dispatcher.Invoke(() =>
             {
@@ -380,7 +380,7 @@ namespace ExcelTool
                 {
                     methodResult = (Object[])wir.GetResult();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     methodResult = null;
                 }
@@ -457,13 +457,75 @@ namespace ExcelTool
                 analyzers.Add(analyzer);
             }
 
+            Dictionary<Analyzer, CompilerResults> compilerDic = new Dictionary<Analyzer, CompilerResults>();
             int totalCount = 0;
             for (int i = 0; i < sheetExplainersList.Count; ++i)
             {
+                long startTime = GetNowSs();
+
                 SheetExplainer sheetExplainer = sheetExplainers[i];
                 Analyzer analyzer = analyzers[i];
 
                 CompilerResults cresult = GetCresult(analyzer);
+                compilerDic.Add(analyzer, cresult);
+
+                Thread runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, paramDic, analyzer));
+                runBeforeAnalyzeSheetThread.Start();
+                while (runBeforeAnalyzeSheetThread.ThreadState == ThreadState.Running)
+                {
+                    if (isStopByUser)
+                    {
+                        try
+                        {
+                            runBeforeAnalyzeSheetThread.Abort();
+                        }
+                        catch (Exception)
+                        {
+                            // DO NOTHING
+                        }
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            btn_start.IsEnabled = true;
+                            btn_stop.IsEnabled = false;
+                        });
+                        SetErrorLog();
+                        isRunning = false;
+                        return;
+                    }
+                    long timeCostSs = GetNowSs() - startTime;
+                    if (timeCostSs >= perTimeoutLimitAnalyze)
+                    {
+                        try
+                        {
+                            runBeforeAnalyzeSheetThread.Abort();
+                        }
+                        catch (Exception)
+                        {
+                            // DO NOTHING
+                        }
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            btn_start.IsEnabled = true;
+                            btn_stop.IsEnabled = false;
+                        });
+                        if (!isAuto)
+                        {
+                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                        }
+                        else
+                        {
+                            Logger.Error($"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                        }
+                        SetErrorLog();
+                        isRunning = false;
+                        return;
+                    }
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        te_log.Text += Logger.Get();
+                    });
+                    await Task.Delay(100);
+                }
 
                 foreach (String str in sheetExplainer.relativePathes)
                 {
@@ -551,7 +613,7 @@ namespace ExcelTool
                                 {
                                     Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                                 }
-
+                                SetErrorLog();
                                 isRunning = false;
                                 return;
                             }
@@ -582,11 +644,6 @@ namespace ExcelTool
             // 输出结果
             using (var workbook = new XLWorkbook())
             {
-                if (sheetName != "")
-                {
-                    workbook.AddWorksheet(sheetName);
-                }
-                
                 string resPath = outputPath.Replace("\\", "/");
                 string filePath;
                 if (outputPath.EndsWith("/"))
@@ -598,14 +655,66 @@ namespace ExcelTool
                     filePath = $"{resPath}/{outputName}.xlsx";
                 }
 
+                foreach (Analyzer analyzer in compilerDic.Keys)
+                {
+                    long startTime = GetNowSs();
+
+                    CompilerResults cresult = compilerDic[analyzer];
+                    Thread runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, paramDic, analyzer));
+                    runBeforeSetResultThread.Start();
+                    while (runBeforeSetResultThread.ThreadState == ThreadState.Running)
+                    {
+                        if (isStopByUser)
+                        {
+                            runBeforeSetResultThread.Abort();
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                btn_start.IsEnabled = true;
+                                btn_stop.IsEnabled = false;
+                            });
+                            SetErrorLog();
+                            isRunning = false;
+                            return;
+                        }
+                        long timeCostSs = GetNowSs() - startTime;
+                        if (timeCostSs >= perTimeoutLimitAnalyze)
+                        {
+                            runBeforeSetResultThread.Abort();
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                btn_start.IsEnabled = true;
+                                btn_stop.IsEnabled = false;
+                            });
+                            if (!isAuto)
+                            {
+                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                            }
+                            else
+                            {
+                                Logger.Error($"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                            }
+                            SetErrorLog();
+                            isRunning = false;
+                            return;
+                        }
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            te_log.Text += Logger.Get();
+                        });
+                        await Task.Delay(100);
+                    }
+                }
+
                 foreach (ConcurrentDictionary<ResultType, Object> result in resultList.Keys)
                 {
+                    Analyzer analyzer = resultList[result];
                     List<object> setResultParams = new List<object>();
                     setResultParams.Add(workbook);
                     setResultParams.Add(result);
-                    setResultParams.Add(resultList[result]);
+                    setResultParams.Add(analyzer.name);
                     setResultParams.Add(resultList.Count);
                     setResultParams.Add(paramDic);
+                    setResultParams.Add(compilerDic[analyzer]);
                     smartThreadPoolOutput.QueueWorkItem(new Func<List<object>, Object[]>(SetResult), setResultParams);
                 }
                 startSs = GetNowSs();
@@ -667,7 +776,7 @@ namespace ExcelTool
                                     {
                                         Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                                     }
-
+                                    SetErrorLog();
                                     isRunning = false;
                                     return;
                                 }
@@ -819,6 +928,68 @@ namespace ExcelTool
             btn_stop.IsEnabled = false;
         }
 
+        private void RunBeforeAnalyzeSheet(CompilerResults cresult, Dictionary<string, string> paramDic, Analyzer analyzer)
+        {
+            if (cresult.Errors.HasErrors)
+            {
+
+                String str = "";
+                foreach (CompilerError err in cresult.Errors)
+                {
+                    str = $"{str}\n    {err.ErrorText} in line {err.Line}";
+                }
+
+                Logger.Error(str);
+                runNotSuccessed = true;
+                Stop();
+            }
+            else
+            {
+                // 通过反射执行代码
+                try
+                {
+                    Assembly objAssembly = cresult.CompiledAssembly;
+                    object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
+                    MethodInfo objMI = obj.GetType().GetMethod("RunBeforeAnalyzeSheet");
+                    object[] objList = new object[] { paramDic, GlobalObjects.GlobalObjects.GetGlobalParam()};
+                    objMI.Invoke(obj, objList);
+                    GlobalObjects.GlobalObjects.SetGlobalParam(objList[1]);
+                }
+                catch (Exception e)
+                {
+                    if (!(e is ThreadAbortException))
+                    {
+                        Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                        runNotSuccessed = true;
+                        Stop();
+                    }
+                }
+            }
+        }
+
+        private void RunBeforeSetResult(CompilerResults cresult, XLWorkbook workbook, Dictionary<string, string> paramDic, Analyzer analyzer)
+        {
+            // 通过反射执行代码
+            try
+            {
+                Assembly objAssembly = cresult.CompiledAssembly;
+                object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
+                MethodInfo objMI = obj.GetType().GetMethod("RunBeforeSetResult");
+                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam()};
+                objMI.Invoke(obj, objList);
+                GlobalObjects.GlobalObjects.SetGlobalParam(objList[1]);
+            }
+            catch (Exception e)
+            {
+                if (!(e is ThreadAbortException))
+                {
+                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                    runNotSuccessed = true;
+                    Stop();
+                }
+            }
+        }
+
         private void SaveFile(bool isAuto, string filePath, XLWorkbook workbook, out bool result)
         {
             try
@@ -933,6 +1104,14 @@ namespace ExcelTool
                         }
                     }
                 }
+                else if (sheetExplainer.sheetNames.Key == FindingMethod.ALL)
+                {
+                    Regex rgx = new Regex("[\\s\\S]*");
+                    if (rgx.IsMatch(sheet.Name))
+                    {
+                        Analyze(sheet, result, analyzer, paramDic, cresult);
+                    }
+                }
             }
             methodResult.AddOrUpdate(ReadFileReturnType.RESULT, result, (key, oldValue) => null);
             return methodResult;
@@ -990,6 +1169,15 @@ namespace ExcelTool
                                     string fileName = System.IO.Path.Combine(fileInfo.DirectoryName, fileInfo.Name);
                                     filePathList.Add(fileName);
                                 }
+                            }
+                        }
+                        else if (sheetExplainer.fileNames.Key == FindingMethod.ALL)
+                        {
+                            Regex rgx = new Regex("[\\s\\S]*.xls[xm]", RegexOptions.IgnoreCase);
+                            if (rgx.IsMatch(fileInfo.Name))
+                            {
+                                string fileName = System.IO.Path.Combine(fileInfo.DirectoryName, fileInfo.Name);
+                                filePathList.Add(fileName);
                             }
                         }
                     }
@@ -1115,38 +1303,22 @@ namespace ExcelTool
 
         private void Analyze(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, Dictionary<string, string> paramDic, CompilerResults cresult) 
         {
-            if (cresult.Errors.HasErrors)
+            // 通过反射执行代码
+            try
             {
-
-                String str = "";
-                foreach (CompilerError err in cresult.Errors)
-                {
-                    str = $"{str}\n    {err.ErrorText} in line {err.Line}"; 
-                }
-
-                Logger.Error(str);
+                Assembly objAssembly = cresult.CompiledAssembly;
+                object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
+                MethodInfo objMI = obj.GetType().GetMethod("AnalyzeSheet");
+                ++analyzeSheetInvokeCount;
+                object[] objList = new object[] { paramDic, sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(), analyzeSheetInvokeCount };
+                objMI.Invoke(obj, objList);
+                GlobalObjects.GlobalObjects.SetGlobalParam(objList[3]);
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
                 runNotSuccessed = true;
                 Stop();
-            }
-            else
-            {
-                // 通过反射执行代码
-                try
-                {
-                    Assembly objAssembly = cresult.CompiledAssembly;
-                    object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
-                    MethodInfo objMI = obj.GetType().GetMethod("AnalyzeSheet");
-                    ++analyzeSheetInvokeCount;
-                    object[] objList = new object[] { paramDic, sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(), analyzeSheetInvokeCount };
-                    objMI.Invoke(obj, objList);
-                    GlobalObjects.GlobalObjects.SetGlobalParam(objList[3]);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
-                    runNotSuccessed = true;
-                    Stop();
-                }
             }
 
         }
@@ -1155,9 +1327,10 @@ namespace ExcelTool
         {
             XLWorkbook workbook = (XLWorkbook)setResultParams[0];
             ConcurrentDictionary<ResultType, Object> result = (ConcurrentDictionary<ResultType, Object>)setResultParams[1];
-            Analyzer analyzer = (Analyzer)setResultParams[2];
+            string analyzerName = (string)setResultParams[2];
             int totalCount = (int)setResultParams[3];
             Dictionary<string, string> paramDic = (Dictionary<string, string>)setResultParams[4];
+            CompilerResults cresult = (CompilerResults)setResultParams[5];
 
 
             Boolean resBoolean = true;
@@ -1168,41 +1341,23 @@ namespace ExcelTool
                 currentOutputtingDictionary.AddOrUpdate(filePath.ToString(), GetNowSs(), (key, oldValue) => GetNowSs());
             }
 
-            CompilerResults cresult = GetCresult(analyzer);
-
-            if (cresult.Errors.HasErrors)
+            // 通过反射执行代码
+            try
             {
-                resBoolean = false;
-
-                String str = "";
-                foreach (CompilerError err in cresult.Errors)
-                {
-                    str = $"{str}\n    {err.ErrorText} in line {err.Line}";
-                }
-                Logger.Error(str);
-                runNotSuccessed = true;
-                Stop();
+                Assembly objAssembly = cresult.CompiledAssembly;
+                object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
+                MethodInfo objMI = obj.GetType().GetMethod("SetResult");
+                ++setResultInvokeCount;
+                object[] objList = new object[] { paramDic, workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(), setResultInvokeCount, totalCount };
+                objMI.Invoke(obj, objList);
+                GlobalObjects.GlobalObjects.SetGlobalParam(objList[3]);
             }
-            else
+            catch (Exception e)
             {
-                // 通过反射执行代码
-                try
-                {
-                    Assembly objAssembly = cresult.CompiledAssembly;
-                    object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
-                    MethodInfo objMI = obj.GetType().GetMethod("SetResult");
-                    ++setResultInvokeCount;
-                    object[] objList = new object[] { paramDic, workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(), setResultInvokeCount, totalCount };
-                    objMI.Invoke(obj, objList);
-                    GlobalObjects.GlobalObjects.SetGlobalParam(objList[3]);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.SetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
-                    runNotSuccessed = true;
-                    resBoolean = false;
-                    Stop();
-                }
+                Logger.Error($"\n    {e.InnerException.Message}\n    {analyzerName}.SetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                runNotSuccessed = true;
+                resBoolean = false;
+                Stop();
             }
             return new Object[] { resBoolean, result };
         }
@@ -1338,7 +1493,6 @@ namespace ExcelTool
                 runningRule.basePath = tb_base_path.Text;
                 runningRule.outputPath = tb_output_path.Text;
                 runningRule.outputName = tb_output_name.Text;
-                runningRule.sheetName = tb_sheet_name.Text;
                 string json = JsonConvert.SerializeObject(runningRule);
 
                 string fileName = $".\\Rules\\{tbName.Text}.json";

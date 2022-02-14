@@ -55,6 +55,10 @@ namespace ExcelTool
                 {
                     fileNamesFindingMethod = FindingMethod.REGEX;
                 }
+                else if (cb_filenamestype.SelectedIndex == 3)
+                {
+                    fileNamesFindingMethod = FindingMethod.ALL;
+                }
                 KeyValuePair <FindingMethod, List<string>> fileNames = new KeyValuePair<FindingMethod, List<string>>(fileNamesFindingMethod, StringListDeteleBlank(tb_filenames.Text.Split('\n').ToList()));
                 sheetExplainer.fileNames = fileNames;
 
@@ -70,6 +74,10 @@ namespace ExcelTool
                 else if (cb_sheetnamestype.SelectedIndex == 2)
                 {
                     sheetNamesFindingMethod = FindingMethod.REGEX;
+                }
+                else if (cb_sheetnamestype.SelectedIndex == 3)
+                {
+                    sheetNamesFindingMethod = FindingMethod.ALL;
                 }
                 KeyValuePair<FindingMethod, List<string>> sheetNames = new KeyValuePair<FindingMethod, List<string>>(sheetNamesFindingMethod, StringListDeteleBlank(tb_sheetnames.Text.Split('\n').ToList()));
                 sheetExplainer.sheetNames = sheetNames;

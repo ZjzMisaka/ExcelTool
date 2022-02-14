@@ -38,6 +38,7 @@
                 <ComboBoxItem Content="一致"/>
                 <ComboBoxItem Content="包含"/>
                 <ComboBoxItem Content="正则表达式"/>
+                <ComboBoxItem Content="全部文件"/>
             </ComboBox>
             <TextBox AcceptsReturn="True" TextWrapping="Wrap" Name="tb_filenames" Grid.Row="3" Grid.Column="1" Margin="10 2"/>
 
@@ -46,6 +47,7 @@
                 <ComboBoxItem Content="一致"/>
                 <ComboBoxItem Content="包含"/>
                 <ComboBoxItem Content="正则表达式"/>
+                <ComboBoxItem Content="全部Sheet"/>
             </ComboBox>
             <TextBox AcceptsReturn="True" TextWrapping="Wrap" Name="tb_sheetnames" Grid.Row="3" Grid.Column="2" Margin="10 2"/>
         </Grid>
