@@ -4,7 +4,6 @@
 - 设定完成检索信息和分析逻辑后通过下拉框选择, 使一行检索信息和一行分析逻辑一一对应
 - 可以设定传入参数
 - 设定检索根目录和输出目录, 输出文件名
-- 可以设定输出文件默认添加的sheet
 - 通过规则下拉框选择设定好的规则可以自动填充以上内容
     - 选择规则后可以设定监视对一些文件夹和文件进行监视, 出现变动后自动执行这项规则
 - 点击开始可以手动执行
@@ -26,6 +25,12 @@
 - 编码内容依赖[ClosedXML](https://github.com/ClosedXML/ClosedXML)开源库 **(支持自动补全等功能)**
 - 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
 
+##### RunBeforeAnalyze函数
+|参数|类型|含义|备注|
+|----|----|----|----|
+|paramDic|Dictionary<string, string>|传入的参数||
+|globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
+
 ##### AnalyzeSheet函数
 |参数|类型|含义|备注|
 |----|----|----|----|
@@ -34,6 +39,13 @@
 |result|ConcurrentDictionary<ResultType, Object>|存储当前文件的信息||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |invokeCount|int|此分析函数被调用的次数|第一次调用时值为1|
+
+##### RunBeforeSetResult函数
+|参数|类型|含义|备注|
+|----|----|----|----|
+|paramDic|Dictionary<string, string>|传入的参数||
+|workbook|XLWorkbook|用于输出的Excel文件||
+|globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 
 ##### SetResult函数
 |参数|类型|含义|备注|
