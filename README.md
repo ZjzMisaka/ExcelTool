@@ -67,5 +67,6 @@
 |[rickyah/ini-parser](https://github.com/rickyah/ini-parser)|MIT|
 |[amibar/SmartThreadPool](https://github.com/amibar/SmartThreadPool)|MS-PL|
 |[ZjzMisaka/CustomizableMessageBox](https://github.com/ZjzMisaka/CustomizableMessageBox)|WTFPL|
+
 ### 注意
 CustomizableMessageBox不使用Nuget, 需要从库的release中手动下载dll文件. 
