@@ -57,6 +57,13 @@
 |invokeCount|int|此输出函数被调用的次数|详见上表|
 |totalCount|int|总共需要调用的输出函数的次数|当invokeCount与totalCount值相同时即为最后一次调用|
 
+##### RunEnd函数
+|参数|类型|含义|备注|
+|----|----|----|----|
+|paramDic|Dictionary<string, string>|传入的参数||
+|workbook|XLWorkbook|用于输出的Excel文件||
+|globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
+
 # 使用的开源库
 |开源库|开源协议|
 |----|----|
