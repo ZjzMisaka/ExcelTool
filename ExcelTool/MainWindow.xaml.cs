@@ -977,7 +977,7 @@ namespace ExcelTool
                 MethodInfo objMI = obj.GetType().GetMethod("RunBeforeSetResult");
                 object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam()};
                 objMI.Invoke(obj, objList);
-                GlobalObjects.GlobalObjects.SetGlobalParam(objList[1]);
+                GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
             }
             catch (Exception e)
             {
