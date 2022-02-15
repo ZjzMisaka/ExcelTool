@@ -152,6 +152,10 @@ namespace ExcelTool
             {
                 cb_filenamestype.SelectedIndex = 2;
             }
+            else if (sheetExplainer.fileNames.Key == FindingMethod.ALL)
+            {
+                cb_filenamestype.SelectedIndex = 3;
+            }
             foreach (String str in sheetExplainer.fileNames.Value)
             {
                 tb_filenames.Text += $"{str}\n";
@@ -167,6 +171,10 @@ namespace ExcelTool
             else if (sheetExplainer.sheetNames.Key == FindingMethod.REGEX)
             {
                 cb_sheetnamestype.SelectedIndex = 2;
+            }
+            else if (sheetExplainer.sheetNames.Key == FindingMethod.ALL)
+            {
+                cb_sheetnamestype.SelectedIndex = 3;
             }
             foreach (String str in sheetExplainer.sheetNames.Value)
             {

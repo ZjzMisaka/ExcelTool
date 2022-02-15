@@ -50,6 +50,8 @@ namespace ExcelTool
         {
             InitializeComponent();
 
+            ICSharpCode.AvalonEdit.Search.SearchPanel.Install(te_log);
+
             currentAnalizingDictionary = new ConcurrentDictionary<string, long>();
             currentOutputtingDictionary = new ConcurrentDictionary<string, long>();
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
@@ -802,6 +804,56 @@ namespace ExcelTool
                 }
                 smartThreadPoolOutput.Dispose();
 
+                foreach (Analyzer analyzer in compilerDic.Keys)
+                {
+                    long startTime = GetNowSs();
+
+                    CompilerResults cresult = compilerDic[analyzer];
+                    Thread runEndThread = new Thread(() => RunEnd(cresult, workbook, paramDic, analyzer));
+                    runEndThread.Start();
+                    while (runEndThread.ThreadState == ThreadState.Running)
+                    {
+                        if (isStopByUser)
+                        {
+                            runEndThread.Abort();
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                btn_start.IsEnabled = true;
+                                btn_stop.IsEnabled = false;
+                            });
+                            SetErrorLog();
+                            isRunning = false;
+                            return;
+                        }
+                        long timeCostSs = GetNowSs() - startTime;
+                        if (timeCostSs >= perTimeoutLimitAnalyze)
+                        {
+                            runEndThread.Abort();
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                btn_start.IsEnabled = true;
+                                btn_stop.IsEnabled = false;
+                            });
+                            if (!isAuto)
+                            {
+                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"RunEnd\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                            }
+                            else
+                            {
+                                Logger.Error($"RunEnd\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                            }
+                            SetErrorLog();
+                            isRunning = false;
+                            return;
+                        }
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            te_log.Text += Logger.Get();
+                        });
+                        await Task.Delay(100);
+                    }
+                }
+
                 if (runNotSuccessed)
                 {
                     btn_start.IsEnabled = true;
@@ -959,7 +1011,7 @@ namespace ExcelTool
                 {
                     if (!(e is ThreadAbortException))
                     {
-                        Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                        Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunBeforeAnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
                         runNotSuccessed = true;
                         Stop();
                     }
@@ -983,7 +1035,30 @@ namespace ExcelTool
             {
                 if (!(e is ThreadAbortException))
                 {
-                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunBeforeSetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                    runNotSuccessed = true;
+                    Stop();
+                }
+            }
+        }
+
+        private void RunEnd(CompilerResults cresult, XLWorkbook workbook, Dictionary<string, string> paramDic, Analyzer analyzer)
+        {
+            // 通过反射执行代码
+            try
+            {
+                Assembly objAssembly = cresult.CompiledAssembly;
+                object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
+                MethodInfo objMI = obj.GetType().GetMethod("RunEnd");
+                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam() };
+                objMI.Invoke(obj, objList);
+                GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
+            }
+            catch (Exception e)
+            {
+                if (!(e is ThreadAbortException))
+                {
+                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunEnd(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
                     runNotSuccessed = true;
                     Stop();
                 }

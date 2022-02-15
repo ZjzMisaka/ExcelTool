@@ -131,6 +131,17 @@ namespace AnalyzeCode
         {
             
         }
+
+        /// <summary>
+        /// 所有调用结束后调用
+        /// </summary>
+        /// <param name=""paramDic"">传入的参数</param>
+        /// <param name=""workbook"">用于输出的excel文件</param>
+        /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
+        public void RunEnd(Dictionary<string, string> paramDic, XLWorkbook workbook, ref Object globalObject)
+        {
+            
+        }
     }
 }
 ";
