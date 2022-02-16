@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CustomizableMessageBox">
-      <HintPath>..\..\CustomizableMessageBox\CustomizableMessageBox\bin\Release\CustomizableMessageBox.dll</HintPath>
+    <Reference Include="CustomizableMessageBox, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CustomizableMessageBox.1.0.0\lib\net472\CustomizableMessageBox.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -49,6 +49,9 @@
   <ItemGroup>
     <Compile Include="GlobalObjects.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
