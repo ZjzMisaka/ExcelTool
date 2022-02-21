@@ -101,10 +101,14 @@ namespace ExcelTool
 
             List<Assembly> assemblies = new List<Assembly>();
             assemblies.Add(typeof(object).Assembly);
-            assemblies.Add(typeof(System.Text.RegularExpressions.Regex).Assembly);
-            assemblies.Add(typeof(System.Linq.Enumerable).Assembly);
-            assemblies.Add(Assembly.Load("ClosedXML"));
-            assemblies.Add(Assembly.Load("GlobalObjects"));
+            string[] dlls = IniHelper.GetDlls().Split('|');
+            foreach (string dll in dlls)
+            {
+                if (!dll.StartsWith("System."))
+                {
+                    assemblies.Add(Assembly.Load(dll.Replace(".dll", "").Replace(".DLL", "")));
+                }
+            }
 
             _host = new RoslynHost(additionalAssemblies: new[]
             {
