@@ -468,11 +468,21 @@ namespace ExcelTool
                 SheetExplainer sheetExplainer = sheetExplainers[i];
                 Analyzer analyzer = analyzers[i];
 
+                List<String> allFilePathList = new List<String>();
+                foreach (String str in sheetExplainer.relativePathes)
+                {
+                    List<String> filePathList = new List<String>();
+                    basePath = Path.Combine(basePath.Trim(), str.Trim());
+                    FileTraverse(isAuto, basePath, sheetExplainer, filePathList);
+                    allFilePathList.AddRange(filePathList);
+                }
+
                 CompilerResults cresult = GetCresult(analyzer);
                 compilerDic.Add(analyzer, cresult);
 
-                Thread runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, paramDic, analyzer));
+                Thread runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, paramDic, analyzer, allFilePathList));
                 runBeforeAnalyzeSheetThread.Start();
+
                 while (runBeforeAnalyzeSheetThread.ThreadState == ThreadState.Running)
                 {
                     if (isStopByUser)
@@ -980,7 +990,7 @@ namespace ExcelTool
             btn_stop.IsEnabled = false;
         }
 
-        private void RunBeforeAnalyzeSheet(CompilerResults cresult, Dictionary<string, string> paramDic, Analyzer analyzer)
+        private void RunBeforeAnalyzeSheet(CompilerResults cresult, Dictionary<string, string> paramDic, Analyzer analyzer, List<String> allFilePathList)
         {
             if (cresult.Errors.HasErrors)
             {
@@ -1003,7 +1013,7 @@ namespace ExcelTool
                     Assembly objAssembly = cresult.CompiledAssembly;
                     object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                     MethodInfo objMI = obj.GetType().GetMethod("RunBeforeAnalyzeSheet");
-                    object[] objList = new object[] { paramDic, GlobalObjects.GlobalObjects.GetGlobalParam()};
+                    object[] objList = new object[] { paramDic, GlobalObjects.GlobalObjects.GetGlobalParam(), allFilePathList };
                     objMI.Invoke(obj, objList);
                     GlobalObjects.GlobalObjects.SetGlobalParam(objList[1]);
                 }
@@ -1027,7 +1037,7 @@ namespace ExcelTool
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("RunBeforeSetResult");
-                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam()};
+                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
             }
@@ -1050,7 +1060,7 @@ namespace ExcelTool
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("RunEnd");
-                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam() };
+                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
             }

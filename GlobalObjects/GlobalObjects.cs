@@ -89,7 +89,8 @@ namespace AnalyzeCode
         /// </summary>
         /// <param name=""paramDic"">传入的参数</param>
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
-        public void RunBeforeAnalyze(Dictionary<string, string> paramDic, ref Object globalObject)
+        /// <param name=""allFilePathList"">将会分析的所有文件路径列表</param>
+        public void RunBeforeAnalyzeSheet(Dictionary<string, string> paramDic, ref Object globalObject, List<string> allFilePathList)
         {
             
         }
@@ -113,7 +114,8 @@ namespace AnalyzeCode
         /// <param name=""paramDic"">传入的参数</param>
         /// <param name=""workbook"">用于输出的excel文件</param>
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
-        public void RunBeforeSetResult(Dictionary<string, string> paramDic, XLWorkbook workbook, ref Object globalObject)
+        /// <param name=""resultList"">所有文件的信息</param>
+        public void RunBeforeSetResult(Dictionary<string, string> paramDic, XLWorkbook workbook, ref Object globalObject, ICollection<ConcurrentDictionary<ResultType, Object>> resultList)
         {
             
         }
@@ -138,7 +140,8 @@ namespace AnalyzeCode
         /// <param name=""paramDic"">传入的参数</param>
         /// <param name=""workbook"">用于输出的excel文件</param>
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
-        public void RunEnd(Dictionary<string, string> paramDic, XLWorkbook workbook, ref Object globalObject)
+        /// <param name=""resultList"">所有文件的信息</param>
+        public void RunEnd(Dictionary<string, string> paramDic, XLWorkbook workbook, ref Object globalObject, ICollection<ConcurrentDictionary<ResultType, Object>> resultList)
         {
             
         }
