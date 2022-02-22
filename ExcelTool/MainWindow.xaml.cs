@@ -472,8 +472,8 @@ namespace ExcelTool
                 foreach (String str in sheetExplainer.relativePathes)
                 {
                     List<String> filePathList = new List<String>();
-                    basePath = Path.Combine(basePath.Trim(), str.Trim());
-                    FileTraverse(isAuto, basePath, sheetExplainer, filePathList);
+                    string basePathTemp = Path.Combine(basePath.Trim(), str.Trim());
+                    FileTraverse(isAuto, basePathTemp, sheetExplainer, filePathList);
                     allFilePathList.AddRange(filePathList);
                 }
 
@@ -542,9 +542,9 @@ namespace ExcelTool
                 foreach (String str in sheetExplainer.relativePathes)
                 {
                     List<String> filePathList = new List<String>();
-                    basePath = Path.Combine(basePath.Trim(), str.Trim());
+                    string basePathTemp = Path.Combine(basePath.Trim(), str.Trim());
 
-                    FileTraverse(isAuto, basePath, sheetExplainer, filePathList);
+                    FileTraverse(isAuto, basePathTemp, sheetExplainer, filePathList);
                     totalCount += filePathList.Count;
 
                     int filesCount = filePathList.Count;
