@@ -196,7 +196,6 @@ namespace ExcelTool
         {
             private bool _isReadOnly;
             private readonly RoslynHost _host;
-            private string _result;
 
             public DocumentViewModel(RoslynHost host, DocumentViewModel previous)
             {
