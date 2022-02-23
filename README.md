@@ -48,6 +48,7 @@
 |workbook|XLWorkbook|用于输出的Excel文件||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
+|allFilePathList|List<string>|分析的所有文件路径列表||
 
 ##### SetResult函数
 |参数|类型|含义|备注|
@@ -66,6 +67,7 @@
 |workbook|XLWorkbook|用于输出的Excel文件||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
+|allFilePathList|List<string>|分析的所有文件路径列表||
 
 # 使用的开源库
 |开源库|开源协议|
