@@ -57,26 +57,7 @@ namespace ExcelTool
             int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, "OK", "CANCEL" }, "name", "saving", MessageBoxImage.Information);
             if (result == 1)
             {
-                Analyzer analyzer = new Analyzer();
-                analyzer.code = editor.Text;
-                analyzer.name = tbName.Text;
-                string json = JsonConvert.SerializeObject(analyzer);
-
-                string fileName = $".\\Analyzers\\{tbName.Text}.json";
-                FileStream fs = null;
-                try
-                {
-                    fs = File.Create(fileName);
-                    fs.Close();
-                    StreamWriter sw = File.CreateText(fileName);
-                    sw.Write(json);
-                    sw.Flush();
-                    sw.Close();
-                }
-                catch (Exception ex)
-                {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                Save(tbName.Text);
             }
         }
 
@@ -288,6 +269,45 @@ namespace ExcelTool
             eventArg.RoutedEvent = UIElement.MouseWheelEvent;
             eventArg.Source = sender;
             sv_editor.RaiseEvent(eventArg);
+        }
+
+        private void SaveByKeyDownCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void SaveByKeyDown(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (cb_analyzers.SelectedIndex != 0)
+            {
+                Save(cb_analyzers.SelectedItem.ToString());
+            }
+        }
+
+        private void Save(string analyzerName)
+        {
+            Analyzer analyzer = new Analyzer();
+            analyzer.code = editor.Text;
+            analyzer.name = analyzerName;
+            string json = JsonConvert.SerializeObject(analyzer);
+
+            string fileName = $".\\Analyzers\\{analyzerName}.json";
+            FileStream fs = null;
+            try
+            {
+                fs = File.Create(fileName);
+                fs.Close();
+                StreamWriter sw = File.CreateText(fileName);
+                sw.Write(json);
+                sw.Flush();
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), "保存成功", "保存", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

@@ -8,6 +8,15 @@
         xmlns:local="clr-namespace:ExcelTool"
         mc:Ignorable="d"
         Title="逻辑编辑器" Name="w_AnalyzerEditor" Height="450" Width="800" Loaded="WindowLoaded" MinHeight="430" MinWidth="500" Closing="WindowClosing">
+    <Window.Resources>
+        <RoutedUICommand x:Key="Save" Text="Save"/>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Gesture="Ctrl+S" Command="{StaticResource Save}"></KeyBinding>
+    </Window.InputBindings>
+    <Window.CommandBindings>
+        <CommandBinding Command="{StaticResource Save}" CanExecute="SaveByKeyDownCanExecute" Executed="SaveByKeyDown"></CommandBinding>
+    </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
