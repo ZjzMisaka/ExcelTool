@@ -728,7 +728,7 @@ namespace ExcelTool
                     setResultParams.Add(analyzer.name);
                     setResultParams.Add(resultList.Count);
                     setResultParams.Add(paramDic);
-                    setResultParams.Add(compilerDic[analyzer]);
+                    setResultParams.Add(compilerDic[analyzer].Item1);
                     smartThreadPoolOutput.QueueWorkItem(new Func<List<object>, Object[]>(SetResult), setResultParams);
                 }
                 startSs = GetNowSs();
