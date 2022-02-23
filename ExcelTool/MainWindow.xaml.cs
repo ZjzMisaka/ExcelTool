@@ -303,6 +303,8 @@ namespace ExcelTool
                 btn_stop.IsEnabled = true;
             });
 
+            Dictionary<SheetExplainer, List<string>> filePathListDic = new Dictionary<SheetExplainer, List<string>>();
+
             isRunning = true;
             isStopByUser = false;
 
@@ -459,7 +461,7 @@ namespace ExcelTool
                 analyzers.Add(analyzer);
             }
 
-            Dictionary<Analyzer, CompilerResults> compilerDic = new Dictionary<Analyzer, CompilerResults>();
+            Dictionary<Analyzer, Tuple<CompilerResults, SheetExplainer>> compilerDic = new Dictionary<Analyzer, Tuple<CompilerResults, SheetExplainer>>();
             int totalCount = 0;
             for (int i = 0; i < sheetExplainersList.Count; ++i)
             {
@@ -476,9 +478,11 @@ namespace ExcelTool
                     FileTraverse(isAuto, basePathTemp, sheetExplainer, filePathList);
                     allFilePathList.AddRange(filePathList);
                 }
+                filePathListDic.Add(sheetExplainer, allFilePathList);
 
                 CompilerResults cresult = GetCresult(analyzer);
-                compilerDic.Add(analyzer, cresult);
+                Tuple<CompilerResults, SheetExplainer> cresultTuple = new Tuple<CompilerResults, SheetExplainer>(cresult, sheetExplainer);
+                compilerDic.Add(analyzer, cresultTuple);
 
                 Thread runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, paramDic, analyzer, allFilePathList));
                 runBeforeAnalyzeSheetThread.Start();
@@ -541,10 +545,7 @@ namespace ExcelTool
 
                 foreach (String str in sheetExplainer.relativePathes)
                 {
-                    List<String> filePathList = new List<String>();
-                    string basePathTemp = Path.Combine(basePath.Trim(), str.Trim());
-
-                    FileTraverse(isAuto, basePathTemp, sheetExplainer, filePathList);
+                    List<String> filePathList = filePathListDic[sheetExplainer];
                     totalCount += filePathList.Count;
 
                     int filesCount = filePathList.Count;
@@ -671,8 +672,9 @@ namespace ExcelTool
                 {
                     long startTime = GetNowSs();
 
-                    CompilerResults cresult = compilerDic[analyzer];
-                    Thread runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, paramDic, analyzer));
+                    CompilerResults cresult = compilerDic[analyzer].Item1;
+                    SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
+                    Thread runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, paramDic, analyzer, filePathListDic[sheetExplainer]));
                     runBeforeSetResultThread.Start();
                     while (runBeforeSetResultThread.ThreadState == ThreadState.Running)
                     {
@@ -818,8 +820,9 @@ namespace ExcelTool
                 {
                     long startTime = GetNowSs();
 
-                    CompilerResults cresult = compilerDic[analyzer];
-                    Thread runEndThread = new Thread(() => RunEnd(cresult, workbook, paramDic, analyzer));
+                    CompilerResults cresult = compilerDic[analyzer].Item1;
+                    SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
+                    Thread runEndThread = new Thread(() => RunEnd(cresult, workbook, paramDic, analyzer, filePathListDic[sheetExplainer]));
                     runEndThread.Start();
                     while (runEndThread.ThreadState == ThreadState.Running)
                     {
@@ -1029,7 +1032,7 @@ namespace ExcelTool
             }
         }
 
-        private void RunBeforeSetResult(CompilerResults cresult, XLWorkbook workbook, Dictionary<string, string> paramDic, Analyzer analyzer)
+        private void RunBeforeSetResult(CompilerResults cresult, XLWorkbook workbook, Dictionary<string, string> paramDic, Analyzer analyzer, List<String> allFilePathList)
         {
             // 通过反射执行代码
             try
@@ -1037,7 +1040,7 @@ namespace ExcelTool
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("RunBeforeSetResult");
-                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys };
+                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys, allFilePathList };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
             }
@@ -1052,7 +1055,7 @@ namespace ExcelTool
             }
         }
 
-        private void RunEnd(CompilerResults cresult, XLWorkbook workbook, Dictionary<string, string> paramDic, Analyzer analyzer)
+        private void RunEnd(CompilerResults cresult, XLWorkbook workbook, Dictionary<string, string> paramDic, Analyzer analyzer, List<String> allFilePathList)
         {
             // 通过反射执行代码
             try
@@ -1060,7 +1063,7 @@ namespace ExcelTool
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("RunEnd");
-                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys };
+                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys, allFilePathList };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
             }
