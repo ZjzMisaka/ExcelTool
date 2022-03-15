@@ -1,5 +1,6 @@
 # ExcelTool
-批量分析Excel文件, 并将分析结果输出到Excel文件中
+批量分析Excel文件, 并将分析结果输出到Excel文件中  
+[查看示例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)
 ### 主界面
 - 设定完成检索信息和分析逻辑后通过下拉框选择, 使一行检索信息和一行分析逻辑一一对应
 - 可以设定传入参数
@@ -19,7 +20,7 @@
 **用于设定对某一类Sheet进行怎样的分析, 分析完毕后如何进行输出 (或者如何处理并保留分析的结果供后续使用)**
 - 在编辑器中编写代码, 在分析阶段程序会调用AnalyzeSheet函数, 在输出阶段会调用SetResult函数. 
 - 设定完成后可保存以便后续使用
-<img src="https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool02.png?2022021502" width="400px" />
+<img src="https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool02.png?20220316" width="400px" />
 
 #### 编码相关
 - 编码内容依赖[ClosedXML](https://github.com/ClosedXML/ClosedXML)开源库 **(支持自动补全等功能)**
