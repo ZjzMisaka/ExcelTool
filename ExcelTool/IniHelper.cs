@@ -40,7 +40,6 @@ namespace ExcelTool
             parsedINIDataToBeSaved["Value"].AddKey("DefaultBasePath", "");
             parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputPath", Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
             parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputFileName", "输出");
-            parsedINIDataToBeSaved["Value"].AddKey("Dlls", "System.dll|System.Data.dll|System.Drawing.dll|ClosedXML.dll|System.Xml.dll|GlobalObjects.dll");
             
 
             //保存文件
@@ -293,31 +292,6 @@ namespace ExcelTool
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
             return data["Value"]["DefaultOutputFileName"];
-        }
-
-        public static void SetDlls(String dlls)
-        {
-            if (!File.Exists("Setting.ini"))
-            {
-                return;
-            }
-
-            FileIniDataParser parser = new FileIniDataParser();
-            IniData data = parser.ReadFile("Setting.ini");
-            data["Value"]["Dlls"] = dlls;
-            parser.WriteFile("Setting.ini", data);
-        }
-
-        public static String GetDlls()
-        {
-            if (!File.Exists("Setting.ini"))
-            {
-                return null;
-            }
-
-            FileIniDataParser parser = new FileIniDataParser();
-            IniData data = parser.ReadFile("Setting.ini");
-            return data["Value"]["Dlls"];
         }
     }
 }

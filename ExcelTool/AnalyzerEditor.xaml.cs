@@ -47,7 +47,7 @@ namespace ExcelTool
 
         private void BtnSaveClick(object sender, RoutedEventArgs e)
         {
-            Save();
+            Save(true);
         }
 
         private void BtnExitClick(object sender, RoutedEventArgs e)
@@ -71,23 +71,36 @@ namespace ExcelTool
 
             List<Assembly> assemblies = new List<Assembly>();
             assemblies.Add(typeof(object).Assembly);
-            string[] dlls = IniHelper.GetDlls().Split('|');
-            foreach (string dll in dlls)
+            string folderPath = System.IO.Path.Combine(Environment.CurrentDirectory, "Dlls");
+            DirectoryInfo dir = new DirectoryInfo(folderPath);
+            FileSystemInfo[] dllInfos = null;
+            if (dir.Exists)
             {
-                try
+                DirectoryInfo dirD = dir as DirectoryInfo;
+                dllInfos = dirD.GetFileSystemInfos();
+            }
+            List<string> dlls = new List<string>();
+            dlls.Add("System.dll");
+            dlls.Add("System.Data.dll");
+            dlls.Add("System.Xml.dll");
+            dlls.Add("ClosedXML.dll");
+            dlls.Add("GlobalObjects.dll");
+            if (dllInfos != null && dllInfos.Count() != 0)
+            {
+                foreach (FileSystemInfo dllInfo in dllInfos)
                 {
-                    var dllFiles = Assembly.LoadFile(System.IO.Path.Combine(System.Environment.CurrentDirectory, dll));
-
-                    foreach (Type type in dllFiles.GetExportedTypes())
-                    {
-                        assemblies.Add(type.Assembly);
-                    }
-                }
-                catch (Exception)
-                {
-                    // Do Nothing
+                    dlls.Add(dllInfo.FullName);
                 }
             }
+            foreach (string dll in dlls)
+            {
+                var dllFile = Assembly.LoadFrom(dll);
+                foreach (Type type in dllFile.GetExportedTypes())
+                {
+                    assemblies.Add(type.Assembly);
+                }
+            }
+            
 
             _host = new RoslynHost(additionalAssemblies: new[]
             {
@@ -275,48 +288,78 @@ namespace ExcelTool
 
         private void SaveByKeyDown(object sender, ExecutedRoutedEventArgs e)
         {
-            Save();
+            if (cb_analyzers.SelectedIndex >= 1)
+            {
+                Save(false);
+            }
+            else
+            {
+                Save(true);
+            }
         }
 
-        private void Save()
+        private void RenameSaveByKeyDownCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void RenameSaveByKeyDown(object sender, ExecutedRoutedEventArgs e)
+        {
+            Save(true);
+        }
+
+        private void Save(bool isRename)
         {
             TextBox tbName = new TextBox();
             tbName.Margin = new Thickness(5, 8, 5, 8);
             tbName.VerticalContentAlignment = VerticalAlignment.Center;
+
+            string newName = "";
             if (cb_analyzers.SelectedIndex >= 1)
             {
-                tbName.Text = $"Copy Of {cb_analyzers.SelectedItem}";
+                newName = cb_analyzers.SelectedItem.ToString();
             }
-            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, "OK", "CANCEL" }, "name", "saving", MessageBoxImage.Information);
-            if (result == 1)
+            if (isRename)
             {
-                string analyzerName = tbName.Text;
-
-                Analyzer analyzer = new Analyzer();
-                analyzer.code = editor.Text;
-                analyzer.name = analyzerName;
-                string json = JsonConvert.SerializeObject(analyzer);
-
-                string fileName = $".\\Analyzers\\{analyzerName}.json";
-                FileStream fs = null;
-                try
+                if (cb_analyzers.SelectedIndex >= 1)
                 {
-                    fs = File.Create(fileName);
-                    fs.Close();
-                    StreamWriter sw = File.CreateText(fileName);
-                    sw.Write(json);
-                    sw.Flush();
-                    sw.Close();
+                    tbName.Text = $"Copy Of {cb_analyzers.SelectedItem}";
                 }
-                catch (Exception ex)
+                int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, "OK", "CANCEL" }, "name", "saving", MessageBoxImage.Information);
+
+                if (result != 1)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
 
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), "保存成功", "保存", MessageBoxButton.OK, MessageBoxImage.Information);
+                newName = tbName.Text;
+            }
+            
+            Analyzer analyzer = new Analyzer();
+            analyzer.code = editor.Text;
+            analyzer.name = newName;
+            string json = JsonConvert.SerializeObject(analyzer);
+
+            string fileName = $".\\Analyzers\\{newName}.json";
+            FileStream fs = null;
+            try
+            {
+                fs = File.Create(fileName);
+                fs.Close();
+                StreamWriter sw = File.CreateText(fileName);
+                sw.Write(json);
+                sw.Flush();
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            
+            GlobalObjects.GlobalObjects.GetPropertiesSetter().CloseTimer = new MessageBoxCloseTimer(1, 0);
+            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), "保存成功", "保存", MessageBoxButton.OK, MessageBoxImage.Information);
+            GlobalObjects.GlobalObjects.GetPropertiesSetter().CloseTimer = null;
+
         }
     }
 }

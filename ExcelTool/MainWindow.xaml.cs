@@ -1523,7 +1523,27 @@ namespace ExcelTool
 
             CompilerParameters objCompilerParameters = new CompilerParameters();
 
-            string[] dlls = IniHelper.GetDlls().Split('|');
+            string folderPath = Path.Combine(Environment.CurrentDirectory, "Dlls");
+            DirectoryInfo dir = new DirectoryInfo(folderPath);
+            FileSystemInfo[] dllInfos = null;
+            if (dir.Exists)
+            {
+                DirectoryInfo dirD = dir as DirectoryInfo;
+                dllInfos = dirD.GetFileSystemInfos();
+            }
+            List<string> dlls = new List<string>();
+            dlls.Add("System.dll");
+            dlls.Add("System.Data.dll");
+            dlls.Add("System.Xml.dll");
+            dlls.Add("ClosedXML.dll");
+            dlls.Add("GlobalObjects.dll");
+            if (dllInfos != null && dllInfos.Count() != 0)
+            {
+                foreach (FileSystemInfo dllInfo in dllInfos)
+                {
+                    dlls.Add(dllInfo.FullName);
+                }
+            }
             foreach (string dll in dlls)
             {
                 objCompilerParameters.ReferencedAssemblies.Add(dll);
