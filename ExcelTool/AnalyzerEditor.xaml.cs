@@ -47,18 +47,7 @@ namespace ExcelTool
 
         private void BtnSaveClick(object sender, RoutedEventArgs e)
         {
-            TextBox tbName = new TextBox();
-            tbName.Margin = new Thickness(5, 8, 5, 8);
-            tbName.VerticalContentAlignment = VerticalAlignment.Center;
-            if (cb_analyzers.SelectedIndex >= 1)
-            {
-                tbName.Text = $"Copy Of {cb_analyzers.SelectedItem}";
-            }
-            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, "OK", "CANCEL" }, "name", "saving", MessageBoxImage.Information);
-            if (result == 1)
-            {
-                Save(tbName.Text);
-            }
+            Save();
         }
 
         private void BtnExitClick(object sender, RoutedEventArgs e)
@@ -85,9 +74,11 @@ namespace ExcelTool
             string[] dlls = IniHelper.GetDlls().Split('|');
             foreach (string dll in dlls)
             {
-                if (!dll.StartsWith("System."))
+                var dllFiles = Assembly.LoadFile(System.IO.Path.Combine(System.Environment.CurrentDirectory, dll));
+
+                foreach (Type type in dllFiles.GetExportedTypes())
                 {
-                    assemblies.Add(Assembly.Load(dll.Replace(".dll", "").Replace(".DLL", "")));
+                    assemblies.Add(type.Assembly);
                 }
             }
 
@@ -277,36 +268,48 @@ namespace ExcelTool
 
         private void SaveByKeyDown(object sender, ExecutedRoutedEventArgs e)
         {
-            if (cb_analyzers.SelectedIndex != 0)
-            {
-                Save(cb_analyzers.SelectedItem.ToString());
-            }
+            Save();
         }
 
-        private void Save(string analyzerName)
+        private void Save()
         {
-            Analyzer analyzer = new Analyzer();
-            analyzer.code = editor.Text;
-            analyzer.name = analyzerName;
-            string json = JsonConvert.SerializeObject(analyzer);
-
-            string fileName = $".\\Analyzers\\{analyzerName}.json";
-            FileStream fs = null;
-            try
+            TextBox tbName = new TextBox();
+            tbName.Margin = new Thickness(5, 8, 5, 8);
+            tbName.VerticalContentAlignment = VerticalAlignment.Center;
+            if (cb_analyzers.SelectedIndex >= 1)
             {
-                fs = File.Create(fileName);
-                fs.Close();
-                StreamWriter sw = File.CreateText(fileName);
-                sw.Write(json);
-                sw.Flush();
-                sw.Close();
+                tbName.Text = $"Copy Of {cb_analyzers.SelectedItem}";
             }
-            catch (Exception ex)
+            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, "OK", "CANCEL" }, "name", "saving", MessageBoxImage.Information);
+            if (result == 1)
             {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                string analyzerName = tbName.Text;
+
+                Analyzer analyzer = new Analyzer();
+                analyzer.code = editor.Text;
+                analyzer.name = analyzerName;
+                string json = JsonConvert.SerializeObject(analyzer);
+
+                string fileName = $".\\Analyzers\\{analyzerName}.json";
+                FileStream fs = null;
+                try
+                {
+                    fs = File.Create(fileName);
+                    fs.Close();
+                    StreamWriter sw = File.CreateText(fileName);
+                    sw.Write(json);
+                    sw.Flush();
+                    sw.Close();
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), "保存成功", "保存", MessageBoxButton.OK, MessageBoxImage.Information);
             }
 
-            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), "保存成功", "保存", MessageBoxButton.OK, MessageBoxImage.Information);
+            
         }
     }
 }
