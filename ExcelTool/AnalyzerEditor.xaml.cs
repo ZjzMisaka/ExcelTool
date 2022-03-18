@@ -74,11 +74,18 @@ namespace ExcelTool
             string[] dlls = IniHelper.GetDlls().Split('|');
             foreach (string dll in dlls)
             {
-                var dllFiles = Assembly.LoadFile(System.IO.Path.Combine(System.Environment.CurrentDirectory, dll));
-
-                foreach (Type type in dllFiles.GetExportedTypes())
+                try
                 {
-                    assemblies.Add(type.Assembly);
+                    var dllFiles = Assembly.LoadFile(System.IO.Path.Combine(System.Environment.CurrentDirectory, dll));
+
+                    foreach (Type type in dllFiles.GetExportedTypes())
+                    {
+                        assemblies.Add(type.Assembly);
+                    }
+                }
+                catch (Exception)
+                {
+                    // Do Nothing
                 }
             }
 
