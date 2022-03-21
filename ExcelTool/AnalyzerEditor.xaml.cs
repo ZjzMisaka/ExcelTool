@@ -356,9 +356,7 @@ namespace ExcelTool
                 CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            GlobalObjects.GlobalObjects.GetPropertiesSetter().CloseTimer = new MessageBoxCloseTimer(1, 0);
-            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), "保存成功", "保存", MessageBoxButton.OK, MessageBoxImage.Information);
-            GlobalObjects.GlobalObjects.GetPropertiesSetter().CloseTimer = null;
+            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetterWithTimmer(), "保存成功", "保存", MessageBoxButton.OK, MessageBoxImage.Information);
 
         }
     }

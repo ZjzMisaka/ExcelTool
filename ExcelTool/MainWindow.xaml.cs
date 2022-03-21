@@ -936,7 +936,7 @@ namespace ExcelTool
                     }
                     else
                     {
-                        Logger.Error("file not saved.");
+                        Logger.Error("文件保存失败.");
                         te_log.Text += Logger.Get();
                     }
 
@@ -949,39 +949,40 @@ namespace ExcelTool
 
                 Button btnOpenFile = new Button();
                 btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnOpenFile.Content = "open file";
+                btnOpenFile.Content = "打开文件";
                 btnOpenFile.Click += (s, ee) =>
                 {
                     System.Diagnostics.Process.Start(filePath);
-                    CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
+                    CustomizableMessageBox.MessageBox.CloseNow();
                 };
 
                 Button btnOpenPath = new Button();
                 btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnOpenPath.Content = "open path";
+                btnOpenPath.Content = "打开路径";
                 btnOpenPath.Click += (s, ee) =>
                 {
                     System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
-                    CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
+                    CustomizableMessageBox.MessageBox.CloseNow();
                 };
 
                 Button btnClose = new Button();
                 btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnClose.Content = "close";
+                btnClose.Content = "关闭";
                 btnClose.Click += (s, ee) =>
                 {
-                    CustomizableMessageBox.MessageBox.CloseTimer.CloseNow();
+                    CustomizableMessageBox.MessageBox.CloseNow();
                 };
 
+                Logger.Info($"文件已保存。\n{filePath}");
                 if (!isAuto && cb_isautoopen.IsChecked == false)
                 {
                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "ファイルを保存しました。", "OK");
                 }
                 else
                 {
-                    Logger.Info($"ファイルを保存しました。\n{filePath}");
                     if (cb_isautoopen.IsChecked == true)
                     {
+                        Logger.Info("已自动打开文件");
                         System.Diagnostics.Process.Start(filePath);
                     }
                 }
