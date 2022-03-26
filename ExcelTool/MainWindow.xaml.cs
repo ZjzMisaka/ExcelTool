@@ -22,6 +22,7 @@ using System.Xml;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Document;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace ExcelTool
 {
@@ -39,6 +40,7 @@ namespace ExcelTool
         private ConcurrentDictionary<string, long> currentOutputtingDictionary;
         private ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer> resultList;
         private Dictionary<FileSystemWatcher, string> fileSystemWatcherDic;
+        private List<string> copiedDllsList;
         private int analyzeSheetInvokeCount;
         private int setResultInvokeCount;
         private int totalTimeoutLimitAnalyze;
@@ -56,6 +58,7 @@ namespace ExcelTool
             currentOutputtingDictionary = new ConcurrentDictionary<string, long>();
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             fileSystemWatcherDic = new Dictionary<FileSystemWatcher, string>();
+            copiedDllsList = new List<string>();
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
 
@@ -487,7 +490,7 @@ namespace ExcelTool
                 Thread runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, paramDic, analyzer, allFilePathList));
                 runBeforeAnalyzeSheetThread.Start();
 
-                while (runBeforeAnalyzeSheetThread.ThreadState == ThreadState.Running)
+                while (runBeforeAnalyzeSheetThread.ThreadState == System.Threading.ThreadState.Running)
                 {
                     if (isStopByUser)
                     {
@@ -676,7 +679,7 @@ namespace ExcelTool
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
                     Thread runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, paramDic, analyzer, filePathListDic[sheetExplainer]));
                     runBeforeSetResultThread.Start();
-                    while (runBeforeSetResultThread.ThreadState == ThreadState.Running)
+                    while (runBeforeSetResultThread.ThreadState == System.Threading.ThreadState.Running)
                     {
                         if (isStopByUser)
                         {
@@ -824,7 +827,7 @@ namespace ExcelTool
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
                     Thread runEndThread = new Thread(() => RunEnd(cresult, workbook, paramDic, analyzer, filePathListDic[sheetExplainer]));
                     runEndThread.Start();
-                    while (runEndThread.ThreadState == ThreadState.Running)
+                    while (runEndThread.ThreadState == System.Threading.ThreadState.Running)
                     {
                         if (isStopByUser)
                         {
@@ -976,7 +979,7 @@ namespace ExcelTool
                 Logger.Info($"文件已保存。\n{filePath}");
                 if (!isAuto && cb_isautoopen.IsChecked == false)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "ファイルを保存しました。", "OK");
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "文件已保存。", "OK");
                 }
                 else
                 {
@@ -989,6 +992,7 @@ namespace ExcelTool
             }
 
             te_log.Text += Logger.Get();
+            
             isRunning = false;
             btn_start.IsEnabled = true;
             btn_stop.IsEnabled = false;
@@ -1518,12 +1522,8 @@ namespace ExcelTool
             cb_params.SelectionChanged += CbParamsSelectionChanged;
         }
 
-        private CompilerResults GetCresult(Analyzer analyzer) 
+        private FileSystemInfo[] GetyDllInfos()
         {
-            CSharpCodeProvider objCSharpCodePrivoder = new CSharpCodeProvider();
-
-            CompilerParameters objCompilerParameters = new CompilerParameters();
-
             string folderPath = Path.Combine(Environment.CurrentDirectory, "Dlls");
             DirectoryInfo dir = new DirectoryInfo(folderPath);
             FileSystemInfo[] dllInfos = null;
@@ -1532,6 +1532,17 @@ namespace ExcelTool
                 DirectoryInfo dirD = dir as DirectoryInfo;
                 dllInfos = dirD.GetFileSystemInfos();
             }
+
+            return dllInfos;
+        }
+
+        private CompilerResults GetCresult(Analyzer analyzer) 
+        {
+            CSharpCodeProvider objCSharpCodePrivoder = new CSharpCodeProvider();
+
+            CompilerParameters objCompilerParameters = new CompilerParameters();
+
+            FileSystemInfo[] dllInfos = GetyDllInfos();
             List<string> dlls = new List<string>();
             dlls.Add("System.dll");
             dlls.Add("System.Data.dll");
@@ -1542,7 +1553,13 @@ namespace ExcelTool
             {
                 foreach (FileSystemInfo dllInfo in dllInfos)
                 {
-                    dlls.Add(dllInfo.FullName);
+                    dlls.Add(dllInfo.Name);
+                    string destFileName = Path.Combine(Environment.CurrentDirectory, dllInfo.Name);
+                    if (!copiedDllsList.Contains(destFileName))
+                    {
+                        File.Copy(dllInfo.FullName, destFileName, true);
+                        copiedDllsList.Add(destFileName);
+                    }
                 }
             }
             foreach (string dll in dlls)
@@ -1555,6 +1572,20 @@ namespace ExcelTool
             objCompilerParameters.IncludeDebugInformation = true;
 
             return objCSharpCodePrivoder.CompileAssemblyFromSource(objCompilerParameters, analyzer.code);
+        }
+
+        private void DeleteCopiedDlls()
+        {
+            string arguments = "";
+            foreach (string path in copiedDllsList)
+            {
+                arguments += path.Replace(" ", "|SPACE|") + " ";
+            }
+
+            if (arguments.Length > 0)
+            {
+                Process.Start("ExcelToolAfterClosed.exe", arguments);
+            }
         }
 
         void PasteCommandBindingPreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -1830,6 +1861,11 @@ namespace ExcelTool
 
             }
             return true;
+        }
+
+        private void WindowClosed(object sender, EventArgs e)
+        {
+            DeleteCopiedDlls();
         }
     }
 }

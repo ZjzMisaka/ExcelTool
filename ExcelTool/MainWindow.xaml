@@ -6,7 +6,7 @@
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:local="clr-namespace:ExcelTool"
         mc:Ignorable="d"
-        Title="Excel分析工具" Name="w_MainWindow" Height="850" Width="800" Loaded="WindowLoaded" Closing="WindowClosing" MinHeight="685" MinWidth="500">
+        Title="Excel分析工具" Name="w_MainWindow" Height="850" Width="800" Loaded="WindowLoaded" Closing="WindowClosing" Closed="WindowClosed" MinHeight="685" MinWidth="500">
     <Grid>
         <Grid>
             <Grid.RowDefinitions>
