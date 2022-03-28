@@ -1095,7 +1095,7 @@ namespace ExcelTool
                 int res = 2;
                 if (!isAuto)
                 {
-                    res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "YES", "NO" }, $"保存失败 重试? \n{e.Message}\n{e.StackTrace}", "error", MessageBoxImage.Question);
+                    res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "YES", "NO" }, $"保存失败 重试? \n{e.Message}", "error", MessageBoxImage.Question);
                 }
                 if (res == 2)
                 {
