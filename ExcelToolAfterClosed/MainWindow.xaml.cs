@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -33,6 +35,11 @@ namespace ExcelToolAfterClosed
         {
             pb_process.Maximum = args.Length;
             int index = 0;
+
+            Thread th = new Thread(WaitForClose);
+            th.Start();
+            th.Join();
+
             foreach (string path in args)
             {
                 try
@@ -48,6 +55,14 @@ namespace ExcelToolAfterClosed
             }
             
             this.Close();
+        }
+
+        private void WaitForClose()
+        {
+            while (Process.GetProcessesByName("ExcelTool").Length > 0)
+            {
+                Thread.Sleep(100);
+            }
         }
     }
 }
