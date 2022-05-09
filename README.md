@@ -12,7 +12,7 @@
 
 ### 检索信息分析界面
 **用于设定需要查找哪些路径下的哪些Excel文件的哪些Sheet**
-- 查找的方式可以有完整匹配, 部分包含和正则表达式
+- 查找的方式可以有选择全部, 完整匹配, 部分包含和正则表达式
 - 设定完成后可保存以便后续使用
 <img src="https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool03.png?20220215" width="400px" />
 
