@@ -1,4 +1,5 @@
 ﻿using CustomizableMessageBox;
+using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Search;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
@@ -37,6 +38,7 @@ namespace ExcelTool
         private readonly ObservableCollection<DocumentViewModel> _documents;
         private RoslynHost _host;
         RoslynCodeEditor editor;
+        Dictionary<string, string> paramDicForChange;
         public AnalyzerEditor()
         {
             InitializeComponent();
@@ -146,6 +148,7 @@ namespace ExcelTool
         private void CbAnalyzersSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             btn_delete.IsEnabled = cb_analyzers.SelectedIndex >= 1 ? true : false;
+            btn_editparam.IsEnabled = cb_analyzers.SelectedIndex >= 1 ? true : false;
 
             editor.Text = GlobalObjects.GlobalObjects.GetDefaultCode();
 
@@ -155,6 +158,8 @@ namespace ExcelTool
             }
             Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{cb_analyzers.SelectedItem.ToString()}.json"));
             editor.Text = analyzer.code;
+
+            paramDicForChange = analyzer.paramDic;
         }
 
         private void CbAnalyzersPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -338,6 +343,7 @@ namespace ExcelTool
             Analyzer analyzer = new Analyzer();
             analyzer.code = editor.Text;
             analyzer.name = newName;
+            analyzer.paramDic = paramDicForChange;
             string json = JsonConvert.SerializeObject(analyzer);
 
             string fileName = $".\\Analyzers\\{newName}.json";
@@ -358,6 +364,87 @@ namespace ExcelTool
 
             CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetterWithTimmer(), "保存成功", "保存", MessageBoxButton.OK, MessageBoxImage.Information);
 
+        }
+
+        private void BtnEditParamClick(object sender, RoutedEventArgs e)
+        {
+            ParamEditor paramEditor = new ParamEditor();
+
+            RowDefinition rowDefinition = new RowDefinition();
+            paramEditor.g_main.RowDefinitions.Add(rowDefinition);
+
+            RowDefinition rowDefinitionOk = new RowDefinition();
+            rowDefinitionOk.Height = new GridLength(30);
+            paramEditor.g_main.RowDefinitions.Add(rowDefinitionOk);
+
+            ColumnDefinition columnDefinitionL = new ColumnDefinition();
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
+
+            ColumnDefinition columnDefinitionM = new ColumnDefinition();
+            columnDefinitionM.Width = new GridLength(20);
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionM);
+
+            ColumnDefinition columnDefinitionR = new ColumnDefinition();
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
+
+            TextEditor textEditorL = new TextEditor();
+            textEditorL.ShowLineNumbers = true;
+            if (paramDicForChange != null && paramDicForChange.Keys != null && paramDicForChange.Keys.Count > 0)
+            {
+                foreach (string str in paramDicForChange.Keys)
+                {
+                    textEditorL.Text += $"{str}\n";
+                }
+            }
+            Grid.SetRow(textEditorL, 0);
+            Grid.SetColumn(textEditorL, 0);
+            paramEditor.g_main.Children.Add(textEditorL);
+
+            Label label = new Label();
+            label.Content = "=";
+            label.HorizontalAlignment = HorizontalAlignment.Center;
+            label.HorizontalContentAlignment = HorizontalAlignment.Center;
+            Grid.SetRow(label, 0);
+            Grid.SetColumn(label, 1);
+            paramEditor.g_main.Children.Add(label);
+
+            TextEditor textEditorR = new TextEditor();
+            textEditorR.ShowLineNumbers = true;
+            if (paramDicForChange != null && paramDicForChange.Keys != null && paramDicForChange.Keys.Count > 0)
+            {
+                foreach (string str in paramDicForChange.Values)
+                {
+                    textEditorR.Text += $"{str}\n";
+                }
+            }
+            Grid.SetRow(textEditorR, 0);
+            Grid.SetColumn(textEditorR, 2);
+            paramEditor.g_main.Children.Add(textEditorR);
+
+            Button btnOk = new Button();
+            btnOk.Height = 30;
+            btnOk.Content = "OK";
+            btnOk.Click += (s, ex) =>
+            {
+                List<string> keyList = textEditorL.Text.Replace("\r" , "").Split('\n').Where(str => str.Trim() != "").ToList();
+                List<string> valueList = textEditorR.Text.Replace("\r", "").Split('\n').Where(str => str.Trim() != "").ToList();
+                if (keyList.Count == valueList.Count)
+                {
+                    Dictionary<string, string> changedParamDic = new Dictionary<string, string>();
+                    for (int i = 0; i < keyList.Count; ++i)
+                    {
+                        changedParamDic.Add(keyList[i], valueList[i]);
+                    }
+                    paramDicForChange = changedParamDic;
+                }
+                
+                paramEditor.Close();
+            };
+            Grid.SetRow(btnOk, 1);
+            Grid.SetColumnSpan(btnOk, 3);
+            paramEditor.g_main.Children.Add(btnOk);
+
+            paramEditor.ShowDialog();
         }
     }
 }

@@ -32,6 +32,7 @@
         </Grid.ColumnDefinitions>
         <ComboBox Name="cb_analyzers" Grid.Row="0" Margin="10 2" Width="300" VerticalContentAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" Grid.ColumnSpan="2" SelectionChanged="CbAnalyzersSelectionChanged" PreviewMouseLeftButtonDown="CbAnalyzersPreviewMouseLeftButtonDown"/>
         <Button Name="btn_delete" Content="删除" IsEnabled="False" Height="25" Width="50" Grid.Row="0" Grid.ColumnSpan="2" Margin="10 2" HorizontalAlignment="Right" Click="BtnDeleteClick"/>
+        <Button Name="btn_editparam" Content="编辑参数" IsEnabled="False" Height="25" Width="72" Grid.Row="0" Grid.ColumnSpan="2" Margin="10 2 70 2" HorizontalAlignment="Right" Click="BtnEditParamClick"/>
         <ScrollViewer Name="sv_editor" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" PreviewMouseWheel="ScrollViewerPreviewMouseWheel">
             <ItemsControl Name="Items" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ItemsControl.ItemTemplate>

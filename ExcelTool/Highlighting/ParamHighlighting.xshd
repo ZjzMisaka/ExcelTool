@@ -9,5 +9,8 @@
         <Rule foreground="Red">
             [|]{1}
         </Rule>
+        <Rule foreground="Green">
+          [{}]{1}
+        </Rule>
     </RuleSet>
 </SyntaxDefinition>

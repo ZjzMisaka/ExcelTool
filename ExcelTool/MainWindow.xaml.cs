@@ -341,17 +341,9 @@ namespace ExcelTool
                 return;
             }
 
-            te_params.Text = $"{te_params.Text.Replace("\r\n", "").Replace("\n", "")}";
-            string[] splitedParams = paramStr.Split('|');
-            Dictionary<string, string> paramDic = new Dictionary<string, string>();
-            foreach (string param in splitedParams)
-            {
-                string[] kv = param.Split(':');
-                if (kv.Length == 2)
-                {
-                    paramDic.Add(kv[0], kv[1]);
-                }
-            }
+            paramStr = $"{paramStr.Replace("\r\n", "").Replace("\n", "")}";
+            te_params.Text = paramStr;
+            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = GetParamDicEachAnalyzer(paramStr);
 
 
             STPStartInfo stpAnalyze = new STPStartInfo();
@@ -487,7 +479,7 @@ namespace ExcelTool
                 Tuple<CompilerResults, SheetExplainer> cresultTuple = new Tuple<CompilerResults, SheetExplainer>(cresult, sheetExplainer);
                 compilerDic.Add(analyzer, cresultTuple);
 
-                Thread runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, paramDic, analyzer, allFilePathList));
+                Thread runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, allFilePathList));
                 runBeforeAnalyzeSheetThread.Start();
 
                 while (runBeforeAnalyzeSheetThread.ThreadState == System.Threading.ThreadState.Running)
@@ -562,7 +554,7 @@ namespace ExcelTool
                         readFileParams.Add(fileName);
                         readFileParams.Add(sheetExplainer);
                         readFileParams.Add(analyzer);
-                        readFileParams.Add(paramDic);
+                        readFileParams.Add(MergePublicParam(paramDicEachAnalyzer, analyzer.name));
                         readFileParams.Add(cresult);
                         smartThreadPoolAnalyze.QueueWorkItem(new Func<List<object>, Object>(ReadFile), readFileParams);
                     }
@@ -677,7 +669,7 @@ namespace ExcelTool
 
                     CompilerResults cresult = compilerDic[analyzer].Item1;
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
-                    Thread runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, paramDic, analyzer, filePathListDic[sheetExplainer]));
+                    Thread runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
                     runBeforeSetResultThread.Start();
                     while (runBeforeSetResultThread.ThreadState == System.Threading.ThreadState.Running)
                     {
@@ -730,7 +722,7 @@ namespace ExcelTool
                     setResultParams.Add(result);
                     setResultParams.Add(analyzer.name);
                     setResultParams.Add(resultList.Count);
-                    setResultParams.Add(paramDic);
+                    setResultParams.Add(MergePublicParam(paramDicEachAnalyzer, analyzer.name));
                     setResultParams.Add(compilerDic[analyzer].Item1);
                     smartThreadPoolOutput.QueueWorkItem(new Func<List<object>, Object[]>(SetResult), setResultParams);
                 }
@@ -825,7 +817,7 @@ namespace ExcelTool
 
                     CompilerResults cresult = compilerDic[analyzer].Item1;
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
-                    Thread runEndThread = new Thread(() => RunEnd(cresult, workbook, paramDic, analyzer, filePathListDic[sheetExplainer]));
+                    Thread runEndThread = new Thread(() => RunEnd(cresult, workbook, MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
                     runEndThread.Start();
                     while (runEndThread.ThreadState == System.Threading.ThreadState.Running)
                     {
@@ -1885,6 +1877,232 @@ namespace ExcelTool
         private void WindowClosed(object sender, EventArgs e)
         {
             DeleteCopiedDlls();
+        }
+
+        private void EditParam(object sender, RoutedEventArgs e)
+        {
+            ParamEditor paramEditor = new ParamEditor();
+
+            string paramStr = $"{te_params.Text.Replace("\r\n", "").Replace("\n", "")}";
+            te_params.Text = paramStr;
+            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = GetParamDicEachAnalyzer(paramStr);
+
+            int rowNum = -1;
+
+            List<String> analyzersList = te_analyzers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
+
+            foreach (string analyzerName in analyzersList) 
+            {
+                Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{analyzerName}.json"));
+
+                RowDefinition rowDefinition = new RowDefinition();
+                rowDefinition.Height = new GridLength(40);
+                paramEditor.g_main.RowDefinitions.Add(rowDefinition);
+                ++rowNum;
+                Label labelAnalyzerName = new Label();
+                labelAnalyzerName.Height = 35;
+                labelAnalyzerName.FontWeight = FontWeight.FromOpenTypeWeight(600);
+                labelAnalyzerName.FontSize = 20;
+                labelAnalyzerName.Content = analyzerName;
+                Grid.SetRow(labelAnalyzerName, rowNum);
+                Grid.SetColumnSpan(labelAnalyzerName, 2);
+                paramEditor.g_main.Children.Add(labelAnalyzerName);
+
+                Dictionary<string, string> paramDic = null;
+                if (paramDicEachAnalyzer.ContainsKey(analyzerName))
+                {
+                    paramDic = paramDicEachAnalyzer[analyzerName];
+                }
+
+                if (analyzer.paramDic == null || analyzer.paramDic.Keys == null || analyzer.paramDic.Keys.Count == 0)
+                {
+                    continue;
+                }
+                foreach (string key in analyzer.paramDic.Keys)
+                {
+                    ColumnDefinition columnDefinitionL = new ColumnDefinition();
+                    columnDefinitionL.Width = new GridLength(100);
+                    paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
+                    ColumnDefinition columnDefinitionR = new ColumnDefinition();
+                    paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
+
+                    RowDefinition rowDefinitionKv = new RowDefinition();
+                    rowDefinitionKv.Height = new GridLength(30);
+                    paramEditor.g_main.RowDefinitions.Add(rowDefinitionKv);
+                    ++rowNum;
+
+                    Label labelKey = new Label();
+                    labelKey.Height = 25;
+                    labelKey.Content = analyzer.paramDic[key];
+                    Grid.SetRow(labelKey, rowNum);
+                    Grid.SetColumn(labelKey, 0);
+                    paramEditor.g_main.Children.Add(labelKey);
+
+                    TextBox tbValue = new TextBox();
+                    tbValue.Height = 25;
+                    tbValue.HorizontalAlignment = HorizontalAlignment.Stretch;
+                    tbValue.VerticalContentAlignment = VerticalAlignment.Center;
+                    tbValue.Margin = new Thickness(170, 0, 0, 0);
+                    if (paramDic != null && paramDic.ContainsKey(key))
+                    {
+                        tbValue.Text = paramDic[key];
+                    }
+                    else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
+                    {
+                        tbValue.Text = paramDic[key];
+                    }
+                    tbValue.TextChanged += (s, ex) =>
+                    {
+                        if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
+                        {
+                            paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
+                        }
+                        paramDicEachAnalyzer[analyzerName][key] = tbValue.Text;
+                    };
+                    Grid.SetRow(tbValue, rowNum);
+                    Grid.SetColumn(tbValue, 1);
+
+                    paramEditor.g_main.Children.Add(tbValue);
+                }
+            }
+
+            RowDefinition rowDefinitionBlank = new RowDefinition();
+            paramEditor.g_main.RowDefinitions.Add(rowDefinitionBlank);
+            ++rowNum;
+            RowDefinition rowDefinitionOk = new RowDefinition();
+            rowDefinitionOk.Height = new GridLength(30);
+            paramEditor.g_main.RowDefinitions.Add(rowDefinitionOk);
+            ++rowNum;
+            Button btnOk = new Button();
+            btnOk.Height = 30;
+            btnOk.Content = "OK";
+            btnOk.Click += (s, ex) => 
+            {
+                SetParamAfterChange(paramDicEachAnalyzer);
+                paramEditor.Close();
+            };
+            Grid.SetRow(btnOk, rowNum);
+            Grid.SetColumnSpan(btnOk, 2);
+            paramEditor.g_main.Children.Add(btnOk);
+
+            paramEditor.ShowDialog();
+        }
+
+        private void SetParamAfterChange(Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer)
+        {
+            string paramStr = "";
+            foreach (string analyzerName in paramDicEachAnalyzer.Keys)
+            {
+                Dictionary<string, string> paramDic = paramDicEachAnalyzer[analyzerName];
+                if (analyzerName == "public")
+                {
+                    foreach (string key in paramDic.Keys)
+                    {
+                        paramStr = $"{ paramStr }|{key}:{paramDic[key]}";
+                    }
+                }
+                else
+                {
+                    string paramStrTemp = "";
+                    foreach (string key in paramDic.Keys)
+                    {
+                        paramStrTemp = $"{ paramStrTemp }|{key}:{paramDic[key]}";
+                    }
+                    paramStrTemp = paramStrTemp.Substring(1);
+
+                    paramStr = $"{ paramStr }|{analyzerName}{{{paramStrTemp}}}";
+                }
+            }
+            paramStr = paramStr.Substring(1);
+            te_params.Text = paramStr;
+        }
+
+        private Dictionary<string, Dictionary<string, string>> GetParamDicEachAnalyzer(string paramStr)
+        {
+            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = new Dictionary<string, Dictionary<string, string>>();
+
+            int startIndex = 0;
+            int index = 0;
+            while (index <= paramStr.Length - 1)
+            {
+                string tempStr = paramStr.Substring(startIndex);
+                int tempIndex = tempStr.IndexOf("|");
+                string tempParam = "";
+                if (tempIndex == -1)
+                {
+                    tempParam = tempStr;
+
+                    index = paramStr.Length + 1;
+                }
+                else
+                {
+                    tempParam = tempStr.Substring(0, tempIndex);
+                }
+                if (tempParam.Contains("{"))
+                {
+                    tempIndex = tempStr.IndexOf("}");
+                    tempParam = tempStr.Substring(0, tempIndex + 1);
+
+                    int lIndex = tempParam.IndexOf("{");
+                    int rIndex = tempParam.IndexOf("}");
+                    string analyzerName = tempParam.Substring(0, lIndex);
+                    string tempParamInTempParam = tempParam.Substring(lIndex + 1, rIndex - lIndex - 1);
+                    string[] splitedParams = tempParamInTempParam.Split('|');
+                    Dictionary<string, string> paramDic = new Dictionary<string, string>();
+                    foreach (string param in splitedParams)
+                    {
+                        string[] kv = param.Split(':');
+                        if (kv.Length == 2)
+                        {
+                            paramDic.Add(kv[0], kv[1]);
+                        }
+                    }
+                    paramDicEachAnalyzer.Add(analyzerName, paramDic);
+                }
+                else
+                {
+                    string[] kv = tempParam.Split(':');
+                    if (kv.Length == 2)
+                    {
+                        if (!paramDicEachAnalyzer.ContainsKey("public"))
+                        {
+                            paramDicEachAnalyzer.Add("public", new Dictionary<string, string>());
+                        }
+                        paramDicEachAnalyzer["public"].Add(kv[0], kv[1]);
+                    }
+                }
+                if (tempIndex != -1)
+                {
+                    index = startIndex + tempIndex + 1;
+                }
+                startIndex = index;
+            }
+
+            return paramDicEachAnalyzer;
+        }
+
+        private Dictionary<string, string> MergePublicParam(Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string analyzerName)
+        {
+            Dictionary<string, string> aimDic = new Dictionary<string, string>();
+            if (paramDicEachAnalyzer.ContainsKey(analyzerName))
+            {
+                aimDic = paramDicEachAnalyzer[analyzerName];
+            }
+
+            Dictionary<string, string> dic = new Dictionary<string, string>();
+            if (paramDicEachAnalyzer.ContainsKey(analyzerName))
+            {
+                dic = paramDicEachAnalyzer["public"];
+            }
+            
+            foreach (string key in dic.Keys)
+            {
+                if (!aimDic.ContainsKey(key))
+                {
+                    aimDic.Add(key, dic[key]);
+                }
+            }
+            return aimDic;
         }
     }
 }
