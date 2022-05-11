@@ -1457,6 +1457,25 @@ namespace ExcelTool
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if (Application.Current.Windows.Count > 1)
+            {
+                MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"尚有未关闭的子窗口, 是否关闭程序", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.No)
+                {
+                    e.Cancel = true;
+                }
+                else
+                {
+                    foreach (Window window in Application.Current.Windows)
+                    {
+                        if (Application.Current.MainWindow != window)
+                        {
+                            window.Close();
+                        }
+                    }
+                }
+            }
+
             IniHelper.SetWindowSize(this.Name.Substring(2), new Point(this.Width, this.Height));
             IniHelper.SetBasePath(tb_base_path.Text);
             IniHelper.SetOutputPath(tb_output_path.Text);
