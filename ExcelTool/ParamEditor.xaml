@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ExcelTool"
         mc:Ignorable="d"
         Title="参数编辑" Height="450" Width="800">
-    <Grid Name="g_main">
+    <Grid Name="g_main" Margin="5px">
         
     </Grid>
 </Window>

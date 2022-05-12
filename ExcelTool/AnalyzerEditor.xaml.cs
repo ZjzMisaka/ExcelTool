@@ -404,6 +404,7 @@ namespace ExcelTool
             label.Content = "=";
             label.HorizontalAlignment = HorizontalAlignment.Center;
             label.HorizontalContentAlignment = HorizontalAlignment.Center;
+            label.VerticalAlignment = VerticalAlignment.Center;
             Grid.SetRow(label, 0);
             Grid.SetColumn(label, 1);
             paramEditor.g_main.Children.Add(label);

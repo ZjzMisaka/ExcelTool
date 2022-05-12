@@ -23,6 +23,7 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Document;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Windows.Media;
 
 namespace ExcelTool
 {
@@ -1891,6 +1892,12 @@ namespace ExcelTool
 
             List<String> analyzersList = te_analyzers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
 
+            ColumnDefinition columnDefinitionL = new ColumnDefinition();
+            columnDefinitionL.Width = new GridLength(100);
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
+            ColumnDefinition columnDefinitionR = new ColumnDefinition();
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
+
             foreach (string analyzerName in analyzersList) 
             {
                 Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{analyzerName}.json"));
@@ -1903,6 +1910,7 @@ namespace ExcelTool
                 labelAnalyzerName.Height = 35;
                 labelAnalyzerName.FontWeight = FontWeight.FromOpenTypeWeight(600);
                 labelAnalyzerName.FontSize = 20;
+                labelAnalyzerName.VerticalAlignment = VerticalAlignment.Bottom;
                 labelAnalyzerName.Content = analyzerName;
                 Grid.SetRow(labelAnalyzerName, rowNum);
                 Grid.SetColumnSpan(labelAnalyzerName, 2);
@@ -1920,12 +1928,6 @@ namespace ExcelTool
                 }
                 foreach (string key in analyzer.paramDic.Keys)
                 {
-                    ColumnDefinition columnDefinitionL = new ColumnDefinition();
-                    columnDefinitionL.Width = new GridLength(100);
-                    paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
-                    ColumnDefinition columnDefinitionR = new ColumnDefinition();
-                    paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
-
                     RowDefinition rowDefinitionKv = new RowDefinition();
                     rowDefinitionKv.Height = new GridLength(30);
                     paramEditor.g_main.RowDefinitions.Add(rowDefinitionKv);
@@ -1940,16 +1942,16 @@ namespace ExcelTool
 
                     TextBox tbValue = new TextBox();
                     tbValue.Height = 25;
+                    tbValue.Margin = new Thickness(5, 0, 0, 0);
                     tbValue.HorizontalAlignment = HorizontalAlignment.Stretch;
                     tbValue.VerticalContentAlignment = VerticalAlignment.Center;
-                    tbValue.Margin = new Thickness(170, 0, 0, 0);
                     if (paramDic != null && paramDic.ContainsKey(key))
                     {
                         tbValue.Text = paramDic[key];
                     }
                     else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
                     {
-                        tbValue.Text = paramDic[key];
+                        tbValue.Text = paramDicEachAnalyzer["public"][key];
                     }
                     tbValue.TextChanged += (s, ex) =>
                     {
@@ -1965,6 +1967,18 @@ namespace ExcelTool
                     paramEditor.g_main.Children.Add(tbValue);
                 }
             }
+
+            GridSplitter gridSplitter = new GridSplitter();
+            gridSplitter.HorizontalAlignment = HorizontalAlignment.Right;
+            gridSplitter.VerticalAlignment = VerticalAlignment.Stretch;
+            gridSplitter.Width = 4;
+            gridSplitter.BorderThickness = new Thickness(1, 0, 1, 0);
+            gridSplitter.BorderBrush = Brushes.Black;
+            gridSplitter.Background = Brushes.AntiqueWhite;
+            Grid.SetRow(gridSplitter, 0);
+            Grid.SetRowSpan(gridSplitter, rowNum + 1);
+            Grid.SetColumn(gridSplitter, 0);
+            paramEditor.g_main.Children.Add(gridSplitter);
 
             RowDefinition rowDefinitionBlank = new RowDefinition();
             paramEditor.g_main.RowDefinitions.Add(rowDefinitionBlank);
@@ -2057,7 +2071,20 @@ namespace ExcelTool
                             paramDic.Add(kv[0], kv[1]);
                         }
                     }
-                    paramDicEachAnalyzer.Add(analyzerName, paramDic);
+                    if (paramDicEachAnalyzer.ContainsKey(analyzerName))
+                    {
+                        foreach (string key in paramDic.Keys)
+                        {
+                            if (!paramDicEachAnalyzer[analyzerName].ContainsKey(key))
+                            {
+                                paramDicEachAnalyzer[analyzerName].Add(key, paramDic[key]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        paramDicEachAnalyzer.Add(analyzerName, paramDic);
+                    }
                 }
                 else
                 {
