@@ -242,5 +242,20 @@ namespace ExcelTool
                 this.Height = height;
             }
         }
+
+        private void TextBoxPreviewDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string msg = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
+                Clipboard.SetText(msg);
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetterWithTimmer(), msg, "已复制到剪贴板", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void TextBoxPreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
     }
 }

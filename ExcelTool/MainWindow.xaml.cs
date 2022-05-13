@@ -24,6 +24,7 @@ using ICSharpCode.AvalonEdit.Document;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Windows.Media;
+using ExcelTool.Helper;
 
 namespace ExcelTool
 {
@@ -97,7 +98,7 @@ namespace ExcelTool
 
             LoadFiles();
 
-            SetAutoAll();
+            SetAutoStatusAll();
 
 
             IHighlightingDefinition chParam;
@@ -164,12 +165,12 @@ namespace ExcelTool
 
         private void CbSheetExplainersPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            LoadFiles();
+            cb_sheetexplainers.ItemsSource = FileHelper.GetSheetExplainersList();
         }
 
         private void CbAnalyzersPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            LoadFiles();
+            cb_analyzers.ItemsSource = FileHelper.GetAnalyzersList();
         }
 
         private void DropPath(object sender, DragEventArgs e)
@@ -271,6 +272,7 @@ namespace ExcelTool
 
                     if (!CheckRule(rule))
                     {
+                        cb_rules.SelectedIndex = 0;
                         return;
                     }
                     this.Dispatcher.Invoke(() =>
@@ -344,7 +346,7 @@ namespace ExcelTool
 
             paramStr = $"{paramStr.Replace("\r\n", "").Replace("\n", "")}";
             te_params.Text = paramStr;
-            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = GetParamDicEachAnalyzer(paramStr);
+            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
 
 
             STPStartInfo stpAnalyze = new STPStartInfo();
@@ -471,7 +473,7 @@ namespace ExcelTool
                 {
                     List<String> filePathList = new List<String>();
                     string basePathTemp = Path.Combine(basePath.Trim(), str.Trim());
-                    FileTraverse(isAuto, basePathTemp, sheetExplainer, filePathList);
+                    FileHelper.FileTraverse(isAuto, basePathTemp, sheetExplainer, filePathList);
                     allFilePathList.AddRange(filePathList);
                 }
                 filePathListDic.Add(sheetExplainer, allFilePathList);
@@ -480,7 +482,7 @@ namespace ExcelTool
                 Tuple<CompilerResults, SheetExplainer> cresultTuple = new Tuple<CompilerResults, SheetExplainer>(cresult, sheetExplainer);
                 compilerDic.Add(analyzer, cresultTuple);
 
-                Thread runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, allFilePathList));
+                Thread runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, allFilePathList));
                 runBeforeAnalyzeSheetThread.Start();
 
                 while (runBeforeAnalyzeSheetThread.ThreadState == System.Threading.ThreadState.Running)
@@ -555,7 +557,7 @@ namespace ExcelTool
                         readFileParams.Add(fileName);
                         readFileParams.Add(sheetExplainer);
                         readFileParams.Add(analyzer);
-                        readFileParams.Add(MergePublicParam(paramDicEachAnalyzer, analyzer.name));
+                        readFileParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name));
                         readFileParams.Add(cresult);
                         smartThreadPoolAnalyze.QueueWorkItem(new Func<List<object>, Object>(ReadFile), readFileParams);
                     }
@@ -670,7 +672,7 @@ namespace ExcelTool
 
                     CompilerResults cresult = compilerDic[analyzer].Item1;
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
-                    Thread runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
+                    Thread runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
                     runBeforeSetResultThread.Start();
                     while (runBeforeSetResultThread.ThreadState == System.Threading.ThreadState.Running)
                     {
@@ -723,7 +725,7 @@ namespace ExcelTool
                     setResultParams.Add(result);
                     setResultParams.Add(analyzer.name);
                     setResultParams.Add(resultList.Count);
-                    setResultParams.Add(MergePublicParam(paramDicEachAnalyzer, analyzer.name));
+                    setResultParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name));
                     setResultParams.Add(compilerDic[analyzer].Item1);
                     smartThreadPoolOutput.QueueWorkItem(new Func<List<object>, Object[]>(SetResult), setResultParams);
                 }
@@ -818,7 +820,7 @@ namespace ExcelTool
 
                     CompilerResults cresult = compilerDic[analyzer].Item1;
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
-                    Thread runEndThread = new Thread(() => RunEnd(cresult, workbook, MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
+                    Thread runEndThread = new Thread(() => RunEnd(cresult, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
                     runEndThread.Start();
                     while (runEndThread.ThreadState == System.Threading.ThreadState.Running)
                     {
@@ -1203,90 +1205,7 @@ namespace ExcelTool
             return methodResult;
         }
 
-        private void FileTraverse(bool isAuto, String folderPath, SheetExplainer sheetExplainer, List<String> filePathList)
-        {
-            if (string.IsNullOrEmpty(folderPath))
-            {
-                return;
-            }
-
-            DirectoryInfo dir = new DirectoryInfo(folderPath);
-            try
-            {
-                if (!dir.Exists)
-                    return;
-                DirectoryInfo dirD = dir as DirectoryInfo;
-                FileSystemInfo[] files = dirD.GetFileSystemInfos();
-                foreach (FileSystemInfo FSys in files)
-                {
-                    System.IO.FileInfo fileInfo = FSys as System.IO.FileInfo;
-
-                    if (fileInfo != null && (System.IO.Path.GetExtension(fileInfo.Name).Equals(".xlsx")))
-                    {
-                        if (sheetExplainer.fileNames.Key == FindingMethod.SAME)
-                        {
-                            foreach (String str in sheetExplainer.fileNames.Value)
-                            {
-                                if (fileInfo.Name.Equals(str))
-                                {
-                                    string fileName = System.IO.Path.Combine(fileInfo.DirectoryName, fileInfo.Name);
-                                    filePathList.Add(fileName);
-                                }
-                            }
-                        }
-                        else if (sheetExplainer.fileNames.Key == FindingMethod.CONTAIN)
-                        {
-                            foreach (String str in sheetExplainer.fileNames.Value)
-                            {
-                                if (fileInfo.Name.Contains(str))
-                                {
-                                    string fileName = System.IO.Path.Combine(fileInfo.DirectoryName, fileInfo.Name);
-                                    filePathList.Add(fileName);
-                                }
-                            }
-                        }
-                        else if (sheetExplainer.fileNames.Key == FindingMethod.REGEX)
-                        {
-                            foreach (String str in sheetExplainer.fileNames.Value)
-                            {
-                                Regex rgx = new Regex(str);
-                                if (rgx.IsMatch(fileInfo.Name))
-                                {
-                                    string fileName = System.IO.Path.Combine(fileInfo.DirectoryName, fileInfo.Name);
-                                    filePathList.Add(fileName);
-                                }
-                            }
-                        }
-                        else if (sheetExplainer.fileNames.Key == FindingMethod.ALL)
-                        {
-                            Regex rgx = new Regex("[\\s\\S]*.xls[xm]", RegexOptions.IgnoreCase);
-                            if (rgx.IsMatch(fileInfo.Name))
-                            {
-                                string fileName = System.IO.Path.Combine(fileInfo.DirectoryName, fileInfo.Name);
-                                filePathList.Add(fileName);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        string pp = FSys.Name;
-                        FileTraverse(isAuto, System.IO.Path.Combine(folderPath, FSys.ToString()), sheetExplainer, filePathList);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                if (!isAuto)
-                {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else
-                {
-                    Logger.Error(ex.Message);
-                }
-                return;
-            }
-        }
+        
 
         private void LoadFiles()
         {
@@ -1311,76 +1230,11 @@ namespace ExcelTool
                 return;
             }
 
-            List<String> sheetExplainersList = Directory.GetFiles(".\\SheetExplainers", "*.json").ToList();
-            sheetExplainersList.Insert(0, "");
-            for (int i = 0; i < sheetExplainersList.Count; ++i)
-            {
-                String str = sheetExplainersList[i];
-                sheetExplainersList[i] = str.Substring(str.LastIndexOf('\\') + 1);
-                if (sheetExplainersList[i].Contains('.'))
-                {
-                    sheetExplainersList[i] = sheetExplainersList[i].Substring(0, sheetExplainersList[i].LastIndexOf('.'));
-                }
-            }
-            cb_sheetexplainers.ItemsSource = sheetExplainersList;
-
-            List<String> analyzersList = Directory.GetFiles(".\\Analyzers", "*.json").ToList();
-            analyzersList.Insert(0, "");
-            for (int i = 0; i < analyzersList.Count; ++i)
-            {
-                String str = analyzersList[i];
-                analyzersList[i] = str.Substring(str.LastIndexOf('\\') + 1);
-                if (analyzersList[i].Contains('.'))
-                {
-                    analyzersList[i] = analyzersList[i].Substring(0, analyzersList[i].LastIndexOf('.'));
-                }
-            }
-            cb_analyzers.ItemsSource = analyzersList;
-
-            List<String> rulesList = Directory.GetFiles(".\\Rules", "*.json").ToList();
-            rulesList.Insert(0, "");
-            for (int i = 0; i < rulesList.Count; ++i)
-            {
-                String str = rulesList[i];
-                rulesList[i] = str.Substring(str.LastIndexOf('\\') + 1);
-                if (rulesList[i].Contains('.'))
-                {
-                    rulesList[i] = rulesList[i].Substring(0, rulesList[i].LastIndexOf('.'));
-                }
-            }
-            cb_rules.ItemsSource = rulesList;
-
-            if (!File.Exists(".\\Params.txt"))
-            {
-                FileStream fs = null;
-                try
-                {
-                    fs = File.Create(".\\Params.txt");
-                    fs.Close();
-                    StreamWriter sw = File.CreateText(".\\Params.txt");
-                    sw.Write("key1:value1|key2:value2|key3:value3");
-                    sw.Flush();
-                    sw.Close();
-                }
-                catch (Exception ex)
-                {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            String paramStr = File.ReadAllText(".\\Params.txt");
-            List<string> paramsList = paramStr.Split('\n').ToList<string>();
-            List<string> newParamsList = new List<string>();
-            foreach (string param in paramsList)
-            {
-                if (param.Trim() != "")
-                {
-                    newParamsList.Add(param.Trim());
-                }
-            }
-            newParamsList.Insert(0, "");
-            cb_params.ItemsSource = newParamsList;
+            cb_sheetexplainers.ItemsSource = FileHelper.GetSheetExplainersList();
+            cb_analyzers.ItemsSource = FileHelper.GetAnalyzersList();
+            cb_rules.ItemsSource = FileHelper.GetRulesList();
+            cb_params.ItemsSource = FileHelper.GetParamsList();
         }
-
 
         private long GetNowSs()
         {
@@ -1524,7 +1378,7 @@ namespace ExcelTool
 
         private void CbParamsPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            LoadFiles();
+            cb_params.ItemsSource = FileHelper.GetParamsList();
         }
 
         private void TbParamsTextChanged(object sender, EventArgs e)
@@ -1584,20 +1438,6 @@ namespace ExcelTool
             objCompilerParameters.IncludeDebugInformation = true;
 
             return objCSharpCodePrivoder.CompileAssemblyFromSource(objCompilerParameters, analyzer.code);
-        }
-
-        private void DeleteCopiedDlls()
-        {
-            string arguments = "";
-            foreach (string path in copiedDllsList)
-            {
-                arguments += path.Replace(" ", "|SPACE|") + " ";
-            }
-
-            if (arguments.Length > 0)
-            {
-                Process.Start("ExcelToolAfterClosed.exe", arguments);
-            }
         }
 
         void PasteCommandBindingPreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -1678,7 +1518,7 @@ namespace ExcelTool
 
         private void CbRulesPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            LoadFiles();
+            cb_rules.ItemsSource = FileHelper.GetRulesList();
         }
 
         private void CbRulesChanged(object sender, SelectionChangedEventArgs e)
@@ -1692,6 +1532,7 @@ namespace ExcelTool
 
                 if (!CheckRule(rule))
                 {
+                    cb_rules.SelectedIndex = 0;
                     return;
                 }
 
@@ -1787,7 +1628,7 @@ namespace ExcelTool
             }
         }
 
-        private void SetAutoAll()
+        private void SetAutoStatusAll()
         {
             List<String> rulesList = Directory.GetFiles(".\\Rules", "*.json").ToList();
             foreach (string path in rulesList)
@@ -1850,7 +1691,6 @@ namespace ExcelTool
             if (rule.watchPath != null && rule.watchPath != "" && !Directory.Exists(rule.watchPath))
             {
                 CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"监视路径不存在: {rule.watchPath}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                cb_rules.SelectedIndex = 0;
                 return false;
             }
             foreach (string analyzer in rule.analyzers.Split('\n'))
@@ -1858,7 +1698,6 @@ namespace ExcelTool
                 if (!cb_analyzers.Items.Contains(analyzer))
                 {
                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的Analyzer: {analyzer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                    cb_rules.SelectedIndex = 0;
                     return false;
                 }
             }
@@ -1867,7 +1706,6 @@ namespace ExcelTool
                 if (!cb_sheetexplainers.Items.Contains(sheetExplainer))
                 {
                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的SheetExplainers: {sheetExplainer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                    cb_rules.SelectedIndex = 0;
                     return false;
                 }
 
@@ -1877,7 +1715,7 @@ namespace ExcelTool
 
         private void WindowClosed(object sender, EventArgs e)
         {
-            DeleteCopiedDlls();
+            FileHelper.DeleteCopiedDlls(copiedDllsList);
         }
 
         private void EditParam(object sender, RoutedEventArgs e)
@@ -1886,7 +1724,7 @@ namespace ExcelTool
 
             string paramStr = $"{te_params.Text.Replace("\r\n", "").Replace("\n", "")}";
             te_params.Text = paramStr;
-            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = GetParamDicEachAnalyzer(paramStr);
+            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
 
             int rowNum = -1;
 
@@ -2003,7 +1841,7 @@ namespace ExcelTool
             btnOk.Content = "OK";
             btnOk.Click += (s, ex) => 
             {
-                SetParamAfterChange(paramDicEachAnalyzer);
+                te_params.Text = ParamHelper.GetParamStr(paramDicEachAnalyzer);
                 paramEditor.Close();
             };
             Grid.SetRow(btnOk, rowNum);
@@ -2013,134 +1851,6 @@ namespace ExcelTool
             paramEditor.ShowDialog();
         }
 
-        private void SetParamAfterChange(Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer)
-        {
-            string paramStr = "";
-            foreach (string analyzerName in paramDicEachAnalyzer.Keys)
-            {
-                Dictionary<string, string> paramDic = paramDicEachAnalyzer[analyzerName];
-                if (analyzerName == "public")
-                {
-                    foreach (string key in paramDic.Keys)
-                    {
-                        paramStr = $"{ paramStr }|{key}:{paramDic[key]}";
-                    }
-                }
-                else
-                {
-                    string paramStrTemp = "";
-                    foreach (string key in paramDic.Keys)
-                    {
-                        paramStrTemp = $"{ paramStrTemp }|{key}:{paramDic[key]}";
-                    }
-                    paramStrTemp = paramStrTemp.Substring(1);
-
-                    paramStr = $"{ paramStr }|{analyzerName}{{{paramStrTemp}}}";
-                }
-            }
-            paramStr = paramStr.Substring(1);
-            te_params.Text = paramStr;
-        }
-
-        private Dictionary<string, Dictionary<string, string>> GetParamDicEachAnalyzer(string paramStr)
-        {
-            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = new Dictionary<string, Dictionary<string, string>>();
-
-            int startIndex = 0;
-            int index = 0;
-            while (index <= paramStr.Length - 1)
-            {
-                string tempStr = paramStr.Substring(startIndex);
-                int tempIndex = tempStr.IndexOf("|");
-                string tempParam = "";
-                if (tempIndex == -1)
-                {
-                    tempParam = tempStr;
-
-                    index = paramStr.Length + 1;
-                }
-                else
-                {
-                    tempParam = tempStr.Substring(0, tempIndex);
-                }
-                if (tempParam.Contains("{"))
-                {
-                    tempIndex = tempStr.IndexOf("}");
-                    tempParam = tempStr.Substring(0, tempIndex + 1);
-
-                    int lIndex = tempParam.IndexOf("{");
-                    int rIndex = tempParam.IndexOf("}");
-                    string analyzerName = tempParam.Substring(0, lIndex);
-                    string tempParamInTempParam = tempParam.Substring(lIndex + 1, rIndex - lIndex - 1);
-                    string[] splitedParams = tempParamInTempParam.Split('|');
-                    Dictionary<string, string> paramDic = new Dictionary<string, string>();
-                    foreach (string param in splitedParams)
-                    {
-                        string[] kv = param.Split(':');
-                        if (kv.Length == 2)
-                        {
-                            paramDic.Add(kv[0], kv[1]);
-                        }
-                    }
-                    if (paramDicEachAnalyzer.ContainsKey(analyzerName))
-                    {
-                        foreach (string key in paramDic.Keys)
-                        {
-                            if (!paramDicEachAnalyzer[analyzerName].ContainsKey(key))
-                            {
-                                paramDicEachAnalyzer[analyzerName].Add(key, paramDic[key]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        paramDicEachAnalyzer.Add(analyzerName, paramDic);
-                    }
-                }
-                else
-                {
-                    string[] kv = tempParam.Split(':');
-                    if (kv.Length == 2)
-                    {
-                        if (!paramDicEachAnalyzer.ContainsKey("public"))
-                        {
-                            paramDicEachAnalyzer.Add("public", new Dictionary<string, string>());
-                        }
-                        paramDicEachAnalyzer["public"].Add(kv[0], kv[1]);
-                    }
-                }
-                if (tempIndex != -1)
-                {
-                    index = startIndex + tempIndex + 1;
-                }
-                startIndex = index;
-            }
-
-            return paramDicEachAnalyzer;
-        }
-
-        private Dictionary<string, string> MergePublicParam(Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string analyzerName)
-        {
-            Dictionary<string, string> aimDic = new Dictionary<string, string>();
-            if (paramDicEachAnalyzer.ContainsKey(analyzerName))
-            {
-                aimDic = paramDicEachAnalyzer[analyzerName];
-            }
-
-            Dictionary<string, string> dic = new Dictionary<string, string>();
-            if (paramDicEachAnalyzer.ContainsKey(analyzerName))
-            {
-                dic = paramDicEachAnalyzer["public"];
-            }
-            
-            foreach (string key in dic.Keys)
-            {
-                if (!aimDic.ContainsKey(key))
-                {
-                    aimDic.Add(key, dic[key]);
-                }
-            }
-            return aimDic;
-        }
+        
     }
 }
