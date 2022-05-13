@@ -1898,8 +1898,19 @@ namespace ExcelTool
             ColumnDefinition columnDefinitionR = new ColumnDefinition();
             paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
 
+            List<string> addedAnalyzerNameList = new List<string>();
+
             foreach (string analyzerName in analyzersList) 
             {
+                if (addedAnalyzerNameList.Contains(analyzerName))
+                {
+                    continue;
+                }
+                else
+                {
+                    addedAnalyzerNameList.Add(analyzerName);
+                }
+
                 Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{analyzerName}.json"));
 
                 RowDefinition rowDefinition = new RowDefinition();
