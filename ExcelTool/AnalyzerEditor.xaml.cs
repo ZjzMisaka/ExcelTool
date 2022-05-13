@@ -123,6 +123,8 @@ namespace ExcelTool
             editor.Loaded -= OnItemLoaded;
             editor.Focus();
 
+            ResetEditorSize(editor);
+
             var viewModel = (DocumentViewModel)editor.DataContext;
             var workingDirectory = Directory.GetCurrentDirectory();
 
@@ -276,14 +278,6 @@ namespace ExcelTool
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
-        }
-
-        private void ScrollViewerPreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta);
-            eventArg.RoutedEvent = UIElement.MouseWheelEvent;
-            eventArg.Source = sender;
-            sv_editor.RaiseEvent(eventArg);
         }
 
         private void SaveByKeyDownCanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -446,6 +440,24 @@ namespace ExcelTool
             paramEditor.g_main.Children.Add(btnOk);
 
             paramEditor.ShowDialog();
+        }
+
+        private void AnalyzerEditorSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ResetEditorSize(editor);
+        }
+
+        private void ResetEditorSize(RoslynCodeEditor editor)
+        {
+            if (editor != null && this.WindowState != WindowState.Minimized)
+            {
+                editor.Height = this.ActualHeight - 100;
+            }
+        }
+
+        private void AnalyzerEditorStateChanged(object sender, EventArgs e)
+        {
+            ResetEditorSize(editor);
         }
     }
 }
