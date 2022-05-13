@@ -1825,7 +1825,7 @@ namespace ExcelTool
             gridSplitter.BorderBrush = Brushes.Black;
             gridSplitter.Background = Brushes.AntiqueWhite;
             Grid.SetRow(gridSplitter, 0);
-            Grid.SetRowSpan(gridSplitter, rowNum + 1);
+            Grid.SetRowSpan(gridSplitter, rowNum + 1 <= 0 ? 1 : rowNum + 1);
             Grid.SetColumn(gridSplitter, 0);
             paramEditor.g_main.Children.Add(gridSplitter);
 
