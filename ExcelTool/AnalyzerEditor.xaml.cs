@@ -383,6 +383,8 @@ namespace ExcelTool
 
             TextEditor textEditorL = new TextEditor();
             textEditorL.ShowLineNumbers = true;
+            textEditorL.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorL.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             if (paramDicForChange != null && paramDicForChange.Keys != null && paramDicForChange.Keys.Count > 0)
             {
                 foreach (string str in paramDicForChange.Keys)
@@ -394,17 +396,18 @@ namespace ExcelTool
             Grid.SetColumn(textEditorL, 0);
             paramEditor.g_main.Children.Add(textEditorL);
 
-            Label label = new Label();
-            label.Content = "=";
-            label.HorizontalAlignment = HorizontalAlignment.Center;
-            label.HorizontalContentAlignment = HorizontalAlignment.Center;
-            label.VerticalAlignment = VerticalAlignment.Center;
-            Grid.SetRow(label, 0);
-            Grid.SetColumn(label, 1);
-            paramEditor.g_main.Children.Add(label);
+            TextBlock textBlock = new TextBlock();
+            textBlock.Text = "=";
+            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+            textBlock.VerticalAlignment = VerticalAlignment.Center;
+            Grid.SetRow(textBlock, 0);
+            Grid.SetColumn(textBlock, 1);
+            paramEditor.g_main.Children.Add(textBlock);
 
             TextEditor textEditorR = new TextEditor();
             textEditorR.ShowLineNumbers = true;
+            textEditorR.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorR.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             if (paramDicForChange != null && paramDicForChange.Keys != null && paramDicForChange.Keys.Count > 0)
             {
                 foreach (string str in paramDicForChange.Values)

@@ -1757,15 +1757,15 @@ namespace ExcelTool
                 rowDefinition.Height = new GridLength(40);
                 paramEditor.g_main.RowDefinitions.Add(rowDefinition);
                 ++rowNum;
-                Label labelAnalyzerName = new Label();
-                labelAnalyzerName.Height = 35;
-                labelAnalyzerName.FontWeight = FontWeight.FromOpenTypeWeight(600);
-                labelAnalyzerName.FontSize = 20;
-                labelAnalyzerName.VerticalAlignment = VerticalAlignment.Bottom;
-                labelAnalyzerName.Content = analyzerName;
-                Grid.SetRow(labelAnalyzerName, rowNum);
-                Grid.SetColumnSpan(labelAnalyzerName, 2);
-                paramEditor.g_main.Children.Add(labelAnalyzerName);
+                TextBlock textBlockAnalyzerName = new TextBlock();
+                textBlockAnalyzerName.Height = 35;
+                textBlockAnalyzerName.FontWeight = FontWeight.FromOpenTypeWeight(600);
+                textBlockAnalyzerName.FontSize = 20;
+                textBlockAnalyzerName.VerticalAlignment = VerticalAlignment.Bottom;
+                textBlockAnalyzerName.Text = analyzerName;
+                Grid.SetRow(textBlockAnalyzerName, rowNum);
+                Grid.SetColumnSpan(textBlockAnalyzerName, 2);
+                paramEditor.g_main.Children.Add(textBlockAnalyzerName);
 
                 Dictionary<string, string> paramDic = null;
                 if (paramDicEachAnalyzer.ContainsKey(analyzerName))
@@ -1784,12 +1784,12 @@ namespace ExcelTool
                     paramEditor.g_main.RowDefinitions.Add(rowDefinitionKv);
                     ++rowNum;
 
-                    Label labelKey = new Label();
-                    labelKey.Height = 25;
-                    labelKey.Content = analyzer.paramDic[key];
-                    Grid.SetRow(labelKey, rowNum);
-                    Grid.SetColumn(labelKey, 0);
-                    paramEditor.g_main.Children.Add(labelKey);
+                    TextBlock textBlockKey = new TextBlock();
+                    textBlockKey.Height = 25;
+                    textBlockKey.Text = analyzer.paramDic[key];
+                    Grid.SetRow(textBlockKey, rowNum);
+                    Grid.SetColumn(textBlockKey, 0);
+                    paramEditor.g_main.Children.Add(textBlockKey);
 
                     TextBox tbValue = new TextBox();
                     tbValue.Height = 25;
