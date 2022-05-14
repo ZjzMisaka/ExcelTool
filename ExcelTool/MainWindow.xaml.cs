@@ -255,6 +255,8 @@ namespace ExcelTool
         private void Stop()
         {
             isStopByUser = true;
+
+            te_log.Text += Logger.Get();
         }
 
         private void FileSystemWatcherInvoke(object sender, FileSystemEventArgs e)

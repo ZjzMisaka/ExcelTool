@@ -123,7 +123,7 @@ namespace ExcelTool.Helper
             }
 
             Dictionary<string, string> dic = new Dictionary<string, string>();
-            if (paramDicEachAnalyzer.ContainsKey(analyzerName))
+            if (paramDicEachAnalyzer.ContainsKey("public"))
             {
                 dic = paramDicEachAnalyzer["public"];
             }
