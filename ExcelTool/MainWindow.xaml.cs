@@ -1789,6 +1789,22 @@ namespace ExcelTool
                     textBlockKey.Text = analyzer.paramDic[key];
                     Grid.SetRow(textBlockKey, rowNum);
                     Grid.SetColumn(textBlockKey, 0);
+                    textBlockKey.MouseEnter += (s, ex) =>
+                    {
+                        textBlockKey.Text = key;
+                    };
+                    textBlockKey.TouchEnter += (s, ex) =>
+                    {
+                        textBlockKey.Text = key;
+                    };
+                    textBlockKey.MouseLeave += (s, ex) =>
+                    {
+                        textBlockKey.Text = analyzer.paramDic[key];
+                    };
+                    textBlockKey.TouchLeave += (s, ex) =>
+                    {
+                        textBlockKey.Text = analyzer.paramDic[key];
+                    };
                     paramEditor.g_main.Children.Add(textBlockKey);
 
                     TextBox tbValue = new TextBox();
