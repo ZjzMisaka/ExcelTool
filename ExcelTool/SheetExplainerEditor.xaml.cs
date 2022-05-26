@@ -40,7 +40,7 @@ namespace ExcelTool
             if (result == 1)
             {
                 SheetExplainer sheetExplainer = new SheetExplainer();
-                sheetExplainer.relativePathes = StringListDeteleBlank(tb_relativepaths.Text.Split('\n').ToList());
+                sheetExplainer.pathes = StringListDeteleBlank(tb_relativepaths.Text.Split('\n').ToList());
 
                 FindingMethod fileNamesFindingMethod = new FindingMethod();
                 if(cb_filenamestype.SelectedIndex == 0)
@@ -136,7 +136,7 @@ namespace ExcelTool
                 return;
             }
             SheetExplainer sheetExplainer = JsonConvert.DeserializeObject<SheetExplainer>(File.ReadAllText($".\\SheetExplainers\\{cb_sheetexplainers.SelectedItem.ToString()}.json"));
-            foreach(String str in sheetExplainer.relativePathes)
+            foreach(String str in sheetExplainer.pathes)
             {
                 tb_relativepaths.Text += $"{str}\n";
             }

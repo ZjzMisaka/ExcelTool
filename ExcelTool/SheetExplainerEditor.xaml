@@ -30,7 +30,7 @@
             <ComboBox Name="cb_sheetexplainers" Grid.Row="0" Margin="10 2" Width="300" VerticalContentAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" Grid.ColumnSpan="3" SelectionChanged="CbSheetExplainersSelectionChanged" PreviewMouseLeftButtonDown="CbSheetExplainersPreviewMouseLeftButtonDown"/>
             <Button Name="btn_delete" Content="删除" IsEnabled="False" Height="25" Width="50" Grid.Row="0" Grid.ColumnSpan="3" Margin="10 2" HorizontalAlignment="Right" Click="BtnDeleteClick"/>
             
-            <Label Grid.Row="1" Grid.Column="0" Content="相对路径列表 (可空)" Margin="10 2"/>
+            <Label Grid.Row="1" Grid.Column="0" Content="路径列表 (可空)" Margin="10 2"/>
             <TextBox AcceptsReturn="True" TextWrapping="Wrap" Name="tb_relativepaths" Grid.Row="3" Grid.Column="0" Margin="10 2" AllowDrop="True" PreviewDrop="TextBoxPreviewDrop" PreviewDragOver="TextBoxPreviewDragOver"/>
 
             <Label Grid.Row="1" Grid.Column="1" Content="文件名信息列表" Margin="10 2"/>

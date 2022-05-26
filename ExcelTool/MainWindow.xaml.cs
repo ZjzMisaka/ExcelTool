@@ -403,10 +403,10 @@ namespace ExcelTool
                 try
                 {
                     sheetExplainer = JsonConvert.DeserializeObject<SheetExplainer>(File.ReadAllText($".\\SheetExplainers\\{name}.json"));
-                    if (sheetExplainer.relativePathes == null || sheetExplainer.relativePathes.Count == 0)
+                    if (sheetExplainer.pathes == null || sheetExplainer.pathes.Count == 0)
                     {
-                        sheetExplainer.relativePathes = new List<string>();
-                        sheetExplainer.relativePathes.Add("");
+                        sheetExplainer.pathes = new List<string>();
+                        sheetExplainer.pathes.Add("");
                     }
                 }
                 catch (Exception ex)
@@ -471,10 +471,18 @@ namespace ExcelTool
                 Analyzer analyzer = analyzers[i];
 
                 List<String> allFilePathList = new List<String>();
-                foreach (String str in sheetExplainer.relativePathes)
+                foreach (String str in sheetExplainer.pathes)
                 {
                     List<String> filePathList = new List<String>();
-                    string basePathTemp = Path.Combine(basePath.Trim(), str.Trim());
+                    string basePathTemp = "";
+                    if (Path.IsPathRooted(str))
+                    {
+                        basePathTemp = str.Trim();
+                    }
+                    else
+                    {
+                        basePathTemp = Path.Combine(basePath.Trim(), str.Trim());
+                    }
                     FileHelper.FileTraverse(isAuto, basePathTemp, sheetExplainer, filePathList);
                     allFilePathList.AddRange(filePathList);
                 }
@@ -543,26 +551,23 @@ namespace ExcelTool
                     await Task.Delay(100);
                 }
 
-                foreach (String str in sheetExplainer.relativePathes)
-                {
-                    List<String> filePathList = filePathListDic[sheetExplainer];
-                    totalCount += filePathList.Count;
+                List<String> filePathListFromSheetExplainer = filePathListDic[sheetExplainer];
+                totalCount += filePathListFromSheetExplainer.Count;
 
-                    int filesCount = filePathList.Count;
-                    foreach (String filePath in filePathList)
-                    {
-                        List<String> pathSplit = filePath.Split('\\').ToList<string>();
-                        String fileName = pathSplit[pathSplit.Count - 1];
-                        fileName = fileName.Substring(0, fileName.LastIndexOf('.'));
-                        List<object> readFileParams = new List<object>();
-                        readFileParams.Add(filePath);
-                        readFileParams.Add(fileName);
-                        readFileParams.Add(sheetExplainer);
-                        readFileParams.Add(analyzer);
-                        readFileParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name));
-                        readFileParams.Add(cresult);
-                        smartThreadPoolAnalyze.QueueWorkItem(new Func<List<object>, Object>(ReadFile), readFileParams);
-                    }
+                int filesCount = filePathListFromSheetExplainer.Count;
+                foreach (String filePath in filePathListFromSheetExplainer)
+                {
+                    List<String> pathSplit = filePath.Split('\\').ToList<string>();
+                    String fileName = pathSplit[pathSplit.Count - 1];
+                    fileName = fileName.Substring(0, fileName.LastIndexOf('.'));
+                    List<object> readFileParams = new List<object>();
+                    readFileParams.Add(filePath);
+                    readFileParams.Add(fileName);
+                    readFileParams.Add(sheetExplainer);
+                    readFileParams.Add(analyzer);
+                    readFileParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name));
+                    readFileParams.Add(cresult);
+                    smartThreadPoolAnalyze.QueueWorkItem(new Func<List<object>, Object>(ReadFile), readFileParams);
                 }
             }
 

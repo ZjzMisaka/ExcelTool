@@ -60,7 +60,7 @@
                 <Button Name="btn_params"  Grid.Row="5" Margin="10 2" Grid.Column="1" Grid.ColumnSpan="1" Content="编辑" Click="EditParam" Height="25" HorizontalAlignment="Right" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"></Button>
                 <avalonEdit:TextEditor Name="te_params" Margin="10 2" Grid.Row="6" Grid.ColumnSpan="2" ShowLineNumbers="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" LostFocus="TbParamsLostFocus" TextChanged="TbParamsTextChanged" AllowDrop="False" WordWrap="False" BorderBrush="Gray" BorderThickness="1" VerticalContentAlignment="Center" FontSize="14" Padding="3px" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
 
-                <Label Height="25" Margin="10 2 10 0" Grid.Row="7" Grid.ColumnSpan="2" Content="文件根目录" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                <Label Height="25" Margin="10 2 10 0" Grid.Row="7" Grid.ColumnSpan="2" Content="工作目录 [检索信息填写相对路径时]" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <TextBox Grid.Row="8" Grid.ColumnSpan="2" Name="tb_base_path" PreviewDragOver="DragOverPath" PreviewDrop="DropPath" AllowDrop="True" TextWrapping="NoWrap" Text="" Margin="10 2" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                 <Button Grid.Row="9" Grid.ColumnSpan="2" Height="25" Name="btn_select_output_path" Click="SelectPath" Margin="10 2" Content="选择" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
                 <Label Height="25" Margin="10 2 10 0" Grid.Row="10" Grid.ColumnSpan="2" Content="输出目录" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
