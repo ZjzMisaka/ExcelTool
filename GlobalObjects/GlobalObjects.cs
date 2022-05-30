@@ -1,6 +1,7 @@
 ﻿using CustomizableMessageBox;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -220,6 +221,100 @@ namespace AnalyzeCode
         public static void Clear()
         {
             log = "";
+        }
+    }
+
+    //public static class Scanner
+    //{
+    //    public static string Input()
+    //    {
+    //        return "";
+    //    }
+    //    public static string Input(string message)
+    //    {
+    //        Logger.Print(message);
+    //        return Input();
+    //    }
+    //}
+
+    public class Scanner
+    {
+        private static Mutex mutex = new Mutex();
+
+        private static bool inputLock = false;
+
+        private static string value;
+        private static string currentInputMessage;
+
+        public delegate void InputEventHandler(Object sender, InputEventArgs e);
+
+        public event InputEventHandler Input;
+
+        public static bool InputLock { get => inputLock; set => inputLock = value; }
+        public static string CurrentInputMessage { get => currentInputMessage; set => currentInputMessage = value; }
+
+        public class InputEventArgs : EventArgs
+        {
+            public readonly string value;
+            public InputEventArgs(string value)
+            {
+                this.value = value;
+            }
+        }
+        protected virtual void OnInput(InputEventArgs e)
+        {
+            if (Input != null)
+            {
+                Input(this, e); // 调用所有注册对象的方法
+            }
+        }
+
+        public void UpdateInput(string value)
+        {
+            InputEventArgs e = new InputEventArgs(value);
+            OnInput(e);
+        }
+
+        public static void UserInput(Object sender, InputEventArgs e)
+        {
+            Scanner.value = e.value;
+        }
+
+
+
+        public static string GetInput()
+        {
+            return GetInput("");
+            
+        }
+        public static string GetInput(string value)
+        {
+            if (mutex.WaitOne())
+            {
+                InputLock = true;
+
+                CurrentInputMessage = $"{value} > ";
+                Logger.Print(CurrentInputMessage);
+
+                while (Scanner.value == null)
+                {
+                    Thread.Sleep(100);
+                }
+
+                InputLock = false;
+
+                mutex.ReleaseMutex();
+
+                string valueTemp = Scanner.value;
+
+                Scanner.value = null;
+
+                return valueTemp;
+            }
+            else
+            {
+                return "";
+            }
         }
     }
 }
