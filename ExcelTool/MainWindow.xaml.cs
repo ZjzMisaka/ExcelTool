@@ -38,10 +38,10 @@ namespace ExcelTool
         private Boolean isStopByUser;
         private SmartThreadPool smartThreadPoolAnalyze = null;
         private SmartThreadPool smartThreadPoolOutput = null;
-        Thread runningThread;
-        Thread runBeforeAnalyzeSheetThread;
-        Thread runBeforeSetResultThread;
-        Thread runEndThread;
+        private Thread runningThread;
+        private Thread runBeforeAnalyzeSheetThread;
+        private Thread runBeforeSetResultThread;
+        private Thread runEndThread;
         private ConcurrentDictionary<string, long> currentAnalizingDictionary;
         private ConcurrentDictionary<string, long> currentOutputtingDictionary;
         private ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer> resultList;
@@ -54,7 +54,7 @@ namespace ExcelTool
         private int totalTimeoutLimitOutput;
         private int perTimeoutLimitOutput;
         private bool runNotSuccessed;
-        GlobalObjects.Scanner scanner = new Scanner();
+        private GlobalObjects.Scanner scanner = new Scanner();
         
         public MainWindow()
         {
