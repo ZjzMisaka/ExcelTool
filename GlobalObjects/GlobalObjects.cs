@@ -226,7 +226,7 @@ namespace AnalyzeCode
 
     public class Scanner
     {
-        private static Mutex mutex;
+        private static Object lockObj;
 
         private static bool inputLock = false;
 
@@ -276,7 +276,7 @@ namespace AnalyzeCode
         }
         public static string GetInput(string value)
         {
-            if (mutex.WaitOne())
+            lock (lockObj)
             {
                 InputLock = true;
 
@@ -289,23 +289,17 @@ namespace AnalyzeCode
 
                 InputLock = false;
 
-                mutex.ReleaseMutex();
-
                 string valueTemp = Scanner.value;
 
                 Scanner.value = null;
 
                 return valueTemp;
             }
-            else
-            {
-                return "";
-            }
         }
 
         public static void ResetAll()
         {
-            mutex = new Mutex();
+            lockObj = new Object();
             CurrentInputMessage = "";
             InputLock = false;
         }

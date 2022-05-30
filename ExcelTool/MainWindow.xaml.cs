@@ -331,7 +331,6 @@ namespace ExcelTool
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             GlobalObjects.GlobalObjects.SetGlobalParam(null);
 
-            // TODO FIX BUG 停止后再次运行, 显示Mutex未被释放, 报错 "从不同步的代码块中调用了对象同步方法"
             Scanner.ResetAll();
 
             runningThread = new Thread(() => WhenRunning());
