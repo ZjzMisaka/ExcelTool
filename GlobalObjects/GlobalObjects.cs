@@ -224,19 +224,6 @@ namespace AnalyzeCode
         }
     }
 
-    //public static class Scanner
-    //{
-    //    public static string Input()
-    //    {
-    //        return "";
-    //    }
-    //    public static string Input(string message)
-    //    {
-    //        Logger.Print(message);
-    //        return Input();
-    //    }
-    //}
-
     public class Scanner
     {
         private static Mutex mutex;
