@@ -331,7 +331,10 @@ namespace ExcelTool
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             GlobalObjects.GlobalObjects.SetGlobalParam(null);
 
-            runningThread = new Thread(() => WhenRunningAsync());
+            // TODO FIX BUG 停止后再次运行, 显示Mutex未被释放, 报错 "从不同步的代码块中调用了对象同步方法"
+            Scanner.ResetAll();
+
+            runningThread = new Thread(() => WhenRunning());
             runningThread.Start();
 
             if (!isAuto)
@@ -932,7 +935,7 @@ namespace ExcelTool
             FinishRunning();
         }
 
-        private void WhenRunningAsync() 
+        private void WhenRunning()
         {
             while (runningThread.ThreadState == System.Threading.ThreadState.Running)
             {
@@ -941,15 +944,44 @@ namespace ExcelTool
                 {
                     this.Dispatcher.Invoke(() =>
                     {
-                        te_log.Text += logTemp;
+                        if (te_log.Text.Length > te_log.Text.LastIndexOf('\n') + 1)
+                        {
+                            te_log.Text = te_log.Text.Remove(te_log.Text.LastIndexOf('\n') + 1) + logTemp;
+                        }
+                        else
+                        {
+                            te_log.Text += logTemp;
+                        }
                     });
                 }
 
-                if (Scanner.InputLock == true)
+                if (Scanner.InputLock)
                 {
                     this.Dispatcher.Invoke(() =>
                     {
+                        string message = Scanner.CurrentInputMessage;
+                        string logText = te_log.Text;
+                        int index = logText.LastIndexOf(message);
+                        if (index != -1 && logText.IndexOf('\n', index) != -1
+                        && (index - 1 < 0 || (index - 1 >= 0 && logText[index - 1] == '\n') && (logText.Length - 1 < index + logText.Length || (logText.Length - 1 >= index + logText.Length && logText[index + logText.Length] == '\n'))))
+                        {
+                            te_log.Text += message;
+                            te_log.Select(te_log.Text.Length, 0);
+                        }
+                        else if (index == -1)
+                        {
+                            te_log.Text += message;
+                            te_log.Select(te_log.Text.Length, 0);
+                        }
+                    });
+
+                    this.Dispatcher.Invoke(() =>
+                    {
                         te_log.IsReadOnly = false;
+                        if (te_log.SelectionStart <= te_log.Text.LastIndexOf('\n') + Scanner.CurrentInputMessage.Length)
+                        {
+                            te_log.Select(te_log.Text.Length, 0);
+                        }
                     });
                 }
 
@@ -1427,11 +1459,6 @@ namespace ExcelTool
 
         private void TeLogTextChanged(object sender, EventArgs e)
         {
-            if (Scanner.InputLock)
-            {
-                
-            }
-
             te_log.ScrollToEnd();
         }
 
@@ -1853,7 +1880,21 @@ namespace ExcelTool
                 }
                 scanner.UpdateInput(text.Substring(subIndex).Replace(Scanner.CurrentInputMessage, ""));
 
+                te_log.Text += " <\n";
+
                 te_log.IsReadOnly = true;
+            }
+
+            if (e.Key == Key.Left && !te_log.IsReadOnly)
+            {
+                if (te_log.SelectionStart == te_log.Text.LastIndexOf('\n') + Scanner.CurrentInputMessage.Length + 1)
+                {
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == Key.Up && !te_log.IsReadOnly)
+            {
+                e.Handled = true;
             }
         }
     }

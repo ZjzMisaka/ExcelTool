@@ -239,7 +239,7 @@ namespace AnalyzeCode
 
     public class Scanner
     {
-        private static Mutex mutex = new Mutex();
+        private static Mutex mutex;
 
         private static bool inputLock = false;
 
@@ -293,8 +293,7 @@ namespace AnalyzeCode
             {
                 InputLock = true;
 
-                CurrentInputMessage = $"{value} > ";
-                Logger.Print(CurrentInputMessage);
+                CurrentInputMessage = $"{value} > ".TrimStart();
 
                 while (Scanner.value == null)
                 {
@@ -315,6 +314,13 @@ namespace AnalyzeCode
             {
                 return "";
             }
+        }
+
+        public static void ResetAll()
+        {
+            mutex = new Mutex();
+            CurrentInputMessage = "";
+            InputLock = false;
         }
     }
 }
