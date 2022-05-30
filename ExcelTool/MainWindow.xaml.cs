@@ -38,6 +38,10 @@ namespace ExcelTool
         private Boolean isStopByUser;
         private SmartThreadPool smartThreadPoolAnalyze = null;
         private SmartThreadPool smartThreadPoolOutput = null;
+        Thread runningThread;
+        Thread runBeforeAnalyzeSheetThread;
+        Thread runBeforeSetResultThread;
+        Thread runEndThread;
         private ConcurrentDictionary<string, long> currentAnalizingDictionary;
         private ConcurrentDictionary<string, long> currentOutputtingDictionary;
         private ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer> resultList;
@@ -50,6 +54,8 @@ namespace ExcelTool
         private int totalTimeoutLimitOutput;
         private int perTimeoutLimitOutput;
         private bool runNotSuccessed;
+        GlobalObjects.Scanner scanner = new Scanner();
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -67,6 +73,8 @@ namespace ExcelTool
             isRunning = false;
             isStopByUser = false;
             runNotSuccessed = false;
+
+            scanner.Input += Scanner.UserInput;
         }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
@@ -255,8 +263,10 @@ namespace ExcelTool
         private void Stop()
         {
             isStopByUser = true;
-
-            te_log.Text += Logger.Get();
+            this.Dispatcher.Invoke(() =>
+            {
+                te_log.Text += Logger.Get();
+            });
         }
 
         private void FileSystemWatcherInvoke(object sender, FileSystemEventArgs e)
@@ -320,6 +330,13 @@ namespace ExcelTool
             setResultInvokeCount = 0;
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             GlobalObjects.GlobalObjects.SetGlobalParam(null);
+
+            // TODO FIX BUG 停止后再次运行, 显示Mutex未被释放, 报错 "从不同步的代码块中调用了对象同步方法"
+            Scanner.ResetAll();
+
+            runningThread = new Thread(() => WhenRunning());
+            runningThread.Start();
+
             if (!isAuto)
             {
                 te_log.Text = "";
@@ -492,7 +509,7 @@ namespace ExcelTool
                 Tuple<CompilerResults, SheetExplainer> cresultTuple = new Tuple<CompilerResults, SheetExplainer>(cresult, sheetExplainer);
                 compilerDic.Add(analyzer, cresultTuple);
 
-                Thread runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, allFilePathList));
+                runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, allFilePathList));
                 runBeforeAnalyzeSheetThread.Start();
 
                 while (runBeforeAnalyzeSheetThread.ThreadState == System.Threading.ThreadState.Running)
@@ -507,13 +524,7 @@ namespace ExcelTool
                         {
                             // DO NOTHING
                         }
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            btn_start.IsEnabled = true;
-                            btn_stop.IsEnabled = false;
-                        });
-                        SetErrorLog();
-                        isRunning = false;
+                        FinishRunning();
                         return;
                     }
                     long timeCostSs = GetNowSs() - startTime;
@@ -527,11 +538,6 @@ namespace ExcelTool
                         {
                             // DO NOTHING
                         }
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            btn_start.IsEnabled = true;
-                            btn_stop.IsEnabled = false;
-                        });
                         if (!isAuto)
                         {
                             CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
@@ -540,14 +546,9 @@ namespace ExcelTool
                         {
                             Logger.Error($"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                         }
-                        SetErrorLog();
-                        isRunning = false;
+                        FinishRunning();
                         return;
                     }
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        te_log.Text += Logger.Get();
-                    });
                     await Task.Delay(100);
                 }
 
@@ -582,11 +583,6 @@ namespace ExcelTool
                     if (isStopByUser || totalTimeCostSs >= totalTimeoutLimitAnalyze)
                     {
                         smartThreadPoolAnalyze.Dispose();
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            btn_start.IsEnabled = true;
-                            btn_stop.IsEnabled = false;
-                        });
                         if (totalTimeCostSs >= totalTimeoutLimitAnalyze)
                         {
                             if (!isAuto)
@@ -599,9 +595,7 @@ namespace ExcelTool
                             }
 
                         }
-                        SetErrorLog();
-
-                        isRunning = false;
+                        FinishRunning();
                         return;
                     }
 
@@ -618,11 +612,6 @@ namespace ExcelTool
                             if (timeCostSs >= perTimeoutLimitAnalyze)
                             {
                                 smartThreadPoolAnalyze.Dispose();
-                                this.Dispatcher.Invoke(() =>
-                                {
-                                    btn_start.IsEnabled = true;
-                                    btn_stop.IsEnabled = false;
-                                });
                                 if (!isAuto)
                                 {
                                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
@@ -631,8 +620,7 @@ namespace ExcelTool
                                 {
                                     Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                                 }
-                                SetErrorLog();
-                                isRunning = false;
+                                FinishRunning();
                                 return;
                             }
                             sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
@@ -643,7 +631,6 @@ namespace ExcelTool
                     {
                         l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolAnalyze.ActiveThreads} -- InUseThreads: {smartThreadPoolAnalyze.InUseThreads}";
                         tb_status.Text = $"{sb.ToString()}";
-                        te_log.Text += Logger.Get();
                     });
                     await Task.Delay(100);
                 }
@@ -651,9 +638,7 @@ namespace ExcelTool
                 {
                     smartThreadPoolAnalyze.Dispose();
                     Logger.Error($"Exception has been throwed. \n{e.Message}");
-                    SetErrorLog();
-
-                    isRunning = false;
+                    FinishRunning();
                     return;
                 }
             }
@@ -679,31 +664,20 @@ namespace ExcelTool
 
                     CompilerResults cresult = compilerDic[analyzer].Item1;
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
-                    Thread runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
+                    runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
                     runBeforeSetResultThread.Start();
                     while (runBeforeSetResultThread.ThreadState == System.Threading.ThreadState.Running)
                     {
                         if (isStopByUser)
                         {
                             runBeforeSetResultThread.Abort();
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                btn_start.IsEnabled = true;
-                                btn_stop.IsEnabled = false;
-                            });
-                            SetErrorLog();
-                            isRunning = false;
+                            FinishRunning();
                             return;
                         }
                         long timeCostSs = GetNowSs() - startTime;
                         if (timeCostSs >= perTimeoutLimitAnalyze)
                         {
                             runBeforeSetResultThread.Abort();
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                btn_start.IsEnabled = true;
-                                btn_stop.IsEnabled = false;
-                            });
                             if (!isAuto)
                             {
                                 CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
@@ -712,14 +686,9 @@ namespace ExcelTool
                             {
                                 Logger.Error($"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                             }
-                            SetErrorLog();
-                            isRunning = false;
+                            FinishRunning();
                             return;
                         }
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            te_log.Text += Logger.Get();
-                        });
                         await Task.Delay(100);
                     }
                 }
@@ -747,11 +716,6 @@ namespace ExcelTool
                         if (isStopByUser || totalTimeCostSs >= totalTimeoutLimitOutput)
                         {
                             smartThreadPoolOutput.Dispose();
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                btn_start.IsEnabled = true;
-                                btn_stop.IsEnabled = false;
-                            });
                             if (totalTimeCostSs >= totalTimeoutLimitOutput)
                             {
                                 if (!isAuto)
@@ -763,9 +727,7 @@ namespace ExcelTool
                                     Logger.Error($"Total time out. \n{totalTimeoutLimitOutput / 1000.0}(s)");
                                 }
                             }
-                            SetErrorLog();
-
-                            isRunning = false;
+                            FinishRunning();
                             return;
                         }
 
@@ -782,11 +744,6 @@ namespace ExcelTool
                                 if (timeCostSs >= perTimeoutLimitOutput)
                                 {
                                     smartThreadPoolOutput.Dispose();
-                                    this.Dispatcher.Invoke(() =>
-                                    {
-                                        btn_start.IsEnabled = true;
-                                        btn_stop.IsEnabled = false;
-                                    });
                                     if (!isAuto)
                                     {
                                         CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
@@ -795,8 +752,7 @@ namespace ExcelTool
                                     {
                                         Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                                     }
-                                    SetErrorLog();
-                                    isRunning = false;
+                                    FinishRunning();
                                     return;
                                 }
                                 sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
@@ -807,7 +763,6 @@ namespace ExcelTool
                         {
                             l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolOutput.ActiveThreads} -- InUseThreads: {smartThreadPoolOutput.InUseThreads}";
                             tb_status.Text = $"{sb.ToString()}";
-                            te_log.Text += Logger.Get();
                         });
                         await Task.Delay(100);
                     }
@@ -815,7 +770,7 @@ namespace ExcelTool
                     {
                         smartThreadPoolOutput.Dispose();
                         Logger.Error($"Exception has been throwed. \n{e.Message}");
-                        SetErrorLog();
+                        FinishRunning();
                         return;
                     }
                 }
@@ -827,20 +782,14 @@ namespace ExcelTool
 
                     CompilerResults cresult = compilerDic[analyzer].Item1;
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
-                    Thread runEndThread = new Thread(() => RunEnd(cresult, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
+                    runEndThread = new Thread(() => RunEnd(cresult, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
                     runEndThread.Start();
                     while (runEndThread.ThreadState == System.Threading.ThreadState.Running)
                     {
                         if (isStopByUser)
                         {
                             runEndThread.Abort();
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                btn_start.IsEnabled = true;
-                                btn_stop.IsEnabled = false;
-                            });
-                            SetErrorLog();
-                            isRunning = false;
+                            FinishRunning();
                             return;
                         }
                         long timeCostSs = GetNowSs() - startTime;
@@ -860,24 +809,16 @@ namespace ExcelTool
                             {
                                 Logger.Error($"RunEnd\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                             }
-                            SetErrorLog();
-                            isRunning = false;
+                            FinishRunning();
                             return;
                         }
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            te_log.Text += Logger.Get();
-                        });
                         await Task.Delay(100);
                     }
                 }
 
                 if (runNotSuccessed)
                 {
-                    btn_start.IsEnabled = true;
-                    btn_stop.IsEnabled = false;
-
-                    isRunning = false;
+                    FinishRunning();
                     return;
                 }
                 tb_status.Text = "";
@@ -942,13 +883,9 @@ namespace ExcelTool
                     else
                     {
                         Logger.Error("文件保存失败.");
-                        te_log.Text += Logger.Get();
                     }
 
-                    btn_start.IsEnabled = true;
-                    btn_stop.IsEnabled = false;
-
-                    isRunning = false;
+                    FinishRunning();
                     return;
                 }
 
@@ -994,10 +931,73 @@ namespace ExcelTool
             }
 
             te_log.Text += Logger.Get();
-            
+
+            FinishRunning();
+        }
+
+        private void WhenRunning()
+        {
+            while (runningThread.ThreadState == System.Threading.ThreadState.Running)
+            {
+                string logTemp = Logger.Get();
+                if (!String.IsNullOrEmpty(logTemp))
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        if (te_log.Text.Length > te_log.Text.LastIndexOf('\n') + 1)
+                        {
+                            te_log.Text = te_log.Text.Remove(te_log.Text.LastIndexOf('\n') + 1) + logTemp;
+                        }
+                        else
+                        {
+                            te_log.Text += logTemp;
+                        }
+                    });
+                }
+
+                if (Scanner.InputLock)
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        string message = Scanner.CurrentInputMessage;
+                        string logText = te_log.Text;
+                        int index = logText.LastIndexOf(message);
+                        if (index != -1 && logText.IndexOf('\n', index) != -1
+                        && (index - 1 < 0 || (index - 1 >= 0 && logText[index - 1] == '\n') && (logText.Length - 1 < index + logText.Length || (logText.Length - 1 >= index + logText.Length && logText[index + logText.Length] == '\n'))))
+                        {
+                            te_log.Text += message;
+                            te_log.Select(te_log.Text.Length, 0);
+                        }
+                        else if (index == -1)
+                        {
+                            te_log.Text += message;
+                            te_log.Select(te_log.Text.Length, 0);
+                        }
+                    });
+
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        te_log.IsReadOnly = false;
+                        if (te_log.SelectionStart <= te_log.Text.LastIndexOf('\n') + Scanner.CurrentInputMessage.Length)
+                        {
+                            te_log.Select(te_log.Text.Length, 0);
+                        }
+                    });
+                }
+
+                Thread.Sleep(100);
+            }
+        }
+
+        private void FinishRunning()
+        {
             isRunning = false;
-            btn_start.IsEnabled = true;
-            btn_stop.IsEnabled = false;
+            this.Dispatcher.Invoke(() =>
+            {
+                btn_start.IsEnabled = true;
+                btn_stop.IsEnabled = false;
+            });
+            runningThread.Abort();
         }
 
         private void RunBeforeAnalyzeSheet(CompilerResults cresult, Dictionary<string, string> paramDic, Analyzer analyzer, List<String> allFilePathList)
@@ -1363,17 +1363,6 @@ namespace ExcelTool
             {
                 smartThreadPoolOutput.MaxThreads = maxThreadCount;
             }
-        }
-
-        private Boolean SetErrorLog()
-        {
-            string log = Logger.Get();
-            if (log != null && log != "")
-            {
-                te_log.Text += log;
-                return true;
-            }
-            return false;
         }
 
         private void CbParamsSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1874,6 +1863,39 @@ namespace ExcelTool
             paramEditor.ShowDialog();
         }
 
-        
+        private void TeLogPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && !te_log.IsReadOnly)
+            {
+                string text = te_log.Text;
+                int lastChangeLineIndex = text.LastIndexOf("\n");
+                int subIndex = -1;
+                if (text.Length > lastChangeLineIndex + 1)
+                {
+                    subIndex = lastChangeLineIndex + 1;
+                }
+                else
+                {
+                    subIndex = lastChangeLineIndex;
+                }
+                scanner.UpdateInput(text.Substring(subIndex).Replace(Scanner.CurrentInputMessage, ""));
+
+                te_log.Text += " <\n";
+
+                te_log.IsReadOnly = true;
+            }
+
+            if (e.Key == Key.Left && !te_log.IsReadOnly)
+            {
+                if (te_log.SelectionStart == te_log.Text.LastIndexOf('\n') + Scanner.CurrentInputMessage.Length + 1)
+                {
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == Key.Up && !te_log.IsReadOnly)
+            {
+                e.Handled = true;
+            }
+        }
     }
 }
