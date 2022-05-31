@@ -1678,6 +1678,7 @@ namespace ExcelTool
 
             btn_setauto.Visibility = Visibility.Visible;
             btn_unsetauto.Visibility = Visibility.Hidden;
+            btn_deleterule.IsEnabled = true;
         }
 
         private bool CheckRule(RunningRule rule)
