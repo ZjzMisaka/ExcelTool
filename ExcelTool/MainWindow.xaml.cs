@@ -351,14 +351,7 @@ namespace ExcelTool
             List<String> analyzersList = analyzersStr.Split('\n').Where(str => str.Trim() != "").ToList();
             if (sheetExplainersList.Count != analyzersList.Count || sheetExplainersList.Count == 0)
             {
-                this.Dispatcher.Invoke(() =>
-                {
-                    btn_start.IsEnabled = true;
-                    btn_stop.IsEnabled = false;
-                });
-
-                isRunning = false;
-                isStopByUser = false;
+                FinishRunning();
                 return;
             }
 
@@ -435,14 +428,7 @@ namespace ExcelTool
                     {
                         Logger.Error(ex.Message);
                     }
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        btn_start.IsEnabled = true;
-                        btn_stop.IsEnabled = false;
-                    });
-
-                    isRunning = false;
-                    isStopByUser = false;
+                    FinishRunning();
                     return;
                 }
                 sheetExplainers.Add(sheetExplainer);
@@ -464,14 +450,7 @@ namespace ExcelTool
                     {
                         Logger.Error(ex.Message);
                     }
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        btn_start.IsEnabled = true;
-                        btn_stop.IsEnabled = false;
-                    });
-
-                    isRunning = false;
-                    isStopByUser = false;
+                    FinishRunning();
                     return;
                 }
                 analyzers.Add(analyzer);
@@ -499,6 +478,21 @@ namespace ExcelTool
                     {
                         basePathTemp = Path.Combine(basePath.Trim(), str.Trim());
                     }
+
+                    if (!Directory.Exists(basePathTemp))
+                    {
+                        if (!isAuto)
+                        {
+                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), "路径不存在", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        else
+                        {
+                            Logger.Error("路径不存在");
+                        }
+                        FinishRunning();
+                        return;
+                    }
+
                     FileHelper.FileTraverse(isAuto, basePathTemp, sheetExplainer, filePathList);
                     allFilePathList.AddRange(filePathList);
                 }
@@ -511,7 +505,7 @@ namespace ExcelTool
                 runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, allFilePathList));
                 runBeforeAnalyzeSheetThread.Start();
 
-                while (runBeforeAnalyzeSheetThread.ThreadState == System.Threading.ThreadState.Running)
+                while (runBeforeAnalyzeSheetThread.IsAlive)
                 {
                     if (isStopByUser)
                     {
@@ -665,7 +659,7 @@ namespace ExcelTool
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
                     runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
                     runBeforeSetResultThread.Start();
-                    while (runBeforeSetResultThread.ThreadState == System.Threading.ThreadState.Running)
+                    while (runBeforeSetResultThread.IsAlive)
                     {
                         if (isStopByUser)
                         {
@@ -783,7 +777,7 @@ namespace ExcelTool
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
                     runEndThread = new Thread(() => RunEnd(cresult, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer]));
                     runEndThread.Start();
-                    while (runEndThread.ThreadState == System.Threading.ThreadState.Running)
+                    while (runEndThread.IsAlive)
                     {
                         if (isStopByUser)
                         {
@@ -936,7 +930,7 @@ namespace ExcelTool
 
         private void WhenRunning()
         {
-            while (runningThread.ThreadState == System.Threading.ThreadState.Running)
+            while (runningThread.IsAlive)
             {
                 string logTemp = Logger.Get();
                 if (!String.IsNullOrEmpty(logTemp))
@@ -959,18 +953,21 @@ namespace ExcelTool
                     this.Dispatcher.Invoke(() =>
                     {
                         string message = Scanner.CurrentInputMessage;
-                        string logText = te_log.Text;
-                        int index = logText.LastIndexOf(message);
-                        if (index != -1 && logText.IndexOf('\n', index) != -1
-                        && (index - 1 < 0 || (index - 1 >= 0 && logText[index - 1] == '\n') && (logText.Length - 1 < index + logText.Length || (logText.Length - 1 >= index + logText.Length && logText[index + logText.Length] == '\n'))))
+                        if (message != "")
                         {
-                            te_log.Text += message;
-                            te_log.Select(te_log.Text.Length, 0);
-                        }
-                        else if (index == -1)
-                        {
-                            te_log.Text += message;
-                            te_log.Select(te_log.Text.Length, 0);
+                            string logText = te_log.Text;
+                            int index = logText.LastIndexOf(message);
+                            if (index != -1 && logText.IndexOf('\n', index) != -1
+                            && (index - 1 < 0 || (index - 1 >= 0 && logText[index - 1] == '\n') && (logText.Length - 1 < index + logText.Length || (logText.Length - 1 >= index + logText.Length && logText[index + logText.Length] == '\n'))))
+                            {
+                                te_log.Text += message;
+                                te_log.Select(te_log.Text.Length, 0);
+                            }
+                            else if (index == -1)
+                            {
+                                te_log.Text += message;
+                                te_log.Select(te_log.Text.Length, 0);
+                            }
                         }
                     });
 

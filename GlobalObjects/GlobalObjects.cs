@@ -232,6 +232,7 @@ namespace AnalyzeCode
 
         private static string value;
         private static string currentInputMessage;
+        private static string lastInputValue;
 
         public delegate void InputEventHandler(Object sender, InputEventArgs e);
 
@@ -239,6 +240,7 @@ namespace AnalyzeCode
 
         public static bool InputLock { get => inputLock; set => inputLock = value; }
         public static string CurrentInputMessage { get => currentInputMessage; set => currentInputMessage = value; }
+        public static string LastInputValue { get => lastInputValue; set => lastInputValue = value; }
 
         public class InputEventArgs : EventArgs
         {
@@ -267,33 +269,43 @@ namespace AnalyzeCode
             Scanner.value = e.value;
         }
 
-
+        public static string WaitInput()
+        {
+            return GetInput("", true);
+        }
 
         public static string GetInput()
         {
-            return GetInput("");
+            return GetInput("", false);
             
         }
         public static string GetInput(string value)
         {
+            return GetInput(value, false);
+        }
+        private static string GetInput(string value, bool isWait)
+        {
             lock (lockObj)
             {
-                InputLock = true;
-
-                CurrentInputMessage = $"{value} > ".TrimStart();
-
-                while (Scanner.value == null)
+                if (!isWait)
                 {
-                    Thread.Sleep(100);
+                    InputLock = true;
+
+                    CurrentInputMessage = $"[Input] {value} > ".TrimStart();
+
+                    while (Scanner.value == null)
+                    {
+                        Thread.Sleep(100);
+                    }
+
+                    InputLock = false;
+
+                    LastInputValue = Scanner.value;
+
+                    Scanner.value = null;
                 }
 
-                InputLock = false;
-
-                string valueTemp = Scanner.value;
-
-                Scanner.value = null;
-
-                return valueTemp;
+                return LastInputValue;
             }
         }
 
@@ -302,6 +314,7 @@ namespace AnalyzeCode
             lockObj = new Object();
             CurrentInputMessage = "";
             InputLock = false;
+            LastInputValue = "";
         }
     }
 }
