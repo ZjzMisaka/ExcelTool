@@ -197,7 +197,6 @@
     <Compile Include="AnalyzerEditor.xaml.cs">
       <DependentUpon>AnalyzerEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Code.cs" />
     <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Helper\IniHelper.cs" />
     <Compile Include="Helper\ParamHelper.cs" />

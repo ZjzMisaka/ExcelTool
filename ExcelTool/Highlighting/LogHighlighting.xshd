@@ -12,5 +12,8 @@
         <Rule foreground="Blue">
             \[Info\]{1}
         </Rule>
+        <Rule foreground="Green">
+            \[Input\]{1}
+        </Rule>
     </RuleSet>
 </SyntaxDefinition>
