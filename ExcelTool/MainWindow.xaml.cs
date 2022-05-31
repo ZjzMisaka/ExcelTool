@@ -1706,23 +1706,37 @@ namespace ExcelTool
 
         private void WindowClosed(object sender, EventArgs e)
         {
-            if (!smartThreadPoolAnalyze.IsShuttingdown)
+            if (smartThreadPoolAnalyze != null && !smartThreadPoolAnalyze.IsShuttingdown)
             {
-                smartThreadPoolAnalyze.Shutdown(true);
+                try
+                {
+                    smartThreadPoolAnalyze.Shutdown(true);
+                }
+                catch
+                { 
+                    // DO NOTHING
+                }
             }
-            if (!smartThreadPoolOutput.IsShuttingdown)
+            if (smartThreadPoolOutput != null && !smartThreadPoolOutput.IsShuttingdown)
             {
-                smartThreadPoolOutput.Shutdown(true);
+                try
+                {
+                    smartThreadPoolOutput.Shutdown(true);
+                }
+                catch
+                {
+                    // DO NOTHING
+                }
             }
-            if (runBeforeAnalyzeSheetThread.IsAlive)
+            if (runBeforeAnalyzeSheetThread != null && runBeforeAnalyzeSheetThread.IsAlive)
             {
                 runBeforeAnalyzeSheetThread.Abort();
             }
-            if (runBeforeSetResultThread.IsAlive)
+            if (runBeforeSetResultThread != null && runBeforeSetResultThread.IsAlive)
             {
                 runBeforeSetResultThread.Abort();
             }
-            if (runEndThread.IsAlive)
+            if (runEndThread != null && runEndThread.IsAlive)
             {
                 runEndThread.Abort();
             }
