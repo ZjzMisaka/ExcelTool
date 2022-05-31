@@ -1315,28 +1315,6 @@ namespace ExcelTool
                 }
                 else
                 {
-                    if (!smartThreadPoolAnalyze.IsShuttingdown)
-                    {
-                        smartThreadPoolAnalyze.Shutdown(true);
-                    }
-                    if (!smartThreadPoolOutput.IsShuttingdown)
-                    {
-                        smartThreadPoolOutput.Shutdown(true);
-                    }
-                    if (runBeforeAnalyzeSheetThread.IsAlive)
-                    {
-                        runBeforeAnalyzeSheetThread.Abort();
-                    }
-                    if (runBeforeSetResultThread.IsAlive)
-                    {
-                        runBeforeSetResultThread.Abort();
-                    }
-                    if (runEndThread.IsAlive)
-                    {
-                        runEndThread.Abort();
-                    }
-                    runningThread.Abort();
-
                     foreach (Window window in Application.Current.Windows)
                     {
                         if (Application.Current.MainWindow != window)
@@ -1728,6 +1706,28 @@ namespace ExcelTool
 
         private void WindowClosed(object sender, EventArgs e)
         {
+            if (!smartThreadPoolAnalyze.IsShuttingdown)
+            {
+                smartThreadPoolAnalyze.Shutdown(true);
+            }
+            if (!smartThreadPoolOutput.IsShuttingdown)
+            {
+                smartThreadPoolOutput.Shutdown(true);
+            }
+            if (runBeforeAnalyzeSheetThread.IsAlive)
+            {
+                runBeforeAnalyzeSheetThread.Abort();
+            }
+            if (runBeforeSetResultThread.IsAlive)
+            {
+                runBeforeSetResultThread.Abort();
+            }
+            if (runEndThread.IsAlive)
+            {
+                runEndThread.Abort();
+            }
+            runningThread.Abort();
+
             FileHelper.DeleteCopiedDlls(copiedDllsList);
         }
 
