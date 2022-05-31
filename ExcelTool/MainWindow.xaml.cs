@@ -1534,11 +1534,13 @@ namespace ExcelTool
                 {
                     btn_setauto.Visibility = Visibility.Hidden;
                     btn_unsetauto.Visibility = Visibility.Visible;
+                    btn_deleterule.IsEnabled = false;
                 }
                 else
                 {
                     btn_setauto.Visibility = Visibility.Visible;
                     btn_unsetauto.Visibility = Visibility.Hidden;
+                    btn_deleterule.IsEnabled = true;
                 }
 
                 te_analyzers.Text = rule.analyzers;
@@ -1616,6 +1618,7 @@ namespace ExcelTool
 
                 btn_setauto.Visibility = Visibility.Hidden;
                 btn_unsetauto.Visibility = Visibility.Visible;
+                btn_deleterule.IsEnabled = false;
             }
         }
 
