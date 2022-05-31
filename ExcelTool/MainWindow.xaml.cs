@@ -138,6 +138,9 @@ namespace ExcelTool
             //注册数据
             HighlightingManager.Instance.RegisterHighlighting("log", new string[] { }, chLog);
             te_log.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("log");
+
+            runningThread = new Thread(() => WhenRunning());
+            runningThread.Start();
         }
 
         private void CbSheetExplainersSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -332,9 +335,6 @@ namespace ExcelTool
             GlobalObjects.GlobalObjects.SetGlobalParam(null);
 
             Scanner.ResetAll();
-
-            runningThread = new Thread(() => WhenRunning());
-            runningThread.Start();
 
             if (!isAuto)
             {
@@ -930,7 +930,7 @@ namespace ExcelTool
 
         private void WhenRunning()
         {
-            while (runningThread.IsAlive)
+            while (true)
             {
                 string logTemp = Logger.Get();
                 if (!String.IsNullOrEmpty(logTemp))
@@ -993,7 +993,6 @@ namespace ExcelTool
                 btn_start.IsEnabled = true;
                 btn_stop.IsEnabled = false;
             });
-            runningThread.Abort();
         }
 
         private void RunBeforeAnalyzeSheet(CompilerResults cresult, Dictionary<string, string> paramDic, Analyzer analyzer, List<String> allFilePathList)
@@ -1316,6 +1315,28 @@ namespace ExcelTool
                 }
                 else
                 {
+                    if (!smartThreadPoolAnalyze.IsShuttingdown)
+                    {
+                        smartThreadPoolAnalyze.Shutdown(true);
+                    }
+                    if (!smartThreadPoolOutput.IsShuttingdown)
+                    {
+                        smartThreadPoolOutput.Shutdown(true);
+                    }
+                    if (runBeforeAnalyzeSheetThread.IsAlive)
+                    {
+                        runBeforeAnalyzeSheetThread.Abort();
+                    }
+                    if (runBeforeSetResultThread.IsAlive)
+                    {
+                        runBeforeSetResultThread.Abort();
+                    }
+                    if (runEndThread.IsAlive)
+                    {
+                        runEndThread.Abort();
+                    }
+                    runningThread.Abort();
+
                     foreach (Window window in Application.Current.Windows)
                     {
                         if (Application.Current.MainWindow != window)
