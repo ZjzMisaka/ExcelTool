@@ -26,22 +26,34 @@
 - 编码内容依赖[ClosedXML](https://github.com/ClosedXML/ClosedXML)开源库 **(支持自动补全等功能)**
 - 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
 
-##### 输出Log
+##### 输出Log函数
+```c#
+// 根据输出log类型不同, 会有不同的着色区分. 
+void Logger.Error(string info);
+void Logger.Warn(string error);
+void Logger.Info(string warn);
+void Logger.Print(string str);
 ```
-void Logger.Error(string);
-void Logger.Warn(string);
-void Logger.Info(string);
-void Logger.Print(string);
-```
-根据输出log类型不同, 会有不同的着色区分
 
-##### 获取输入
-```
+##### 获取输入函数
+```c#
+// 参数是获取输入的提示语, 执行后会等待直到用户进行输入. 
+// 如果有其他线程正在等待输入中, 则会先等待排在前面的线程获取完毕, 再执行此语句的内容.  
 string Scanner.GetInput();
-string Scanner.GetInput(string);
+string Scanner.GetInput(string value);
 ```
-参数是获取输入的提示语, 执行后会等待直到用户进行输入.   
-如果有其他线程正在等待输入中, 则会先等待排在前面的线程, 再执行此语句.   
+
+##### 等待输入函数
+```c#
+// 可能是无用函数. 可以在其他线程正在执行输入时等待直到用户输入被获取. 
+// 返回最近用户输入的内容. 
+string WaitInput();
+```
+
+##### 最近输入内容属性
+```c#
+string LastInputValue { get => lastInputValue; set => lastInputValue = value; }
+```
 
 ##### RunBeforeAnalyze函数
 |参数|类型|含义|备注|
