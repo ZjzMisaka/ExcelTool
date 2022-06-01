@@ -28,6 +28,8 @@ namespace ExcelTool
             parsedINIDataToBeSaved["Thread"].AddKey("PerTimeoutLimitAnalyze", "60000");
             parsedINIDataToBeSaved["Thread"].AddKey("TotalTimeoutLimitOutput", "120000");
             parsedINIDataToBeSaved["Thread"].AddKey("PerTimeoutLimitOutput", "60000");
+            parsedINIDataToBeSaved["Thread"].AddKey("FileSystemWatcherInvokeDalay", "1000");
+            parsedINIDataToBeSaved["Thread"].AddKey("FreshInterval", "100");
             parsedINIDataToBeSaved.Sections.AddSection("Window");
             parsedINIDataToBeSaved["Window"].AddKey("MainWindowWidth", "750");
             parsedINIDataToBeSaved["Window"].AddKey("MainWindowHeight", "800");
@@ -166,6 +168,56 @@ namespace ExcelTool
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
             return Int32.Parse(data["Thread"]["PerTimeoutLimitOutput"]);
+        }
+
+        public static void SetFileSystemWatcherInvokeDalay(int time)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Thread"]["FileSystemWatcherInvokeDalay"] = time.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static int GetFileSystemWatcherInvokeDalay()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return -1;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return Int32.Parse(data["Thread"]["FileSystemWatcherInvokeDalay"]);
+        }
+
+        public static void SetFreshInterval(int time)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Thread"]["FreshInterval"] = time.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static int GetFreshInterval()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return -1;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return Int32.Parse(data["Thread"]["FreshInterval"]);
         }
 
         public static void SetWindowSize(String wndName, Point point)

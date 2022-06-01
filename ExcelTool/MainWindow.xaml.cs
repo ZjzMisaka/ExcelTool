@@ -42,10 +42,12 @@ namespace ExcelTool
         private Thread runBeforeAnalyzeSheetThread;
         private Thread runBeforeSetResultThread;
         private Thread runEndThread;
+        private Thread FileSystemWatcherInvokeThread;
         private ConcurrentDictionary<string, long> currentAnalizingDictionary;
         private ConcurrentDictionary<string, long> currentOutputtingDictionary;
         private ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer> resultList;
         private Dictionary<FileSystemWatcher, string> fileSystemWatcherDic;
+        private Stopwatch stopwatchBeforeFileSystemWatcherInvoke;
         private List<string> copiedDllsList;
         private int analyzeSheetInvokeCount;
         private int setResultInvokeCount;
@@ -54,8 +56,10 @@ namespace ExcelTool
         private int totalTimeoutLimitOutput;
         private int perTimeoutLimitOutput;
         private bool runNotSuccessed;
-        private GlobalObjects.Scanner scanner = new Scanner();
-        
+        private Scanner scanner;
+        private int fileSystemWatcherInvokeDalay;
+        private int freshInterval;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -67,6 +71,8 @@ namespace ExcelTool
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             fileSystemWatcherDic = new Dictionary<FileSystemWatcher, string>();
             copiedDllsList = new List<string>();
+            scanner = new Scanner();
+
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
 
@@ -103,6 +109,9 @@ namespace ExcelTool
             perTimeoutLimitOutput = IniHelper.GetPerTimeoutLimitOutput();
 
             cb_isautoopen.IsChecked = IniHelper.GetIsAutoOpen();
+
+            fileSystemWatcherInvokeDalay = IniHelper.GetFileSystemWatcherInvokeDalay();
+            freshInterval = IniHelper.GetFreshInterval();
 
             LoadFiles();
 
@@ -274,41 +283,57 @@ namespace ExcelTool
 
         private void FileSystemWatcherInvoke(object sender, FileSystemEventArgs e)
         {
-            FileSystemWatcher fileSystemWatcher = (FileSystemWatcher)sender;
-            if (fileSystemWatcherDic.ContainsKey(fileSystemWatcher))
+            FileSystemWatcherInvokeThread = new Thread(() =>
             {
-                try
+                if (stopwatchBeforeFileSystemWatcherInvoke == null)
                 {
-                    fileSystemWatcher.EnableRaisingEvents = false;
+                    stopwatchBeforeFileSystemWatcherInvoke = new Stopwatch();
+                    stopwatchBeforeFileSystemWatcherInvoke.Start();
 
-                    string ruleName = fileSystemWatcherDic[fileSystemWatcher];
-
-                    RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
-
-                    if (!CheckRule(rule))
+                    while (stopwatchBeforeFileSystemWatcherInvoke.ElapsedMilliseconds <= fileSystemWatcherInvokeDalay)
                     {
-                        cb_rules.SelectedIndex = 0;
-                        return;
-                    }
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        Start(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName, true);
-                    });
-                }
-                finally
-                {
-
-
-                    while (isRunning)
-                    {
-                        Thread.Sleep(100);
+                        Thread.Sleep(freshInterval);
                     }
 
+                    FileSystemWatcher fileSystemWatcher = (FileSystemWatcher)sender;
+                    if (fileSystemWatcherDic.ContainsKey(fileSystemWatcher))
+                    {
+                        try
+                        {
+                            fileSystemWatcher.EnableRaisingEvents = false;
 
-                    fileSystemWatcher.EnableRaisingEvents = true;
+                            string ruleName = fileSystemWatcherDic[fileSystemWatcher];
+
+                            RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
+
+                            if (!CheckRule(rule))
+                            {
+                                cb_rules.SelectedIndex = 0;
+                                return;
+                            }
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                Start(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName, true);
+                            });
+                        }
+                        finally
+                        {
+                            while (isRunning)
+                            {
+                                Thread.Sleep(freshInterval);
+                            }
+
+                            stopwatchBeforeFileSystemWatcherInvoke = null;
+                            fileSystemWatcher.EnableRaisingEvents = true;
+                        }
+                    }
                 }
-            }
-
+                else
+                {
+                    stopwatchBeforeFileSystemWatcherInvoke.Restart();
+                }
+            });
+            FileSystemWatcherInvokeThread.Start();
         }
 
         private void Start(object sender, RoutedEventArgs e)
@@ -542,7 +567,7 @@ namespace ExcelTool
                         FinishRunning();
                         return;
                     }
-                    await Task.Delay(100);
+                    await Task.Delay(freshInterval);
                 }
 
                 List<String> filePathListFromSheetExplainer = filePathListDic[sheetExplainer];
@@ -625,7 +650,7 @@ namespace ExcelTool
                         l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolAnalyze.ActiveThreads} -- InUseThreads: {smartThreadPoolAnalyze.InUseThreads}";
                         tb_status.Text = $"{sb.ToString()}";
                     });
-                    await Task.Delay(100);
+                    await Task.Delay(freshInterval);
                 }
                 catch (Exception e)
                 {
@@ -682,7 +707,7 @@ namespace ExcelTool
                             FinishRunning();
                             return;
                         }
-                        await Task.Delay(100);
+                        await Task.Delay(freshInterval);
                     }
                 }
 
@@ -757,7 +782,7 @@ namespace ExcelTool
                             l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolOutput.ActiveThreads} -- InUseThreads: {smartThreadPoolOutput.InUseThreads}";
                             tb_status.Text = $"{sb.ToString()}";
                         });
-                        await Task.Delay(100);
+                        await Task.Delay(freshInterval);
                     }
                     catch (Exception e)
                     {
@@ -805,7 +830,7 @@ namespace ExcelTool
                             FinishRunning();
                             return;
                         }
-                        await Task.Delay(100);
+                        await Task.Delay(freshInterval);
                     }
                 }
 
@@ -981,7 +1006,7 @@ namespace ExcelTool
                     });
                 }
 
-                Thread.Sleep(100);
+                Thread.Sleep(freshInterval);
             }
         }
 
@@ -1743,6 +1768,10 @@ namespace ExcelTool
             if (runEndThread != null && runEndThread.IsAlive)
             {
                 runEndThread.Abort();
+            }
+            if (FileSystemWatcherInvokeThread != null && FileSystemWatcherInvokeThread.IsAlive)
+            {
+                FileSystemWatcherInvokeThread.Abort();
             }
             runningThread.Abort();
 
