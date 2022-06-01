@@ -546,7 +546,7 @@ namespace ExcelTool
                         return;
                     }
                     long timeCostSs = GetNowSs() - startTime;
-                    if (timeCostSs >= perTimeoutLimitAnalyze)
+                    if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                     {
                         try
                         {
@@ -598,10 +598,10 @@ namespace ExcelTool
                 {
                     long nowSs = GetNowSs();
                     long totalTimeCostSs = nowSs - startSs;
-                    if (isStopByUser || totalTimeCostSs >= totalTimeoutLimitAnalyze)
+                    if (isStopByUser || (totalTimeoutLimitAnalyze > 0 && totalTimeCostSs >= totalTimeoutLimitAnalyze))
                     {
                         smartThreadPoolAnalyze.Dispose();
-                        if (totalTimeCostSs >= totalTimeoutLimitAnalyze)
+                        if (totalTimeoutLimitAnalyze > 0 && totalTimeCostSs >= totalTimeoutLimitAnalyze)
                         {
                             if (!isAuto)
                             {
@@ -627,7 +627,7 @@ namespace ExcelTool
                         if (currentAnalizingDictionary.TryGetValue(key, out value))
                         {
                             long timeCostSs = GetNowSs() - currentAnalizingDictionary[key];
-                            if (timeCostSs >= perTimeoutLimitAnalyze)
+                            if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                             {
                                 smartThreadPoolAnalyze.Dispose();
                                 if (!isAuto)
@@ -693,7 +693,7 @@ namespace ExcelTool
                             return;
                         }
                         long timeCostSs = GetNowSs() - startTime;
-                        if (timeCostSs >= perTimeoutLimitAnalyze)
+                        if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                         {
                             runBeforeSetResultThread.Abort();
                             if (!isAuto)
@@ -731,10 +731,10 @@ namespace ExcelTool
                     {
                         long nowSs = GetNowSs();
                         long totalTimeCostSs = nowSs - startSs;
-                        if (isStopByUser || totalTimeCostSs >= totalTimeoutLimitOutput)
+                        if (isStopByUser || (totalTimeoutLimitOutput > 0 && totalTimeCostSs >= totalTimeoutLimitOutput))
                         {
                             smartThreadPoolOutput.Dispose();
-                            if (totalTimeCostSs >= totalTimeoutLimitOutput)
+                            if (totalTimeoutLimitOutput > 0 && totalTimeCostSs >= totalTimeoutLimitOutput)
                             {
                                 if (!isAuto)
                                 {
@@ -759,16 +759,16 @@ namespace ExcelTool
                             if (currentOutputtingDictionary.TryGetValue(key, out value))
                             {
                                 long timeCostSs = GetNowSs() - currentOutputtingDictionary[key];
-                                if (timeCostSs >= perTimeoutLimitOutput)
+                                if (perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
                                 {
                                     smartThreadPoolOutput.Dispose();
                                     if (!isAuto)
                                     {
-                                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitOutput / 1000.0}(s)", "error", MessageBoxImage.Error);
                                     }
                                     else
                                     {
-                                        Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                                        Logger.Error($"{key}\nTime out. \n{perTimeoutLimitOutput / 1000.0}(s)");
                                     }
                                     FinishRunning();
                                     return;
@@ -811,7 +811,7 @@ namespace ExcelTool
                             return;
                         }
                         long timeCostSs = GetNowSs() - startTime;
-                        if (timeCostSs >= perTimeoutLimitAnalyze)
+                        if (perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
                         {
                             runEndThread.Abort();
                             this.Dispatcher.Invoke(() =>
@@ -821,11 +821,11 @@ namespace ExcelTool
                             });
                             if (!isAuto)
                             {
-                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"RunEnd\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"RunEnd\nTime out. \n{perTimeoutLimitOutput / 1000.0}(s)", "error", MessageBoxImage.Error);
                             }
                             else
                             {
-                                Logger.Error($"RunEnd\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                                Logger.Error($"RunEnd\nTime out. \n{perTimeoutLimitOutput / 1000.0}(s)");
                             }
                             FinishRunning();
                             return;
