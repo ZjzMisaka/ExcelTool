@@ -618,7 +618,7 @@ namespace ExcelTool
                     }
 
                     StringBuilder sb = new StringBuilder();
-                    sb.Append("Analyzing...");
+                    sb.Append("Analyzing...\n");
 
                     ICollection<string> keys = currentAnalizingDictionary.Keys;
                     foreach (string key in keys)
@@ -641,7 +641,7 @@ namespace ExcelTool
                                 FinishRunning();
                                 return;
                             }
-                            sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
+                            sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append(" (").Append((timeCostSs / 1000.0).ToString("0.0")).Append("s)\n");
                         }
                     }
 
@@ -750,7 +750,7 @@ namespace ExcelTool
                         }
 
                         StringBuilder sb = new StringBuilder();
-                        sb.Append("Outputting...");
+                        sb.Append("Outputting... \n");
 
                         ICollection<string> keys = currentOutputtingDictionary.Keys;
                         foreach (string key in keys)
@@ -773,7 +773,7 @@ namespace ExcelTool
                                     FinishRunning();
                                     return;
                                 }
-                                sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append("(").Append((timeCostSs / 1000.0).ToString("0.0")).Append(")");
+                                sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append(" (").Append((timeCostSs / 1000.0).ToString("0.0")).Append("s)\n");
                             }
                         }
 
@@ -1017,6 +1017,9 @@ namespace ExcelTool
             {
                 btn_start.IsEnabled = true;
                 btn_stop.IsEnabled = false;
+
+                tb_status.Text = "";
+                l_process.Content = "";
             });
         }
 

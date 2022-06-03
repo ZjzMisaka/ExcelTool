@@ -318,7 +318,12 @@ namespace ExcelTool
 
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
-            return data["Value"]["DefaultOutputPath"];
+            string defaultOutputPath =  data["Value"]["DefaultOutputPath"];
+            if (String.IsNullOrWhiteSpace(defaultOutputPath))
+            {
+                defaultOutputPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            }
+            return defaultOutputPath;
         }
 
         public static void SetOutputFileName(String outputFileName)

@@ -29,77 +29,7 @@ namespace ExcelTool
 
         private void BtnSaveClick(object sender, RoutedEventArgs e)
         {
-            TextBox tbName = new TextBox();
-            tbName.Margin = new Thickness(5, 8, 5, 8);
-            tbName.VerticalContentAlignment = VerticalAlignment.Center;
-            if (cb_sheetexplainers.SelectedIndex >= 1)
-            {
-                tbName.Text = $"Copy Of {cb_sheetexplainers.SelectedItem}";
-            }
-            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, "OK", "CANCEL" }, "name", "saving", MessageBoxImage.Information);
-            if (result == 1)
-            {
-                SheetExplainer sheetExplainer = new SheetExplainer();
-                sheetExplainer.pathes = StringListDeteleBlank(tb_relativepaths.Text.Split('\n').ToList());
-
-                FindingMethod fileNamesFindingMethod = new FindingMethod();
-                if(cb_filenamestype.SelectedIndex == 0)
-                {
-                    fileNamesFindingMethod = FindingMethod.SAME;
-                }
-                else if (cb_filenamestype.SelectedIndex == 1)
-                {
-                    fileNamesFindingMethod = FindingMethod.CONTAIN;
-                }
-                else if(cb_filenamestype.SelectedIndex == 2)
-                {
-                    fileNamesFindingMethod = FindingMethod.REGEX;
-                }
-                else if (cb_filenamestype.SelectedIndex == 3)
-                {
-                    fileNamesFindingMethod = FindingMethod.ALL;
-                }
-                KeyValuePair <FindingMethod, List<string>> fileNames = new KeyValuePair<FindingMethod, List<string>>(fileNamesFindingMethod, StringListDeteleBlank(tb_filenames.Text.Split('\n').ToList()));
-                sheetExplainer.fileNames = fileNames;
-
-                FindingMethod sheetNamesFindingMethod = new FindingMethod();
-                if (cb_sheetnamestype.SelectedIndex == 0)
-                {
-                    sheetNamesFindingMethod = FindingMethod.SAME;
-                }
-                else if (cb_sheetnamestype.SelectedIndex == 1)
-                {
-                    sheetNamesFindingMethod = FindingMethod.CONTAIN;
-                }
-                else if (cb_sheetnamestype.SelectedIndex == 2)
-                {
-                    sheetNamesFindingMethod = FindingMethod.REGEX;
-                }
-                else if (cb_sheetnamestype.SelectedIndex == 3)
-                {
-                    sheetNamesFindingMethod = FindingMethod.ALL;
-                }
-                KeyValuePair<FindingMethod, List<string>> sheetNames = new KeyValuePair<FindingMethod, List<string>>(sheetNamesFindingMethod, StringListDeteleBlank(tb_sheetnames.Text.Split('\n').ToList()));
-                sheetExplainer.sheetNames = sheetNames;
-
-                string json = JsonConvert.SerializeObject(sheetExplainer);
-
-                string fileName = $".\\SheetExplainers\\{tbName.Text}.json";
-                FileStream fs = null;
-                try
-                {
-                    fs = File.Create(fileName);
-                    fs.Close();
-                    StreamWriter sw = File.CreateText(fileName);
-                    sw.Write(json);
-                    sw.Flush();
-                    sw.Close();
-                }
-                catch (Exception ex)
-                {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            Save(true);
         }
 
         private List<String> StringListDeteleBlank(List<String> list)
@@ -256,6 +186,124 @@ namespace ExcelTool
         private void TextBoxPreviewDragOver(object sender, DragEventArgs e)
         {
             e.Handled = true;
+        }
+
+        private void SaveByKeyDownCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void SaveByKeyDown(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (cb_sheetexplainers.SelectedIndex >= 1)
+            {
+                Save(false);
+            }
+            else
+            {
+                Save(true);
+            }
+        }
+
+        private void RenameSaveByKeyDownCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void RenameSaveByKeyDown(object sender, ExecutedRoutedEventArgs e)
+        {
+            Save(true);
+        }
+
+        private void Save(bool isRename)
+        {
+            TextBox tbName = new TextBox();
+            tbName.Margin = new Thickness(5, 8, 5, 8);
+            tbName.VerticalContentAlignment = VerticalAlignment.Center;
+
+            string newName = "";
+            if (cb_sheetexplainers.SelectedIndex >= 1)
+            {
+                newName = cb_sheetexplainers.SelectedItem.ToString();
+            }
+            if (isRename)
+            {
+                if (cb_sheetexplainers.SelectedIndex >= 1)
+                {
+                    tbName.Text = $"Copy Of {cb_sheetexplainers.SelectedItem}";
+                }
+                int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, "OK", "CANCEL" }, "name", "saving", MessageBoxImage.Information);
+
+                if (result != 1)
+                {
+                    return;
+                }
+
+                newName = tbName.Text;
+            }
+
+            SheetExplainer sheetExplainer = new SheetExplainer();
+            sheetExplainer.pathes = StringListDeteleBlank(tb_relativepaths.Text.Split('\n').ToList());
+
+            FindingMethod fileNamesFindingMethod = new FindingMethod();
+            if (cb_filenamestype.SelectedIndex == 0)
+            {
+                fileNamesFindingMethod = FindingMethod.SAME;
+            }
+            else if (cb_filenamestype.SelectedIndex == 1)
+            {
+                fileNamesFindingMethod = FindingMethod.CONTAIN;
+            }
+            else if (cb_filenamestype.SelectedIndex == 2)
+            {
+                fileNamesFindingMethod = FindingMethod.REGEX;
+            }
+            else if (cb_filenamestype.SelectedIndex == 3)
+            {
+                fileNamesFindingMethod = FindingMethod.ALL;
+            }
+            KeyValuePair<FindingMethod, List<string>> fileNames = new KeyValuePair<FindingMethod, List<string>>(fileNamesFindingMethod, StringListDeteleBlank(tb_filenames.Text.Split('\n').ToList()));
+            sheetExplainer.fileNames = fileNames;
+
+            FindingMethod sheetNamesFindingMethod = new FindingMethod();
+            if (cb_sheetnamestype.SelectedIndex == 0)
+            {
+                sheetNamesFindingMethod = FindingMethod.SAME;
+            }
+            else if (cb_sheetnamestype.SelectedIndex == 1)
+            {
+                sheetNamesFindingMethod = FindingMethod.CONTAIN;
+            }
+            else if (cb_sheetnamestype.SelectedIndex == 2)
+            {
+                sheetNamesFindingMethod = FindingMethod.REGEX;
+            }
+            else if (cb_sheetnamestype.SelectedIndex == 3)
+            {
+                sheetNamesFindingMethod = FindingMethod.ALL;
+            }
+            KeyValuePair<FindingMethod, List<string>> sheetNames = new KeyValuePair<FindingMethod, List<string>>(sheetNamesFindingMethod, StringListDeteleBlank(tb_sheetnames.Text.Split('\n').ToList()));
+            sheetExplainer.sheetNames = sheetNames;
+
+            string json = JsonConvert.SerializeObject(sheetExplainer);
+
+            string fileName = $".\\SheetExplainers\\{newName}.json";
+            FileStream fs = null;
+            try
+            {
+                fs = File.Create(fileName);
+                fs.Close();
+                StreamWriter sw = File.CreateText(fileName);
+                sw.Write(json);
+                sw.Flush();
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetterWithTimmer(), "保存成功", "保存", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

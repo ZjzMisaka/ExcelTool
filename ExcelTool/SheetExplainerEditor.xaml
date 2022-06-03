@@ -6,6 +6,18 @@
         xmlns:local="clr-namespace:ExcelTool"
         mc:Ignorable="d"
         Title="检索信息编辑器" Name="w_SheetExplainerEditor" Height="450" Width="800" MinHeight="430" MinWidth="500" Closing="WindowClosing" Loaded="WindowLoaded">
+    <Window.Resources>
+        <RoutedUICommand x:Key="Save" Text="Save"/>
+        <RoutedUICommand x:Key="RenameSave" Text="RenameSave"/>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Gesture="Ctrl+S" Command="{StaticResource Save}"></KeyBinding>
+        <KeyBinding Gesture="Ctrl+Shift+S" Command="{StaticResource RenameSave}"></KeyBinding>
+    </Window.InputBindings>
+    <Window.CommandBindings>
+        <CommandBinding Command="{StaticResource Save}" CanExecute="SaveByKeyDownCanExecute" Executed="SaveByKeyDown"></CommandBinding>
+        <CommandBinding Command="{StaticResource RenameSave}" CanExecute="RenameSaveByKeyDownCanExecute" Executed="RenameSaveByKeyDown"></CommandBinding>
+    </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
