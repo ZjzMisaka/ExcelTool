@@ -641,7 +641,7 @@ namespace ExcelTool
                                 FinishRunning();
                                 return;
                             }
-                            sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append(" (").Append((timeCostSs / 1000.0).ToString("0.0")).Append("s)\n");
+                            sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append(" [").Append((timeCostSs / 1000.0).ToString("0.0")).Append("s]\n");
                         }
                     }
 
@@ -773,7 +773,7 @@ namespace ExcelTool
                                     FinishRunning();
                                     return;
                                 }
-                                sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append(" (").Append((timeCostSs / 1000.0).ToString("0.0")).Append("s)\n");
+                                sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append(" [").Append((timeCostSs / 1000.0).ToString("0.0")).Append("s]\n");
                             }
                         }
 

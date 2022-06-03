@@ -91,7 +91,9 @@
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Name="tb_status"  Grid.Row="0" Grid.Column="0" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                        <ScrollViewer>
+                            <TextBlock Name="tb_status"  Grid.Row="0" Grid.Column="0" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                        </ScrollViewer>
                         <GridSplitter x:Name="gs_gridsplitterbutton" BorderBrush="Black" BorderThickness="1, 0, 1, 0" Width="4" Grid.Row="1" Background="AntiqueWhite" HorizontalAlignment="Right" VerticalAlignment="Stretch" Panel.ZIndex="100"/>
                         <avalonEdit:TextEditor Name="te_log" Grid.Row="0" Grid.Column="1" ShowLineNumbers="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False" WordWrap="True" Padding="3px" IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextChanged="TeLogTextChanged" PreviewKeyDown="TeLogPreviewKeyDown"/>
                     </Grid>
