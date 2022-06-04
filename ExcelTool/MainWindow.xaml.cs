@@ -973,7 +973,7 @@ namespace ExcelTool
                     });
                 }
 
-                if (Scanner.InputLock)
+                if (isRunning && Scanner.InputLock)
                 {
                     this.Dispatcher.Invoke(() =>
                     {
@@ -1005,6 +1005,13 @@ namespace ExcelTool
                         }
                     });
                 }
+                else 
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        te_log.IsReadOnly = true;
+                    });
+                }
 
                 Thread.Sleep(freshInterval);
             }
@@ -1012,6 +1019,7 @@ namespace ExcelTool
 
         private void FinishRunning()
         {
+            CheckAndCloseThreads();
             isRunning = false;
             this.Dispatcher.Invoke(() =>
             {
@@ -1736,7 +1744,7 @@ namespace ExcelTool
             return true;
         }
 
-        private void WindowClosed(object sender, EventArgs e)
+        private void CheckAndCloseThreads()
         {
             if (smartThreadPoolAnalyze != null && !smartThreadPoolAnalyze.IsShuttingdown)
             {
@@ -1745,7 +1753,7 @@ namespace ExcelTool
                     smartThreadPoolAnalyze.Shutdown(true);
                 }
                 catch
-                { 
+                {
                     // DO NOTHING
                 }
             }
@@ -1776,6 +1784,12 @@ namespace ExcelTool
             {
                 FileSystemWatcherInvokeThread.Abort();
             }
+        }
+
+        private void WindowClosed(object sender, EventArgs e)
+        {
+            CheckAndCloseThreads();
+
             runningThread.Abort();
 
             FileHelper.DeleteCopiedDlls(copiedDllsList);
