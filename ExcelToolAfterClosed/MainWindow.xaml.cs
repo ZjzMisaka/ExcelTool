@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -53,14 +54,38 @@ namespace ExcelToolAfterClosed
                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"删除Dll文件失败\n{path}\n{ex.Message}\n{ex.StackTrace}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            
-            this.Close();
+
+            w_AfterClosedMainWindow.Close();
         }
 
         private void WaitForClose()
         {
+            int tried = 0;
+            string message = "";
             while (Process.GetProcessesByName("ExcelTool").Length > 0)
             {
+                foreach (var process in Process.GetProcessesByName("ExcelTool"))
+                {
+                    try
+                    {
+                        process.Kill();
+                        process.WaitForExit();
+                        ++tried;
+                    }
+                    catch (Win32Exception ex)
+                    {
+                        message += $"\n{ex.Message}";
+                    }
+                    catch (InvalidOperationException)
+                    {
+                    }
+                }
+
+                if (tried == 10)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"Tried 10 times and cannot kill process ExcelTool. \nLog: {message}", "Error", MessageBoxButton.OK);
+                }
+
                 Thread.Sleep(100);
             }
         }
