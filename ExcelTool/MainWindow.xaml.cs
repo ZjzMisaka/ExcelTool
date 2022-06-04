@@ -1019,7 +1019,7 @@ namespace ExcelTool
 
         private void FinishRunning()
         {
-            CheckAndCloseThreads();
+            CheckAndCloseThreads(false);
             isRunning = false;
             this.Dispatcher.Invoke(() =>
             {
@@ -1744,7 +1744,7 @@ namespace ExcelTool
             return true;
         }
 
-        private void CheckAndCloseThreads()
+        private void CheckAndCloseThreads(bool isCloseWindow)
         {
             if (smartThreadPoolAnalyze != null && !smartThreadPoolAnalyze.IsShuttingdown)
             {
@@ -1780,17 +1780,19 @@ namespace ExcelTool
             {
                 runEndThread.Abort();
             }
-            if (FileSystemWatcherInvokeThread != null && FileSystemWatcherInvokeThread.IsAlive)
+            if (isCloseWindow)
             {
-                FileSystemWatcherInvokeThread.Abort();
+                if (FileSystemWatcherInvokeThread != null && FileSystemWatcherInvokeThread.IsAlive)
+                {
+                    FileSystemWatcherInvokeThread.Abort();
+                }
+                runningThread.Abort();
             }
         }
 
         private void WindowClosed(object sender, EventArgs e)
         {
-            CheckAndCloseThreads();
-
-            runningThread.Abort();
+            CheckAndCloseThreads(true);
 
             FileHelper.DeleteCopiedDlls(copiedDllsList);
         }
