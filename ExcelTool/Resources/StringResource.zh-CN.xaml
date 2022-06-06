@@ -61,4 +61,6 @@
     <sys:String x:Key="SuccessfullySaved">保存成功</sys:String>
     <sys:String x:Key="Copied">已复制到剪贴板</sys:String>
     <sys:String x:Key="ParameterEditor">参数编辑器</sys:String>
+    <sys:String x:Key="ActiveThreads">活跃线程</sys:String>
+    <sys:String x:Key="InUseThreads">使用中的线程</sys:String>
 </ResourceDictionary>

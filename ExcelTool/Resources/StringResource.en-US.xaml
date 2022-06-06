@@ -61,4 +61,6 @@
     <sys:String x:Key="SuccessfullySaved">Saved successfully</sys:String>
     <sys:String x:Key="Copied">Copied to the clipboard successfully</sys:String>
     <sys:String x:Key="ParameterEditor">Parameter editor</sys:String>
+    <sys:String x:Key="ActiveThreads">Active threads</sys:String>
+    <sys:String x:Key="InUseThreads">In use threads</sys:String>
 </ResourceDictionary>

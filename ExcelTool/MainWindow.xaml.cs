@@ -59,7 +59,7 @@ namespace ExcelTool
         private Scanner scanner;
         private int fileSystemWatcherInvokeDalay;
         private int freshInterval;
-        private string language = "";
+        private string language;
 
         public MainWindow()
         {
@@ -671,7 +671,7 @@ namespace ExcelTool
 
                     this.Dispatcher.Invoke(() =>
                     {
-                        l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolAnalyze.ActiveThreads} -- InUseThreads: {smartThreadPoolAnalyze.InUseThreads}";
+                        l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} | {Application.Current.FindResource("ActiveThreads").ToString()}: {smartThreadPoolAnalyze.ActiveThreads} | {Application.Current.FindResource("InUseThreads").ToString()}: {smartThreadPoolAnalyze.InUseThreads}";
                         tb_status.Text = $"{sb.ToString()}";
                     });
                     await Task.Delay(freshInterval);
@@ -803,7 +803,7 @@ namespace ExcelTool
 
                         this.Dispatcher.Invoke(() =>
                         {
-                            l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} -- ActiveThreads: {smartThreadPoolOutput.ActiveThreads} -- InUseThreads: {smartThreadPoolOutput.InUseThreads}";
+                            l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} | {Application.Current.FindResource("ActiveThreads").ToString()}: {smartThreadPoolOutput.ActiveThreads} | {Application.Current.FindResource("InUseThreads").ToString()}: {smartThreadPoolOutput.InUseThreads}";
                             tb_status.Text = $"{sb.ToString()}";
                         });
                         await Task.Delay(freshInterval);
