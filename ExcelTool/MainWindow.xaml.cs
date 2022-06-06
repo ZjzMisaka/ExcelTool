@@ -59,6 +59,7 @@ namespace ExcelTool
         private Scanner scanner;
         private int fileSystemWatcherInvokeDalay;
         private int freshInterval;
+        private string language = "";
 
         public MainWindow()
         {
@@ -85,12 +86,17 @@ namespace ExcelTool
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
+            language = IniHelper.GetLanguage();
+            if (String.IsNullOrWhiteSpace(language))
+            {
+                language = Thread.CurrentThread.CurrentUICulture.Name;
+            }
             List<ResourceDictionary> dictionaryList = new List<ResourceDictionary>();
             foreach (ResourceDictionary dictionary in Application.Current.Resources.MergedDictionaries)
             {
                 dictionaryList.Add(dictionary);
             }
-            string requestedCulture = string.Format(@"Resources\StringResource.{0}.xaml", /*Thread.CurrentThread.CurrentUICulture*/"ja-JP");
+            string requestedCulture = string.Format(@"Resources\StringResource.{0}.xaml", language);
             ResourceDictionary resourceDictionary = dictionaryList.FirstOrDefault(d => d.Source.OriginalString.Equals(requestedCulture));
             if (resourceDictionary == null)
             {
@@ -1383,6 +1389,7 @@ namespace ExcelTool
             IniHelper.SetBasePath(tb_base_path.Text);
             IniHelper.SetOutputPath(tb_output_path.Text);
             IniHelper.SetOutputFileName(tb_output_name.Text);
+            IniHelper.SetLanguage(language);
 
             if (cb_isautoopen.IsChecked == true)
             {

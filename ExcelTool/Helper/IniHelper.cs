@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -38,6 +39,7 @@ namespace ExcelTool
             parsedINIDataToBeSaved["Window"].AddKey("SheetExplainerEditorWidth", "800");
             parsedINIDataToBeSaved["Window"].AddKey("SheetExplainerEditorHeight", "450");
             parsedINIDataToBeSaved["Window"].AddKey("IsAutoOpen", "False");
+            parsedINIDataToBeSaved["Window"].AddKey("Language", Thread.CurrentThread.CurrentUICulture.Name);
             parsedINIDataToBeSaved.Sections.AddSection("Value");
             parsedINIDataToBeSaved["Value"].AddKey("DefaultBasePath", "");
             parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputPath", Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
@@ -269,6 +271,31 @@ namespace ExcelTool
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
             return bool.Parse(data["Window"]["IsAutoOpen"]);
+        }
+
+        public static void SetLanguage(String language)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Window"]["Language"] = language;
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static String GetLanguage()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return null;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return data["Window"]["Language"];
         }
 
         public static void SetBasePath(String basePath)
