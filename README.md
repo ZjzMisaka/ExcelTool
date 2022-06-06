@@ -2,6 +2,11 @@
 批量分析Excel文件, 并将分析结果输出到Excel文件中  
 [查看示例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [执行时的gif图](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
+### 多语言
+- [x] 简体中文
+- [x] 日本語
+- [x] English
+
 ### 主界面
 - 设定完成检索信息和分析逻辑后通过下拉框选择, 使一行检索信息和一行分析逻辑一一对应
 - 可以设定传入参数
