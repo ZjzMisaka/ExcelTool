@@ -85,6 +85,24 @@ namespace ExcelTool
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
+            List<ResourceDictionary> dictionaryList = new List<ResourceDictionary>();
+            foreach (ResourceDictionary dictionary in Application.Current.Resources.MergedDictionaries)
+            {
+                dictionaryList.Add(dictionary);
+            }
+            string requestedCulture = string.Format(@"Resources\StringResource.{0}.xaml", /*Thread.CurrentThread.CurrentUICulture*/"ja-JP");
+            ResourceDictionary resourceDictionary = dictionaryList.FirstOrDefault(d => d.Source.OriginalString.Equals(requestedCulture));
+            if (resourceDictionary == null)
+            {
+                requestedCulture = @"Resources\StringResource.zh-CN.xaml";
+                resourceDictionary = dictionaryList.FirstOrDefault(d => d.Source.OriginalString.Equals(requestedCulture));
+            }
+            if (resourceDictionary != null)
+            {
+                Application.Current.Resources.MergedDictionaries.Remove(resourceDictionary);
+                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
+            }
+
             IniHelper.CheckAndCreateIniFile();
 
             double width = IniHelper.GetWindowSize(this.Name.Substring(2)).X;
@@ -447,7 +465,7 @@ namespace ExcelTool
                 {
                     if (!isAuto)
                     {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     else 
                     {
@@ -469,7 +487,7 @@ namespace ExcelTool
                 {
                     if (!isAuto)
                     {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     else
                     {
@@ -508,11 +526,11 @@ namespace ExcelTool
                     {
                         if (!isAuto)
                         {
-                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), "路径不存在", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), Application.Current.FindResource("PathNotExists").ToString(), Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                         else
                         {
-                            Logger.Error("路径不存在");
+                            Logger.Error(Application.Current.FindResource("PathNotExists").ToString());
                         }
                         FinishRunning();
                         return;
@@ -558,11 +576,11 @@ namespace ExcelTool
                         }
                         if (!isAuto)
                         {
-                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                         }
                         else
                         {
-                            Logger.Error($"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                            Logger.Error($"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                         }
                         FinishRunning();
                         return;
@@ -605,11 +623,11 @@ namespace ExcelTool
                         {
                             if (!isAuto)
                             {
-                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{Application.Current.FindResource("TotalTimeout").ToString()}. \n{totalTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                             }
                             else
                             {
-                                Logger.Error($"Total time out. \n{totalTimeoutLimitAnalyze / 1000.0}(s)");
+                                Logger.Error($"{Application.Current.FindResource("TotalTimeout").ToString()}. \n{totalTimeoutLimitAnalyze / 1000.0}(s)");
                             }
 
                         }
@@ -618,7 +636,7 @@ namespace ExcelTool
                     }
 
                     StringBuilder sb = new StringBuilder();
-                    sb.Append("Analyzing...\n");
+                    sb.Append($"{Application.Current.FindResource("Analyzing").ToString()}\n");
 
                     ICollection<string> keys = currentAnalizingDictionary.Keys;
                     foreach (string key in keys)
@@ -632,11 +650,11 @@ namespace ExcelTool
                                 smartThreadPoolAnalyze.Dispose();
                                 if (!isAuto)
                                 {
-                                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                                 }
                                 else
                                 {
-                                    Logger.Error($"{key}\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                                    Logger.Error($"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                                 }
                                 FinishRunning();
                                 return;
@@ -655,7 +673,7 @@ namespace ExcelTool
                 catch (Exception e)
                 {
                     smartThreadPoolAnalyze.Dispose();
-                    Logger.Error($"Exception has been throwed. \n{e.Message}");
+                    Logger.Error($"{Application.Current.FindResource("ExceptionHasBeenThrowed").ToString()} \n{e.Message}");
                     FinishRunning();
                     return;
                 }
@@ -698,11 +716,11 @@ namespace ExcelTool
                             runBeforeSetResultThread.Abort();
                             if (!isAuto)
                             {
-                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                             }
                             else
                             {
-                                Logger.Error($"RunBeforeAnalyzeSheet\nTime out. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                                Logger.Error($"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                             }
                             FinishRunning();
                             return;
@@ -738,11 +756,11 @@ namespace ExcelTool
                             {
                                 if (!isAuto)
                                 {
-                                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"Total time out. \n{totalTimeoutLimitOutput / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{Application.Current.FindResource("TotalTimeout").ToString()}. \n{totalTimeoutLimitOutput / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                                 }
                                 else
                                 {
-                                    Logger.Error($"Total time out. \n{totalTimeoutLimitOutput / 1000.0}(s)");
+                                    Logger.Error($"{Application.Current.FindResource("TotalTimeout").ToString()}. \n{totalTimeoutLimitOutput / 1000.0}(s)");
                                 }
                             }
                             FinishRunning();
@@ -750,7 +768,7 @@ namespace ExcelTool
                         }
 
                         StringBuilder sb = new StringBuilder();
-                        sb.Append("Outputting... \n");
+                        sb.Append($"{Application.Current.FindResource("Outputting").ToString()} \n");
 
                         ICollection<string> keys = currentOutputtingDictionary.Keys;
                         foreach (string key in keys)
@@ -764,11 +782,11 @@ namespace ExcelTool
                                     smartThreadPoolOutput.Dispose();
                                     if (!isAuto)
                                     {
-                                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"{key}\nTime out. \n{perTimeoutLimitOutput / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                                     }
                                     else
                                     {
-                                        Logger.Error($"{key}\nTime out. \n{perTimeoutLimitOutput / 1000.0}(s)");
+                                        Logger.Error($"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)");
                                     }
                                     FinishRunning();
                                     return;
@@ -787,7 +805,7 @@ namespace ExcelTool
                     catch (Exception e)
                     {
                         smartThreadPoolOutput.Dispose();
-                        Logger.Error($"Exception has been throwed. \n{e.Message}");
+                        Logger.Error($"{Application.Current.FindResource("ExceptionHasBeenThrowed").ToString()} \n{e.Message}");
                         FinishRunning();
                         return;
                     }
@@ -821,11 +839,11 @@ namespace ExcelTool
                             });
                             if (!isAuto)
                             {
-                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, $"RunEnd\nTime out. \n{perTimeoutLimitOutput / 1000.0}(s)", "error", MessageBoxImage.Error);
+                                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"RunEnd\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                             }
                             else
                             {
-                                Logger.Error($"RunEnd\nTime out. \n{perTimeoutLimitOutput / 1000.0}(s)");
+                                Logger.Error($"RunEnd\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)");
                             }
                             FinishRunning();
                             return;
@@ -882,7 +900,7 @@ namespace ExcelTool
                 {
                     if (!isAuto)
                     {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     else
                     {
@@ -896,11 +914,11 @@ namespace ExcelTool
                 {
                     if (!isAuto)
                     {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "OK" }, "file not saved.", "info");
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource(Application.Current.FindResource("Ok").ToString()).ToString() }, Application.Current.FindResource("FileNotSaved").ToString(), Application.Current.FindResource("Info").ToString());
                     }
                     else
                     {
-                        Logger.Error("文件保存失败.");
+                        Logger.Error(Application.Current.FindResource("FileNotSaved").ToString());
                     }
 
                     FinishRunning();
@@ -909,7 +927,7 @@ namespace ExcelTool
 
                 Button btnOpenFile = new Button();
                 btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnOpenFile.Content = "打开文件";
+                btnOpenFile.Content = Application.Current.FindResource("OpenFile").ToString();
                 btnOpenFile.Click += (s, ee) =>
                 {
                     System.Diagnostics.Process.Start(filePath);
@@ -918,7 +936,7 @@ namespace ExcelTool
 
                 Button btnOpenPath = new Button();
                 btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnOpenPath.Content = "打开路径";
+                btnOpenPath.Content = Application.Current.FindResource("OpenPath").ToString();
                 btnOpenPath.Click += (s, ee) =>
                 {
                     System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
@@ -927,13 +945,13 @@ namespace ExcelTool
 
                 Button btnClose = new Button();
                 btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnClose.Content = "关闭";
+                btnClose.Content = Application.Current.FindResource("Close").ToString();
                 btnClose.Click += (s, ee) =>
                 {
                     CustomizableMessageBox.MessageBox.CloseNow();
                 };
 
-                Logger.Info($"文件已保存。\n{filePath}");
+                Logger.Info($"{Application.Current.FindResource("FileSaved").ToString()}\n{filePath}");
                 if (!isAuto && cb_isautoopen.IsChecked == false)
                 {
                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "文件已保存。", "OK");
@@ -942,7 +960,7 @@ namespace ExcelTool
                 {
                     if (cb_isautoopen.IsChecked == true)
                     {
-                        Logger.Info("已自动打开文件");
+                        Logger.Info(Application.Current.FindResource("AutoOpened").ToString());
                         System.Diagnostics.Process.Start(filePath);
                     }
                 }
@@ -1128,7 +1146,7 @@ namespace ExcelTool
                 int res = 2;
                 if (!isAuto)
                 {
-                    res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), "YES", "NO" }, $"保存失败 重试? \n{e.Message}", "error", MessageBoxImage.Question);
+                    res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Yes").ToString(), Application.Current.FindResource("No").ToString() }, $"{Application.Current.FindResource("FailedToSaveFile").ToString()} \n{e.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Question);
                 }
                 if (res == 2)
                 {
@@ -1264,7 +1282,7 @@ namespace ExcelTool
             }
             catch (Exception ex)
             {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"新建文件夹失败\n{ex.Message}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("FailedToCreateANewFolder").ToString()}\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -1344,7 +1362,7 @@ namespace ExcelTool
         {
             if (Application.Current.Windows.Count > 1)
             {
-                MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"尚有未关闭的子窗口, 是否关闭程序", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), Application.Current.FindResource("ProgramClosingCheck").ToString(), Application.Current.FindResource("Warning").ToString(), MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.No)
                 {
                     e.Cancel = true;
@@ -1502,7 +1520,7 @@ namespace ExcelTool
             {
                 tbName.Text = $"Copy Of {cb_rules.SelectedItem}";
             }
-            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, "OK", "CANCEL" }, "name", "saving", MessageBoxImage.Information);
+            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("Name").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
             if (result == 1)
             {
                 RunningRule runningRule = new RunningRule();
@@ -1527,7 +1545,7 @@ namespace ExcelTool
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -1535,7 +1553,7 @@ namespace ExcelTool
         private void DeleteRule(object sender, RoutedEventArgs e)
         {
             String path = $"{System.Environment.CurrentDirectory}\\Rules\\{cb_rules.SelectedItem.ToString()}.json";
-            MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"删除文件\n{path}", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("Delete").ToString()}\n{path}", Application.Current.FindResource("Warning").ToString(), MessageBoxButton.OKCancel, MessageBoxImage.Warning);
             if (result == MessageBoxResult.OK)
             {
                 File.Delete(path);
@@ -1606,7 +1624,7 @@ namespace ExcelTool
             TextBox tbFilter = new TextBox();
             tbFilter.Margin = new Thickness(5, 8, 5, 8);
             tbFilter.VerticalContentAlignment = VerticalAlignment.Center;
-            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbPath, tbFilter, "OK", "CANCEL" }, "watch path and filter", "saving", MessageBoxImage.Information);
+            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbPath, tbFilter, Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("WatchPathAndFilter").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
             if (result == 2)
             {
                 rule.watchPath = tbPath.Text;
@@ -1631,7 +1649,7 @@ namespace ExcelTool
             }
             catch (Exception ex)
             {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             SetAuto(rule, ruleName);
@@ -1702,7 +1720,7 @@ namespace ExcelTool
             }
             catch (Exception ex)
             {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             FileSystemWatcher fileSystemWatcher = fileSystemWatcherDic.FirstOrDefault(q => q.Value == cb_rules.SelectedItem.ToString()).Key;
@@ -1721,14 +1739,14 @@ namespace ExcelTool
         {
             if (rule.watchPath != null && rule.watchPath != "" && !Directory.Exists(rule.watchPath))
             {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"监视路径不存在: {rule.watchPath}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("WatchPathNotExists").ToString()}: {rule.watchPath}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
             foreach (string analyzer in rule.analyzers.Split('\n'))
             {
                 if (!cb_analyzers.Items.Contains(analyzer))
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的Analyzer: {analyzer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("Unknown").ToString()}{Application.Current.FindResource("Analyzer").ToString()}: {analyzer}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
             }
@@ -1736,7 +1754,7 @@ namespace ExcelTool
             {
                 if (!cb_sheetexplainers.Items.Contains(sheetExplainer))
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"存在未知的SheetExplainers: {sheetExplainer}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("Unknown").ToString()}{Application.Current.FindResource("SheetExplainer").ToString()}: {sheetExplainer}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
 
@@ -1933,7 +1951,7 @@ namespace ExcelTool
             ++rowNum;
             Button btnOk = new Button();
             btnOk.Height = 30;
-            btnOk.Content = "OK";
+            btnOk.Content = Application.Current.FindResource("Ok").ToString();
             btnOk.Click += (s, ex) => 
             {
                 te_params.Text = ParamHelper.GetParamStr(paramDicEachAnalyzer);

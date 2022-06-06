@@ -175,7 +175,7 @@ namespace ExcelTool
             }
             catch (Exception ex)
             {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"新建文件夹失败\n{ex.Message}", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("FailedToCreateANewFolder").ToString()}\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -197,7 +197,7 @@ namespace ExcelTool
         private void BtnDeleteClick(object sender, RoutedEventArgs e)
         {
             String path = $"{System.Environment.CurrentDirectory}\\Analyzers\\{cb_analyzers.SelectedItem.ToString()}.json";
-            MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"删除文件\n{path}", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("Delete").ToString()}\n{path}", Application.Current.FindResource("Warning").ToString(), MessageBoxButton.OKCancel, MessageBoxImage.Warning);
             if (result == MessageBoxResult.OK)
             {
                 File.Delete(path);
@@ -324,7 +324,7 @@ namespace ExcelTool
                 {
                     tbName.Text = $"Copy Of {cb_analyzers.SelectedItem}";
                 }
-                int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, "OK", "CANCEL" }, "name", "saving", MessageBoxImage.Information);
+                int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("Name").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
 
                 if (result != 1)
                 {
@@ -353,10 +353,10 @@ namespace ExcelTool
             }
             catch (Exception ex)
             {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetterWithTimmer(), "保存成功", "保存", MessageBoxButton.OK, MessageBoxImage.Information);
+            CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetterWithTimmer(), Application.Current.FindResource("SuccessfullySaved").ToString(), Application.Current.FindResource("Save").ToString(), MessageBoxButton.OK, MessageBoxImage.Information);
 
         }
 
@@ -421,7 +421,7 @@ namespace ExcelTool
 
             Button btnOk = new Button();
             btnOk.Height = 30;
-            btnOk.Content = "OK";
+            btnOk.Content = Application.Current.FindResource("Ok").ToString();
             btnOk.Click += (s, ex) =>
             {
                 List<string> keyList = textEditorL.Text.Replace("\r" , "").Split('\n').Where(str => str.Trim() != "").ToList();
