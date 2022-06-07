@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:local="clr-namespace:ExcelTool"
+        xmlns:Behavior="clr-namespace:Behavior"
         mc:Ignorable="d"
         Title="{DynamicResource WinTitle}" Name="w_MainWindow" Height="850" Width="800" Loaded="WindowLoaded" Closing="WindowClosing" Closed="WindowClosed" MinHeight="685" MinWidth="500">
     <Grid>
@@ -47,11 +48,11 @@
                     <ColumnDefinition />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <Button Name="btn_opensheetexplainereditor" Content="{DynamicResource SetSheetExplainer}" Height="25" Grid.Row="0" Grid.Column="0" Margin="10 2" Click="BtnOpenSheetExplainerEditorClick"/>
-                <Button Name="btn_openanalyzereditor" Content="{DynamicResource SetAnalyzer}" Height="25" Grid.Row="0" Grid.Column="1" Margin="10 2" Click="BtnOpenAnalyzerEditorClick"/>
-                <ComboBox Name="cb_sheetexplainers" Grid.Row="1" Margin="10 2" Grid.Column="0" SelectionChanged="CbSheetExplainersSelectionChanged" PreviewMouseLeftButtonDown="CbSheetExplainersPreviewMouseLeftButtonDown"/>
+                <Button Name="btn_opensheetexplainereditor" Content="{DynamicResource SetSheetExplainer}" Height="25" Grid.Row="0" Grid.Column="0" Margin="10 2" Command="{Binding BtnOpenSheetExplainerEditorClickCommand}"/>
+                <Button Name="btn_openanalyzereditor" Content="{DynamicResource SetAnalyzer}" Height="25" Grid.Row="0" Grid.Column="1" Margin="10 2" Command="{Binding BtnOpenAnalyzerEditorClickCommand}"/>
+                <ComboBox Name="cb_sheetexplainers" ItemsSource="{Binding SheetExplainersItems}" SelectedItem="{Binding SelectedSheetExplainersItem}" Grid.Row="1" Margin="10 2" Grid.Column="0" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbSheetExplainersPreviewMouseLeftButtonDownCommand}"/>
                 <ComboBox Name="cb_analyzers" Grid.Row="1" Margin="10 2" Grid.Column="1" SelectionChanged="CbAnalyzersSelectionChanged" PreviewMouseLeftButtonDown="CbAnalyzersPreviewMouseLeftButtonDown"/>
-                <avalonEdit:TextEditor Name="te_sheetexplainers" Margin="10 2" Grid.Row="2" Grid.Column="0" ShowLineNumbers="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+                <avalonEdit:TextEditor Name="te_sheetexplainers" Document="{Binding TeSheetExplainersValue}" Margin="10 2" Grid.Row="2" Grid.Column="0" ShowLineNumbers="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
                 <Label Grid.Row="2" Margin="10 2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="="/>
                 <avalonEdit:TextEditor Name="te_analyzers" Margin="10 2" Grid.Row="2" Grid.Column="1" ShowLineNumbers="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
 

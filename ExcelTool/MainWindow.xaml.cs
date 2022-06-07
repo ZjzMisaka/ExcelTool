@@ -25,6 +25,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Windows.Media;
 using ExcelTool.Helper;
+using ExcelTool.ViewModel;
 
 namespace ExcelTool
 {
@@ -64,6 +65,7 @@ namespace ExcelTool
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = new MainWindowViewModel();
 
             ICSharpCode.AvalonEdit.Search.SearchPanel.Install(te_log);
 
@@ -193,18 +195,6 @@ namespace ExcelTool
             }
             te_analyzers.Text += $"{cb_analyzers.SelectedItem}\n";
             cb_analyzers.SelectedIndex = 0;
-        }
-
-        private void BtnOpenSheetExplainerEditorClick(object sender, RoutedEventArgs e)
-        {
-            SheetExplainerEditor sheetExplainerEditor = new SheetExplainerEditor();
-            sheetExplainerEditor.Show();
-        }
-
-        private void BtnOpenAnalyzerEditorClick(object sender, RoutedEventArgs e)
-        {
-            AnalyzerEditor analyzerEditor = new AnalyzerEditor();
-            analyzerEditor.Show();
         }
 
         private void CbSheetExplainersPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
