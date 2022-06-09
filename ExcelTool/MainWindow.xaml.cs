@@ -187,36 +187,11 @@ namespace ExcelTool
             te_sheetexplainers.Text += $"{cb_sheetexplainers.SelectedItem}\n";
             cb_sheetexplainers.SelectedIndex = 0;
         }
-        private void CbAnalyzersSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (cb_analyzers.SelectedIndex == 0)
-            {
-                return;
-            }
-            te_analyzers.Text += $"{cb_analyzers.SelectedItem}\n";
-            cb_analyzers.SelectedIndex = 0;
-        }
+        
 
-        private void CbSheetExplainersPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            cb_sheetexplainers.ItemsSource = FileHelper.GetSheetExplainersList();
-        }
+        
 
-        private void CbAnalyzersPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            cb_analyzers.ItemsSource = FileHelper.GetAnalyzersList();
-        }
-
-        private void DropPath(object sender, DragEventArgs e)
-        {
-            (sender as TextBox).Text = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
-        }
-
-        private void DragOverPath(object sender, DragEventArgs e)
-        {
-            e.Effects = DragDropEffects.Copy;
-            e.Handled = true;
-        }
+        
 
         private void DropFile(object sender, DragEventArgs e)
         {
@@ -229,59 +204,9 @@ namespace ExcelTool
             e.Handled = true;
         }
 
-        private void SelectPath(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Forms.FolderBrowserDialog openFileDialog = new System.Windows.Forms.FolderBrowserDialog();
+        
 
-            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                if ((sender as Button).Name == "btn_select_output_path")
-                {
-                    tb_base_path.Text = openFileDialog.SelectedPath;
-                }
-                else
-                {
-                    tb_output_path.Text = openFileDialog.SelectedPath;
-                }
-            }
-        }
-
-        private void SelectName(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Forms.OpenFileDialog fileDialog = new System.Windows.Forms.OpenFileDialog();
-            fileDialog.Multiselect = false;
-            fileDialog.Title = "请选择文件";
-            fileDialog.Filter = "Excel文件|*.xlsx;*.xlsm;*.xls|All files(*.*)|*.*";
-            if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                string[] names = fileDialog.FileNames;
-                tb_output_name.Text = System.IO.Path.GetFileNameWithoutExtension(names[0]);
-
-            }
-        }
-
-        private void OpenPath(object sender, RoutedEventArgs e)
-        {
-            string resPath = tb_output_path.Text.Replace("\\", "/");
-            string filePath;
-            if (tb_output_path.Text.EndsWith("/"))
-            {
-                filePath = $"{resPath}{tb_output_name.Text}.xlsx";
-            }
-            else
-            {
-                filePath = $"{resPath}/{tb_output_name.Text}.xlsx";
-            }
-            if (File.Exists(filePath))
-            {
-                System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
-            }
-            else
-            {
-                filePath = filePath.Replace("/", "\\");
-                System.Diagnostics.Process.Start("Explorer", $"{filePath.Substring(0, filePath.LastIndexOf('\\'))}");
-            }
-        }
+        
         private void Stop(object sender, RoutedEventArgs e)
         {
             Stop();
@@ -1411,24 +1336,9 @@ namespace ExcelTool
             }
         }
 
-        private void CbParamsSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            te_params.TextChanged -= TbParamsTextChanged;
-            te_params.Text = $"{cb_params.SelectedItem}";
-            te_params.TextChanged += TbParamsTextChanged;
-        }
+        
 
-        private void CbParamsPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            cb_params.ItemsSource = FileHelper.GetParamsList();
-        }
-
-        private void TbParamsTextChanged(object sender, EventArgs e)
-        {
-            cb_params.SelectionChanged -= CbParamsSelectionChanged;
-            cb_params.SelectedIndex = 0;
-            cb_params.SelectionChanged += CbParamsSelectionChanged;
-        }
+        
 
         private FileSystemInfo[] GetyDllInfos()
         {
@@ -1498,10 +1408,7 @@ namespace ExcelTool
             }
         }
 
-        private void TbParamsLostFocus(object sender, RoutedEventArgs e)
-        {
-            te_params.Text = $"{te_params.Text.Replace("\r\n", "").Replace("\n", "")}";
-        }
+        
 
         private void TeLogTextChanged(object sender, EventArgs e)
         {
@@ -1812,154 +1719,7 @@ namespace ExcelTool
             FileHelper.DeleteCopiedDlls(copiedDllsList);
         }
 
-        private void EditParam(object sender, RoutedEventArgs e)
-        {
-            ParamEditor paramEditor = new ParamEditor();
-
-            string paramStr = $"{te_params.Text.Replace("\r\n", "").Replace("\n", "")}";
-            te_params.Text = paramStr;
-            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
-
-            int rowNum = -1;
-
-            List<String> analyzersList = te_analyzers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
-
-            ColumnDefinition columnDefinitionL = new ColumnDefinition();
-            columnDefinitionL.Width = new GridLength(100);
-            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
-            ColumnDefinition columnDefinitionR = new ColumnDefinition();
-            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
-
-            List<string> addedAnalyzerNameList = new List<string>();
-
-            foreach (string analyzerName in analyzersList) 
-            {
-                if (addedAnalyzerNameList.Contains(analyzerName))
-                {
-                    continue;
-                }
-                else
-                {
-                    addedAnalyzerNameList.Add(analyzerName);
-                }
-
-                Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{analyzerName}.json"));
-
-                RowDefinition rowDefinition = new RowDefinition();
-                rowDefinition.Height = new GridLength(40);
-                paramEditor.g_main.RowDefinitions.Add(rowDefinition);
-                ++rowNum;
-                TextBlock textBlockAnalyzerName = new TextBlock();
-                textBlockAnalyzerName.Height = 35;
-                textBlockAnalyzerName.FontWeight = FontWeight.FromOpenTypeWeight(600);
-                textBlockAnalyzerName.FontSize = 20;
-                textBlockAnalyzerName.VerticalAlignment = VerticalAlignment.Bottom;
-                textBlockAnalyzerName.Text = analyzerName;
-                Grid.SetRow(textBlockAnalyzerName, rowNum);
-                Grid.SetColumnSpan(textBlockAnalyzerName, 2);
-                paramEditor.g_main.Children.Add(textBlockAnalyzerName);
-
-                Dictionary<string, string> paramDic = null;
-                if (paramDicEachAnalyzer.ContainsKey(analyzerName))
-                {
-                    paramDic = paramDicEachAnalyzer[analyzerName];
-                }
-
-                if (analyzer.paramDic == null || analyzer.paramDic.Keys == null || analyzer.paramDic.Keys.Count == 0)
-                {
-                    continue;
-                }
-                foreach (string key in analyzer.paramDic.Keys)
-                {
-                    RowDefinition rowDefinitionKv = new RowDefinition();
-                    rowDefinitionKv.Height = new GridLength(30);
-                    paramEditor.g_main.RowDefinitions.Add(rowDefinitionKv);
-                    ++rowNum;
-
-                    TextBlock textBlockKey = new TextBlock();
-                    textBlockKey.Height = 25;
-                    textBlockKey.Text = analyzer.paramDic[key];
-                    Grid.SetRow(textBlockKey, rowNum);
-                    Grid.SetColumn(textBlockKey, 0);
-                    textBlockKey.MouseEnter += (s, ex) =>
-                    {
-                        textBlockKey.Text = key;
-                    };
-                    textBlockKey.TouchEnter += (s, ex) =>
-                    {
-                        textBlockKey.Text = key;
-                    };
-                    textBlockKey.MouseLeave += (s, ex) =>
-                    {
-                        textBlockKey.Text = analyzer.paramDic[key];
-                    };
-                    textBlockKey.TouchLeave += (s, ex) =>
-                    {
-                        textBlockKey.Text = analyzer.paramDic[key];
-                    };
-                    paramEditor.g_main.Children.Add(textBlockKey);
-
-                    TextBox tbValue = new TextBox();
-                    tbValue.Height = 25;
-                    tbValue.Margin = new Thickness(5, 0, 0, 0);
-                    tbValue.HorizontalAlignment = HorizontalAlignment.Stretch;
-                    tbValue.VerticalContentAlignment = VerticalAlignment.Center;
-                    if (paramDic != null && paramDic.ContainsKey(key))
-                    {
-                        tbValue.Text = paramDic[key];
-                    }
-                    else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
-                    {
-                        tbValue.Text = paramDicEachAnalyzer["public"][key];
-                    }
-                    tbValue.TextChanged += (s, ex) =>
-                    {
-                        if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
-                        {
-                            paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
-                        }
-                        paramDicEachAnalyzer[analyzerName][key] = tbValue.Text;
-                    };
-                    Grid.SetRow(tbValue, rowNum);
-                    Grid.SetColumn(tbValue, 1);
-
-                    paramEditor.g_main.Children.Add(tbValue);
-                }
-            }
-
-            GridSplitter gridSplitter = new GridSplitter();
-            gridSplitter.HorizontalAlignment = HorizontalAlignment.Right;
-            gridSplitter.VerticalAlignment = VerticalAlignment.Stretch;
-            gridSplitter.Width = 4;
-            gridSplitter.BorderThickness = new Thickness(1, 0, 1, 0);
-            gridSplitter.BorderBrush = Brushes.Black;
-            gridSplitter.Background = Brushes.AntiqueWhite;
-            Grid.SetRow(gridSplitter, 0);
-            Grid.SetRowSpan(gridSplitter, rowNum + 1 <= 0 ? 1 : rowNum + 1);
-            Grid.SetColumn(gridSplitter, 0);
-            paramEditor.g_main.Children.Add(gridSplitter);
-
-            RowDefinition rowDefinitionBlank = new RowDefinition();
-            paramEditor.g_main.RowDefinitions.Add(rowDefinitionBlank);
-            ++rowNum;
-            RowDefinition rowDefinitionOk = new RowDefinition();
-            rowDefinitionOk.Height = new GridLength(30);
-            paramEditor.g_main.RowDefinitions.Add(rowDefinitionOk);
-            ++rowNum;
-            Button btnOk = new Button();
-            btnOk.Height = 30;
-            btnOk.Content = Application.Current.FindResource("Ok").ToString();
-            btnOk.Click += (s, ex) => 
-            {
-                te_params.Text = ParamHelper.GetParamStr(paramDicEachAnalyzer);
-                paramEditor.Close();
-            };
-            Grid.SetRow(btnOk, rowNum);
-            Grid.SetColumnSpan(btnOk, 2);
-            paramEditor.g_main.Children.Add(btnOk);
-
-            paramEditor.ShowDialog();
-        }
+        
 
         private void TeLogPreviewKeyDown(object sender, KeyEventArgs e)
         {
