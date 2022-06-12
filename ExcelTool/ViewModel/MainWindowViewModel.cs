@@ -825,7 +825,7 @@ namespace ExcelTool.ViewModel
 
         public void DragEnter(IDropInfo dropInfo)
         {
-            dropInfo.Effects = DragDropEffects.Copy;
+
         }
 
         public void DragOver(IDropInfo dropInfo)
@@ -836,7 +836,7 @@ namespace ExcelTool.ViewModel
 
         public void DragLeave(IDropInfo dropInfo)
         {
-            //throw new NotImplementedException();
+
         }
 
         public void Drop(IDropInfo dropInfo)
@@ -864,7 +864,6 @@ namespace ExcelTool.ViewModel
             {
                 GongSolutions.Wpf.DragDrop.DragDrop.DefaultDropHandler.Drop(dropInfo);
             }
-            
         }
 
         private void SelectPath(object sender)

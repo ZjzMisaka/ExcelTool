@@ -211,6 +211,7 @@
     <Compile Include="MvvmTool\EventCommandAction.cs" />
     <Compile Include="MvvmTool\SizeBindingHelper.cs" />
     <Compile Include="ViewModel\AnalyzerViewModel.cs" />
+    <Compile Include="ViewModel\SheetExplainerViewModel.cs" />
     <Compile Include="View\AnalyzerEditor.xaml.cs">
       <DependentUpon>AnalyzerEditor.xaml</DependentUpon>
     </Compile>
