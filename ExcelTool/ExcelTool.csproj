@@ -208,23 +208,26 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Analyzer.cs" />
-    <Compile Include="AnalyzerEditor.xaml.cs">
+    <Compile Include="EventCommandAction.cs" />
+    <Compile Include="SizeBindingHelper.cs" />
+    <Compile Include="ViewModel\AnalyzerViewModel.cs" />
+    <Compile Include="View\AnalyzerEditor.xaml.cs">
       <DependentUpon>AnalyzerEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Events.cs" />
     <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Helper\IniHelper.cs" />
     <Compile Include="Helper\ParamHelper.cs" />
-    <Compile Include="ParamEditor.xaml.cs">
+    <Compile Include="View\ParamEditor.xaml.cs">
       <DependentUpon>ParamEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="RunningRule.cs" />
     <Compile Include="SheetExplainer.cs" />
-    <Compile Include="SheetExplainerEditor.xaml.cs">
+    <Compile Include="View\SheetExplainerEditor.xaml.cs">
       <DependentUpon>SheetExplainerEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
-    <Page Include="AnalyzerEditor.xaml">
+    <Page Include="View\AnalyzerEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -240,7 +243,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ParamEditor.xaml">
+    <Page Include="View\ParamEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -254,7 +257,7 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Page>
-    <Page Include="SheetExplainerEditor.xaml">
+    <Page Include="View\SheetExplainerEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

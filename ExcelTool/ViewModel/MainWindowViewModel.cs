@@ -89,7 +89,7 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private string windowName = "w_MainWindow";
+        private string windowName = "MainWindow";
         public string WindowName
         {
             get { return windowName; }
@@ -481,8 +481,8 @@ namespace ExcelTool.ViewModel
 
             IniHelper.CheckAndCreateIniFile();
 
-            double width = IniHelper.GetWindowSize(WindowName.Substring(2)).X;
-            double height = IniHelper.GetWindowSize(WindowName.Substring(2)).Y;
+            double width = IniHelper.GetWindowSize(WindowName).X;
+            double height = IniHelper.GetWindowSize(WindowName).Y;
             if (width > 0)
             {
                 window.Dispatcher.Invoke(() => {
@@ -573,7 +573,7 @@ namespace ExcelTool.ViewModel
                 }
             }
 
-            IniHelper.SetWindowSize(WindowName.Substring(2), new Point(WindowWidth, WindowHeight));
+            IniHelper.SetWindowSize(WindowName, new Point(WindowWidth, WindowHeight));
             IniHelper.SetBasePath(TbBasePathText);
             IniHelper.SetOutputPath(TbOutputPathText);
             IniHelper.SetOutputFileName(TbOutputNameText);
@@ -1166,7 +1166,7 @@ namespace ExcelTool.ViewModel
             StartLogic(TeSheetExplainersDocument.Text, TeAnalyzersDocument.Text, param, TbBasePathText, TbOutputPathText, TbOutputNameText, false);
         }
 
-        /**       Common Logic          **/
+        // ---------------------------------------------------- Common Logic
 
         private bool CheckRule(RunningRule rule)
         {
@@ -2150,8 +2150,6 @@ namespace ExcelTool.ViewModel
             methodResult.AddOrUpdate(ReadFileReturnType.RESULT, result, (key, oldValue) => null);
             return methodResult;
         }
-
-
 
         private void LoadFiles()
         {

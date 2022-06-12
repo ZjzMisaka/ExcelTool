@@ -6,20 +6,35 @@
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:roslynPad="clr-namespace:RoslynPad.Editor;assembly=RoslynPad.Editor.Windows"
         xmlns:local="clr-namespace:ExcelTool"
+        xmlns:Behavior="clr-namespace:Behavior"
+        xmlns:dd="urn:gong-wpf-dragdrop"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        Title="{DynamicResource AnalyzerEditor}" Name="w_AnalyzerEditor" Height="450" Width="800" Loaded="WindowLoaded" MinHeight="430" MinWidth="500" Closing="WindowClosing" SizeChanged="AnalyzerEditorSizeChanged" StateChanged="AnalyzerEditorStateChanged">
-    <Window.Resources>
-        <RoutedUICommand x:Key="KeyBindingSave" Text="Save"/>
-        <RoutedUICommand x:Key="KeyBindingRenameSave" Text="RenameSave"/>
-    </Window.Resources>
+        Title="{DynamicResource AnalyzerEditor}" Name="w_AnalyzerEditor" Tag="{Binding WindowName}" WindowState="{Binding WindowNowState, Mode=OneWayToSource}" Height="{Binding WindowHeight, Mode=OneWayToSource}" Width="{Binding WindowWidth, Mode=OneWayToSource}" MinHeight="430" MinWidth="500" 
+        local:SizeBindingHelper.Active="True"
+        local:SizeBindingHelper.BoundActualHeight="{Binding WindowActualHeight, Mode=OneWayToSource}"
+        local:SizeBindingHelper.BoundActualWidth="{Binding WindowActualWidth, Mode=OneWayToSource}">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding WindowLoadedCommand}" PassEventArgsToCommand="True" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding WindowClosingCommand}" PassEventArgsToCommand="True" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="SizeChanged">
+            <i:InvokeCommandAction Command="{Binding WindowSizeChangedCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="StateChanged">
+            <i:InvokeCommandAction Command="{Binding WindowStateChangedCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="ContentRendered">
+            <i:InvokeCommandAction Command="{Binding WindowContentRenderedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Window.InputBindings>
-        <KeyBinding Gesture="Ctrl+S" Command="{StaticResource KeyBindingSave}"></KeyBinding>
-        <KeyBinding Gesture="Ctrl+Shift+S" Command="{StaticResource KeyBindingRenameSave}"></KeyBinding>
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding KeyBindingSaveCommand}"></KeyBinding>
+        <KeyBinding Gesture="Ctrl+Shift+S" Command="{Binding KeyBindingRenameSaveCommand}"></KeyBinding>
     </Window.InputBindings>
-    <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource KeyBindingSave}" CanExecute="SaveByKeyDownCanExecute" Executed="SaveByKeyDown"></CommandBinding>
-        <CommandBinding Command="{StaticResource KeyBindingRenameSave}" CanExecute="RenameSaveByKeyDownCanExecute" Executed="RenameSaveByKeyDown"></CommandBinding>
-    </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -30,17 +45,33 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <ComboBox Name="cb_analyzers" Grid.Row="0" Margin="10 2" Width="300" VerticalContentAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" Grid.ColumnSpan="2" SelectionChanged="CbAnalyzersSelectionChanged" PreviewMouseLeftButtonDown="CbAnalyzersPreviewMouseLeftButtonDown"/>
-        <Button Name="btn_delete" Content="{DynamicResource Delete}" IsEnabled="False" Height="25" Width="50" Grid.Row="0" Grid.ColumnSpan="2" Margin="10 2" HorizontalAlignment="Right" Click="BtnDeleteClick"/>
-        <Button Name="btn_editparam" Content="{DynamicResource EditParameter}" IsEnabled="False" Height="25" Width="auto" Grid.Row="0" Grid.ColumnSpan="2" Margin="10 2 70 2" Padding="10 0" HorizontalAlignment="Right" Click="BtnEditParamClick"/>
-        <ItemsControl Name="Items" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+        <ComboBox Name="cb_analyzers" ItemsSource="{Binding AnalyzersItems, Mode=TwoWay}" SelectedIndex="{Binding SelectedAnalyzersIndex, Mode=TwoWay}" SelectedItem="{Binding SelectedAnalyzersItem, Mode=TwoWay}" Grid.Row="0" Margin="10 2" Width="300" VerticalContentAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" Grid.ColumnSpan="2" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbAnalyzersPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbAnalyzersSelectionChangedCommand}" />
+        <Button Name="btn_delete" Content="{DynamicResource Delete}" IsEnabled="{Binding BtnDeleteIsEnabled}" Height="25" Width="50" Grid.Row="0" Grid.ColumnSpan="2" Margin="10 2" HorizontalAlignment="Right" Command="{Binding BtnDeleteClickCommand}"/>
+        <Button Name="btn_editparam" Content="{DynamicResource EditParameter}" IsEnabled="{Binding BtnEditParamIsEnabled}" Height="25" Width="auto" Grid.Row="0" Grid.ColumnSpan="2" Margin="10 2 70 2" Padding="10 0" HorizontalAlignment="Right" Command="{Binding BtnEditParamClickCommand}"/>
+        <ItemsControl Name="items" ItemsSource="{Binding ItemsSource}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Loaded">
+                    <local:EventCommandAction Command="{Binding ItemLoadedCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <roslynPad:RoslynCodeEditor Height="100px" x:Name="rce_editor" FontSize="14" SyntaxHighlighting="C#" ShowLineNumbers="True"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Loaded="OnItemLoaded"/>
+                    <roslynPad:RoslynCodeEditor Height="100px" x:Name="rce_editor" FontSize="14" SyntaxHighlighting="C#" ShowLineNumbers="True"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        
+                    </roslynPad:RoslynCodeEditor>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Button Name="btn_save" Grid.Row="2" Grid.Column="0" Height="25" Content="{DynamicResource Save}" Click="BtnSaveClick" Margin="10 2"/>
-        <Button Name="btn_exit" Grid.Row="2" Grid.Column="1" Height="25" Content="{DynamicResource Close}" Click="BtnExitClick" Margin="10 2"/>
+        <Button Name="btn_save" Grid.Row="2" Grid.Column="0" Height="25" Content="{DynamicResource Save}" Command="{Binding BtnSaveClickCommand}" Margin="10 2"/>
+        <Button Name="btn_exit" Grid.Row="2" Grid.Column="1" Height="25" Content="{DynamicResource Close}" Command="{Binding BtnExitClickCommand}" Margin="10 2">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Click">
+                    <i:CallMethodAction MethodName="Close"
+                           TargetObject="{Binding RelativeSource={RelativeSource
+                                                  Mode=FindAncestor,
+                                                  AncestorType=Window}}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </Button>
     </Grid>
 </Window>
