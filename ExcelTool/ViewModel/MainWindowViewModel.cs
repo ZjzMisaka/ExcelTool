@@ -426,6 +426,7 @@ namespace ExcelTool.ViewModel
             TeParams.TextChanged += TeParamsTextChanged;
             TeParams.BorderBrush = Brushes.Gray;
             TeParams.BorderThickness = new Thickness(1);
+            TeParams.Padding = new Thickness(3);
             WindowLoadedCommand = new RelayCommand<RoutedEventArgs>(WindowLoaded);
             WindowClosingCommand = new RelayCommand<CancelEventArgs>(WindowClosing);
             WindowClosedCommand = new RelayCommand(WindowClosed);
