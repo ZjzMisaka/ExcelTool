@@ -1152,7 +1152,10 @@ namespace ExcelTool.ViewModel
         private void Stop()
         {
             isStopByUser = true;
-            TeLog.Text += Logger.Get();
+            TeLog.Dispatcher.Invoke(() =>
+            {
+                TeLog.Text += Logger.Get();
+            });
         }
 
         private void Start()
@@ -1287,7 +1290,10 @@ namespace ExcelTool.ViewModel
 
             if (!isAuto)
             {
-                TeLog.Text = "";
+                TeLog.Dispatcher.Invoke(() =>
+                {
+                    TeLog.Text = "";
+                });
                 Logger.Clear();
             }
             else
@@ -1826,35 +1832,34 @@ namespace ExcelTool.ViewModel
                     return;
                 }
 
-                Button btnOpenFile = new Button();
-                btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnOpenFile.Content = Application.Current.FindResource("OpenFile").ToString();
-                btnOpenFile.Click += (s, ee) =>
-                {
-                    System.Diagnostics.Process.Start(filePath);
-                    CustomizableMessageBox.MessageBox.CloseNow();
-                };
-
-                Button btnOpenPath = new Button();
-                btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnOpenPath.Content = Application.Current.FindResource("OpenPath").ToString();
-                btnOpenPath.Click += (s, ee) =>
-                {
-                    System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
-                    CustomizableMessageBox.MessageBox.CloseNow();
-                };
-
-                Button btnClose = new Button();
-                btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnClose.Content = Application.Current.FindResource("Close").ToString();
-                btnClose.Click += (s, ee) =>
-                {
-                    CustomizableMessageBox.MessageBox.CloseNow();
-                };
-
                 Logger.Info($"{Application.Current.FindResource("FileSaved").ToString()}\n{filePath}");
                 if (!isAuto && CbIsAutoOpenIsChecked == false)
                 {
+                    Button btnOpenFile = new Button();
+                    btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                    btnOpenFile.Content = Application.Current.FindResource("OpenFile").ToString();
+                    btnOpenFile.Click += (s, ee) =>
+                    {
+                        System.Diagnostics.Process.Start(filePath);
+                        CustomizableMessageBox.MessageBox.CloseNow();
+                    };
+
+                    Button btnOpenPath = new Button();
+                    btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                    btnOpenPath.Content = Application.Current.FindResource("OpenPath").ToString();
+                    btnOpenPath.Click += (s, ee) =>
+                    {
+                        System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
+                        CustomizableMessageBox.MessageBox.CloseNow();
+                    };
+
+                    Button btnClose = new Button();
+                    btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                    btnClose.Content = Application.Current.FindResource("Close").ToString();
+                    btnClose.Click += (s, ee) =>
+                    {
+                        CustomizableMessageBox.MessageBox.CloseNow();
+                    };
                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "文件已保存。", "OK");
                 }
                 else
@@ -1867,7 +1872,10 @@ namespace ExcelTool.ViewModel
                 }
             }
 
-            TeLog.Text += Logger.Get();
+            TeLog.Dispatcher.Invoke(() =>
+            {
+                TeLog.Text += Logger.Get();
+            });
 
             FinishRunning();
         }
