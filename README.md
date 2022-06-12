@@ -114,4 +114,7 @@ string LastInputValue { get => lastInputValue; set => lastInputValue = value; }
 |[ClosedXML/ClosedXML](https://github.com/ClosedXML/ClosedXML)|MIT|
 |[rickyah/ini-parser](https://github.com/rickyah/ini-parser)|MIT|
 |[amibar/SmartThreadPool](https://github.com/amibar/SmartThreadPool)|MS-PL|
+|[punker76/gong-wpf-dragdrop](https://github.com/punker76/gong-wpf-dragdrop)|BSD-3-Clause|
+|[CommunityToolkit/WindowsCommunityToolkit (Microsoft.Toolkit.Mvvm)](https://github.com/CommunityToolkit/WindowsCommunityToolkit)|MIT|
+|[microsoft/XamlBehaviorsWpf](https://github.com/microsoft/XamlBehaviorsWpf)|MIT|
 |[ZjzMisaka/CustomizableMessageBox](https://github.com/ZjzMisaka/CustomizableMessageBox)|WTFPL|
