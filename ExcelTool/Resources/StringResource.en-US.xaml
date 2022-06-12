@@ -63,4 +63,6 @@
     <sys:String x:Key="ParameterEditor">Parameter editor</sys:String>
     <sys:String x:Key="ActiveThreads">Active threads</sys:String>
     <sys:String x:Key="InUseThreads">In use threads</sys:String>
+    <sys:String x:Key="SelectFile">Please select a file</sys:String>
+    <sys:String x:Key="File">file</sys:String>
 </ResourceDictionary>

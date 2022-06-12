@@ -63,4 +63,6 @@
     <sys:String x:Key="ParameterEditor">パラメータエクセル</sys:String>
     <sys:String x:Key="ActiveThreads">アクティブスレッド</sys:String>
     <sys:String x:Key="InUseThreads">使用中のスレッド</sys:String>
+    <sys:String x:Key="SelectFile">ファイルを選択してください</sys:String>
+    <sys:String x:Key="File">ファイル</sys:String>
 </ResourceDictionary>

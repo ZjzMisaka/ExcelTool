@@ -63,4 +63,6 @@
     <sys:String x:Key="ParameterEditor">参数编辑器</sys:String>
     <sys:String x:Key="ActiveThreads">活跃线程</sys:String>
     <sys:String x:Key="InUseThreads">使用中的线程</sys:String>
+    <sys:String x:Key="SelectFile">请选择文件</sys:String>
+    <sys:String x:Key="File">文件</sys:String>
 </ResourceDictionary>

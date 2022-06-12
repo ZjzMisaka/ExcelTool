@@ -911,9 +911,8 @@ namespace ExcelTool.ViewModel
         {
             System.Windows.Forms.OpenFileDialog fileDialog = new System.Windows.Forms.OpenFileDialog();
             fileDialog.Multiselect = false;
-            // TODO 翻译
-            fileDialog.Title = "请选择文件";
-            fileDialog.Filter = "Excel文件|*.xlsx;*.xlsm;*.xls|All files(*.*)|*.*";
+            fileDialog.Title = Application.Current.FindResource("SelectFile").ToString();
+            fileDialog.Filter = $"Excel{Application.Current.FindResource("File").ToString()}|*.xlsx;*.xlsm;*.xls|All files(*.*)|*.*";
             if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 string[] names = fileDialog.FileNames;
