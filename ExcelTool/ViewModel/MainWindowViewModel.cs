@@ -1,37 +1,39 @@
 ﻿using Amib.Threading;
-using ClosedXML.Excel;
+using ExcelTool.Helper;
 using GlobalObjects;
-using Microsoft.CSharp;
+using GongSolutions.Wpf.DragDrop;
+using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Highlighting;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using Newtonsoft.Json;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using CustomizableMessageBox;
-using System.Xml;
-using ICSharpCode.AvalonEdit.Highlighting;
-using ICSharpCode.AvalonEdit.Document;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
 using System.Windows.Media;
-using ExcelTool.Helper;
+using System.Xml;
+using ClosedXML.Excel;
+using Microsoft.CSharp;
+using System.CodeDom.Compiler;
+using System.Text.RegularExpressions;
+using CustomizableMessageBox;
+using System.Runtime.InteropServices;
+using System.ComponentModel;
 
-namespace ExcelTool
+namespace ExcelTool.ViewModel
 {
-    /// <summary>
-    /// MainWindow.xaml の相互作用ロジック
-    /// </summary>
-    public partial class MainWindow : Window
+    class MainWindowViewModel : ObservableObject, IDropTarget
     {
         private enum ReadFileReturnType { ANALYZER, RESULT };
         private Boolean isRunning;
@@ -61,11 +63,339 @@ namespace ExcelTool
         private int freshInterval;
         private string language;
 
-        public MainWindow()
-        {
-            InitializeComponent();
+        private TextEditor teLog = new TextEditor();
+        public TextEditor TeLog => teLog;
 
-            ICSharpCode.AvalonEdit.Search.SearchPanel.Install(te_log);
+        private TextEditor teParams = new TextEditor();
+        public TextEditor TeParams => teParams;
+
+        private double windowWidth;
+        public double WindowWidth
+        {
+            get { return windowWidth; }
+            set
+            {
+                SetProperty<double>(ref windowWidth, value);
+            }
+        }
+
+        private double windowHeight;
+        public double WindowHeight
+        {
+            get { return windowHeight; }
+            set
+            {
+                SetProperty<double>(ref windowHeight, value);
+            }
+        }
+
+        private string windowName = "MainWindow";
+        public string WindowName
+        {
+            get { return windowName; }
+            set
+            {
+                SetProperty<string>(ref windowName, value);
+            }
+        }
+
+        private List<string> sheetExplainersItems = new List<string>();
+        public List<string> SheetExplainersItems
+        {
+            get { return sheetExplainersItems; }
+            set
+            {
+                SetProperty<List<string>>(ref sheetExplainersItems, value);
+            }
+        }
+
+        private string selectedSheetExplainersItem = null;
+        public string SelectedSheetExplainersItem
+        {
+            get { return selectedSheetExplainersItem; }
+            set
+            {
+                SetProperty<string>(ref selectedSheetExplainersItem, value);
+            }
+        }
+
+        private int selectedSheetExplainersIndex = 0;
+        public int SelectedSheetExplainersIndex
+        {
+            get { return selectedSheetExplainersIndex; }
+            set
+            {
+                SetProperty<int>(ref selectedSheetExplainersIndex, value);
+            }
+        }
+
+        private List<string> analyzersItems = new List<string>();
+        public List<string> AnalyzersItems
+        {
+            get { return analyzersItems; }
+            set
+            {
+                SetProperty<List<string>>(ref analyzersItems, value);
+            }
+        }
+
+        private string selectedAnalyzersItem = null;
+        public string SelectedAnalyzersItem
+        {
+            get { return selectedAnalyzersItem; }
+            set
+            {
+                SetProperty<string>(ref selectedAnalyzersItem, value);
+            }
+        }
+
+        private int selectedAnalyzersIndex = 0;
+        public int SelectedAnalyzersIndex
+        {
+            get { return selectedAnalyzersIndex; }
+            set
+            {
+                SetProperty<int>(ref selectedAnalyzersIndex, value);
+            }
+        }
+
+        private TextDocument teSheetExplainersDocument = new TextDocument();
+        public TextDocument TeSheetExplainersDocument
+        {
+            get => teSheetExplainersDocument;
+            set
+            {
+                SetProperty<TextDocument>(ref teSheetExplainersDocument, value);
+            }
+        }
+
+        private TextDocument teAnalyzersDocument = new TextDocument();
+        public TextDocument TeAnalyzersDocument
+        {
+            get => teAnalyzersDocument;
+            set
+            {
+                SetProperty<TextDocument>(ref teAnalyzersDocument, value);
+            }
+        }
+
+        private List<string> paramsItems = new List<string>();
+        public List<string> ParamsItems
+        {
+            get { return paramsItems; }
+            set
+            {
+                SetProperty<List<string>>(ref paramsItems, value);
+            }
+        }
+
+        private string selectedParamsItem = null;
+        public string SelectedParamsItem
+        {
+            get { return selectedParamsItem; }
+            set
+            {
+                SetProperty<string>(ref selectedParamsItem, value);
+            }
+        }
+
+        private int selectedParamssIndex = 0;
+        public int SelectedParamsIndex
+        {
+            get { return selectedParamssIndex; }
+            set
+            {
+                SetProperty<int>(ref selectedParamssIndex, value);
+            }
+        }
+
+        private string tbBasePathText = null;
+        public string TbBasePathText
+        {
+            get => tbBasePathText;
+            set
+            {
+                SetProperty<string>(ref tbBasePathText, value);
+            }
+        }
+
+        private string tbOutputPathText = null;
+        public string TbOutputPathText
+        {
+            get => tbOutputPathText;
+            set
+            {
+                SetProperty<string>(ref tbOutputPathText, value);
+            }
+        }
+
+        private string tbOutputNameText = null;
+        public string TbOutputNameText
+        {
+            get => tbOutputNameText;
+            set
+            {
+                SetProperty<string>(ref tbOutputNameText, value);
+            }
+        }
+
+        private List<string> ruleItems = null;
+        public List<string> RuleItems
+        {
+            get { return ruleItems; }
+            set
+            {
+                SetProperty<List<string>>(ref ruleItems, value);
+            }
+        }
+
+        private string selectedRulesItem = null;
+        public string SelectedRulesItem
+        {
+            get { return selectedRulesItem; }
+            set
+            {
+                SetProperty<string>(ref selectedRulesItem, value);
+            }
+        }
+
+        private int selectedRulesIndex = 0;
+        public int SelectedRulesIndex
+        {
+            get { return selectedRulesIndex; }
+            set
+            {
+                SetProperty<int>(ref selectedRulesIndex, value);
+            }
+        }
+
+        private Visibility btnSaveRuleVisibility = Visibility.Hidden;
+        public Visibility BtnSaveRuleVisibility
+        {
+            get { return btnSaveRuleVisibility; }
+            set
+            {
+                SetProperty<Visibility>(ref btnSaveRuleVisibility, value);
+            }
+        }
+
+        private Visibility btnDeleteRuleVisibility = Visibility.Visible;
+        public Visibility BtnDeleteRuleVisibility
+        {
+            get { return btnDeleteRuleVisibility; }
+            set
+            {
+                SetProperty<Visibility>(ref btnDeleteRuleVisibility, value);
+            }
+        }
+
+        private bool btnDeleteRuleIsEnabled;
+        public bool BtnDeleteRuleIsEnabled
+        {
+            get { return btnDeleteRuleIsEnabled; }
+            set
+            {
+                SetProperty<bool>(ref btnDeleteRuleIsEnabled, value);
+            }
+        }
+
+        private Visibility btnSetAutoVisibility = Visibility.Hidden;
+        public Visibility BtnSetAutoVisibility
+        {
+            get { return btnSetAutoVisibility; }
+            set
+            {
+                SetProperty<Visibility>(ref btnSetAutoVisibility, value);
+            }
+        }
+
+        private Visibility btnUnsetAutoVisibility = Visibility.Hidden;
+        public Visibility BtnUnsetAutoVisibility
+        {
+            get { return btnUnsetAutoVisibility; }
+            set
+            {
+                SetProperty<Visibility>(ref btnUnsetAutoVisibility, value);
+            }
+        }
+
+        private string tbStatusText = null;
+        public string TbStatusText
+        {
+            get { return tbStatusText; }
+            set
+            {
+                SetProperty<string>(ref tbStatusText, value);
+            }
+        }
+
+        private string lProcessContent;
+        public string LProcessContent
+        {
+            get { return lProcessContent; }
+            set
+            {
+                SetProperty<string>(ref lProcessContent, value);
+            }
+        }
+
+        private bool cbIsAutoOpenIsChecked;
+        public bool CbIsAutoOpenIsChecked
+        {
+            get { return cbIsAutoOpenIsChecked; }
+            set
+            {
+                SetProperty<bool>(ref cbIsAutoOpenIsChecked, value);
+            }
+        }
+
+        private bool btnStopIsEnabled = false;
+        public bool BtnStopIsEnabled
+        {
+            get { return btnStopIsEnabled; }
+            set
+            {
+                SetProperty<bool>(ref btnStopIsEnabled, value);
+            }
+        }
+
+        private bool btnStartIsEnabled = true;
+        public bool BtnStartIsEnabled
+        {
+            get { return btnStartIsEnabled; }
+            set
+            {
+                SetProperty<bool>(ref btnStartIsEnabled, value);
+            }
+        }
+
+        public ICommand WindowLoadedCommand { get; set; }
+        public ICommand WindowClosingCommand { get; set; }
+        public ICommand WindowClosedCommand { get; set; }
+        public ICommand BtnOpenSheetExplainerEditorClickCommand { get; set; }
+        public ICommand BtnOpenAnalyzerEditorClickCommand { get; set; }
+        public ICommand CbSheetExplainersPreviewMouseLeftButtonDownCommand { get; set; }
+        public ICommand CbSheetExplainersSelectionChangedCommand { get; set; }
+        public ICommand CbAnalyzersPreviewMouseLeftButtonDownCommand { get; set; }
+        public ICommand CbAnalyzersSelectionChangedCommand { get; set; }
+        public ICommand CbParamsPreviewMouseLeftButtonDownCommand { get; set; }
+        public ICommand CbParamsSelectionChangedCommand { get; set; }
+        public ICommand EditParamCommand { get; set; }
+        public ICommand TbParamsLostFocusCommand { get; set; }
+        public ICommand SelectPathCommand { get; set; }
+        public ICommand OpenPathCommand { get; set; }
+        public ICommand SelectNameCommand { get; set; }
+        public ICommand CbRulesChangedCommand { get; set; }
+        public ICommand CbRulesPreviewMouseLeftButtonDownCommand { get; set; }
+        public ICommand SaveRuleCommand { get; set; }
+        public ICommand DeleteRuleCommand { get; set; }
+        public ICommand SetAutoCommand { get; set; }
+        public ICommand UnsetAutoCommand { get; set; }
+        public ICommand StopCommand { get; set; }
+        public ICommand StartCommand { get; set; }
+        public MainWindowViewModel()
+        {
+            ICSharpCode.AvalonEdit.Search.SearchPanel.Install(TeLog);
 
             currentAnalizingDictionary = new ConcurrentDictionary<string, long>();
             currentOutputtingDictionary = new ConcurrentDictionary<string, long>();
@@ -82,10 +412,51 @@ namespace ExcelTool
             runNotSuccessed = false;
 
             scanner.Input += Scanner.UserInput;
+
+            TeLog.ShowLineNumbers = false;
+            TeLog.WordWrap = true;
+            TeLog.IsReadOnly = true;
+            TeLog.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            TeLog.PreviewKeyDown += TeLogPreviewKeyDown;
+            TeLog.TextChanged += TeLogTextChanged;
+            TeParams.ShowLineNumbers = false;
+            TeParams.WordWrap = false;
+            TeParams.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            TeParams.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            TeParams.TextChanged += TeParamsTextChanged;
+            TeParams.BorderBrush = Brushes.Gray;
+            TeParams.BorderThickness = new Thickness(1);
+            TeParams.Padding = new Thickness(3);
+            WindowLoadedCommand = new RelayCommand<RoutedEventArgs>(WindowLoaded);
+            WindowClosingCommand = new RelayCommand<CancelEventArgs>(WindowClosing);
+            WindowClosedCommand = new RelayCommand(WindowClosed);
+            BtnOpenSheetExplainerEditorClickCommand = new RelayCommand(BtnOpenSheetExplainerEditorClick);
+            BtnOpenAnalyzerEditorClickCommand = new RelayCommand(BtnOpenAnalyzerEditorClick);
+            CbSheetExplainersPreviewMouseLeftButtonDownCommand = new RelayCommand(CbSheetExplainersPreviewMouseLeftButtonDown);
+            CbSheetExplainersSelectionChangedCommand = new RelayCommand(CbSheetExplainersSelectionChanged);
+            CbAnalyzersPreviewMouseLeftButtonDownCommand = new RelayCommand(CbAnalyzersPreviewMouseLeftButtonDown);
+            CbAnalyzersSelectionChangedCommand = new RelayCommand(CbAnalyzersSelectionChanged);
+            CbParamsPreviewMouseLeftButtonDownCommand = new RelayCommand(CbParamsPreviewMouseLeftButtonDown);
+            CbParamsSelectionChangedCommand = new RelayCommand(CbParamsSelectionChanged);
+            EditParamCommand = new RelayCommand(EditParam);
+            TbParamsLostFocusCommand = new RelayCommand(TbParamsLostFocus);
+            SelectPathCommand = new RelayCommand<object>(SelectPath);
+            OpenPathCommand = new RelayCommand(OpenPath);
+            SelectNameCommand = new RelayCommand(SelectName);
+            CbRulesChangedCommand = new RelayCommand(CbRulesChanged);
+            CbRulesPreviewMouseLeftButtonDownCommand = new RelayCommand(CbRulesPreviewMouseLeftButtonDown);
+            SaveRuleCommand = new RelayCommand(SaveRule);
+            DeleteRuleCommand = new RelayCommand(DeleteRule);
+            SetAutoCommand = new RelayCommand(SetAuto);
+            UnsetAutoCommand = new RelayCommand(UnsetAuto);
+            StopCommand = new RelayCommand(Stop);
+            StartCommand = new RelayCommand(Start);
         }
 
-        private void WindowLoaded(object sender, RoutedEventArgs e)
+        private void WindowLoaded(RoutedEventArgs eventArgs)
         {
+            Window window = (Window)eventArgs.Source;
+
             language = IniHelper.GetLanguage();
             if (String.IsNullOrWhiteSpace(language))
             {
@@ -111,28 +482,32 @@ namespace ExcelTool
 
             IniHelper.CheckAndCreateIniFile();
 
-            double width = IniHelper.GetWindowSize(this.Name.Substring(2)).X;
-            double height = IniHelper.GetWindowSize(this.Name.Substring(2)).Y;
+            double width = IniHelper.GetWindowSize(WindowName).X;
+            double height = IniHelper.GetWindowSize(WindowName).Y;
             if (width > 0)
             {
-                this.Width = width;
+                window.Dispatcher.Invoke(() => {
+                    window.Width = width;
+                });
             }
 
             if (height > 0)
             {
-                this.Height = height;
+                window.Dispatcher.Invoke(() => {
+                    window.Height = height;
+                });
             }
 
-            tb_base_path.Text = IniHelper.GetBasePath();
-            tb_output_path.Text = IniHelper.GetOutputPath();
-            tb_output_name.Text = IniHelper.GetOutputFileName();
+            TbBasePathText = IniHelper.GetBasePath();
+            TbOutputPathText = IniHelper.GetOutputPath();
+            TbOutputNameText = IniHelper.GetOutputFileName();
 
             totalTimeoutLimitAnalyze = IniHelper.GetTotalTimeoutLimitAnalyze();
             perTimeoutLimitAnalyze = IniHelper.GetPerTimeoutLimitAnalyze();
             totalTimeoutLimitOutput = IniHelper.GetTotalTimeoutLimitOutput();
             perTimeoutLimitOutput = IniHelper.GetPerTimeoutLimitOutput();
 
-            cb_isautoopen.IsChecked = IniHelper.GetIsAutoOpen();
+            CbIsAutoOpenIsChecked = IniHelper.GetIsAutoOpen();
 
             fileSystemWatcherInvokeDalay = IniHelper.GetFileSystemWatcherInvokeDalay();
             freshInterval = IniHelper.GetFreshInterval();
@@ -155,7 +530,10 @@ namespace ExcelTool
             }
             //注册数据
             HighlightingManager.Instance.RegisterHighlighting("param", new string[] { }, chParam);
-            te_params.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("param");
+            TeParams.Dispatcher.Invoke(() =>
+            {
+                TeParams.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("param");
+            });
 
             IHighlightingDefinition chLog;
             using (Stream s = new FileStream(@"Highlighting\LogHighlighting.xshd", FileMode.Open))
@@ -170,117 +548,353 @@ namespace ExcelTool
             }
             //注册数据
             HighlightingManager.Instance.RegisterHighlighting("log", new string[] { }, chLog);
-            te_log.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("log");
+            TeLog.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("log");
 
             runningThread = new Thread(() => WhenRunning());
             runningThread.Start();
         }
-
-        private void CbSheetExplainersSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void WindowClosing(CancelEventArgs eventArgs)
         {
-            if (cb_sheetexplainers.SelectedIndex == 0) 
+            if (Application.Current.Windows.Count > 1)
             {
-                return;
+                MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), Application.Current.FindResource("ProgramClosingCheck").ToString(), Application.Current.FindResource("Warning").ToString(), MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.No)
+                {
+                    eventArgs.Cancel = true;
+                }
+                else
+                {
+                    foreach (Window currentWindow in Application.Current.Windows)
+                    {
+                        if (Application.Current.MainWindow != currentWindow)
+                        {
+                            currentWindow.Close();
+                        }
+                    }
+                }
             }
-            te_sheetexplainers.Text += $"{cb_sheetexplainers.SelectedItem}\n";
-            cb_sheetexplainers.SelectedIndex = 0;
-        }
-        private void CbAnalyzersSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (cb_analyzers.SelectedIndex == 0)
+
+            IniHelper.SetWindowSize(WindowName, new Point(WindowWidth, WindowHeight));
+            IniHelper.SetBasePath(TbBasePathText);
+            IniHelper.SetOutputPath(TbOutputPathText);
+            IniHelper.SetOutputFileName(TbOutputNameText);
+            IniHelper.SetLanguage(language);
+
+            if (CbIsAutoOpenIsChecked == true)
             {
-                return;
+                IniHelper.SetIsAutoOpen(true);
             }
-            te_analyzers.Text += $"{cb_analyzers.SelectedItem}\n";
-            cb_analyzers.SelectedIndex = 0;
+            else
+            {
+                IniHelper.SetIsAutoOpen(false);
+            }
         }
 
-        private void BtnOpenSheetExplainerEditorClick(object sender, RoutedEventArgs e)
+        private void WindowClosed()
+        {
+            CheckAndCloseThreads(true);
+
+            FileHelper.DeleteCopiedDlls(copiedDllsList);
+        }
+
+        private void BtnOpenSheetExplainerEditorClick()
         {
             SheetExplainerEditor sheetExplainerEditor = new SheetExplainerEditor();
             sheetExplainerEditor.Show();
         }
 
-        private void BtnOpenAnalyzerEditorClick(object sender, RoutedEventArgs e)
+        private void BtnOpenAnalyzerEditorClick()
         {
             AnalyzerEditor analyzerEditor = new AnalyzerEditor();
             analyzerEditor.Show();
         }
 
-        private void CbSheetExplainersPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void CbSheetExplainersPreviewMouseLeftButtonDown()
         {
-            cb_sheetexplainers.ItemsSource = FileHelper.GetSheetExplainersList();
+            SheetExplainersItems = FileHelper.GetSheetExplainersList();
         }
 
-        private void CbAnalyzersPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void CbSheetExplainersSelectionChanged()
         {
-            cb_analyzers.ItemsSource = FileHelper.GetAnalyzersList();
+            if (SelectedSheetExplainersIndex == 0)
+            {
+                return;
+            }
+            TeSheetExplainersDocument = new TextDocument($"{TeSheetExplainersDocument.Text}{SelectedSheetExplainersItem}\n");
+            SelectedSheetExplainersIndex = 0;
         }
 
-        private void DropPath(object sender, DragEventArgs e)
+        private void CbAnalyzersPreviewMouseLeftButtonDown()
         {
-            (sender as TextBox).Text = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
+            AnalyzersItems = FileHelper.GetAnalyzersList();
+        }
+        private void CbAnalyzersSelectionChanged()
+        {
+            if (SelectedAnalyzersIndex == 0)
+            {
+                return;
+            }
+            TeAnalyzersDocument = new TextDocument($"{TeAnalyzersDocument.Text}{SelectedAnalyzersItem}\n");
+            SelectedAnalyzersIndex = 0;
         }
 
-        private void DragOverPath(object sender, DragEventArgs e)
+        private void CbParamsPreviewMouseLeftButtonDown()
         {
-            e.Effects = DragDropEffects.Copy;
-            e.Handled = true;
+            paramsItems = FileHelper.GetParamsList();
         }
 
-        private void DropFile(object sender, DragEventArgs e)
+        private void CbParamsSelectionChanged()
         {
-            (sender as TextBox).Text = System.IO.Path.GetFileNameWithoutExtension(((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString());
+            if (CbParamsSelectionChangedCommand != null)
+            {
+                TeParams.Dispatcher.Invoke(() =>
+                {
+                    TeParams.TextChanged -= TeParamsTextChanged;
+                    TeParams.Document = new TextDocument(SelectedParamsItem);
+                    TeParams.TextChanged += TeParamsTextChanged;
+                });
+            }
         }
 
-        private void DragOverFile(object sender, DragEventArgs e)
+        private void EditParam()
         {
-            e.Effects = DragDropEffects.Copy;
-            e.Handled = true;
+            ParamEditor paramEditor = new ParamEditor();
+
+            string paramStr = "";
+            TeParams.Dispatcher.Invoke(() =>
+            {
+                paramStr = $"{TeParams.Text.Replace("\r\n", "").Replace("\n", "")}";
+                TeParams.Text = paramStr;
+            });
+            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
+
+            int rowNum = -1;
+
+            List<String> analyzersList = TeAnalyzersDocument.Text.Split('\n').Where(str => str.Trim() != "").ToList();
+
+            ColumnDefinition columnDefinitionL = new ColumnDefinition();
+            columnDefinitionL.Width = new GridLength(100);
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
+            ColumnDefinition columnDefinitionR = new ColumnDefinition();
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
+
+            List<string> addedAnalyzerNameList = new List<string>();
+
+            foreach (string analyzerName in analyzersList)
+            {
+                if (addedAnalyzerNameList.Contains(analyzerName))
+                {
+                    continue;
+                }
+                else
+                {
+                    addedAnalyzerNameList.Add(analyzerName);
+                }
+
+                Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{analyzerName}.json"));
+
+                RowDefinition rowDefinition = new RowDefinition();
+                rowDefinition.Height = new GridLength(40);
+                paramEditor.g_main.RowDefinitions.Add(rowDefinition);
+                ++rowNum;
+                TextBlock textBlockAnalyzerName = new TextBlock();
+                textBlockAnalyzerName.Height = 35;
+                textBlockAnalyzerName.FontWeight = FontWeight.FromOpenTypeWeight(600);
+                textBlockAnalyzerName.FontSize = 20;
+                textBlockAnalyzerName.VerticalAlignment = VerticalAlignment.Bottom;
+                textBlockAnalyzerName.Text = analyzerName;
+                Grid.SetRow(textBlockAnalyzerName, rowNum);
+                Grid.SetColumnSpan(textBlockAnalyzerName, 2);
+                paramEditor.g_main.Children.Add(textBlockAnalyzerName);
+
+                Dictionary<string, string> paramDic = null;
+                if (paramDicEachAnalyzer.ContainsKey(analyzerName))
+                {
+                    paramDic = paramDicEachAnalyzer[analyzerName];
+                }
+
+                if (analyzer.paramDic == null || analyzer.paramDic.Keys == null || analyzer.paramDic.Keys.Count == 0)
+                {
+                    continue;
+                }
+                foreach (string key in analyzer.paramDic.Keys)
+                {
+                    RowDefinition rowDefinitionKv = new RowDefinition();
+                    rowDefinitionKv.Height = new GridLength(30);
+                    paramEditor.g_main.RowDefinitions.Add(rowDefinitionKv);
+                    ++rowNum;
+
+                    TextBlock textBlockKey = new TextBlock();
+                    textBlockKey.Height = 25;
+                    textBlockKey.Text = analyzer.paramDic[key];
+                    Grid.SetRow(textBlockKey, rowNum);
+                    Grid.SetColumn(textBlockKey, 0);
+                    textBlockKey.MouseEnter += (s, ex) =>
+                    {
+                        textBlockKey.Text = key;
+                    };
+                    textBlockKey.TouchEnter += (s, ex) =>
+                    {
+                        textBlockKey.Text = key;
+                    };
+                    textBlockKey.MouseLeave += (s, ex) =>
+                    {
+                        textBlockKey.Text = analyzer.paramDic[key];
+                    };
+                    textBlockKey.TouchLeave += (s, ex) =>
+                    {
+                        textBlockKey.Text = analyzer.paramDic[key];
+                    };
+                    paramEditor.g_main.Children.Add(textBlockKey);
+
+                    TextBox tbValue = new TextBox();
+                    tbValue.Height = 25;
+                    tbValue.Margin = new Thickness(5, 0, 0, 0);
+                    tbValue.HorizontalAlignment = HorizontalAlignment.Stretch;
+                    tbValue.VerticalContentAlignment = VerticalAlignment.Center;
+                    if (paramDic != null && paramDic.ContainsKey(key))
+                    {
+                        tbValue.Text = paramDic[key];
+                    }
+                    else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
+                    {
+                        tbValue.Text = paramDicEachAnalyzer["public"][key];
+                    }
+                    tbValue.TextChanged += (s, ex) =>
+                    {
+                        if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
+                        {
+                            paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
+                        }
+                        paramDicEachAnalyzer[analyzerName][key] = tbValue.Text;
+                    };
+                    Grid.SetRow(tbValue, rowNum);
+                    Grid.SetColumn(tbValue, 1);
+
+                    paramEditor.g_main.Children.Add(tbValue);
+                }
+            }
+
+            GridSplitter gridSplitter = new GridSplitter();
+            gridSplitter.HorizontalAlignment = HorizontalAlignment.Right;
+            gridSplitter.VerticalAlignment = VerticalAlignment.Stretch;
+            gridSplitter.Width = 4;
+            gridSplitter.BorderThickness = new Thickness(1, 0, 1, 0);
+            gridSplitter.BorderBrush = Brushes.Black;
+            gridSplitter.Background = Brushes.AntiqueWhite;
+            Grid.SetRow(gridSplitter, 0);
+            Grid.SetRowSpan(gridSplitter, rowNum + 1 <= 0 ? 1 : rowNum + 1);
+            Grid.SetColumn(gridSplitter, 0);
+            paramEditor.g_main.Children.Add(gridSplitter);
+
+            RowDefinition rowDefinitionBlank = new RowDefinition();
+            paramEditor.g_main.RowDefinitions.Add(rowDefinitionBlank);
+            ++rowNum;
+            RowDefinition rowDefinitionOk = new RowDefinition();
+            rowDefinitionOk.Height = new GridLength(30);
+            paramEditor.g_main.RowDefinitions.Add(rowDefinitionOk);
+            ++rowNum;
+            Button btnOk = new Button();
+            btnOk.Height = 30;
+            btnOk.Content = Application.Current.FindResource("Ok").ToString();
+            btnOk.Click += (s, ex) =>
+            {
+                TeParams.Text = ParamHelper.GetParamStr(paramDicEachAnalyzer);
+                paramEditor.Close();
+            };
+            Grid.SetRow(btnOk, rowNum);
+            Grid.SetColumnSpan(btnOk, 2);
+            paramEditor.g_main.Children.Add(btnOk);
+
+            paramEditor.ShowDialog();
         }
 
-        private void SelectPath(object sender, RoutedEventArgs e)
+        private void TeParamsTextChanged(object sender, EventArgs e)
+        {
+            CbParamsSelectionChangedCommand = null;
+            SelectedParamsIndex = 0;
+            CbParamsSelectionChangedCommand = new RelayCommand(CbParamsSelectionChanged);
+        }
+
+        private void TbParamsLostFocus()
+        {
+            TeParams.Dispatcher.Invoke(() =>
+            {
+                TeParams.Text = $"{TeParams.Text.Replace("\r\n", "").Replace("\n", "")}";
+            });
+        }
+
+        public void DragEnter(IDropInfo dropInfo)
+        {
+
+        }
+
+        public void DragOver(IDropInfo dropInfo)
+        {
+            dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
+            dropInfo.Effects = DragDropEffects.Copy;
+        }
+
+        public void DragLeave(IDropInfo dropInfo)
+        {
+
+        }
+
+        public void Drop(IDropInfo dropInfo)
+        {
+            if (dropInfo.DragInfo?.VisualSource is null
+                && dropInfo.Data is DataObject dataObject
+                && dataObject.GetDataPresent(DataFormats.FileDrop)
+                && dataObject.ContainsFileDropList())
+            {
+                string parentName = ((TextBox)((Border)dropInfo.TargetScrollViewer.Parent).TemplatedParent).Name;
+                if (parentName == "tb_base_path")
+                {
+                    TbBasePathText = dataObject.GetFileDropList()[0];
+                }
+                else if(parentName == "tb_output_path")
+                {
+                    TbOutputPathText = dataObject.GetFileDropList()[0];
+                }
+                else if (parentName == "tb_output_name")
+                {
+                    TbOutputNameText = Path.GetFileNameWithoutExtension(dataObject.GetFileDropList()[0]);
+                }
+            }
+            else
+            {
+                GongSolutions.Wpf.DragDrop.DragDrop.DefaultDropHandler.Drop(dropInfo);
+            }
+        }
+
+        private void SelectPath(object sender)
         {
             System.Windows.Forms.FolderBrowserDialog openFileDialog = new System.Windows.Forms.FolderBrowserDialog();
 
             if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                if ((sender as Button).Name == "btn_select_output_path")
+                if (((Button)sender).Name == "btn_select_output_path")
                 {
-                    tb_base_path.Text = openFileDialog.SelectedPath;
+                    TbBasePathText = openFileDialog.SelectedPath;
                 }
                 else
                 {
-                    tb_output_path.Text = openFileDialog.SelectedPath;
+                    TbOutputPathText = openFileDialog.SelectedPath;
                 }
             }
         }
 
-        private void SelectName(object sender, RoutedEventArgs e)
+        private void OpenPath()
         {
-            System.Windows.Forms.OpenFileDialog fileDialog = new System.Windows.Forms.OpenFileDialog();
-            fileDialog.Multiselect = false;
-            fileDialog.Title = "请选择文件";
-            fileDialog.Filter = "Excel文件|*.xlsx;*.xlsm;*.xls|All files(*.*)|*.*";
-            if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                string[] names = fileDialog.FileNames;
-                tb_output_name.Text = System.IO.Path.GetFileNameWithoutExtension(names[0]);
-
-            }
-        }
-
-        private void OpenPath(object sender, RoutedEventArgs e)
-        {
-            string resPath = tb_output_path.Text.Replace("\\", "/");
+            string resPath = TbOutputPathText.Replace("\\", "/");
             string filePath;
-            if (tb_output_path.Text.EndsWith("/"))
+            if (TbOutputPathText.EndsWith("/"))
             {
-                filePath = $"{resPath}{tb_output_name.Text}.xlsx";
+                filePath = $"{resPath}{TbOutputNameText}.xlsx";
             }
             else
             {
-                filePath = $"{resPath}/{tb_output_name.Text}.xlsx";
+                filePath = $"{resPath}/{TbOutputNameText}.xlsx";
             }
             if (File.Exists(filePath))
             {
@@ -292,17 +906,315 @@ namespace ExcelTool
                 System.Diagnostics.Process.Start("Explorer", $"{filePath.Substring(0, filePath.LastIndexOf('\\'))}");
             }
         }
-        private void Stop(object sender, RoutedEventArgs e)
+
+        private void SelectName()
         {
-            Stop();
+            System.Windows.Forms.OpenFileDialog fileDialog = new System.Windows.Forms.OpenFileDialog();
+            fileDialog.Multiselect = false;
+            fileDialog.Title = Application.Current.FindResource("SelectFile").ToString();
+            fileDialog.Filter = $"Excel{Application.Current.FindResource("File").ToString()}|*.xlsx;*.xlsm;*.xls|All files(*.*)|*.*";
+            if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                string[] names = fileDialog.FileNames;
+                TbOutputNameText = Path.GetFileNameWithoutExtension(names[0]);
+            }
         }
+
+        private void CbRulesChanged()
+        {
+
+            RunningRule rule = null;
+
+            if (SelectedRulesIndex >= 1)
+            {
+                rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{SelectedRulesItem}.json"));
+
+                if (!CheckRule(rule))
+                {
+                    SelectedRulesIndex = 0;
+                    return;
+                }
+
+                BtnSaveRuleVisibility = Visibility.Hidden;
+                BtnDeleteRuleVisibility = Visibility.Visible;
+
+                if (rule.watchPath != null && rule.watchPath != "")
+                {
+                    BtnSetAutoVisibility = Visibility.Hidden;
+                    BtnUnsetAutoVisibility = Visibility.Visible;
+                    BtnDeleteRuleIsEnabled = false;
+                }
+                else
+                {
+                    BtnSetAutoVisibility = Visibility.Visible;
+                    BtnUnsetAutoVisibility = Visibility.Hidden;
+                    BtnDeleteRuleIsEnabled = true;
+                }
+
+                TeAnalyzersDocument = new TextDocument(rule.analyzers);
+                TeSheetExplainersDocument = new TextDocument(rule.sheetExplainers);
+                TeParams.Dispatcher.Invoke(() =>
+                {
+                    TeParams.Text = rule.param;
+                });
+
+                TbBasePathText = rule.basePath;
+                TbOutputPathText = rule.outputPath;
+                TbOutputNameText = rule.outputName;
+            }
+            else
+            {
+                BtnSaveRuleVisibility = Visibility.Visible;
+                BtnDeleteRuleVisibility = Visibility.Hidden;
+
+                BtnSetAutoVisibility = Visibility.Hidden;
+                BtnUnsetAutoVisibility = Visibility.Hidden;
+            }
+        }
+
+        private void CbRulesPreviewMouseLeftButtonDown()
+        {
+            RuleItems = FileHelper.GetRulesList();
+        }
+        private void SaveRule()
+        {
+            TextBox tbName = new TextBox();
+            tbName.Margin = new Thickness(5, 8, 5, 8);
+            tbName.VerticalContentAlignment = VerticalAlignment.Center;
+            if (SelectedRulesIndex >= 1)
+            {
+                tbName.Text = $"Copy Of {SelectedRulesItem}";
+            }
+            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("Name").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
+            if (result == 1)
+            {
+                RunningRule runningRule = new RunningRule();
+                runningRule.analyzers = TeAnalyzersDocument.Text;
+                runningRule.sheetExplainers = TeSheetExplainersDocument.Text;
+                TeParams.Dispatcher.Invoke(() =>
+                {
+                    runningRule.param = TeParams.Text;
+                });
+                runningRule.basePath = TbBasePathText;
+                runningRule.outputPath = TbOutputPathText;
+                runningRule.outputName = TbOutputNameText;
+                string json = JsonConvert.SerializeObject(runningRule);
+
+                string fileName = $".\\Rules\\{tbName.Text}.json";
+                FileStream fs = null;
+                try
+                {
+                    fs = File.Create(fileName);
+                    fs.Close();
+                    StreamWriter sw = File.CreateText(fileName);
+                    sw.Write(json);
+                    sw.Flush();
+                    sw.Close();
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void DeleteRule()
+        {
+            String path = $"{System.Environment.CurrentDirectory}\\Rules\\{SelectedRulesItem}.json";
+            MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("Delete").ToString()}\n{path}", Application.Current.FindResource("Warning").ToString(), MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (result == MessageBoxResult.OK)
+            {
+                File.Delete(path);
+                SelectedAnalyzersIndex = 0;
+            }
+        }
+
+        private void SetAuto()
+        {
+            string ruleName = SelectedRulesItem;
+            RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
+            TextBox tbPath = new TextBox();
+            tbPath.Margin = new Thickness(5, 8, 5, 8);
+            tbPath.VerticalContentAlignment = VerticalAlignment.Center;
+            TextBox tbFilter = new TextBox();
+            tbFilter.Margin = new Thickness(5, 8, 5, 8);
+            tbFilter.VerticalContentAlignment = VerticalAlignment.Center;
+            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbPath, tbFilter, Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("WatchPathAndFilter").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
+            if (result == 2)
+            {
+                rule.watchPath = tbPath.Text;
+                rule.filter = tbFilter.Text;
+            }
+            else
+            {
+                return;
+            }
+
+            string json = JsonConvert.SerializeObject(rule);
+            string fileName = $".\\Rules\\{SelectedRulesItem}.json";
+            FileStream fs = null;
+            try
+            {
+                fs = File.Create(fileName);
+                fs.Close();
+                StreamWriter sw = File.CreateText(fileName);
+                sw.Write(json);
+                sw.Flush();
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            SetAuto(rule, ruleName);
+        }
+
+        private void UnsetAuto()
+        {
+            string fileName = $".\\Rules\\{SelectedRulesItem}.json";
+
+            RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText(fileName));
+            if (rule == null)
+            {
+                return;
+            }
+            rule.watchPath = null;
+            rule.filter = null;
+
+            string json = JsonConvert.SerializeObject(rule);
+            FileStream fs = null;
+            try
+            {
+                fs = File.Create(fileName);
+                fs.Close();
+                StreamWriter sw = File.CreateText(fileName);
+                sw.Write(json);
+                sw.Flush();
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            FileSystemWatcher fileSystemWatcher = fileSystemWatcherDic.FirstOrDefault(q => q.Value == SelectedRulesItem).Key;
+            if (fileSystemWatcher != null)
+            {
+                fileSystemWatcher.EnableRaisingEvents = false;
+                fileSystemWatcherDic.Remove(fileSystemWatcher);
+            }
+
+            BtnSetAutoVisibility = Visibility.Visible;
+            BtnUnsetAutoVisibility = Visibility.Hidden;
+            BtnDeleteRuleIsEnabled = true;
+        }
+        private void TeLogPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && !TeLog.IsReadOnly)
+            {
+                string text = TeLog.Text;
+                int lastChangeLineIndex = text.LastIndexOf("\n");
+                int subIndex = -1;
+                if (text.Length > lastChangeLineIndex + 1)
+                {
+                    subIndex = lastChangeLineIndex + 1;
+                }
+                else
+                {
+                    subIndex = lastChangeLineIndex;
+                }
+                scanner.UpdateInput(text.Substring(subIndex).Replace(Scanner.CurrentInputMessage, ""));
+
+                TeLog.Text += " <\n";
+
+                TeLog.IsReadOnly = true;
+            }
+
+            if (e.Key == Key.Left && !TeLog.IsReadOnly)
+            {
+                if (TeLog.SelectionStart == TeLog.Text.LastIndexOf('\n') + Scanner.CurrentInputMessage.Length + 1)
+                {
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == Key.Up && !TeLog.IsReadOnly)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void TeLogTextChanged(object sender, EventArgs e)
+        {
+            TeLog.ScrollToEnd();
+        }
+
         private void Stop()
         {
             isStopByUser = true;
-            this.Dispatcher.Invoke(() =>
+            TeLog.Dispatcher.Invoke(() =>
             {
-                te_log.Text += Logger.Get();
+                TeLog.Text += Logger.Get();
             });
+        }
+
+        private void Start()
+        {
+            string param = "";
+            TeParams.Dispatcher.Invoke(() =>
+            {
+                param = TeParams.Text;
+            });
+            StartLogic(TeSheetExplainersDocument.Text, TeAnalyzersDocument.Text, param, TbBasePathText, TbOutputPathText, TbOutputNameText, false);
+        }
+
+        // ---------------------------------------------------- Common Logic
+
+        private bool CheckRule(RunningRule rule)
+        {
+            if (rule.watchPath != null && rule.watchPath != "" && !Directory.Exists(rule.watchPath))
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("WatchPathNotExists").ToString()}: {rule.watchPath}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+            foreach (string analyzer in rule.analyzers.Split('\n'))
+            {
+                if (!AnalyzersItems.Contains(analyzer))
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("Unknown").ToString()}{Application.Current.FindResource("Analyzer").ToString()}: {analyzer}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+            }
+            foreach (string sheetExplainer in rule.sheetExplainers.Split('\n'))
+            {
+                if (!SheetExplainersItems.Contains(sheetExplainer))
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("Unknown").ToString()}{Application.Current.FindResource("SheetExplainer").ToString()}: {sheetExplainer}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+
+            }
+            return true;
+        }
+        private void SetAuto(RunningRule rule, string ruleName)
+        {
+            if (!fileSystemWatcherDic.ContainsValue(ruleName))
+            {
+                FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
+                fileSystemWatcher.Path = rule.watchPath;
+                fileSystemWatcher.Filter = rule.filter;
+                fileSystemWatcher.Deleted += FileSystemWatcherInvoke;
+                fileSystemWatcher.Created += FileSystemWatcherInvoke;
+                fileSystemWatcher.Changed += FileSystemWatcherInvoke;
+                fileSystemWatcher.Renamed += FileSystemWatcherInvoke;
+                fileSystemWatcher.IncludeSubdirectories = true;
+                fileSystemWatcher.EnableRaisingEvents = true;
+                fileSystemWatcherDic.Add(fileSystemWatcher, ruleName);
+
+                BtnSetAutoVisibility = Visibility.Hidden;
+                BtnUnsetAutoVisibility = Visibility.Visible;
+                BtnDeleteRuleIsEnabled = false;
+            }
         }
 
         private void FileSystemWatcherInvoke(object sender, FileSystemEventArgs e)
@@ -332,13 +1244,10 @@ namespace ExcelTool
 
                             if (!CheckRule(rule))
                             {
-                                cb_rules.SelectedIndex = 0;
+                                SelectedRulesIndex = 0;
                                 return;
                             }
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                Start(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName, true);
-                            });
+                            StartLogic(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName, true);
                         }
                         finally
                         {
@@ -360,18 +1269,12 @@ namespace ExcelTool
             FileSystemWatcherInvokeThread.Start();
         }
 
-        private void Start(object sender, RoutedEventArgs e)
-        {
-            Start(te_sheetexplainers.Text, te_analyzers.Text, te_params.Text, tb_base_path.Text, tb_output_path.Text, tb_output_name.Text, false);
-        }
 
-        private async void Start(string sheetExplainersStr, string analyzersStr, string paramStr, string basePath, string outputPath, string outputName, bool isAuto)
+
+        private async void StartLogic(string sheetExplainersStr, string analyzersStr, string paramStr, string basePath, string outputPath, string outputName, bool isAuto)
         {
-            this.Dispatcher.Invoke(() =>
-            {
-                btn_start.IsEnabled = false;
-                btn_stop.IsEnabled = true;
-            });
+            BtnStartIsEnabled = false;
+            BtnStopIsEnabled = true;
 
             Dictionary<SheetExplainer, List<string>> filePathListDic = new Dictionary<SheetExplainer, List<string>>();
 
@@ -387,7 +1290,10 @@ namespace ExcelTool
 
             if (!isAuto)
             {
-                te_log.Text = "";
+                TeLog.Dispatcher.Invoke(() =>
+                {
+                    TeLog.Text = "";
+                });
                 Logger.Clear();
             }
             else
@@ -405,7 +1311,10 @@ namespace ExcelTool
             }
 
             paramStr = $"{paramStr.Replace("\r\n", "").Replace("\n", "")}";
-            te_params.Text = paramStr;
+            TeParams.Dispatcher.Invoke(() =>
+            {
+                TeParams.Text = paramStr;
+            });
             Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
 
 
@@ -473,7 +1382,7 @@ namespace ExcelTool
                     {
                         CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-                    else 
+                    else
                     {
                         Logger.Error(ex.Message);
                     }
@@ -669,11 +1578,8 @@ namespace ExcelTool
                         }
                     }
 
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        l_process.Content = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} | {Application.Current.FindResource("ActiveThreads").ToString()}: {smartThreadPoolAnalyze.ActiveThreads} | {Application.Current.FindResource("InUseThreads").ToString()}: {smartThreadPoolAnalyze.InUseThreads}";
-                        tb_status.Text = $"{sb.ToString()}";
-                    });
+                    LProcessContent = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} | {Application.Current.FindResource("ActiveThreads").ToString()}: {smartThreadPoolAnalyze.ActiveThreads} | {Application.Current.FindResource("InUseThreads").ToString()}: {smartThreadPoolAnalyze.InUseThreads}";
+                    TbStatusText = $"{sb.ToString()}";
                     await Task.Delay(freshInterval);
                 }
                 catch (Exception e)
@@ -801,11 +1707,8 @@ namespace ExcelTool
                             }
                         }
 
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            l_process.Content = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} | {Application.Current.FindResource("ActiveThreads").ToString()}: {smartThreadPoolOutput.ActiveThreads} | {Application.Current.FindResource("InUseThreads").ToString()}: {smartThreadPoolOutput.InUseThreads}";
-                            tb_status.Text = $"{sb.ToString()}";
-                        });
+                        LProcessContent = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} | {Application.Current.FindResource("ActiveThreads").ToString()}: {smartThreadPoolOutput.ActiveThreads} | {Application.Current.FindResource("InUseThreads").ToString()}: {smartThreadPoolOutput.InUseThreads}";
+                        TbStatusText = $"{sb.ToString()}";
                         await Task.Delay(freshInterval);
                     }
                     catch (Exception e)
@@ -838,11 +1741,9 @@ namespace ExcelTool
                         if (perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
                         {
                             runEndThread.Abort();
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                btn_start.IsEnabled = true;
-                                btn_stop.IsEnabled = false;
-                            });
+
+                            BtnStartIsEnabled = true;
+                            BtnStopIsEnabled = false;
                             if (!isAuto)
                             {
                                 CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"RunEnd\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
@@ -863,7 +1764,7 @@ namespace ExcelTool
                     FinishRunning();
                     return;
                 }
-                tb_status.Text = "";
+                TbStatusText = "";
 
                 String paramStrFromFile = File.ReadAllText(".\\Params.txt");
                 List<string> paramsList = paramStrFromFile.Split('\n').ToList<string>();
@@ -931,40 +1832,39 @@ namespace ExcelTool
                     return;
                 }
 
-                Button btnOpenFile = new Button();
-                btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnOpenFile.Content = Application.Current.FindResource("OpenFile").ToString();
-                btnOpenFile.Click += (s, ee) =>
-                {
-                    System.Diagnostics.Process.Start(filePath);
-                    CustomizableMessageBox.MessageBox.CloseNow();
-                };
-
-                Button btnOpenPath = new Button();
-                btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnOpenPath.Content = Application.Current.FindResource("OpenPath").ToString();
-                btnOpenPath.Click += (s, ee) =>
-                {
-                    System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
-                    CustomizableMessageBox.MessageBox.CloseNow();
-                };
-
-                Button btnClose = new Button();
-                btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                btnClose.Content = Application.Current.FindResource("Close").ToString();
-                btnClose.Click += (s, ee) =>
-                {
-                    CustomizableMessageBox.MessageBox.CloseNow();
-                };
-
                 Logger.Info($"{Application.Current.FindResource("FileSaved").ToString()}\n{filePath}");
-                if (!isAuto && cb_isautoopen.IsChecked == false)
+                if (!isAuto && CbIsAutoOpenIsChecked == false)
                 {
+                    Button btnOpenFile = new Button();
+                    btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                    btnOpenFile.Content = Application.Current.FindResource("OpenFile").ToString();
+                    btnOpenFile.Click += (s, ee) =>
+                    {
+                        System.Diagnostics.Process.Start(filePath);
+                        CustomizableMessageBox.MessageBox.CloseNow();
+                    };
+
+                    Button btnOpenPath = new Button();
+                    btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                    btnOpenPath.Content = Application.Current.FindResource("OpenPath").ToString();
+                    btnOpenPath.Click += (s, ee) =>
+                    {
+                        System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
+                        CustomizableMessageBox.MessageBox.CloseNow();
+                    };
+
+                    Button btnClose = new Button();
+                    btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                    btnClose.Content = Application.Current.FindResource("Close").ToString();
+                    btnClose.Click += (s, ee) =>
+                    {
+                        CustomizableMessageBox.MessageBox.CloseNow();
+                    };
                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "文件已保存。", "OK");
                 }
                 else
                 {
-                    if (cb_isautoopen.IsChecked == true)
+                    if (CbIsAutoOpenIsChecked == true)
                     {
                         Logger.Info(Application.Current.FindResource("AutoOpened").ToString());
                         System.Diagnostics.Process.Start(filePath);
@@ -972,7 +1872,10 @@ namespace ExcelTool
                 }
             }
 
-            te_log.Text += Logger.Get();
+            TeLog.Dispatcher.Invoke(() =>
+            {
+                TeLog.Text += Logger.Get();
+            });
 
             FinishRunning();
         }
@@ -981,61 +1884,52 @@ namespace ExcelTool
         {
             while (true)
             {
-                string logTemp = Logger.Get();
-                if (!String.IsNullOrEmpty(logTemp))
+                TeLog.Dispatcher.Invoke(() =>
                 {
-                    this.Dispatcher.Invoke(() =>
+                    string logTemp = Logger.Get();
+                    if (!String.IsNullOrEmpty(logTemp))
                     {
-                        if (te_log.Text.Length > te_log.Text.LastIndexOf('\n') + 1)
+                        if (TeLog.Text.Length > TeLog.Text.LastIndexOf('\n') + 1)
                         {
-                            te_log.Text = te_log.Text.Remove(te_log.Text.LastIndexOf('\n') + 1) + logTemp;
+                            TeLog.Text = TeLog.Text.Remove(TeLog.Text.LastIndexOf('\n') + 1) + logTemp;
                         }
                         else
                         {
-                            te_log.Text += logTemp;
+                            TeLog.Text += logTemp;
                         }
-                    });
-                }
+                    }
 
-                if (isRunning && Scanner.InputLock)
-                {
-                    this.Dispatcher.Invoke(() =>
+                    if (isRunning && Scanner.InputLock)
                     {
                         string message = Scanner.CurrentInputMessage;
                         if (message != "")
                         {
-                            string logText = te_log.Text;
+                            string logText = TeLog.Text;
                             int index = logText.LastIndexOf(message);
                             if (index != -1 && logText.IndexOf('\n', index) != -1
                             && (index - 1 < 0 || (index - 1 >= 0 && logText[index - 1] == '\n') && (logText.Length - 1 < index + logText.Length || (logText.Length - 1 >= index + logText.Length && logText[index + logText.Length] == '\n'))))
                             {
-                                te_log.Text += message;
-                                te_log.Select(te_log.Text.Length, 0);
+                                TeLog.Text += message;
+                                TeLog.Select(TeLog.Text.Length, 0);
                             }
                             else if (index == -1)
                             {
-                                te_log.Text += message;
-                                te_log.Select(te_log.Text.Length, 0);
+                                TeLog.Text += message;
+                                TeLog.Select(TeLog.Text.Length, 0);
                             }
                         }
-                    });
 
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        te_log.IsReadOnly = false;
-                        if (te_log.SelectionStart <= te_log.Text.LastIndexOf('\n') + Scanner.CurrentInputMessage.Length)
+                        TeLog.IsReadOnly = false;
+                        if (TeLog.SelectionStart <= TeLog.Text.LastIndexOf('\n') + Scanner.CurrentInputMessage.Length)
                         {
-                            te_log.Select(te_log.Text.Length, 0);
+                            TeLog.Select(TeLog.Text.Length, 0);
                         }
-                    });
-                }
-                else 
-                {
-                    this.Dispatcher.Invoke(() =>
+                    }
+                    else
                     {
-                        te_log.IsReadOnly = true;
-                    });
-                }
+                        TeLog.IsReadOnly = true;
+                    }
+                });
 
                 Thread.Sleep(freshInterval);
             }
@@ -1045,14 +1939,11 @@ namespace ExcelTool
         {
             CheckAndCloseThreads(false);
             isRunning = false;
-            this.Dispatcher.Invoke(() =>
-            {
-                btn_start.IsEnabled = true;
-                btn_stop.IsEnabled = false;
+            BtnStartIsEnabled = true;
+            BtnStopIsEnabled = false;
 
-                tb_status.Text = "";
-                l_process.Content = "";
-            });
+            TbStatusText = "";
+            LProcessContent = "";
         }
 
         private void RunBeforeAnalyzeSheet(CompilerResults cresult, Dictionary<string, string> paramDic, Analyzer analyzer, List<String> allFilePathList)
@@ -1267,8 +2158,6 @@ namespace ExcelTool
             return methodResult;
         }
 
-        
-
         private void LoadFiles()
         {
             try
@@ -1292,10 +2181,10 @@ namespace ExcelTool
                 return;
             }
 
-            cb_sheetexplainers.ItemsSource = FileHelper.GetSheetExplainersList();
-            cb_analyzers.ItemsSource = FileHelper.GetAnalyzersList();
-            cb_rules.ItemsSource = FileHelper.GetRulesList();
-            cb_params.ItemsSource = FileHelper.GetParamsList();
+            SheetExplainersItems = FileHelper.GetSheetExplainersList();
+            AnalyzersItems = FileHelper.GetAnalyzersList();
+            RuleItems = FileHelper.GetRulesList();
+            ParamsItems = FileHelper.GetParamsList();
         }
 
         private long GetNowSs()
@@ -1303,7 +2192,7 @@ namespace ExcelTool
             return (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
         }
 
-        private void Analyze(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, Dictionary<string, string> paramDic, CompilerResults cresult) 
+        private void Analyze(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, Dictionary<string, string> paramDic, CompilerResults cresult)
         {
             // 通过反射执行代码
             try
@@ -1338,7 +2227,7 @@ namespace ExcelTool
             Boolean resBoolean = true;
 
             Object filePath = null;
-            if(result.TryGetValue(ResultType.FILEPATH, out filePath))
+            if (result.TryGetValue(ResultType.FILEPATH, out filePath))
             {
                 currentOutputtingDictionary.AddOrUpdate(filePath.ToString(), GetNowSs(), (key, oldValue) => GetNowSs());
             }
@@ -1364,43 +2253,6 @@ namespace ExcelTool
             return new Object[] { resBoolean, result };
         }
 
-        private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (Application.Current.Windows.Count > 1)
-            {
-                MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), Application.Current.FindResource("ProgramClosingCheck").ToString(), Application.Current.FindResource("Warning").ToString(), MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (result == MessageBoxResult.No)
-                {
-                    e.Cancel = true;
-                }
-                else
-                {
-                    foreach (Window window in Application.Current.Windows)
-                    {
-                        if (Application.Current.MainWindow != window)
-                        {
-                            window.Close();
-                        }
-                    }
-                }
-            }
-
-            IniHelper.SetWindowSize(this.Name.Substring(2), new Point(this.Width, this.Height));
-            IniHelper.SetBasePath(tb_base_path.Text);
-            IniHelper.SetOutputPath(tb_output_path.Text);
-            IniHelper.SetOutputFileName(tb_output_name.Text);
-            IniHelper.SetLanguage(language);
-
-            if (cb_isautoopen.IsChecked == true)
-            {
-                IniHelper.SetIsAutoOpen(true);
-            }
-            else
-            {
-                IniHelper.SetIsAutoOpen(false);
-            }
-        }
-
         private void RenewSmartThreadPoolAnalyze(STPStartInfo stp)
         {
             smartThreadPoolAnalyze = new SmartThreadPool(stp);
@@ -1421,25 +2273,6 @@ namespace ExcelTool
             }
         }
 
-        private void CbParamsSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            te_params.TextChanged -= TbParamsTextChanged;
-            te_params.Text = $"{cb_params.SelectedItem}";
-            te_params.TextChanged += TbParamsTextChanged;
-        }
-
-        private void CbParamsPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            cb_params.ItemsSource = FileHelper.GetParamsList();
-        }
-
-        private void TbParamsTextChanged(object sender, EventArgs e)
-        {
-            cb_params.SelectionChanged -= CbParamsSelectionChanged;
-            cb_params.SelectedIndex = 0;
-            cb_params.SelectionChanged += CbParamsSelectionChanged;
-        }
-
         private FileSystemInfo[] GetyDllInfos()
         {
             string folderPath = Path.Combine(Environment.CurrentDirectory, "Dlls");
@@ -1454,7 +2287,7 @@ namespace ExcelTool
             return dllInfos;
         }
 
-        private CompilerResults GetCresult(Analyzer analyzer) 
+        private CompilerResults GetCresult(Analyzer analyzer)
         {
             CSharpCodeProvider objCSharpCodePrivoder = new CSharpCodeProvider();
 
@@ -1492,197 +2325,6 @@ namespace ExcelTool
             return objCSharpCodePrivoder.CompileAssemblyFromSource(objCompilerParameters, analyzer.code);
         }
 
-        void PasteCommandBindingPreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            var dataObject = Clipboard.GetDataObject();
-            var text = (string)dataObject.GetData(DataFormats.UnicodeText);
-            text = TextUtilities.NormalizeNewLines(text, Environment.NewLine);
-
-            if (text.Contains(Environment.NewLine))
-            {
-                e.CanExecute = false;
-                e.Handled = true;
-                text = text.Replace(Environment.NewLine, " ");
-                Clipboard.SetText(text);
-                te_params.Paste();
-            }
-        }
-
-        private void TbParamsLostFocus(object sender, RoutedEventArgs e)
-        {
-            te_params.Text = $"{te_params.Text.Replace("\r\n", "").Replace("\n", "")}";
-        }
-
-        private void TeLogTextChanged(object sender, EventArgs e)
-        {
-            te_log.ScrollToEnd();
-        }
-
-        private void SaveRule(object sender, RoutedEventArgs e)
-        {
-            TextBox tbName = new TextBox();
-            tbName.Margin = new Thickness(5, 8, 5, 8);
-            tbName.VerticalContentAlignment = VerticalAlignment.Center;
-            if (cb_rules.SelectedIndex >= 1)
-            {
-                tbName.Text = $"Copy Of {cb_rules.SelectedItem}";
-            }
-            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("Name").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
-            if (result == 1)
-            {
-                RunningRule runningRule = new RunningRule();
-                runningRule.analyzers = te_analyzers.Text;
-                runningRule.sheetExplainers = te_sheetexplainers.Text;
-                runningRule.param = te_params.Text;
-                runningRule.basePath = tb_base_path.Text;
-                runningRule.outputPath = tb_output_path.Text;
-                runningRule.outputName = tb_output_name.Text;
-                string json = JsonConvert.SerializeObject(runningRule);
-
-                string fileName = $".\\Rules\\{tbName.Text}.json";
-                FileStream fs = null;
-                try
-                {
-                    fs = File.Create(fileName);
-                    fs.Close();
-                    StreamWriter sw = File.CreateText(fileName);
-                    sw.Write(json);
-                    sw.Flush();
-                    sw.Close();
-                }
-                catch (Exception ex)
-                {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private void DeleteRule(object sender, RoutedEventArgs e)
-        {
-            String path = $"{System.Environment.CurrentDirectory}\\Rules\\{cb_rules.SelectedItem.ToString()}.json";
-            MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("Delete").ToString()}\n{path}", Application.Current.FindResource("Warning").ToString(), MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-            if (result == MessageBoxResult.OK)
-            {
-                File.Delete(path);
-                cb_analyzers.SelectedIndex = 0;
-            }
-        }
-
-        private void CbRulesPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            cb_rules.ItemsSource = FileHelper.GetRulesList();
-        }
-
-        private void CbRulesChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-            RunningRule rule = null;
-
-            if (cb_rules.SelectedIndex >= 1)
-            {
-                rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{cb_rules.SelectedItem.ToString()}.json"));
-
-                if (!CheckRule(rule))
-                {
-                    cb_rules.SelectedIndex = 0;
-                    return;
-                }
-
-                btn_saverule.Visibility = Visibility.Hidden;
-                btn_deleterule.Visibility = Visibility.Visible;
-
-                if (rule.watchPath != null && rule.watchPath != "")
-                {
-                    btn_setauto.Visibility = Visibility.Hidden;
-                    btn_unsetauto.Visibility = Visibility.Visible;
-                    btn_deleterule.IsEnabled = false;
-                }
-                else
-                {
-                    btn_setauto.Visibility = Visibility.Visible;
-                    btn_unsetauto.Visibility = Visibility.Hidden;
-                    btn_deleterule.IsEnabled = true;
-                }
-
-                te_analyzers.Text = rule.analyzers;
-                te_sheetexplainers.Text = rule.sheetExplainers;
-                te_params.Text = rule.param;
-                tb_base_path.Text = rule.basePath;
-                tb_output_path.Text = rule.outputPath;
-                tb_output_name.Text = rule.outputName;
-            }
-            else
-            {
-                btn_saverule.Visibility = Visibility.Visible;
-                btn_deleterule.Visibility = Visibility.Hidden;
-
-                btn_setauto.Visibility = Visibility.Hidden;
-                btn_unsetauto.Visibility = Visibility.Hidden;
-            }
-        }
-
-        private void SetAuto(object sender, RoutedEventArgs e)
-        {
-            string ruleName = cb_rules.SelectedItem.ToString();
-            RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
-            TextBox tbPath = new TextBox();
-            tbPath.Margin = new Thickness(5, 8, 5, 8);
-            tbPath.VerticalContentAlignment = VerticalAlignment.Center;
-            TextBox tbFilter = new TextBox();
-            tbFilter.Margin = new Thickness(5, 8, 5, 8);
-            tbFilter.VerticalContentAlignment = VerticalAlignment.Center;
-            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbPath, tbFilter, Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("WatchPathAndFilter").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
-            if (result == 2)
-            {
-                rule.watchPath = tbPath.Text;
-                rule.filter = tbFilter.Text;
-            }
-            else
-            {
-                return;
-            }
-
-            string json = JsonConvert.SerializeObject(rule);
-            string fileName = $".\\Rules\\{cb_rules.SelectedItem.ToString()}.json";
-            FileStream fs = null;
-            try
-            {
-                fs = File.Create(fileName);
-                fs.Close();
-                StreamWriter sw = File.CreateText(fileName);
-                sw.Write(json);
-                sw.Flush();
-                sw.Close();
-            }
-            catch (Exception ex)
-            {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-            SetAuto(rule, ruleName);
-        }
-
-        private void SetAuto(RunningRule rule, string ruleName)
-        {
-            if (!fileSystemWatcherDic.ContainsValue(ruleName))
-            {
-                FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
-                fileSystemWatcher.Path = rule.watchPath;
-                fileSystemWatcher.Filter = rule.filter;
-                fileSystemWatcher.Deleted += FileSystemWatcherInvoke;
-                fileSystemWatcher.Created += FileSystemWatcherInvoke;
-                fileSystemWatcher.Changed += FileSystemWatcherInvoke;
-                fileSystemWatcher.Renamed += FileSystemWatcherInvoke;
-                fileSystemWatcher.IncludeSubdirectories = true;
-                fileSystemWatcher.EnableRaisingEvents = true;
-                fileSystemWatcherDic.Add(fileSystemWatcher, ruleName);
-
-                btn_setauto.Visibility = Visibility.Hidden;
-                btn_unsetauto.Visibility = Visibility.Visible;
-                btn_deleterule.IsEnabled = false;
-            }
-        }
-
         private void SetAutoStatusAll()
         {
             List<String> rulesList = Directory.GetFiles(".\\Rules", "*.json").ToList();
@@ -1700,73 +2342,6 @@ namespace ExcelTool
                     SetAuto(rule, Path.GetFileNameWithoutExtension(path));
                 }
             }
-        }
-
-        private void UnsetAuto(object sender, RoutedEventArgs e)
-        {
-            string fileName = $".\\Rules\\{cb_rules.SelectedItem.ToString()}.json";
-
-            RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText(fileName));
-            if (rule == null)
-            {
-                return;
-            }
-            rule.watchPath = null;
-            rule.filter = null;
-
-            string json = JsonConvert.SerializeObject(rule);
-            FileStream fs = null;
-            try
-            {
-                fs = File.Create(fileName);
-                fs.Close();
-                StreamWriter sw = File.CreateText(fileName);
-                sw.Write(json);
-                sw.Flush();
-                sw.Close();
-            }
-            catch (Exception ex)
-            {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-            FileSystemWatcher fileSystemWatcher = fileSystemWatcherDic.FirstOrDefault(q => q.Value == cb_rules.SelectedItem.ToString()).Key;
-            if (fileSystemWatcher != null)
-            {
-                fileSystemWatcher.EnableRaisingEvents = false;
-                fileSystemWatcherDic.Remove(fileSystemWatcher);
-            }
-
-            btn_setauto.Visibility = Visibility.Visible;
-            btn_unsetauto.Visibility = Visibility.Hidden;
-            btn_deleterule.IsEnabled = true;
-        }
-
-        private bool CheckRule(RunningRule rule)
-        {
-            if (rule.watchPath != null && rule.watchPath != "" && !Directory.Exists(rule.watchPath))
-            {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("WatchPathNotExists").ToString()}: {rule.watchPath}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-            foreach (string analyzer in rule.analyzers.Split('\n'))
-            {
-                if (!cb_analyzers.Items.Contains(analyzer))
-                {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("Unknown").ToString()}{Application.Current.FindResource("Analyzer").ToString()}: {analyzer}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-                    return false;
-                }
-            }
-            foreach (string sheetExplainer in rule.sheetExplainers.Split('\n'))
-            {
-                if (!cb_sheetexplainers.Items.Contains(sheetExplainer))
-                {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("Unknown").ToString()}{Application.Current.FindResource("SheetExplainer").ToString()}: {sheetExplainer}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-                    return false;
-                }
-
-            }
-            return true;
         }
 
         private void CheckAndCloseThreads(bool isCloseWindow)
@@ -1814,196 +2389,6 @@ namespace ExcelTool
                 runningThread.Abort();
             }
         }
-
-        private void WindowClosed(object sender, EventArgs e)
-        {
-            CheckAndCloseThreads(true);
-
-            FileHelper.DeleteCopiedDlls(copiedDllsList);
-        }
-
-        private void EditParam(object sender, RoutedEventArgs e)
-        {
-            ParamEditor paramEditor = new ParamEditor();
-
-            string paramStr = $"{te_params.Text.Replace("\r\n", "").Replace("\n", "")}";
-            te_params.Text = paramStr;
-            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
-
-            int rowNum = -1;
-
-            List<String> analyzersList = te_analyzers.Text.Split('\n').Where(str => str.Trim() != "").ToList();
-
-            ColumnDefinition columnDefinitionL = new ColumnDefinition();
-            columnDefinitionL.Width = new GridLength(100);
-            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
-            ColumnDefinition columnDefinitionR = new ColumnDefinition();
-            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
-
-            List<string> addedAnalyzerNameList = new List<string>();
-
-            foreach (string analyzerName in analyzersList) 
-            {
-                if (addedAnalyzerNameList.Contains(analyzerName))
-                {
-                    continue;
-                }
-                else
-                {
-                    addedAnalyzerNameList.Add(analyzerName);
-                }
-
-                Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{analyzerName}.json"));
-
-                RowDefinition rowDefinition = new RowDefinition();
-                rowDefinition.Height = new GridLength(40);
-                paramEditor.g_main.RowDefinitions.Add(rowDefinition);
-                ++rowNum;
-                TextBlock textBlockAnalyzerName = new TextBlock();
-                textBlockAnalyzerName.Height = 35;
-                textBlockAnalyzerName.FontWeight = FontWeight.FromOpenTypeWeight(600);
-                textBlockAnalyzerName.FontSize = 20;
-                textBlockAnalyzerName.VerticalAlignment = VerticalAlignment.Bottom;
-                textBlockAnalyzerName.Text = analyzerName;
-                Grid.SetRow(textBlockAnalyzerName, rowNum);
-                Grid.SetColumnSpan(textBlockAnalyzerName, 2);
-                paramEditor.g_main.Children.Add(textBlockAnalyzerName);
-
-                Dictionary<string, string> paramDic = null;
-                if (paramDicEachAnalyzer.ContainsKey(analyzerName))
-                {
-                    paramDic = paramDicEachAnalyzer[analyzerName];
-                }
-
-                if (analyzer.paramDic == null || analyzer.paramDic.Keys == null || analyzer.paramDic.Keys.Count == 0)
-                {
-                    continue;
-                }
-                foreach (string key in analyzer.paramDic.Keys)
-                {
-                    RowDefinition rowDefinitionKv = new RowDefinition();
-                    rowDefinitionKv.Height = new GridLength(30);
-                    paramEditor.g_main.RowDefinitions.Add(rowDefinitionKv);
-                    ++rowNum;
-
-                    TextBlock textBlockKey = new TextBlock();
-                    textBlockKey.Height = 25;
-                    textBlockKey.Text = analyzer.paramDic[key];
-                    Grid.SetRow(textBlockKey, rowNum);
-                    Grid.SetColumn(textBlockKey, 0);
-                    textBlockKey.MouseEnter += (s, ex) =>
-                    {
-                        textBlockKey.Text = key;
-                    };
-                    textBlockKey.TouchEnter += (s, ex) =>
-                    {
-                        textBlockKey.Text = key;
-                    };
-                    textBlockKey.MouseLeave += (s, ex) =>
-                    {
-                        textBlockKey.Text = analyzer.paramDic[key];
-                    };
-                    textBlockKey.TouchLeave += (s, ex) =>
-                    {
-                        textBlockKey.Text = analyzer.paramDic[key];
-                    };
-                    paramEditor.g_main.Children.Add(textBlockKey);
-
-                    TextBox tbValue = new TextBox();
-                    tbValue.Height = 25;
-                    tbValue.Margin = new Thickness(5, 0, 0, 0);
-                    tbValue.HorizontalAlignment = HorizontalAlignment.Stretch;
-                    tbValue.VerticalContentAlignment = VerticalAlignment.Center;
-                    if (paramDic != null && paramDic.ContainsKey(key))
-                    {
-                        tbValue.Text = paramDic[key];
-                    }
-                    else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
-                    {
-                        tbValue.Text = paramDicEachAnalyzer["public"][key];
-                    }
-                    tbValue.TextChanged += (s, ex) =>
-                    {
-                        if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
-                        {
-                            paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
-                        }
-                        paramDicEachAnalyzer[analyzerName][key] = tbValue.Text;
-                    };
-                    Grid.SetRow(tbValue, rowNum);
-                    Grid.SetColumn(tbValue, 1);
-
-                    paramEditor.g_main.Children.Add(tbValue);
-                }
-            }
-
-            GridSplitter gridSplitter = new GridSplitter();
-            gridSplitter.HorizontalAlignment = HorizontalAlignment.Right;
-            gridSplitter.VerticalAlignment = VerticalAlignment.Stretch;
-            gridSplitter.Width = 4;
-            gridSplitter.BorderThickness = new Thickness(1, 0, 1, 0);
-            gridSplitter.BorderBrush = Brushes.Black;
-            gridSplitter.Background = Brushes.AntiqueWhite;
-            Grid.SetRow(gridSplitter, 0);
-            Grid.SetRowSpan(gridSplitter, rowNum + 1 <= 0 ? 1 : rowNum + 1);
-            Grid.SetColumn(gridSplitter, 0);
-            paramEditor.g_main.Children.Add(gridSplitter);
-
-            RowDefinition rowDefinitionBlank = new RowDefinition();
-            paramEditor.g_main.RowDefinitions.Add(rowDefinitionBlank);
-            ++rowNum;
-            RowDefinition rowDefinitionOk = new RowDefinition();
-            rowDefinitionOk.Height = new GridLength(30);
-            paramEditor.g_main.RowDefinitions.Add(rowDefinitionOk);
-            ++rowNum;
-            Button btnOk = new Button();
-            btnOk.Height = 30;
-            btnOk.Content = Application.Current.FindResource("Ok").ToString();
-            btnOk.Click += (s, ex) => 
-            {
-                te_params.Text = ParamHelper.GetParamStr(paramDicEachAnalyzer);
-                paramEditor.Close();
-            };
-            Grid.SetRow(btnOk, rowNum);
-            Grid.SetColumnSpan(btnOk, 2);
-            paramEditor.g_main.Children.Add(btnOk);
-
-            paramEditor.ShowDialog();
-        }
-
-        private void TeLogPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter && !te_log.IsReadOnly)
-            {
-                string text = te_log.Text;
-                int lastChangeLineIndex = text.LastIndexOf("\n");
-                int subIndex = -1;
-                if (text.Length > lastChangeLineIndex + 1)
-                {
-                    subIndex = lastChangeLineIndex + 1;
-                }
-                else
-                {
-                    subIndex = lastChangeLineIndex;
-                }
-                scanner.UpdateInput(text.Substring(subIndex).Replace(Scanner.CurrentInputMessage, ""));
-
-                te_log.Text += " <\n";
-
-                te_log.IsReadOnly = true;
-            }
-
-            if (e.Key == Key.Left && !te_log.IsReadOnly)
-            {
-                if (te_log.SelectionStart == te_log.Text.LastIndexOf('\n') + Scanner.CurrentInputMessage.Length + 1)
-                {
-                    e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Up && !te_log.IsReadOnly)
-            {
-                e.Handled = true;
-            }
-        }
     }
+
 }
