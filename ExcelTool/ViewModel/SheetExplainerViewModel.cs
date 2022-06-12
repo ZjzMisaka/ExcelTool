@@ -159,16 +159,18 @@ namespace ExcelTool.ViewModel
 
         private void WindowLoaded(RoutedEventArgs e)
         {
+            Window window = (Window)e.Source;
+
             double width = IniHelper.GetWindowSize(WindowName).X;
             double height = IniHelper.GetWindowSize(WindowName).Y;
             if (width > 0)
             {
-                WindowWidth = width;
+                window.Width = width;
             }
 
             if (height > 0)
             {
-                WindowHeight = height;
+                window.Height = height;
             }
         }
 
