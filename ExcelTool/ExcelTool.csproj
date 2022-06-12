@@ -207,22 +207,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Analyzer.cs" />
-    <Compile Include="EventCommandAction.cs" />
-    <Compile Include="SizeBindingHelper.cs" />
+    <Compile Include="Model\Analyzer.cs" />
+    <Compile Include="MvvmTool\EventCommandAction.cs" />
+    <Compile Include="MvvmTool\SizeBindingHelper.cs" />
     <Compile Include="ViewModel\AnalyzerViewModel.cs" />
     <Compile Include="View\AnalyzerEditor.xaml.cs">
       <DependentUpon>AnalyzerEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Events.cs" />
+    <Compile Include="MvvmTool\Events.cs" />
     <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Helper\IniHelper.cs" />
     <Compile Include="Helper\ParamHelper.cs" />
     <Compile Include="View\ParamEditor.xaml.cs">
       <DependentUpon>ParamEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RunningRule.cs" />
-    <Compile Include="SheetExplainer.cs" />
+    <Compile Include="Model\RunningRule.cs" />
+    <Compile Include="Model\SheetExplainer.cs" />
     <Compile Include="View\SheetExplainerEditor.xaml.cs">
       <DependentUpon>SheetExplainerEditor.xaml</DependentUpon>
     </Compile>
@@ -319,9 +319,7 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.3.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.3.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Model\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
