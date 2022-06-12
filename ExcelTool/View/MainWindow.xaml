@@ -7,8 +7,20 @@
         xmlns:local="clr-namespace:ExcelTool"
         xmlns:Behavior="clr-namespace:Behavior"
         xmlns:dd="urn:gong-wpf-dragdrop"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        Title="{DynamicResource WinTitle}" Name="w_MainWindow" Height="850" Width="800" Loaded="WindowLoaded" Closing="WindowClosing" Closed="WindowClosed" MinHeight="685" MinWidth="500">
+        Title="{DynamicResource WinTitle}" Name="w_MainWindow" Tag="{Binding WindowName}" Height="{Binding WindowHeight, Mode=OneWayToSource}" Width="{Binding WindowWidth, Mode=OneWayToSource}" MinHeight="685" MinWidth="500">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding WindowLoadedCommand}" PassEventArgsToCommand="True" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding WindowClosingCommand}" PassEventArgsToCommand="True" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction Command="{Binding WindowClosedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
         <Grid>
             <Grid.RowDefinitions>
@@ -60,7 +72,7 @@
                 <Label Height="25" Margin="10 2 10 0" Grid.Row="4" Grid.ColumnSpan="2" Content="{DynamicResource Parameter}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <ComboBox Name="cb_params" ItemsSource="{Binding ParamsItems, Mode=TwoWay}" SelectedItem="{Binding SelectedParamsItem, Mode=TwoWay}" SelectedIndex="{Binding SelectedParamsIndex, Mode=TwoWay}" Grid.Row="5" Margin="10 2" Grid.Column="0" Grid.ColumnSpan="1" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbParamsPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbParamsSelectionChangedCommand}" />
                 <Button Name="btn_params"  Command="{Binding EditParamCommand}" Grid.Row="5" Margin="10 2" Grid.Column="1" Grid.ColumnSpan="1" Content="{DynamicResource Edit}" Height="25" HorizontalAlignment="Right" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"></Button>
-                <avalonEdit:TextEditor x:Name="te_params" Document="{Binding TeParamsDocument, Mode=TwoWay}" Margin="10 2" Grid.Row="6" Grid.ColumnSpan="2" ShowLineNumbers="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Behavior:LostFocus.Command="{Binding TbParamsLostFocusCommand}" AllowDrop="False" WordWrap="False" BorderBrush="Gray" BorderThickness="1" VerticalContentAlignment="Center" FontSize="14" Padding="3px" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                <ContentControl Content="{Binding TeParams}" Margin="10 2" Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Behavior:LostFocus.Command="{Binding TbParamsLostFocusCommand}" AllowDrop="False" VerticalContentAlignment="Center" FontSize="14" Padding="3px"/>
 
                 <Label Height="25" Margin="10 2 10 0" Grid.Row="7" Grid.ColumnSpan="2" Content="{DynamicResource Workbase}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <TextBox Grid.Row="8" Grid.ColumnSpan="2" Name="tb_base_path" dd:DragDrop.IsDropTarget="True" dd:DragDrop.DropHandler="{Binding}" TextWrapping="NoWrap" Text="{Binding TbBasePathText, Mode=TwoWay}" Margin="10 2" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
@@ -74,11 +86,11 @@
                 <Button Grid.Row="15" Grid.ColumnSpan="2" Height="25" Name="btn_select_output_filename" Command="{Binding SelectNameCommand}" Margin="10 2" Content="{DynamicResource Select}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
 
                 <Label Height="25" Margin="10 2 10 0" Grid.Row="16" Grid.ColumnSpan="2" Content="{DynamicResource Rule}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
-                <ComboBox Name="cb_rules" Grid.Row="17" Margin="10 2" Grid.Column="0" SelectionChanged="CbRulesChanged" PreviewMouseLeftButtonDown="CbRulesPreviewMouseLeftButtonDown"/>
-                <Button Grid.Row="17" Grid.ColumnSpan="2" Height="25" Content="{DynamicResource Save}" Name="btn_saverule" Click="SaveRule" HorizontalAlignment="Right" Margin="10 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Button Grid.Row="17" Grid.ColumnSpan="2" Height="25" Content="{DynamicResource Delete}" Name="btn_deleterule" Click="DeleteRule" HorizontalAlignment="Right" Margin="10 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75" Visibility="Hidden"/>
-                <Button Grid.Row="18" Grid.ColumnSpan="2" Height="25" Name="btn_setauto" Click="SetAuto" Margin="10 2" Content="{DynamicResource SetAuto}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75" Visibility="Hidden"/>
-                <Button Grid.Row="18" Grid.ColumnSpan="2" Height="25" Name="btn_unsetauto" Click="UnsetAuto" Margin="10 2" Content="{DynamicResource SetManual}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75" Visibility="Hidden"/>
+                <ComboBox Name="cb_rules" ItemsSource="{Binding RuleItems, Mode=TwoWay}" SelectedIndex="{Binding SelectedRulesIndex, Mode=TwoWay}" SelectedItem="{Binding SelectedRulesItem, Mode=TwoWay}" Grid.Row="17" Margin="10 2" Grid.Column="0" Behavior:SelectionChanged.Command="{Binding CbRulesChangedCommand}" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbRulesPreviewMouseLeftButtonDownCommand}"/>
+                <Button Grid.Row="17" Grid.ColumnSpan="2" Height="25" Content="{DynamicResource Save}" Name="btn_saverule" Command="{Binding SaveRuleCommand}" Visibility="{Binding BtnSaveRuleVisibility, Mode=TwoWay}" HorizontalAlignment="Right" Margin="10 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="17" Grid.ColumnSpan="2" Height="25" Content="{DynamicResource Delete}" Name="btn_deleterule" Command="{Binding DeleteRuleCommand}" Visibility="{Binding BtnDeleteRuleVisibility, Mode=TwoWay}" IsEnabled="{Binding BtnDeleteRuleIsEnabled, Mode=TwoWay}" HorizontalAlignment="Right" Margin="10 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="18" Grid.ColumnSpan="2" Height="25" Name="btn_setauto" Command="{Binding SetAutoCommand}" Visibility="{Binding BtnSetAutoVisibility, Mode=TwoWay}" Margin="10 2" Content="{DynamicResource SetAuto}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="18" Grid.ColumnSpan="2" Height="25" Name="btn_unsetauto" Command="{Binding UnsetAutoCommand}" Visibility="{Binding BtnUnsetAutoVisibility, Mode=TwoWay}" Margin="10 2" Content="{DynamicResource SetManual}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
             </Grid>
             <GridSplitter x:Name="gs_gridsplitter" BorderBrush="Black" BorderThickness="0, 1, 0, 1" Height="4" Grid.Row="1" Background="AntiqueWhite" HorizontalAlignment="Stretch" VerticalAlignment="Top" Panel.ZIndex="100"/>
             <Label Grid.Row="1" FontSize="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" BorderThickness="1px" BorderBrush="Gray">
@@ -93,10 +105,10 @@
                         </Grid.ColumnDefinitions>
 
                         <ScrollViewer>
-                            <TextBlock Name="tb_status"  Grid.Row="0" Grid.Column="0" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                            <TextBlock Name="tb_status" Text="{Binding TbStatusText, Mode=TwoWay}"  Grid.Row="0" Grid.Column="0" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
                         </ScrollViewer>
                         <GridSplitter x:Name="gs_gridsplitterbutton" BorderBrush="Black" BorderThickness="1, 0, 1, 0" Width="4" Grid.Row="1" Background="AntiqueWhite" HorizontalAlignment="Right" VerticalAlignment="Stretch" Panel.ZIndex="100"/>
-                        <avalonEdit:TextEditor Name="te_log" Grid.Row="0" Grid.Column="1" ShowLineNumbers="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False" WordWrap="True" Padding="3px" IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextChanged="TeLogTextChanged" PreviewKeyDown="TeLogPreviewKeyDown"/>
+                        <ContentControl Content="{Binding TeLog}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False" Padding="3px" />
                     </Grid>
                 </ScrollViewer>
             </Label>
@@ -113,11 +125,11 @@
                     <ColumnDefinition Width="90" />
                 </Grid.ColumnDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" FontSize="10" Name="l_process" Content="" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                <Label Grid.Row="0" Grid.Column="0" FontSize="10" Name="l_process" Content="{Binding LProcessContent, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
-                <CheckBox Grid.Row="0" Grid.Column="1" Height="25" Content="{DynamicResource AutomaticallyOpening}" Name="cb_isautoopen" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" />
-                <Button Grid.Row="0" Grid.Column="2" Height="25" Content="{DynamicResource Stop}" Name="btn_stop" Click="Stop" IsEnabled="False" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Button Grid.Row="0" Grid.Column="3" Height="25" Content="{DynamicResource Start}" Name="btn_start" Click="Start" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <CheckBox Grid.Row="0" Grid.Column="1" Height="25" Content="{DynamicResource AutomaticallyOpening}" IsChecked="{Binding CbIsAutoOpenIsChecked, Mode=TwoWay}" Name="cb_isautoopen" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" />
+                <Button Grid.Row="0" Grid.Column="2" Height="25" Content="{DynamicResource Stop}" Name="btn_stop" Command="{Binding StopCommand}" IsEnabled="{Binding BtnStopIsEnabled, Mode=TwoWay}" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="0" Grid.Column="3" Height="25" Content="{DynamicResource Start}" Name="btn_start" Command="{Binding StartCommand}" IsEnabled="{Binding BtnStartIsEnabled, Mode=TwoWay}" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
             </Grid>
 
         </Grid>
