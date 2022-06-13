@@ -1,4 +1,5 @@
-﻿using CustomizableMessageBox;
+﻿using ClosedXML.Excel;
+using CustomizableMessageBox;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -315,6 +316,64 @@ namespace AnalyzeCode
             CurrentInputMessage = "";
             InputLock = false;
             LastInputValue = "";
+        }
+    }
+
+    public static class Output
+    {
+        private static Dictionary<string, XLWorkbook> workBookDic;
+
+        private static bool isSaveDefaultWorkBook = true;
+
+        public static bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultWorkBook = value; }
+
+        public static XLWorkbook CreateWorkbook(string name)
+        {
+            if (workBookDic.ContainsKey(name))
+            {
+                throw new Exception("The excel name is repeated multiple times. ");
+            }
+
+            XLWorkbook workbook = new XLWorkbook();
+            workBookDic.Add(name, workbook);
+            return workbook;
+        }
+
+        public static XLWorkbook GetWorkbook(string name)
+        {
+            if (!workBookDic.ContainsKey(name))
+            {
+                throw new Exception("Can't find the book. ");
+            }
+
+            return workBookDic[name];
+        }
+
+        public static IXLWorksheet GetSheet(string workbookName, string sheetName)
+        {
+            if (!workBookDic.ContainsKey(workbookName))
+            {
+                throw new Exception("Can't find the workbook. ");
+            }
+
+            XLWorkbook workbook = workBookDic[workbookName];
+
+            if (!workbook.Worksheets.Contains(sheetName))
+            {
+                throw new Exception("Can't find the worksheet. ");
+            }
+
+            return workbook.Worksheet(sheetName);
+        }
+
+        public static Dictionary<string, XLWorkbook> GetAllWorkbooks()
+        {
+            return workBookDic;
+        }
+
+        public static void ClearWorkbooks()
+        {
+            workBookDic = new Dictionary<string, XLWorkbook>();
         }
     }
 }

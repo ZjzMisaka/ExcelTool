@@ -1296,6 +1296,8 @@ namespace ExcelTool.ViewModel
             GlobalObjects.GlobalObjects.SetGlobalParam(null);
 
             Scanner.ResetAll();
+            Output.ClearWorkbooks();
+            Output.IsSaveDefaultWorkBook = true;
 
             if (!isAuto)
             {
@@ -1605,15 +1607,6 @@ namespace ExcelTool.ViewModel
             using (var workbook = new XLWorkbook())
             {
                 string resPath = outputPath.Replace("\\", "/");
-                string filePath;
-                if (outputPath.EndsWith("/"))
-                {
-                    filePath = $"{resPath}{outputName}.xlsx";
-                }
-                else
-                {
-                    filePath = $"{resPath}/{outputName}.xlsx";
-                }
 
                 foreach (Analyzer analyzer in compilerDic.Keys)
                 {
@@ -1824,60 +1817,31 @@ namespace ExcelTool.ViewModel
                     }
                 }
 
-                bool saveResult = false;
-                SaveFile(isAuto, filePath, workbook, out saveResult);
-                if (!saveResult)
+                if (Output.IsSaveDefaultWorkBook)
                 {
-                    if (!isAuto)
+                    string filePath;
+                    if (outputPath.EndsWith("/"))
                     {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource(Application.Current.FindResource("Ok").ToString()).ToString() }, Application.Current.FindResource("FileNotSaved").ToString(), Application.Current.FindResource("Info").ToString());
+                        filePath = $"{resPath}{outputName}.xlsx";
                     }
                     else
                     {
-                        Logger.Error(Application.Current.FindResource("FileNotSaved").ToString());
+                        filePath = $"{resPath}/{outputName}.xlsx";
                     }
-
-                    FinishRunning();
-                    return;
+                    FileHelper.SaveWorkbook(isAuto, filePath, workbook, CbIsAutoOpenIsChecked);
                 }
-
-                Logger.Info($"{Application.Current.FindResource("FileSaved").ToString()}\n{filePath}");
-                if (!isAuto && CbIsAutoOpenIsChecked == false)
+                foreach (string name in Output.GetAllWorkbooks().Keys)
                 {
-                    Button btnOpenFile = new Button();
-                    btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                    btnOpenFile.Content = Application.Current.FindResource("OpenFile").ToString();
-                    btnOpenFile.Click += (s, ee) =>
+                    string filePath;
+                    if (outputPath.EndsWith("/"))
                     {
-                        System.Diagnostics.Process.Start(filePath);
-                        CustomizableMessageBox.MessageBox.CloseNow();
-                    };
-
-                    Button btnOpenPath = new Button();
-                    btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                    btnOpenPath.Content = Application.Current.FindResource("OpenPath").ToString();
-                    btnOpenPath.Click += (s, ee) =>
-                    {
-                        System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
-                        CustomizableMessageBox.MessageBox.CloseNow();
-                    };
-
-                    Button btnClose = new Button();
-                    btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
-                    btnClose.Content = Application.Current.FindResource("Close").ToString();
-                    btnClose.Click += (s, ee) =>
-                    {
-                        CustomizableMessageBox.MessageBox.CloseNow();
-                    };
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, "文件已保存。", "OK");
-                }
-                else
-                {
-                    if (CbIsAutoOpenIsChecked == true)
-                    {
-                        Logger.Info(Application.Current.FindResource("AutoOpened").ToString());
-                        System.Diagnostics.Process.Start(filePath);
+                        filePath = $"{resPath}{name}.xlsx";
                     }
+                    else
+                    {
+                        filePath = $"{resPath}/{name}.xlsx";
+                    }
+                    FileHelper.SaveWorkbook(isAuto, filePath, Output.GetWorkbook(name), CbIsAutoOpenIsChecked);
                 }
             }
 
@@ -2036,31 +2000,6 @@ namespace ExcelTool.ViewModel
                     Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunEnd(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
                     runNotSuccessed = true;
                     Stop();
-                }
-            }
-        }
-
-        private void SaveFile(bool isAuto, string filePath, XLWorkbook workbook, out bool result)
-        {
-            try
-            {
-                workbook.SaveAs(filePath);
-                result = true;
-            }
-            catch (Exception e)
-            {
-                int res = 2;
-                if (!isAuto)
-                {
-                    res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Yes").ToString(), Application.Current.FindResource("No").ToString() }, $"{Application.Current.FindResource("FailedToSaveFile").ToString()} \n{e.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Question);
-                }
-                if (res == 2)
-                {
-                    result = false;
-                }
-                else
-                {
-                    SaveFile(isAuto, filePath, workbook, out result);
                 }
             }
         }

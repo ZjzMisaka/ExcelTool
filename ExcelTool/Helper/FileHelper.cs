@@ -1,4 +1,6 @@
-﻿using GlobalObjects;
+﻿using ClosedXML.Excel;
+using CustomizableMessageBox;
+using GlobalObjects;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace ExcelTool.Helper
 {
@@ -191,6 +194,92 @@ namespace ExcelTool.Helper
             if (arguments.Length > 0)
             {
                 Process.Start("ExcelToolAfterClosed.exe", arguments);
+            }
+        }
+
+        public static void SaveWorkbook(bool isAuto, string filePath, XLWorkbook workbook, bool isAutoOpen)
+        {
+            bool saveResult = false;
+            SaveFile(isAuto, filePath, workbook, out saveResult);
+            if (!saveResult)
+            {
+                string fileNotSavedStr = $"{Application.Current.FindResource("FileNotSaved").ToString()}: \n{filePath}";
+                if (!isAuto)
+                {
+                    Logger.Error(fileNotSavedStr);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource(Application.Current.FindResource("Ok").ToString()).ToString() }, fileNotSavedStr, Application.Current.FindResource("Info").ToString());
+                }
+                else
+                {
+                    Logger.Error(fileNotSavedStr);
+                }
+
+                return;
+            }
+
+            string fileSavedStr = $"{Application.Current.FindResource("FileSaved").ToString()}: \n{filePath}";
+            Logger.Info(fileSavedStr);
+            if (!isAuto && isAutoOpen == false)
+            {
+                Button btnOpenFile = new Button();
+                btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                btnOpenFile.Content = Application.Current.FindResource("OpenFile").ToString();
+                btnOpenFile.Click += (s, ee) =>
+                {
+                    System.Diagnostics.Process.Start(filePath);
+                    CustomizableMessageBox.MessageBox.CloseNow();
+                };
+
+                Button btnOpenPath = new Button();
+                btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                btnOpenPath.Content = Application.Current.FindResource("OpenPath").ToString();
+                btnOpenPath.Click += (s, ee) =>
+                {
+                    System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
+                    CustomizableMessageBox.MessageBox.CloseNow();
+                };
+
+                Button btnClose = new Button();
+                btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                btnClose.Content = Application.Current.FindResource("Close").ToString();
+                btnClose.Click += (s, ee) =>
+                {
+                    CustomizableMessageBox.MessageBox.CloseNow();
+                };
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, fileSavedStr, "OK");
+            }
+            else
+            {
+                if (isAutoOpen == true)
+                {
+                    Logger.Info(Application.Current.FindResource("AutoOpened").ToString());
+                    Process.Start(filePath);
+                }
+            }
+        }
+
+        private static void SaveFile(bool isAuto, string filePath, XLWorkbook workbook, out bool result)
+        {
+            try
+            {
+                workbook.SaveAs(filePath);
+                result = true;
+            }
+            catch (Exception e)
+            {
+                int res = 2;
+                if (!isAuto)
+                {
+                    res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Yes").ToString(), Application.Current.FindResource("No").ToString() }, $"{Application.Current.FindResource("FailedToSaveFile").ToString()} \n{e.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Question);
+                }
+                if (res == 2)
+                {
+                    result = false;
+                }
+                else
+                {
+                    SaveFile(isAuto, filePath, workbook, out result);
+                }
             }
         }
     }
