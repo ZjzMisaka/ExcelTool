@@ -2,6 +2,7 @@
 批量分析Excel文件, 并将分析结果输出到Excel文件中  
 [查看示例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [执行时的gif图](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
+
 ### 多语言
 - [x] 简体中文
 - [x] 日本語
@@ -9,46 +10,47 @@
 
 ### 主界面
 - 设定完成检索信息和分析逻辑后通过下拉框选择, 使一行检索信息和一行分析逻辑一一对应
-- 可以设定传入参数
-- 设定检索根目录和输出目录, 输出文件名
-- 通过规则下拉框选择设定好的规则可以自动填充以上内容
+- 可以设定传入参数, 设定检索根目录和输出目录, 默认输出文件的输出文件名
+- 通过规则下拉框选择保存过的规则可以自动填充以上内容
     - 选择规则后可以设定监视对一些文件夹和文件进行监视, 出现变动后自动执行这项规则
-- 点击开始可以手动执行
 <img src="https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool01.png?20220603" width="400px" />
 
 ### 检索信息分析界面
 **用于设定需要查找哪些路径下的哪些Excel文件的哪些Sheet**
 - 查找的方式可以有选择全部, 完整匹配, 部分包含和正则表达式
-- 设定完成后可保存以便后续使用
 <img src="https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool03.png?20220603" width="400px" />
 
 ### 逻辑分析界面
 **用于设定对某一类Sheet进行怎样的分析, 分析完毕后如何进行输出 (或者如何处理并保留分析的结果供后续使用)**
-- 在编辑器中编写代码, 在分析阶段程序会调用AnalyzeSheet函数, 在输出阶段会调用SetResult函数. 
-- 设定完成后可保存以便后续使用
+- 在编辑器中编写代码, 运行中会依次执行.  
 <img src="https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool02.png?20220603" width="400px" />
 
 #### 编码相关
-- 编码内容依赖[ClosedXML](https://github.com/ClosedXML/ClosedXML)开源库 **(支持自动补全等功能)**
+- 全程自动补全与着色, 可以自行向Dlls文件夹添加dll文件
+- 编码内容依赖[ClosedXML](https://github.com/ClosedXML/ClosedXML)开源库
+- 可以使用GlobalObjects中提供的函数与属性, 在运行中进行
+    - Log的输出
+    - 用户输入的读取
+    - 额外的Excel文件操作
 - 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
 
-##### Logger类
+##### Logger静态类
 ```c#
 // ---- 输出Log函数 ----
 // 根据输出log类型不同, 会有不同的着色区分. 
-void Logger.Error(string info);
-void Logger.Warn(string error);
-void Logger.Info(string warn);
-void Logger.Print(string str);
+void Info(string info);
+void Warn(string warn);
+void Error(string error);
+void Print(string str);
 ```
 
-##### Scanner类
+##### Scanner静态类
 ```c#
 // ---- 获取输入函数 ----
 // 参数是获取输入的提示语, 执行后会等待直到用户进行输入. 
 // 如果有其他线程正在等待输入中, 则会先等待排在前面的线程获取完毕, 再执行此语句的内容.  
-string Scanner.GetInput();
-string Scanner.GetInput(string value);
+string GetInput();
+string GetInput(string value);
 
 // ---- 等待输入函数 ----
 // 可能是无用函数. 可以在其他线程正在执行输入时等待直到用户输入被获取. 
@@ -59,22 +61,22 @@ string WaitInput();
 string LastInputValue { get => lastInputValue; set => lastInputValue = value; }
 ```
 
-##### Output类
+##### Output静态类
 ```c#
 // ---- Excel文件操作 ----
 // 新建一个excel文件
-public static XLWorkbook CreateWorkbook(string name);
+XLWorkbook CreateWorkbook(string name);
 // 获得一个通过CreateWorkbook创建的excel文件
-public static XLWorkbook GetWorkbook(string name);
+XLWorkbook GetWorkbook(string name);
 // 获取一个sheet
-public static IXLWorksheet GetSheet(string workbookName, string sheetName);
+IXLWorksheet GetSheet(string workbookName, string sheetName);
 // 获取创建的所有excel文件
-public static Dictionary<string, XLWorkbook> GetAllWorkbooks();
+Dictionary<string, XLWorkbook> GetAllWorkbooks();
 // 清除创建的所有excel文件
-public static void ClearWorkbooks();
+void ClearWorkbooks();
 
 // ---- 是否保存默认输出文件属性 ----
-public static bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultWorkBook = value; }
+bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultWorkBook = value; }
 ```
 
 ##### RunBeforeAnalyze函数
