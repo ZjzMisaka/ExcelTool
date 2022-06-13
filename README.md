@@ -32,8 +32,9 @@
 - 编码内容依赖[ClosedXML](https://github.com/ClosedXML/ClosedXML)开源库 **(支持自动补全等功能)**
 - 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
 
-##### 输出Log函数
+##### Logger类
 ```c#
+// ---- 输出Log函数 ----
 // 根据输出log类型不同, 会有不同的着色区分. 
 void Logger.Error(string info);
 void Logger.Warn(string error);
@@ -41,24 +42,39 @@ void Logger.Info(string warn);
 void Logger.Print(string str);
 ```
 
-##### 获取输入函数
+##### Scanner类
 ```c#
+// ---- 获取输入函数 ----
 // 参数是获取输入的提示语, 执行后会等待直到用户进行输入. 
 // 如果有其他线程正在等待输入中, 则会先等待排在前面的线程获取完毕, 再执行此语句的内容.  
 string Scanner.GetInput();
 string Scanner.GetInput(string value);
-```
 
-##### 等待输入函数
-```c#
+// ---- 等待输入函数 ----
 // 可能是无用函数. 可以在其他线程正在执行输入时等待直到用户输入被获取. 
 // 返回最近用户输入的内容. 
 string WaitInput();
+
+// ---- 最近输入内容属性 ----
+string LastInputValue { get => lastInputValue; set => lastInputValue = value; }
 ```
 
-##### 最近输入内容属性
+##### Output类
 ```c#
-string LastInputValue { get => lastInputValue; set => lastInputValue = value; }
+// ---- Excel文件操作 ----
+// 新建一个excel文件
+public static XLWorkbook CreateWorkbook(string name);
+// 获得一个通过CreateWorkbook创建的excel文件
+public static XLWorkbook GetWorkbook(string name);
+// 获取一个sheet
+public static IXLWorksheet GetSheet(string workbookName, string sheetName);
+// 获取创建的所有excel文件
+public static Dictionary<string, XLWorkbook> GetAllWorkbooks();
+// 清除创建的所有excel文件
+public static void ClearWorkbooks();
+
+// ---- 是否保存默认输出文件属性 ----
+public static bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultWorkBook = value; }
 ```
 
 ##### RunBeforeAnalyze函数
