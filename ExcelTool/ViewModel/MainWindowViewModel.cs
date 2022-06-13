@@ -424,6 +424,7 @@ namespace ExcelTool.ViewModel
             TeParams.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
             TeParams.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             TeParams.TextChanged += TeParamsTextChanged;
+            TeParams.PreviewKeyDown += TeParamsPreviewKeyDown;
             TeParams.BorderBrush = Brushes.Gray;
             TeParams.BorderThickness = new Thickness(1);
             TeParams.Padding = new Thickness(3);
@@ -814,6 +815,14 @@ namespace ExcelTool.ViewModel
             CbParamsSelectionChangedCommand = null;
             SelectedParamsIndex = 0;
             CbParamsSelectionChangedCommand = new RelayCommand(CbParamsSelectionChanged);
+        }
+
+        private void TeParamsPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                e.Handled = true;
+            }
         }
 
         private void TbParamsLostFocus()
