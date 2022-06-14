@@ -1,7 +1,9 @@
 ﻿using ClosedXML.Excel;
 using CustomizableMessageBox;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -321,7 +323,7 @@ namespace AnalyzeCode
 
     public static class Output
     {
-        private static Dictionary<string, XLWorkbook> workBookDic;
+        private static ConcurrentDictionary<string, XLWorkbook> workbookDic;
 
         private static bool isSaveDefaultWorkBook = true;
 
@@ -329,34 +331,46 @@ namespace AnalyzeCode
 
         public static XLWorkbook CreateWorkbook(string name)
         {
-            if (workBookDic.ContainsKey(name))
+            if (workbookDic.ContainsKey(name))
             {
                 throw new Exception("The excel name is repeated multiple times. ");
             }
 
             XLWorkbook workbook = new XLWorkbook();
-            workBookDic.Add(name, workbook);
+
+            if (!workbookDic.TryAdd(name, workbook))
+            {
+                return null;
+            }
+
             return workbook;
         }
 
         public static XLWorkbook GetWorkbook(string name)
         {
-            if (!workBookDic.ContainsKey(name))
+            if (!workbookDic.ContainsKey(name))
             {
                 throw new Exception("Can't find the book. ");
             }
 
-            return workBookDic[name];
+            XLWorkbook workbook = null;
+            workbookDic.TryGetValue(name, out workbook);
+            return workbook;
         }
 
         public static IXLWorksheet GetSheet(string workbookName, string sheetName)
         {
-            if (!workBookDic.ContainsKey(workbookName))
+            if (!workbookDic.ContainsKey(workbookName))
             {
                 throw new Exception("Can't find the workbook. ");
             }
 
-            XLWorkbook workbook = workBookDic[workbookName];
+            XLWorkbook workbook = null;
+            workbookDic.TryGetValue(workbookName, out workbook);
+            if (workbook == null)
+            {
+                throw new Exception("Can't get the worksheet. get workbook failed. ");
+            }
 
             return GetSheet(workbook, sheetName);
         }
@@ -373,12 +387,12 @@ namespace AnalyzeCode
 
         public static Dictionary<string, XLWorkbook> GetAllWorkbooks()
         {
-            return workBookDic;
+            return workbookDic.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         public static void ClearWorkbooks()
         {
-            workBookDic = new Dictionary<string, XLWorkbook>();
+            workbookDic = new ConcurrentDictionary<string, XLWorkbook>();
         }
     }
 }
