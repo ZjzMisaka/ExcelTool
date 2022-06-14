@@ -3,13 +3,16 @@
  
     <!-- This is the main ruleset. -->
     <RuleSet>
-        <Rule foreground="Blue">
+        <Rule foreground="DodgerBlue">
             [:]{1}
         </Rule>
         <Rule foreground="Red">
             [|]{1}
         </Rule>
         <Rule foreground="Green">
+          [\+]{1}
+        </Rule>
+        <Rule foreground="Orange">
           [{}]{1}
         </Rule>
     </RuleSet>

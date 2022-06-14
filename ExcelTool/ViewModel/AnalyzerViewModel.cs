@@ -28,7 +28,7 @@ namespace ExcelTool.ViewModel
         private readonly ObservableCollection<DocumentViewModel> _documents;
         private RoslynHost _host;
         private RoslynCodeEditor editor;
-        private Dictionary<string, string> paramDicForChange;
+        private Dictionary<string, ParamInfo> paramDicForChange;
         ItemsControl itemsControl;
 
         private double windowWidth;
@@ -350,6 +350,11 @@ namespace ExcelTool.ViewModel
 
         private void CbAnalyzersSelectionChanged()
         {
+            if (editor == null)
+            {
+                return;
+            }
+
             BtnDeleteIsEnabled = SelectedAnalyzersIndex >= 1 ? true : false;
             BtnEditParamIsEnabled = SelectedAnalyzersIndex >= 1 ? true : false;
 
@@ -390,9 +395,16 @@ namespace ExcelTool.ViewModel
             ColumnDefinition columnDefinitionL = new ColumnDefinition();
             paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
 
+            ColumnDefinition columnDefinitionML = new ColumnDefinition();
+            columnDefinitionML.Width = new GridLength(20);
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionML);
+
             ColumnDefinition columnDefinitionM = new ColumnDefinition();
-            columnDefinitionM.Width = new GridLength(20);
             paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionM);
+
+            ColumnDefinition columnDefinitionMR = new ColumnDefinition();
+            columnDefinitionMR.Width = new GridLength(20);
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionMR);
 
             ColumnDefinition columnDefinitionR = new ColumnDefinition();
             paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
@@ -412,13 +424,36 @@ namespace ExcelTool.ViewModel
             Grid.SetColumn(textEditorL, 0);
             paramEditor.g_main.Children.Add(textEditorL);
 
-            TextBlock textBlock = new TextBlock();
-            textBlock.Text = "=";
-            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            textBlock.VerticalAlignment = VerticalAlignment.Center;
-            Grid.SetRow(textBlock, 0);
-            Grid.SetColumn(textBlock, 1);
-            paramEditor.g_main.Children.Add(textBlock);
+            TextBlock textBlockML = new TextBlock();
+            textBlockML.Text = "=";
+            textBlockML.HorizontalAlignment = HorizontalAlignment.Center;
+            textBlockML.VerticalAlignment = VerticalAlignment.Center;
+            Grid.SetRow(textBlockML, 0);
+            Grid.SetColumn(textBlockML, 1);
+            paramEditor.g_main.Children.Add(textBlockML);
+
+            TextEditor textEditorM = new TextEditor();
+            textEditorM.ShowLineNumbers = true;
+            textEditorM.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorM.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            if (paramDicForChange != null && paramDicForChange.Keys != null && paramDicForChange.Keys.Count > 0)
+            {
+                foreach (ParamInfo paramInfo in paramDicForChange.Values)
+                {
+                    textEditorM.Text += $"{paramInfo.describe}\n";
+                }
+            }
+            Grid.SetRow(textEditorM, 0);
+            Grid.SetColumn(textEditorM, 2);
+            paramEditor.g_main.Children.Add(textEditorM);
+
+            TextBlock textBlockMR = new TextBlock();
+            textBlockMR.Text = "=";
+            textBlockMR.HorizontalAlignment = HorizontalAlignment.Center;
+            textBlockMR.VerticalAlignment = VerticalAlignment.Center;
+            Grid.SetRow(textBlockMR, 0);
+            Grid.SetColumn(textBlockMR, 3);
+            paramEditor.g_main.Children.Add(textBlockMR);
 
             TextEditor textEditorR = new TextEditor();
             textEditorR.ShowLineNumbers = true;
@@ -426,13 +461,35 @@ namespace ExcelTool.ViewModel
             textEditorR.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             if (paramDicForChange != null && paramDicForChange.Keys != null && paramDicForChange.Keys.Count > 0)
             {
-                foreach (string str in paramDicForChange.Values)
+                foreach (ParamInfo paramInfo in paramDicForChange.Values)
                 {
-                    textEditorR.Text += $"{str}\n";
+                    string possibleValues = "";
+                    if (paramInfo.possibleValues != null)
+                    {
+                        foreach (string possibleValue in paramInfo.possibleValues)
+                        {
+                            if (paramInfo.type == ParamType.Single)
+                            {
+                                possibleValues += $"{possibleValue}|";
+                            }
+                            else if (paramInfo.type == ParamType.Multiple)
+                            {
+                                possibleValues += $"{possibleValue}+";
+                            }
+                        }
+                    }
+                    if (possibleValues != "")
+                    {
+                        textEditorR.Text += $"{possibleValues.Remove(possibleValues.Length - 1)}\n";
+                    }
+                    else 
+                    {
+                        textEditorR.Text += "\n";
+                    }
                 }
             }
             Grid.SetRow(textEditorR, 0);
-            Grid.SetColumn(textEditorR, 2);
+            Grid.SetColumn(textEditorR, 4);
             paramEditor.g_main.Children.Add(textEditorR);
 
             Button btnOk = new Button();
@@ -441,13 +498,26 @@ namespace ExcelTool.ViewModel
             btnOk.Click += (s, ex) =>
             {
                 List<string> keyList = textEditorL.Text.Replace("\r", "").Split('\n').Where(str => str.Trim() != "").ToList();
-                List<string> valueList = textEditorR.Text.Replace("\r", "").Split('\n').Where(str => str.Trim() != "").ToList();
-                if (keyList.Count == valueList.Count)
+                List<string> describeList = textEditorM.Text.Replace("\r", "").Split('\n').Where(str => str.Trim() != "").ToList();
+                List<string> possibleValueList = textEditorR.Text.Replace("\r", "").Split('\n').ToList();
+                if (keyList.Count == describeList.Count)
                 {
-                    Dictionary<string, string> changedParamDic = new Dictionary<string, string>();
+                    Dictionary<string, ParamInfo> changedParamDic = new Dictionary<string, ParamInfo>();
                     for (int i = 0; i < keyList.Count; ++i)
                     {
-                        changedParamDic.Add(keyList[i], valueList[i]);
+                        string possibleValue = possibleValueList[i];
+                        if (possibleValue.Contains('|'))
+                        {
+                            changedParamDic.Add(keyList[i], new ParamInfo(describeList[i], possibleValue.Split('|').ToList(), ParamType.Single));
+                        }
+                        else if (possibleValue.Contains('+'))
+                        {
+                            changedParamDic.Add(keyList[i], new ParamInfo(describeList[i], possibleValue.Split('+').ToList(), ParamType.Multiple));
+                        }
+                        else
+                        {
+                            changedParamDic.Add(keyList[i], new ParamInfo(describeList[i], null, ParamType.Multiple));
+                        }
                     }
                     paramDicForChange = changedParamDic;
                 }
@@ -455,7 +525,7 @@ namespace ExcelTool.ViewModel
                 paramEditor.Close();
             };
             Grid.SetRow(btnOk, 1);
-            Grid.SetColumnSpan(btnOk, 3);
+            Grid.SetColumnSpan(btnOk, 5);
             paramEditor.g_main.Children.Add(btnOk);
 
             paramEditor.ShowDialog();

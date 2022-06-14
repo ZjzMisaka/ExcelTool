@@ -660,6 +660,7 @@ namespace ExcelTool.ViewModel
         private void EditParam()
         {
             ParamEditor paramEditor = new ParamEditor();
+            int groupIndex = 0;
 
             string paramStr = "";
             TeParams.Dispatcher.Invoke(() =>
@@ -718,16 +719,31 @@ namespace ExcelTool.ViewModel
                 {
                     continue;
                 }
+
+                GridSplitter gridSplitter = new GridSplitter();
+                gridSplitter.HorizontalAlignment = HorizontalAlignment.Right;
+                gridSplitter.VerticalAlignment = VerticalAlignment.Stretch;
+                gridSplitter.Width = 4;
+                gridSplitter.BorderThickness = new Thickness(1, 0, 1, 0);
+                gridSplitter.BorderBrush = Brushes.Black;
+                gridSplitter.Background = Brushes.AntiqueWhite;
+                Grid.SetRow(gridSplitter, rowNum + 1);
+                Grid.SetRowSpan(gridSplitter, analyzer.paramDic.Keys.Count);
+                Grid.SetColumn(gridSplitter, 0);
+                paramEditor.g_main.Children.Add(gridSplitter);
+
                 foreach (string key in analyzer.paramDic.Keys)
                 {
                     RowDefinition rowDefinitionKv = new RowDefinition();
-                    rowDefinitionKv.Height = new GridLength(30);
                     paramEditor.g_main.RowDefinitions.Add(rowDefinitionKv);
                     ++rowNum;
 
                     TextBlock textBlockKey = new TextBlock();
+                    textBlockKey.Margin = new Thickness(0, 5, 0, 0);
                     textBlockKey.Height = 25;
-                    textBlockKey.Text = analyzer.paramDic[key];
+                    textBlockKey.Text = analyzer.paramDic[key].describe;
+                    textBlockKey.HorizontalAlignment = HorizontalAlignment.Left;
+                    textBlockKey.VerticalAlignment = VerticalAlignment.Top;
                     Grid.SetRow(textBlockKey, rowNum);
                     Grid.SetColumn(textBlockKey, 0);
                     textBlockKey.MouseEnter += (s, ex) =>
@@ -740,53 +756,161 @@ namespace ExcelTool.ViewModel
                     };
                     textBlockKey.MouseLeave += (s, ex) =>
                     {
-                        textBlockKey.Text = analyzer.paramDic[key];
+                        textBlockKey.Text = analyzer.paramDic[key].describe;
                     };
                     textBlockKey.TouchLeave += (s, ex) =>
                     {
-                        textBlockKey.Text = analyzer.paramDic[key];
+                        textBlockKey.Text = analyzer.paramDic[key].describe;
                     };
                     paramEditor.g_main.Children.Add(textBlockKey);
 
-                    TextBox tbValue = new TextBox();
-                    tbValue.Height = 25;
-                    tbValue.Margin = new Thickness(5, 0, 0, 0);
-                    tbValue.HorizontalAlignment = HorizontalAlignment.Stretch;
-                    tbValue.VerticalContentAlignment = VerticalAlignment.Center;
-                    if (paramDic != null && paramDic.ContainsKey(key))
-                    {
-                        tbValue.Text = paramDic[key];
-                    }
-                    else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
-                    {
-                        tbValue.Text = paramDicEachAnalyzer["public"][key];
-                    }
-                    tbValue.TextChanged += (s, ex) =>
-                    {
-                        if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
-                        {
-                            paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
-                        }
-                        paramDicEachAnalyzer[analyzerName][key] = tbValue.Text;
-                    };
-                    Grid.SetRow(tbValue, rowNum);
-                    Grid.SetColumn(tbValue, 1);
+                    StackPanel stackPanel = new StackPanel();
+                    stackPanel.Margin = new Thickness(5, 5, 0, 5);
+                    Grid.SetRow(stackPanel, rowNum);
+                    Grid.SetColumn(stackPanel, 1);
 
-                    paramEditor.g_main.Children.Add(tbValue);
+                    if (analyzer.paramDic[key].possibleValues != null && analyzer.paramDic[key].possibleValues.Count > 0)
+                    {
+                        if (analyzer.paramDic[key].type == ParamType.Single)
+                        {
+                            ++groupIndex;
+                            foreach (string value in analyzer.paramDic[key].possibleValues)
+                            {
+                                RadioButton radioButton = new RadioButton();
+                                radioButton.Height = 20;
+                                radioButton.HorizontalAlignment = HorizontalAlignment.Stretch;
+                                radioButton.VerticalContentAlignment = VerticalAlignment.Top;
+                                radioButton.GroupName = $"{analyzerName}_{key}_{groupIndex}";
+                                radioButton.Content = value;
+                                stackPanel.Children.Add(radioButton);
+
+                                radioButton.Checked += (s, ex) =>
+                                {
+                                    if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
+                                    {
+                                        paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
+                                    }
+                                    paramDicEachAnalyzer[analyzerName][key] = value;
+                                };
+
+                                if (paramDic != null && paramDic.ContainsKey(key))
+                                {
+                                    if (value == paramDic[key])
+                                    {
+                                        radioButton.IsChecked = true;
+                                    }
+                                }
+                                else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
+                                {
+                                    if (value == paramDicEachAnalyzer["public"][key])
+                                    {
+                                        radioButton.IsChecked = true;
+                                    }
+                                }
+                            }
+                        }
+                        else if (analyzer.paramDic[key].type == ParamType.Multiple)
+                        {
+                            foreach (string value in analyzer.paramDic[key].possibleValues)
+                            {
+                                CheckBox checkBox = new CheckBox();
+                                checkBox.Height = 20;
+                                checkBox.HorizontalAlignment = HorizontalAlignment.Stretch;
+                                checkBox.VerticalContentAlignment = VerticalAlignment.Top;
+                                checkBox.Content = value;
+                                stackPanel.Children.Add(checkBox);
+
+                                checkBox.Checked += (s, ex) =>
+                                {
+                                    if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
+                                    {
+                                        paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
+                                    }
+                                    if (!paramDicEachAnalyzer[analyzerName].ContainsKey(key))
+                                    {
+                                        paramDicEachAnalyzer[analyzerName].Add(key, value);
+                                    }
+                                    else
+                                    {
+                                        if (paramDicEachAnalyzer[analyzerName][key] == "")
+                                        {
+                                            paramDicEachAnalyzer[analyzerName][key] += value;
+                                        }
+                                        else 
+                                        {
+                                            if (!paramDicEachAnalyzer[analyzerName][key].Split('+').ToArray().Contains(value))
+                                            {
+                                                paramDicEachAnalyzer[analyzerName][key] += $"+{value}";
+                                            }
+                                        }
+                                    }
+                                };
+                                checkBox.Unchecked += (s, ex) =>
+                                {
+                                    string valueTemp = paramDicEachAnalyzer[analyzerName][key];
+                                    if (valueTemp.Contains($"+{value}"))
+                                    {
+                                        paramDicEachAnalyzer[analyzerName][key] = valueTemp.Replace($"+{value}", "");
+                                    }
+                                    else if (valueTemp.Contains(value))
+                                    {
+                                        paramDicEachAnalyzer[analyzerName][key] = valueTemp.Replace(value, "");
+                                    }
+                                };
+
+                                if (paramDic != null && paramDic.ContainsKey(key))
+                                {
+                                    List<string> valueList = paramDic[key].Split('+').ToList();
+                                    if (valueList.Contains(value))
+                                    {
+                                        checkBox.IsChecked = true;
+                                    }
+                                }
+                                else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
+                                {
+                                    List<string> valueList = paramDicEachAnalyzer["public"][key].Split('+').ToList();
+                                    if (valueList.Contains(value))
+                                    {
+                                        checkBox.IsChecked = true;
+                                    }
+                                }
+                            }
+                        }
+                        rowDefinitionKv.Height = new GridLength(20 * analyzer.paramDic[key].possibleValues.Count + 10);
+                    }
+                    else
+                    {
+                        TextBox tbValue = new TextBox();
+                        tbValue.Height = 25;
+                        tbValue.HorizontalAlignment = HorizontalAlignment.Stretch;
+                        tbValue.VerticalContentAlignment = VerticalAlignment.Top;
+                        
+                        tbValue.TextChanged += (s, ex) =>
+                        {
+                            if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
+                            {
+                                paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
+                            }
+                            paramDicEachAnalyzer[analyzerName][key] = tbValue.Text;
+                        };
+
+                        if (paramDic != null && paramDic.ContainsKey(key))
+                        {
+                            tbValue.Text = paramDic[key];
+                        }
+                        else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
+                        {
+                            tbValue.Text = paramDicEachAnalyzer["public"][key];
+                        }
+
+                        stackPanel.Children.Add(tbValue);
+
+                        rowDefinitionKv.Height = new GridLength(40);
+                    }
+
+                    paramEditor.g_main.Children.Add(stackPanel);
                 }
             }
-
-            GridSplitter gridSplitter = new GridSplitter();
-            gridSplitter.HorizontalAlignment = HorizontalAlignment.Right;
-            gridSplitter.VerticalAlignment = VerticalAlignment.Stretch;
-            gridSplitter.Width = 4;
-            gridSplitter.BorderThickness = new Thickness(1, 0, 1, 0);
-            gridSplitter.BorderBrush = Brushes.Black;
-            gridSplitter.Background = Brushes.AntiqueWhite;
-            Grid.SetRow(gridSplitter, 0);
-            Grid.SetRowSpan(gridSplitter, rowNum + 1 <= 0 ? 1 : rowNum + 1);
-            Grid.SetColumn(gridSplitter, 0);
-            paramEditor.g_main.Children.Add(gridSplitter);
 
             RowDefinition rowDefinitionBlank = new RowDefinition();
             paramEditor.g_main.RowDefinitions.Add(rowDefinitionBlank);
