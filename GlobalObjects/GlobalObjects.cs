@@ -358,6 +358,11 @@ namespace AnalyzeCode
 
             XLWorkbook workbook = workBookDic[workbookName];
 
+            return GetSheet(workbook, sheetName);
+        }
+
+        public static IXLWorksheet GetSheet(XLWorkbook workbook, string sheetName)
+        {
             if (!workbook.Worksheets.Contains(sheetName))
             {
                 throw new Exception("Can't find the worksheet. ");
