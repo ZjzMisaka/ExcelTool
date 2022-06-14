@@ -70,6 +70,7 @@ XLWorkbook CreateWorkbook(string name);
 XLWorkbook GetWorkbook(string name);
 // 获取一个sheet
 IXLWorksheet GetSheet(string workbookName, string sheetName);
+IXLWorksheet GetSheet(XLWorkbook workbook, string sheetName);
 // 获取创建的所有excel文件
 Dictionary<string, XLWorkbook> GetAllWorkbooks();
 // 清除创建的所有excel文件
