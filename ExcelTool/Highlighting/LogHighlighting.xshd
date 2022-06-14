@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 <SyntaxDefinition name="Custom Highlighting" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
- 
-    <!-- This is the main ruleset. -->
     <RuleSet>
         <Rule foreground="Red">
             \[Error\]{1}
