@@ -4,14 +4,33 @@
         <Rule foreground="DodgerBlue">
             [:]{1}
         </Rule>
-        <Rule foreground="Red">
+        <Rule foreground="DeepPink">
             [|]{1}
         </Rule>
         <Rule foreground="Green">
-          [\+]{1}
+            [\+]{1}
         </Rule>
-        <Rule foreground="Orange">
-          [{}]{1}
+        <Rule foreground="DarkOrange">
+            [{}]{1}
+        </Rule>
+
+        <Rule foreground="Gray">
+            \\:
+        </Rule>
+        <Rule foreground="Gray">
+            \\\|
+        </Rule>
+        <Rule foreground="Gray">
+            \\\+
+        </Rule>
+        <Rule foreground="Gray">
+            \\{
+        </Rule>
+        <Rule foreground="Gray">
+            \\}
+        </Rule>
+        <Rule foreground="Gray">
+            \\\\
         </Rule>
     </RuleSet>
 </SyntaxDefinition>

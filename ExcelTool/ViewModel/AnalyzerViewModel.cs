@@ -1,4 +1,5 @@
-﻿using ICSharpCode.AvalonEdit;
+﻿using ExcelTool.Helper;
+using ICSharpCode.AvalonEdit;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
@@ -358,10 +359,10 @@ namespace ExcelTool.ViewModel
             BtnDeleteIsEnabled = SelectedAnalyzersIndex >= 1 ? true : false;
             BtnEditParamIsEnabled = SelectedAnalyzersIndex >= 1 ? true : false;
 
-            editor.Text = GlobalObjects.GlobalObjects.GetDefaultCode();
-
             if (SelectedAnalyzersIndex == 0)
             {
+                editor.Text = GlobalObjects.GlobalObjects.GetDefaultCode();
+                paramDicForChange = new Dictionary<string, ParamInfo>();
                 return;
             }
             Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{SelectedAnalyzersItem}.json"));
@@ -480,7 +481,7 @@ namespace ExcelTool.ViewModel
                     }
                     if (possibleValues != "")
                     {
-                        textEditorR.Text += $"{possibleValues.Remove(possibleValues.Length - 1)}\n";
+                        textEditorR.Text += $"{ParamHelper.Decode1(possibleValues.Remove(possibleValues.Length - 1))}\n";
                     }
                     else 
                     {
@@ -505,7 +506,7 @@ namespace ExcelTool.ViewModel
                     Dictionary<string, ParamInfo> changedParamDic = new Dictionary<string, ParamInfo>();
                     for (int i = 0; i < keyList.Count; ++i)
                     {
-                        string possibleValue = possibleValueList[i];
+                        string possibleValue = ParamHelper.Encode(possibleValueList[i]);
                         if (possibleValue.Contains('|'))
                         {
                             changedParamDic.Add(keyList[i], new ParamInfo(describeList[i], possibleValue.Split('|').ToList(), ParamType.Single));

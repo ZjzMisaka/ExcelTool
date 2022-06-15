@@ -168,7 +168,7 @@ namespace ExcelTool.Helper
                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            String paramStr = File.ReadAllText(".\\Params.txt");
+            String paramStr = ParamHelper.Decode1(File.ReadAllText(".\\Params.txt"));
             List<string> paramsList = paramStr.Split('\n').ToList<string>();
             List<string> newParamsList = new List<string>();
             foreach (string param in paramsList)

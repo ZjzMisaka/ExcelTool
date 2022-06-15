@@ -18,7 +18,7 @@ namespace ExcelTool.Helper
                 {
                     foreach (string key in paramDic.Keys)
                     {
-                        paramStr = $"{ paramStr }|{key}:{paramDic[key]}";
+                        paramStr = $"{ paramStr }|{key}:{Decode1(paramDic[key])}";
                     }
                 }
                 else
@@ -26,7 +26,7 @@ namespace ExcelTool.Helper
                     string paramStrTemp = "";
                     foreach (string key in paramDic.Keys)
                     {
-                        paramStrTemp = $"{ paramStrTemp }|{key}:{paramDic[key]}";
+                        paramStrTemp = $"{ paramStrTemp }|{key}:{Decode1(paramDic[key])}";
                     }
                     paramStrTemp = paramStrTemp.Substring(1);
 
@@ -40,7 +40,7 @@ namespace ExcelTool.Helper
             return paramStr;
         }
 
-        public static Dictionary<string, Dictionary<string, string>> GetParamDicEachAnalyzer(string paramStr)
+        public static Dictionary<string, Dictionary<string, string>> GetParamDicEachAnalyzer(string paramStr, bool decode)
         {
             Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = new Dictionary<string, Dictionary<string, string>>();
 
@@ -77,7 +77,14 @@ namespace ExcelTool.Helper
                         string[] kv = param.Split(':');
                         if (kv.Length == 2)
                         {
-                            paramDic.Add(kv[0], kv[1]);
+                            if (decode)
+                            {
+                                paramDic.Add(kv[0], Decode1(kv[1]));
+                            }
+                            else 
+                            {
+                                paramDic.Add(kv[0], kv[1]);
+                            }
                         }
                     }
                     if (paramDicEachAnalyzer.ContainsKey(analyzerName))
@@ -104,7 +111,14 @@ namespace ExcelTool.Helper
                         {
                             paramDicEachAnalyzer.Add("public", new Dictionary<string, string>());
                         }
-                        paramDicEachAnalyzer["public"].Add(kv[0], kv[1]);
+                        if (decode)
+                        {
+                            paramDicEachAnalyzer["public"].Add(kv[0], Decode1(kv[1]));
+                        }
+                        else
+                        {
+                            paramDicEachAnalyzer["public"].Add(kv[0], kv[1]);
+                        }
                     }
                 }
                 if (tempIndex != -1)
@@ -141,5 +155,24 @@ namespace ExcelTool.Helper
             return aimDic;
         }
 
+        public static string Encode(string paramStr)
+        {
+            return paramStr.Replace("\\\\", "*Backslash*").Replace("\\{", "*LeftCurlyBrace*").Replace("\\}", "*RightCurlyBrace*").Replace("\\:", "*Colon*").Replace("\\|", "*VerticalLine*").Replace("\\+", "*PlusSign*");
+        }
+
+        public static string Decode(string paramStr)
+        {
+            return paramStr.Replace("*Backslash*", "\\").Replace("*LeftCurlyBrace*", "{").Replace("*RightCurlyBrace*", "}").Replace("*Colon*", ":").Replace("*VerticalLine*", "|").Replace("*PlusSign*", "+");
+        }
+
+        public static string Encode1(string paramStr)
+        {
+            return paramStr.Replace("\\", "*Backslash*").Replace("{", "*LeftCurlyBrace*").Replace("}", "*RightCurlyBrace*").Replace(":", "*Colon*").Replace("|", "*VerticalLine*").Replace("+", "*PlusSign*");
+        }
+
+        public static string Decode1(string paramStr)
+        {
+            return paramStr.Replace("*Backslash*", "\\\\").Replace("*LeftCurlyBrace*", "\\{").Replace("*RightCurlyBrace*", "\\}").Replace("*Colon*", "\\:").Replace("*VerticalLine*", "\\|").Replace("*PlusSign*", "\\+");
+        }
     }
 }

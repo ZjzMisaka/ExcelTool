@@ -669,7 +669,9 @@ namespace ExcelTool.ViewModel
                 paramStr = $"{TeParams.Text.Replace("\r\n", "").Replace("\n", "")}";
                 TeParams.Text = paramStr;
             });
-            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
+            paramStr = ParamHelper.Encode(paramStr);
+
+            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr, false);
 
             int rowNum = -1;
 
@@ -789,7 +791,7 @@ namespace ExcelTool.ViewModel
                                 radioButton.HorizontalAlignment = HorizontalAlignment.Stretch;
                                 radioButton.VerticalContentAlignment = VerticalAlignment.Top;
                                 radioButton.GroupName = $"{analyzerName}_{key}_{groupIndex}";
-                                radioButton.Content = value;
+                                radioButton.Content = ParamHelper.Decode(value);
                                 stackPanel.Children.Add(radioButton);
 
                                 radioButton.Checked += (s, ex) =>
@@ -825,7 +827,7 @@ namespace ExcelTool.ViewModel
                                 checkBox.Height = 20;
                                 checkBox.HorizontalAlignment = HorizontalAlignment.Stretch;
                                 checkBox.VerticalContentAlignment = VerticalAlignment.Top;
-                                checkBox.Content = value;
+                                checkBox.Content = ParamHelper.Decode(value);
                                 stackPanel.Children.Add(checkBox);
 
                                 checkBox.Checked += (s, ex) =>
@@ -900,16 +902,16 @@ namespace ExcelTool.ViewModel
                             {
                                 paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
                             }
-                            paramDicEachAnalyzer[analyzerName][key] = tbValue.Text;
+                            paramDicEachAnalyzer[analyzerName][key] = ParamHelper.Encode1(tbValue.Text);
                         };
 
                         if (paramDic != null && paramDic.ContainsKey(key))
                         {
-                            tbValue.Text = paramDic[key];
+                            tbValue.Text = ParamHelper.Decode(paramDic[key]);
                         }
                         else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
                         {
-                            tbValue.Text = paramDicEachAnalyzer["public"][key];
+                            tbValue.Text = ParamHelper.Decode(paramDicEachAnalyzer["public"][key]);
                         }
 
                         stackPanel.Children.Add(tbValue);
@@ -1470,7 +1472,8 @@ namespace ExcelTool.ViewModel
             {
                 TeParams.Text = paramStr;
             });
-            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
+            paramStr = ParamHelper.Encode(paramStr);
+            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr, true);
 
 
             STPStartInfo stpAnalyze = new STPStartInfo();
