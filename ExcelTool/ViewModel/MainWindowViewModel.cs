@@ -30,6 +30,7 @@ using System.Text.RegularExpressions;
 using CustomizableMessageBox;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace ExcelTool.ViewModel
 {
@@ -675,10 +676,11 @@ namespace ExcelTool.ViewModel
             List<String> analyzersList = TeAnalyzersDocument.Text.Split('\n').Where(str => str.Trim() != "").ToList();
 
             ColumnDefinition columnDefinitionL = new ColumnDefinition();
-            columnDefinitionL.Width = new GridLength(100);
             paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
             ColumnDefinition columnDefinitionR = new ColumnDefinition();
             paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
+
+            double maxTextlength = 0;
 
             List<string> addedAnalyzerNameList = new List<string>();
 
@@ -721,6 +723,7 @@ namespace ExcelTool.ViewModel
                 }
 
                 GridSplitter gridSplitter = new GridSplitter();
+                Panel.SetZIndex(gridSplitter, 9999);
                 gridSplitter.HorizontalAlignment = HorizontalAlignment.Right;
                 gridSplitter.VerticalAlignment = VerticalAlignment.Stretch;
                 gridSplitter.Width = 4;
@@ -742,7 +745,12 @@ namespace ExcelTool.ViewModel
                     textBlockKey.Margin = new Thickness(0, 5, 0, 0);
                     textBlockKey.Height = 25;
                     textBlockKey.Text = analyzer.paramDic[key].describe;
-                    textBlockKey.HorizontalAlignment = HorizontalAlignment.Left;
+                    FormattedText ft = new FormattedText(analyzer.paramDic[key].describe, CultureInfo.CurrentCulture, System.Windows.FlowDirection.LeftToRight, new Typeface(textBlockKey.FontFamily, textBlockKey.FontStyle, textBlockKey.FontWeight, textBlockKey.FontStretch), textBlockKey.FontSize, System.Windows.Media.Brushes.Black, VisualTreeHelper.GetDpi(textBlockKey).PixelsPerDip);
+                    if (ft.Width > maxTextlength)
+                    {
+                        maxTextlength = ft.Width;
+                    }
+                    textBlockKey.HorizontalAlignment = HorizontalAlignment.Stretch;
                     textBlockKey.VerticalAlignment = VerticalAlignment.Top;
                     Grid.SetRow(textBlockKey, rowNum);
                     Grid.SetColumn(textBlockKey, 0);
@@ -883,7 +891,8 @@ namespace ExcelTool.ViewModel
                         TextBox tbValue = new TextBox();
                         tbValue.Height = 25;
                         tbValue.HorizontalAlignment = HorizontalAlignment.Stretch;
-                        tbValue.VerticalContentAlignment = VerticalAlignment.Top;
+                        tbValue.VerticalAlignment = VerticalAlignment.Top;
+                        tbValue.VerticalContentAlignment = VerticalAlignment.Center;
                         
                         tbValue.TextChanged += (s, ex) =>
                         {
@@ -912,15 +921,26 @@ namespace ExcelTool.ViewModel
                 }
             }
 
+            if (maxTextlength < 200)
+            {
+                columnDefinitionL.Width = new GridLength(maxTextlength + 10);
+            }
+            else 
+            {
+                columnDefinitionL.Width = new GridLength(200);
+            }
+
             RowDefinition rowDefinitionBlank = new RowDefinition();
             paramEditor.g_main.RowDefinitions.Add(rowDefinitionBlank);
             ++rowNum;
             RowDefinition rowDefinitionOk = new RowDefinition();
-            rowDefinitionOk.Height = new GridLength(30);
+            rowDefinitionOk.Height = new GridLength(35);
             paramEditor.g_main.RowDefinitions.Add(rowDefinitionOk);
             ++rowNum;
             Button btnOk = new Button();
+            btnOk.VerticalAlignment = VerticalAlignment.Center;
             btnOk.Height = 30;
+            btnOk.Margin = new Thickness(0, 5, 0, 0);
             btnOk.Content = Application.Current.FindResource("Ok").ToString();
             btnOk.Click += (s, ex) =>
             {

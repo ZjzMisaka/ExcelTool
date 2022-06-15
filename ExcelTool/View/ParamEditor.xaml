@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:ExcelTool"
         mc:Ignorable="d"
         Title="{DynamicResource ParameterEditor}" Height="450" Width="800">
-    <Grid Name="g_main" Margin="5px">
-        
-    </Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <Grid Name="g_main" Margin="5px">
+
+        </Grid>
+    </ScrollViewer>
 </Window>

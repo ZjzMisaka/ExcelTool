@@ -33,7 +33,10 @@ namespace ExcelTool.Helper
                     paramStr = $"{ paramStr }|{analyzerName}{{{paramStrTemp}}}";
                 }
             }
-            paramStr = paramStr.Substring(1);
+            if (paramStr.Length >= 1)
+            {
+                paramStr = paramStr.Substring(1);
+            }
             return paramStr;
         }
 
