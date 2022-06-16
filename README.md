@@ -80,17 +80,26 @@ void ClearWorkbooks();
 bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultWorkBook = value; }
 ```
 
+##### Param类
+```c#
+// 获取参数
+List<string> Get(string key);
+string GetOne(string key);
+// 获取参数键的集合
+IEnumerable<String> GetKeys();
+```
+
 ##### RunBeforeAnalyze函数
 |参数|类型|含义|备注|
 |----|----|----|----|
-|paramDic|Dictionary<string, string>|传入的参数||
+|param|Param|传入的参数||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |allFilePathList|List<string>|将会分析的所有文件路径列表||
 
 ##### AnalyzeSheet函数
 |参数|类型|含义|备注|
 |----|----|----|----|
-|paramDic|Dictionary<string, string>|传入的参数||
+|param|Param|传入的参数||
 |sheet|IXLWorksheet|当前被分析的sheet||
 |result|ConcurrentDictionary<ResultType, Object>|存储当前文件的信息||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
@@ -99,7 +108,7 @@ bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultW
 ##### RunBeforeSetResult函数
 |参数|类型|含义|备注|
 |----|----|----|----|
-|paramDic|Dictionary<string, string>|传入的参数||
+|param|Param|传入的参数||
 |workbook|XLWorkbook|用于输出的Excel文件||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
@@ -108,7 +117,7 @@ bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultW
 ##### SetResult函数
 |参数|类型|含义|备注|
 |----|----|----|----|
-|paramDic|Dictionary<string, string>|传入的参数||
+|param|Param|传入的参数||
 |workbook|XLWorkbook|用于输出的Excel文件||
 |result|ConcurrentDictionary<ResultType, Object>|存储当前文件的信息||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
@@ -118,7 +127,7 @@ bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultW
 ##### RunEnd函数
 |参数|类型|含义|备注|
 |----|----|----|----|
-|paramDic|Dictionary<string, string>|传入的参数||
+|param|Param|传入的参数||
 |workbook|XLWorkbook|用于输出的Excel文件||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
