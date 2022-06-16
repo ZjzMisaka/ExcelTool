@@ -516,7 +516,7 @@ namespace ExcelTool.ViewModel
                     }
                     if (possibleValues != "")
                     {
-                        textEditorR.Text += $"{ParamHelper.Decode1(possibleValues.Remove(possibleValues.Length - 1))}\n";
+                        textEditorR.Text += $"{ParamHelper.DecodeToEscaped(possibleValues.Remove(possibleValues.Length - 1))}\n";
                     }
                     else 
                     {
@@ -541,7 +541,7 @@ namespace ExcelTool.ViewModel
                     Dictionary<string, ParamInfo> changedParamDic = new Dictionary<string, ParamInfo>();
                     for (int i = 0; i < keyList.Count; ++i)
                     {
-                        string possibleValue = ParamHelper.Encode(possibleValueList[i]);
+                        string possibleValue = ParamHelper.EncodeFromEscaped(possibleValueList[i]);
                         if (possibleValue.Contains('|'))
                         {
                             changedParamDic.Add(keyList[i], new ParamInfo(describeList[i], possibleValue.Split('|').ToList(), ParamType.Single));

@@ -19,7 +19,7 @@ namespace ExcelTool.Helper
                 {
                     foreach (string key in paramDic.Keys)
                     {
-                        paramStr = $"{ paramStr }|{key}:{Decode1(paramDic[key])}";
+                        paramStr = $"{ paramStr }|{key}:{DecodeToEscaped(paramDic[key])}";
                     }
                 }
                 else
@@ -27,7 +27,7 @@ namespace ExcelTool.Helper
                     string paramStrTemp = "";
                     foreach (string key in paramDic.Keys)
                     {
-                        paramStrTemp = $"{ paramStrTemp }|{key}:{Decode1(paramDic[key])}";
+                        paramStrTemp = $"{ paramStrTemp }|{key}:{DecodeToEscaped(paramDic[key])}";
                     }
                     paramStrTemp = paramStrTemp.Substring(1);
 
@@ -142,22 +142,22 @@ namespace ExcelTool.Helper
             return ConvertToParam(aimDic);
         }
 
-        public static string Encode(string paramStr)
+        public static string EncodeFromEscaped(string paramStr)
         {
             return paramStr.Replace("\\\\", "*Backslash*").Replace("\\{", "*LeftCurlyBrace*").Replace("\\}", "*RightCurlyBrace*").Replace("\\:", "*Colon*").Replace("\\|", "*VerticalLine*").Replace("\\+", "*PlusSign*");
         }
 
-        public static string Decode(string paramStr)
+        public static string DecodeForDisplay(string paramStr)
         {
             return paramStr.Replace("*Backslash*", "\\").Replace("*LeftCurlyBrace*", "{").Replace("*RightCurlyBrace*", "}").Replace("*Colon*", ":").Replace("*VerticalLine*", "|").Replace("*PlusSign*", "+");
         }
 
-        public static string Encode1(string paramStr)
+        public static string EncodeFromDisplay(string paramStr)
         {
             return paramStr.Replace("\\", "*Backslash*").Replace("{", "*LeftCurlyBrace*").Replace("}", "*RightCurlyBrace*").Replace(":", "*Colon*").Replace("|", "*VerticalLine*").Replace("+", "*PlusSign*");
         }
 
-        public static string Decode1(string paramStr)
+        public static string DecodeToEscaped(string paramStr)
         {
             return paramStr.Replace("*Backslash*", "\\\\").Replace("*LeftCurlyBrace*", "\\{").Replace("*RightCurlyBrace*", "\\}").Replace("*Colon*", "\\:").Replace("*VerticalLine*", "\\|").Replace("*PlusSign*", "\\+");
         }
@@ -171,7 +171,7 @@ namespace ExcelTool.Helper
                 List<string> list = new List<string>();
                 foreach (string value in values)
                 {
-                    list.Add(ParamHelper.Decode(value));
+                    list.Add(ParamHelper.DecodeForDisplay(value));
                 }
                 resParamDic.Add(key, list);
             }

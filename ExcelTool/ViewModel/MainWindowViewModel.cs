@@ -669,7 +669,7 @@ namespace ExcelTool.ViewModel
                 paramStr = $"{TeParams.Text.Replace("\r\n", "").Replace("\n", "")}";
                 TeParams.Text = paramStr;
             });
-            paramStr = ParamHelper.Encode(paramStr);
+            paramStr = ParamHelper.EncodeFromEscaped(paramStr);
 
             Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
 
@@ -791,7 +791,7 @@ namespace ExcelTool.ViewModel
                                 radioButton.HorizontalAlignment = HorizontalAlignment.Stretch;
                                 radioButton.VerticalContentAlignment = VerticalAlignment.Top;
                                 radioButton.GroupName = $"{analyzerName}_{key}_{groupIndex}";
-                                radioButton.Content = ParamHelper.Decode(value);
+                                radioButton.Content = ParamHelper.DecodeForDisplay(value);
                                 stackPanel.Children.Add(radioButton);
 
                                 radioButton.Checked += (s, ex) =>
@@ -827,7 +827,7 @@ namespace ExcelTool.ViewModel
                                 checkBox.Height = 20;
                                 checkBox.HorizontalAlignment = HorizontalAlignment.Stretch;
                                 checkBox.VerticalContentAlignment = VerticalAlignment.Top;
-                                checkBox.Content = ParamHelper.Decode(value);
+                                checkBox.Content = ParamHelper.DecodeForDisplay(value);
                                 stackPanel.Children.Add(checkBox);
 
                                 checkBox.Checked += (s, ex) =>
@@ -862,9 +862,17 @@ namespace ExcelTool.ViewModel
                                     {
                                         paramDicEachAnalyzer[analyzerName][key] = valueTemp.Replace($"+{value}", "");
                                     }
-                                    else if (valueTemp.Contains(value))
+                                    else if (valueTemp.Contains($"{value}+"))
                                     {
-                                        paramDicEachAnalyzer[analyzerName][key] = valueTemp.Replace(value, "");
+                                        paramDicEachAnalyzer[analyzerName][key] = valueTemp.Replace($"{value}+", "");
+                                    }
+                                    else
+                                    {
+                                        paramDicEachAnalyzer[analyzerName].Remove(key);
+                                        if (paramDicEachAnalyzer[analyzerName].Keys.Count == 0)
+                                        {
+                                            paramDicEachAnalyzer.Remove(analyzerName);
+                                        }
                                     }
                                 };
 
@@ -898,20 +906,31 @@ namespace ExcelTool.ViewModel
                         
                         tbValue.TextChanged += (s, ex) =>
                         {
-                            if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
+                            if (tbValue.Text == "")
                             {
-                                paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
+                                paramDicEachAnalyzer[analyzerName].Remove(key);
+                                if (paramDicEachAnalyzer[analyzerName].Keys.Count == 0)
+                                {
+                                    paramDicEachAnalyzer.Remove(analyzerName);
+                                }
                             }
-                            paramDicEachAnalyzer[analyzerName][key] = ParamHelper.Encode1(tbValue.Text);
+                            else
+                            {
+                                if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
+                                {
+                                    paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
+                                }
+                                paramDicEachAnalyzer[analyzerName][key] = ParamHelper.EncodeFromDisplay(tbValue.Text);
+                            }
                         };
 
                         if (paramDic != null && paramDic.ContainsKey(key))
                         {
-                            tbValue.Text = ParamHelper.Decode(paramDic[key]);
+                            tbValue.Text = ParamHelper.DecodeForDisplay(paramDic[key]);
                         }
                         else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
                         {
-                            tbValue.Text = ParamHelper.Decode(paramDicEachAnalyzer["public"][key]);
+                            tbValue.Text = ParamHelper.DecodeForDisplay(paramDicEachAnalyzer["public"][key]);
                         }
 
                         stackPanel.Children.Add(tbValue);
@@ -1472,7 +1491,7 @@ namespace ExcelTool.ViewModel
             {
                 TeParams.Text = paramStr;
             });
-            paramStr = ParamHelper.Encode(paramStr);
+            paramStr = ParamHelper.EncodeFromEscaped(paramStr);
             Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
 
 
