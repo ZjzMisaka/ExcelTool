@@ -65,4 +65,7 @@
     <sys:String x:Key="InUseThreads">使用中のスレッド</sys:String>
     <sys:String x:Key="SelectFile">ファイルを選択してください</sys:String>
     <sys:String x:Key="File">ファイル</sys:String>
+    <sys:String x:Key="ParamKey">パラメータキー</sys:String>
+    <sys:String x:Key="ParamDescription">パラメータ説明</sys:String>
+    <sys:String x:Key="ParamPossibleValues">可能な値</sys:String>
 </ResourceDictionary>

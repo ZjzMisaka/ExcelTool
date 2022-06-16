@@ -65,4 +65,7 @@
     <sys:String x:Key="InUseThreads">In use threads</sys:String>
     <sys:String x:Key="SelectFile">Please select a file</sys:String>
     <sys:String x:Key="File">file</sys:String>
+    <sys:String x:Key="ParamKey">Param key</sys:String>
+    <sys:String x:Key="ParamDescription">Param description</sys:String>
+    <sys:String x:Key="ParamPossibleValues">Possible values</sys:String>
 </ResourceDictionary>

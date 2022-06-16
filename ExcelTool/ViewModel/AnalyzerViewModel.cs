@@ -410,7 +410,38 @@ namespace ExcelTool.ViewModel
             ColumnDefinition columnDefinitionR = new ColumnDefinition();
             paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
 
+            TextBlock textBlockTitleL = new TextBlock();
+            textBlockTitleL.Text = Application.Current.FindResource("ParamKey").ToString();
+            textBlockTitleL.Margin = new Thickness(15, 0, 0, 0);
+            textBlockTitleL.Height = 25;
+            textBlockTitleL.HorizontalAlignment = HorizontalAlignment.Left;
+            textBlockTitleL.VerticalAlignment = VerticalAlignment.Top;
+            Grid.SetRow(textBlockTitleL, 0);
+            Grid.SetColumn(textBlockTitleL, 0);
+            paramEditor.g_main.Children.Add(textBlockTitleL);
+
+            TextBlock textBlockTitleM = new TextBlock();
+            textBlockTitleM.Text = Application.Current.FindResource("ParamDescription").ToString();
+            textBlockTitleM.Margin = new Thickness(15, 0, 0, 0);
+            textBlockTitleM.Height = 25;
+            textBlockTitleM.HorizontalAlignment = HorizontalAlignment.Left;
+            textBlockTitleM.VerticalAlignment = VerticalAlignment.Top;
+            Grid.SetRow(textBlockTitleM, 0);
+            Grid.SetColumn(textBlockTitleM, 2);
+            paramEditor.g_main.Children.Add(textBlockTitleM);
+
+            TextBlock textBlockTitleR = new TextBlock();
+            textBlockTitleR.Text = Application.Current.FindResource("ParamPossibleValues").ToString();
+            textBlockTitleR.Margin = new Thickness(15, 0, 0, 0);
+            textBlockTitleR.Height = 25;
+            textBlockTitleR.HorizontalAlignment = HorizontalAlignment.Left;
+            textBlockTitleR.VerticalAlignment = VerticalAlignment.Top;
+            Grid.SetRow(textBlockTitleR, 0);
+            Grid.SetColumn(textBlockTitleR, 4);
+            paramEditor.g_main.Children.Add(textBlockTitleR);
+
             TextEditor textEditorL = new TextEditor();
+            textEditorL.Margin = new Thickness(0, 25, 0, 0);
             textEditorL.ShowLineNumbers = true;
             textEditorL.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
             textEditorL.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
@@ -426,6 +457,7 @@ namespace ExcelTool.ViewModel
             paramEditor.g_main.Children.Add(textEditorL);
 
             TextBlock textBlockML = new TextBlock();
+            textBlockML.Margin = new Thickness(0, 25, 0, 0);
             textBlockML.Text = "=";
             textBlockML.HorizontalAlignment = HorizontalAlignment.Center;
             textBlockML.VerticalAlignment = VerticalAlignment.Center;
@@ -434,6 +466,7 @@ namespace ExcelTool.ViewModel
             paramEditor.g_main.Children.Add(textBlockML);
 
             TextEditor textEditorM = new TextEditor();
+            textEditorM.Margin = new Thickness(0, 25, 0, 0);
             textEditorM.ShowLineNumbers = true;
             textEditorM.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
             textEditorM.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
@@ -449,6 +482,7 @@ namespace ExcelTool.ViewModel
             paramEditor.g_main.Children.Add(textEditorM);
 
             TextBlock textBlockMR = new TextBlock();
+            textBlockMR.Margin = new Thickness(0, 25, 0, 0);
             textBlockMR.Text = "=";
             textBlockMR.HorizontalAlignment = HorizontalAlignment.Center;
             textBlockMR.VerticalAlignment = VerticalAlignment.Center;
@@ -457,6 +491,7 @@ namespace ExcelTool.ViewModel
             paramEditor.g_main.Children.Add(textBlockMR);
 
             TextEditor textEditorR = new TextEditor();
+            textEditorR.Margin = new Thickness(0, 25, 0, 0);
             textEditorR.ShowLineNumbers = true;
             textEditorR.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
             textEditorR.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
