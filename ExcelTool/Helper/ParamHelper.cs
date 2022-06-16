@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GlobalObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,7 +41,7 @@ namespace ExcelTool.Helper
             return paramStr;
         }
 
-        public static Dictionary<string, Dictionary<string, string>> GetParamDicEachAnalyzer(string paramStr, bool decode)
+        public static Dictionary<string, Dictionary<string, string>> GetParamDicEachAnalyzer(string paramStr)
         {
             Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = new Dictionary<string, Dictionary<string, string>>();
 
@@ -77,14 +78,7 @@ namespace ExcelTool.Helper
                         string[] kv = param.Split(':');
                         if (kv.Length == 2)
                         {
-                            if (decode)
-                            {
-                                paramDic.Add(kv[0], Decode1(kv[1]));
-                            }
-                            else 
-                            {
-                                paramDic.Add(kv[0], kv[1]);
-                            }
+                            paramDic.Add(kv[0], kv[1]);
                         }
                     }
                     if (paramDicEachAnalyzer.ContainsKey(analyzerName))
@@ -111,14 +105,7 @@ namespace ExcelTool.Helper
                         {
                             paramDicEachAnalyzer.Add("public", new Dictionary<string, string>());
                         }
-                        if (decode)
-                        {
-                            paramDicEachAnalyzer["public"].Add(kv[0], Decode1(kv[1]));
-                        }
-                        else
-                        {
-                            paramDicEachAnalyzer["public"].Add(kv[0], kv[1]);
-                        }
+                        paramDicEachAnalyzer["public"].Add(kv[0], kv[1]);
                     }
                 }
                 if (tempIndex != -1)
@@ -131,7 +118,7 @@ namespace ExcelTool.Helper
             return paramDicEachAnalyzer;
         }
 
-        public static Dictionary<string, string> MergePublicParam(Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string analyzerName)
+        public static Param MergePublicParam(Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string analyzerName)
         {
             Dictionary<string, string> aimDic = new Dictionary<string, string>();
             if (paramDicEachAnalyzer.ContainsKey(analyzerName))
@@ -152,7 +139,7 @@ namespace ExcelTool.Helper
                     aimDic.Add(key, dic[key]);
                 }
             }
-            return aimDic;
+            return ConvertToParam(aimDic);
         }
 
         public static string Encode(string paramStr)
@@ -173,6 +160,22 @@ namespace ExcelTool.Helper
         public static string Decode1(string paramStr)
         {
             return paramStr.Replace("*Backslash*", "\\\\").Replace("*LeftCurlyBrace*", "\\{").Replace("*RightCurlyBrace*", "\\}").Replace("*Colon*", "\\:").Replace("*VerticalLine*", "\\|").Replace("*PlusSign*", "\\+");
+        }
+
+        public static Param ConvertToParam(Dictionary<string, string> dic)
+        {
+            Dictionary<string, List<string>> resParamDic = new Dictionary<string, List<string>>();
+            foreach (string key in dic.Keys)
+            {
+                string[] values = dic[key].Split('+');
+                List<string> list = new List<string>();
+                foreach (string value in values)
+                {
+                    list.Add(ParamHelper.Decode(value));
+                }
+                resParamDic.Add(key, list);
+            }
+            return new Param(resParamDic);
         }
     }
 }

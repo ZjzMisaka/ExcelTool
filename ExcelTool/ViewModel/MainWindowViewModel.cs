@@ -671,7 +671,7 @@ namespace ExcelTool.ViewModel
             });
             paramStr = ParamHelper.Encode(paramStr);
 
-            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr, false);
+            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
 
             int rowNum = -1;
 
@@ -1473,7 +1473,7 @@ namespace ExcelTool.ViewModel
                 TeParams.Text = paramStr;
             });
             paramStr = ParamHelper.Encode(paramStr);
-            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr, true);
+            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
 
 
             STPStartInfo stpAnalyze = new STPStartInfo();
@@ -2066,7 +2066,7 @@ namespace ExcelTool.ViewModel
             LProcessContent = "";
         }
 
-        private void RunBeforeAnalyzeSheet(CompilerResults cresult, Dictionary<string, string> paramDic, Analyzer analyzer, List<String> allFilePathList)
+        private void RunBeforeAnalyzeSheet(CompilerResults cresult, Param param, Analyzer analyzer, List<String> allFilePathList)
         {
             if (cresult.Errors.HasErrors)
             {
@@ -2089,7 +2089,7 @@ namespace ExcelTool.ViewModel
                     Assembly objAssembly = cresult.CompiledAssembly;
                     object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                     MethodInfo objMI = obj.GetType().GetMethod("RunBeforeAnalyzeSheet");
-                    object[] objList = new object[] { paramDic, GlobalObjects.GlobalObjects.GetGlobalParam(), allFilePathList };
+                    object[] objList = new object[] { param, GlobalObjects.GlobalObjects.GetGlobalParam(), allFilePathList };
                     objMI.Invoke(obj, objList);
                     GlobalObjects.GlobalObjects.SetGlobalParam(objList[1]);
                 }
@@ -2105,7 +2105,7 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private void RunBeforeSetResult(CompilerResults cresult, XLWorkbook workbook, Dictionary<string, string> paramDic, Analyzer analyzer, List<String> allFilePathList)
+        private void RunBeforeSetResult(CompilerResults cresult, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList)
         {
             // 通过反射执行代码
             try
@@ -2113,7 +2113,7 @@ namespace ExcelTool.ViewModel
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("RunBeforeSetResult");
-                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys, allFilePathList };
+                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys, allFilePathList };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
             }
@@ -2128,7 +2128,7 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private void RunEnd(CompilerResults cresult, XLWorkbook workbook, Dictionary<string, string> paramDic, Analyzer analyzer, List<String> allFilePathList)
+        private void RunEnd(CompilerResults cresult, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList)
         {
             // 通过反射执行代码
             try
@@ -2136,7 +2136,7 @@ namespace ExcelTool.ViewModel
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("RunEnd");
-                object[] objList = new object[] { paramDic, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys, allFilePathList };
+                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys, allFilePathList };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
             }
@@ -2176,7 +2176,7 @@ namespace ExcelTool.ViewModel
             String fileName = (String)readFileParams[1];
             SheetExplainer sheetExplainer = (SheetExplainer)readFileParams[2];
             Analyzer analyzer = (Analyzer)readFileParams[3];
-            Dictionary<string, string> paramDic = (Dictionary<string, string>)readFileParams[4];
+            Param param = (Param)readFileParams[4];
             CompilerResults cresult = (CompilerResults)readFileParams[5];
 
             ConcurrentDictionary<ReadFileReturnType, Object> methodResult = new ConcurrentDictionary<ReadFileReturnType, object>();
@@ -2215,7 +2215,7 @@ namespace ExcelTool.ViewModel
                     {
                         if (sheet.Name.Equals(str))
                         {
-                            Analyze(sheet, result, analyzer, paramDic, cresult);
+                            Analyze(sheet, result, analyzer, param, cresult);
                         }
                     }
                 }
@@ -2225,7 +2225,7 @@ namespace ExcelTool.ViewModel
                     {
                         if (sheet.Name.Contains(str))
                         {
-                            Analyze(sheet, result, analyzer, paramDic, cresult);
+                            Analyze(sheet, result, analyzer, param, cresult);
                         }
                     }
                 }
@@ -2236,7 +2236,7 @@ namespace ExcelTool.ViewModel
                         Regex rgx = new Regex(str);
                         if (rgx.IsMatch(sheet.Name))
                         {
-                            Analyze(sheet, result, analyzer, paramDic, cresult);
+                            Analyze(sheet, result, analyzer, param, cresult);
                         }
                     }
                 }
@@ -2245,7 +2245,7 @@ namespace ExcelTool.ViewModel
                     Regex rgx = new Regex("[\\s\\S]*");
                     if (rgx.IsMatch(sheet.Name))
                     {
-                        Analyze(sheet, result, analyzer, paramDic, cresult);
+                        Analyze(sheet, result, analyzer, param, cresult);
                     }
                 }
             }
@@ -2287,7 +2287,7 @@ namespace ExcelTool.ViewModel
             return (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
         }
 
-        private void Analyze(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, Dictionary<string, string> paramDic, CompilerResults cresult)
+        private void Analyze(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, Param param, CompilerResults cresult)
         {
             // 通过反射执行代码
             try
@@ -2296,7 +2296,7 @@ namespace ExcelTool.ViewModel
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("AnalyzeSheet");
                 ++analyzeSheetInvokeCount;
-                object[] objList = new object[] { paramDic, sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(), analyzeSheetInvokeCount };
+                object[] objList = new object[] { param, sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(), analyzeSheetInvokeCount };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(objList[3]);
             }
@@ -2315,7 +2315,7 @@ namespace ExcelTool.ViewModel
             ConcurrentDictionary<ResultType, Object> result = (ConcurrentDictionary<ResultType, Object>)setResultParams[1];
             string analyzerName = (string)setResultParams[2];
             int totalCount = (int)setResultParams[3];
-            Dictionary<string, string> paramDic = (Dictionary<string, string>)setResultParams[4];
+            Param param = (Param)setResultParams[4];
             CompilerResults cresult = (CompilerResults)setResultParams[5];
 
 
@@ -2334,7 +2334,7 @@ namespace ExcelTool.ViewModel
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("SetResult");
                 ++setResultInvokeCount;
-                object[] objList = new object[] { paramDic, workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(), setResultInvokeCount, totalCount };
+                object[] objList = new object[] { param, workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(), setResultInvokeCount, totalCount };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(objList[3]);
             }

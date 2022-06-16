@@ -124,10 +124,10 @@ namespace AnalyzeCode
         /// <summary>
         /// 在所有分析前调用
         /// </summary>
-        /// <param name=""paramDic"">传入的参数</param>
+        /// <param name=""param"">传入的参数</param>
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
         /// <param name=""allFilePathList"">将会分析的所有文件路径列表</param>
-        public void RunBeforeAnalyzeSheet(Dictionary<string, string> paramDic, ref Object globalObject, List<string> allFilePathList)
+        public void RunBeforeAnalyzeSheet(Param param, ref Object globalObject, List<string> allFilePathList)
         {
             
         }
@@ -135,12 +135,12 @@ namespace AnalyzeCode
         /// <summary>
         /// 分析一个sheet
         /// </summary>
-        /// <param name=""paramDic"">传入的参数</param>
+        /// <param name=""param"">传入的参数</param>
         /// <param name=""sheet"">被分析的sheet</param>
         /// <param name=""result"">存储当前文件的信息 ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }</param>
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
         /// <param name=""invokeCount"">此分析函数被调用的次数</param>
-        public void AnalyzeSheet(Dictionary<string, string> paramDic, IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, ref Object globalObject, int invokeCount)
+        public void AnalyzeSheet(Param param, IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, ref Object globalObject, int invokeCount)
         {
             
         }
@@ -148,12 +148,12 @@ namespace AnalyzeCode
         /// <summary>
         /// 在所有输出前调用
         /// </summary>
-        /// <param name=""paramDic"">传入的参数</param>
+        /// <param name=""param"">传入的参数</param>
         /// <param name=""workbook"">用于输出的excel文件</param>
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
         /// <param name=""resultList"">所有文件的信息</param>
         /// <param name=""allFilePathList"">分析的所有文件路径列表</param>
-        public void RunBeforeSetResult(Dictionary<string, string> paramDic, XLWorkbook workbook, ref Object globalObject, ICollection<ConcurrentDictionary<ResultType, Object>> resultList, List<string> allFilePathList)
+        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, ICollection<ConcurrentDictionary<ResultType, Object>> resultList, List<string> allFilePathList)
         {
             
         }
@@ -161,13 +161,13 @@ namespace AnalyzeCode
         /// <summary>
         /// 根据分析结果输出到excel中
         /// </summary>
-        /// <param name=""paramDic"">传入的参数</param>
+        /// <param name=""param"">传入的参数</param>
         /// <param name=""workbook"">用于输出的excel文件</param>
         /// <param name=""result"">存储当前文件的信息 ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }</param>
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
         /// <param name=""invokeCount"">此输出函数被调用的次数</param>
         /// <param name=""totalCount"">总共需要调用的输出函数的次数</param>
-        public void SetResult(Dictionary<string, string> paramDic, XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, ref Object globalObject, int invokeCount, int totalCount)
+        public void SetResult(Param param, XLWorkbook workbook, ConcurrentDictionary<ResultType, Object> result, ref Object globalObject, int invokeCount, int totalCount)
         {
             
         }
@@ -175,18 +175,48 @@ namespace AnalyzeCode
         /// <summary>
         /// 所有调用结束后调用
         /// </summary>
-        /// <param name=""paramDic"">传入的参数</param>
+        /// <param name=""param"">传入的参数</param>
         /// <param name=""workbook"">用于输出的excel文件</param>
         /// <param name=""globalObject"">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等</param>
         /// <param name=""resultList"">所有文件的信息</param>
         /// <param name=""allFilePathList"">分析的所有文件路径列表</param>
-        public void RunEnd(Dictionary<string, string> paramDic, XLWorkbook workbook, ref Object globalObject, ICollection<ConcurrentDictionary<ResultType, Object>> resultList, List<string> allFilePathList)
+        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, ICollection<ConcurrentDictionary<ResultType, Object>> resultList, List<string> allFilePathList)
         {
             
         }
     }
 }
 ";
+        }
+    }
+
+    public class Param
+    {
+        private Dictionary<string, List<string>> paramDic;
+        public Param(Dictionary<string, List<string>> paramDic)
+        {
+            this.paramDic = paramDic;
+        }
+        public List<string> Get(string key)
+        {
+            if (!paramDic.ContainsKey(key))
+            {
+                return null;
+            }
+            return paramDic[key];
+        }
+        public string GetOne(string key)
+        {
+            if (!paramDic.ContainsKey(key))
+            {
+                return null;
+            }
+            return paramDic[key].First();
+        }
+
+        public IEnumerable<String> GetKeys()
+        {
+            return paramDic.Keys;
         }
     }
 
