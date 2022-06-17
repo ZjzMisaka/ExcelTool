@@ -994,7 +994,14 @@ namespace ExcelTool.ViewModel
                                 }
                             }
                         }
-                        rowDefinitionKv.Height = new GridLength(20 * analyzer.paramDic[key].possibleValues.Count + 10);
+                        if (analyzer.paramDic[key].type == ParamType.Single)
+                        {
+                            rowDefinitionKv.Height = new GridLength(20 * (analyzer.paramDic[key].possibleValues.Count + 1) + 10);
+                        }
+                        else
+                        {
+                            rowDefinitionKv.Height = new GridLength(20 * analyzer.paramDic[key].possibleValues.Count + 10);
+                        }
                     }
                     else
                     {
