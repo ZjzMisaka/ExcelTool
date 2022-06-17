@@ -1,5 +1,6 @@
 ﻿using ExcelTool.Helper;
 using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
@@ -441,6 +442,10 @@ namespace ExcelTool.ViewModel
             paramEditor.g_main.Children.Add(textBlockTitleR);
 
             TextEditor textEditorL = new TextEditor();
+            textEditorL.Dispatcher.Invoke(() =>
+            {
+                textEditorL.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("param");
+            });
             textEditorL.Margin = new Thickness(0, 25, 0, 0);
             textEditorL.ShowLineNumbers = true;
             textEditorL.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
@@ -466,6 +471,10 @@ namespace ExcelTool.ViewModel
             paramEditor.g_main.Children.Add(textBlockML);
 
             TextEditor textEditorM = new TextEditor();
+            textEditorM.Dispatcher.Invoke(() =>
+            {
+                textEditorM.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("param");
+            });
             textEditorM.Margin = new Thickness(0, 25, 0, 0);
             textEditorM.ShowLineNumbers = true;
             textEditorM.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
@@ -491,6 +500,10 @@ namespace ExcelTool.ViewModel
             paramEditor.g_main.Children.Add(textBlockMR);
 
             TextEditor textEditorR = new TextEditor();
+            textEditorR.Dispatcher.Invoke(() =>
+            {
+                textEditorR.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("param");
+            });
             textEditorR.Margin = new Thickness(0, 25, 0, 0);
             textEditorR.ShowLineNumbers = true;
             textEditorR.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
