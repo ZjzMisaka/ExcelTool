@@ -193,10 +193,12 @@ namespace AnalyzeCode
     public class Param
     {
         private Dictionary<string, List<string>> paramDic;
+
         public Param(Dictionary<string, List<string>> paramDic)
         {
             this.paramDic = paramDic;
         }
+
         public List<string> Get(string key)
         {
             if (!paramDic.ContainsKey(key))
@@ -205,6 +207,7 @@ namespace AnalyzeCode
             }
             return paramDic[key];
         }
+
         public string GetOne(string key)
         {
             if (!paramDic.ContainsKey(key))
@@ -217,6 +220,11 @@ namespace AnalyzeCode
         public IEnumerable<String> GetKeys()
         {
             return paramDic.Keys;
+        }
+
+        public bool ContainsKey(string key)
+        {
+            return paramDic.ContainsKey(key);
         }
     }
 

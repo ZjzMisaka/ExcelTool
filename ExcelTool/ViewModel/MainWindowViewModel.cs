@@ -746,32 +746,45 @@ namespace ExcelTool.ViewModel
                     TextBlock textBlockKey = new TextBlock();
                     textBlockKey.Margin = new Thickness(0, 5, 0, 0);
                     textBlockKey.Height = 25;
-                    textBlockKey.Text = analyzer.paramDic[key].describe;
-                    FormattedText ft = new FormattedText(analyzer.paramDic[key].describe, CultureInfo.CurrentCulture, System.Windows.FlowDirection.LeftToRight, new Typeface(textBlockKey.FontFamily, textBlockKey.FontStyle, textBlockKey.FontWeight, textBlockKey.FontStretch), textBlockKey.FontSize, System.Windows.Media.Brushes.Black, VisualTreeHelper.GetDpi(textBlockKey).PixelsPerDip);
-                    if (ft.Width > maxTextlength)
+                    if (String.IsNullOrWhiteSpace(analyzer.paramDic[key].describe))
                     {
-                        maxTextlength = ft.Width;
+                        textBlockKey.Text = ParamHelper.DecodeForDisplay(key);
+                    }
+                    else
+                    {
+                        textBlockKey.Text = ParamHelper.DecodeForDisplay(analyzer.paramDic[key].describe);
+                    }
+                    if (analyzer.paramDic[key].describe != null)
+                    {
+                        FormattedText ft = new FormattedText(analyzer.paramDic[key].describe, CultureInfo.CurrentCulture, System.Windows.FlowDirection.LeftToRight, new Typeface(textBlockKey.FontFamily, textBlockKey.FontStyle, textBlockKey.FontWeight, textBlockKey.FontStretch), textBlockKey.FontSize, System.Windows.Media.Brushes.Black, VisualTreeHelper.GetDpi(textBlockKey).PixelsPerDip);
+                        if (ft.Width > maxTextlength)
+                        {
+                            maxTextlength = ft.Width;
+                        }
                     }
                     textBlockKey.HorizontalAlignment = HorizontalAlignment.Stretch;
                     textBlockKey.VerticalAlignment = VerticalAlignment.Top;
                     Grid.SetRow(textBlockKey, rowNum);
                     Grid.SetColumn(textBlockKey, 0);
-                    textBlockKey.MouseEnter += (s, ex) =>
+                    if (analyzer.paramDic[key].describe != null)
                     {
-                        textBlockKey.Text = key;
-                    };
-                    textBlockKey.TouchEnter += (s, ex) =>
-                    {
-                        textBlockKey.Text = key;
-                    };
-                    textBlockKey.MouseLeave += (s, ex) =>
-                    {
-                        textBlockKey.Text = analyzer.paramDic[key].describe;
-                    };
-                    textBlockKey.TouchLeave += (s, ex) =>
-                    {
-                        textBlockKey.Text = analyzer.paramDic[key].describe;
-                    };
+                        textBlockKey.MouseEnter += (s, ex) =>
+                        {
+                            textBlockKey.Text = ParamHelper.DecodeForDisplay(key);
+                        };
+                        textBlockKey.TouchEnter += (s, ex) =>
+                        {
+                            textBlockKey.Text = ParamHelper.DecodeForDisplay(key);
+                        };
+                        textBlockKey.MouseLeave += (s, ex) =>
+                        {
+                            textBlockKey.Text = ParamHelper.DecodeForDisplay(analyzer.paramDic[key].describe);
+                        };
+                        textBlockKey.TouchLeave += (s, ex) =>
+                        {
+                            textBlockKey.Text = ParamHelper.DecodeForDisplay(analyzer.paramDic[key].describe);
+                        };
+                    }
                     paramEditor.g_main.Children.Add(textBlockKey);
 
                     StackPanel stackPanel = new StackPanel();
@@ -784,35 +797,95 @@ namespace ExcelTool.ViewModel
                         if (analyzer.paramDic[key].type == ParamType.Single)
                         {
                             ++groupIndex;
-                            foreach (string value in analyzer.paramDic[key].possibleValues)
+                            RadioButton radioButtonForUncheck = new RadioButton();
+                            radioButtonForUncheck.Height = 20;
+                            radioButtonForUncheck.HorizontalAlignment = HorizontalAlignment.Stretch;
+                            radioButtonForUncheck.VerticalContentAlignment = VerticalAlignment.Top;
+                            radioButtonForUncheck.GroupName = $"{analyzerName}_{key}_{groupIndex}";
+                            radioButtonForUncheck.Content = ParamHelper.DecodeForDisplay("-");
+                            stackPanel.Children.Add(radioButtonForUncheck);
+
+                            radioButtonForUncheck.IsChecked = true;
+
+                            radioButtonForUncheck.MouseEnter += (s, ex) =>
+                            {
+                                radioButtonForUncheck.Content = "";
+                            };
+                            radioButtonForUncheck.TouchEnter += (s, ex) =>
+                            {
+                                radioButtonForUncheck.Content = "";
+                            };
+                            radioButtonForUncheck.MouseLeave += (s, ex) =>
+                            {
+                                radioButtonForUncheck.Content = "-";
+                            };
+                            radioButtonForUncheck.TouchLeave += (s, ex) =>
+                            {
+                                radioButtonForUncheck.Content = "-";
+                            };
+                            radioButtonForUncheck.Checked += (s, ex) =>
+                            {
+                                paramDicEachAnalyzer[analyzerName].Remove(key);
+                                if (paramDicEachAnalyzer[analyzerName].Keys.Count == 0)
+                                {
+                                    paramDicEachAnalyzer.Remove(analyzerName);
+                                }
+                            };
+                            foreach (PossibleValue possibleValue in analyzer.paramDic[key].possibleValues)
                             {
                                 RadioButton radioButton = new RadioButton();
                                 radioButton.Height = 20;
                                 radioButton.HorizontalAlignment = HorizontalAlignment.Stretch;
                                 radioButton.VerticalContentAlignment = VerticalAlignment.Top;
                                 radioButton.GroupName = $"{analyzerName}_{key}_{groupIndex}";
-                                radioButton.Content = ParamHelper.DecodeForDisplay(value);
+                                if (String.IsNullOrWhiteSpace(possibleValue.describe))
+                                {
+                                    radioButton.Content = ParamHelper.DecodeForDisplay(possibleValue.value);
+                                }
+                                else
+                                {
+                                    radioButton.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                }
                                 stackPanel.Children.Add(radioButton);
 
+                                if (possibleValue.describe != null)
+                                {
+                                    radioButton.MouseEnter += (s, ex) =>
+                                    {
+                                        radioButton.Content = ParamHelper.DecodeForDisplay(possibleValue.value);
+                                    };
+                                    radioButton.TouchEnter += (s, ex) =>
+                                    {
+                                        radioButton.Content = ParamHelper.DecodeForDisplay(possibleValue.value);
+                                    };
+                                    radioButton.MouseLeave += (s, ex) =>
+                                    {
+                                        radioButton.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                    };
+                                    radioButton.TouchLeave += (s, ex) =>
+                                    {
+                                        radioButton.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                    };
+                                }
                                 radioButton.Checked += (s, ex) =>
                                 {
                                     if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
                                     {
                                         paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
                                     }
-                                    paramDicEachAnalyzer[analyzerName][key] = value;
+                                    paramDicEachAnalyzer[analyzerName][key] = possibleValue.value;
                                 };
 
                                 if (paramDic != null && paramDic.ContainsKey(key))
                                 {
-                                    if (value == paramDic[key])
+                                    if (possibleValue.value == paramDic[key])
                                     {
                                         radioButton.IsChecked = true;
                                     }
                                 }
                                 else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
                                 {
-                                    if (value == paramDicEachAnalyzer["public"][key])
+                                    if (possibleValue.value == paramDicEachAnalyzer["public"][key])
                                     {
                                         radioButton.IsChecked = true;
                                     }
@@ -821,15 +894,42 @@ namespace ExcelTool.ViewModel
                         }
                         else if (analyzer.paramDic[key].type == ParamType.Multiple)
                         {
-                            foreach (string value in analyzer.paramDic[key].possibleValues)
+                            foreach (PossibleValue possibleValue in analyzer.paramDic[key].possibleValues)
                             {
                                 CheckBox checkBox = new CheckBox();
                                 checkBox.Height = 20;
                                 checkBox.HorizontalAlignment = HorizontalAlignment.Stretch;
                                 checkBox.VerticalContentAlignment = VerticalAlignment.Top;
-                                checkBox.Content = ParamHelper.DecodeForDisplay(value);
+                                checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                if (String.IsNullOrWhiteSpace(possibleValue.describe))
+                                {
+                                    checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.value);
+                                }
+                                else
+                                {
+                                    checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                }
                                 stackPanel.Children.Add(checkBox);
 
+                                if (possibleValue.describe != null)
+                                {
+                                    checkBox.MouseEnter += (s, ex) =>
+                                    {
+                                        checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.value);
+                                    };
+                                    checkBox.TouchEnter += (s, ex) =>
+                                    {
+                                        checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.value);
+                                    };
+                                    checkBox.MouseLeave += (s, ex) =>
+                                    {
+                                        checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                    };
+                                    checkBox.TouchLeave += (s, ex) =>
+                                    {
+                                        checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                    };
+                                }
                                 checkBox.Checked += (s, ex) =>
                                 {
                                     if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
@@ -838,19 +938,19 @@ namespace ExcelTool.ViewModel
                                     }
                                     if (!paramDicEachAnalyzer[analyzerName].ContainsKey(key))
                                     {
-                                        paramDicEachAnalyzer[analyzerName].Add(key, value);
+                                        paramDicEachAnalyzer[analyzerName].Add(key, possibleValue.value);
                                     }
                                     else
                                     {
                                         if (paramDicEachAnalyzer[analyzerName][key] == "")
                                         {
-                                            paramDicEachAnalyzer[analyzerName][key] += value;
+                                            paramDicEachAnalyzer[analyzerName][key] += possibleValue.value;
                                         }
                                         else 
                                         {
-                                            if (!paramDicEachAnalyzer[analyzerName][key].Split('+').ToArray().Contains(value))
+                                            if (!paramDicEachAnalyzer[analyzerName][key].Split('+').ToArray().Contains(possibleValue.value))
                                             {
-                                                paramDicEachAnalyzer[analyzerName][key] += $"+{value}";
+                                                paramDicEachAnalyzer[analyzerName][key] += $"+{possibleValue.value}";
                                             }
                                         }
                                     }
@@ -858,13 +958,13 @@ namespace ExcelTool.ViewModel
                                 checkBox.Unchecked += (s, ex) =>
                                 {
                                     string valueTemp = paramDicEachAnalyzer[analyzerName][key];
-                                    if (valueTemp.Contains($"+{value}"))
+                                    if (valueTemp.Contains($"+{possibleValue.value}"))
                                     {
-                                        paramDicEachAnalyzer[analyzerName][key] = valueTemp.Replace($"+{value}", "");
+                                        paramDicEachAnalyzer[analyzerName][key] = valueTemp.Replace($"+{possibleValue.value}", "");
                                     }
-                                    else if (valueTemp.Contains($"{value}+"))
+                                    else if (valueTemp.Contains($"{possibleValue.value}+"))
                                     {
-                                        paramDicEachAnalyzer[analyzerName][key] = valueTemp.Replace($"{value}+", "");
+                                        paramDicEachAnalyzer[analyzerName][key] = valueTemp.Replace($"{possibleValue.value}+", "");
                                     }
                                     else
                                     {
@@ -879,7 +979,7 @@ namespace ExcelTool.ViewModel
                                 if (paramDic != null && paramDic.ContainsKey(key))
                                 {
                                     List<string> valueList = paramDic[key].Split('+').ToList();
-                                    if (valueList.Contains(value))
+                                    if (valueList.Contains(possibleValue.value))
                                     {
                                         checkBox.IsChecked = true;
                                     }
@@ -887,7 +987,7 @@ namespace ExcelTool.ViewModel
                                 else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
                                 {
                                     List<string> valueList = paramDicEachAnalyzer["public"][key].Split('+').ToList();
-                                    if (valueList.Contains(value))
+                                    if (valueList.Contains(possibleValue.value))
                                     {
                                         checkBox.IsChecked = true;
                                     }

@@ -13,14 +13,42 @@ namespace ExcelTool
 
     public class ParamInfo
     {
-        public ParamInfo(String describe, List<String> possibleValues, ParamType type)
+        public ParamInfo()
+        { 
+        
+        }
+        public ParamInfo(List<PossibleValue> possibleValues, ParamType type)
+        {
+            this.possibleValues = possibleValues;
+            this.type = type;
+        }
+        public ParamInfo(String describe, List<PossibleValue> possibleValues, ParamType type)
         {
             this.describe = describe;
             this.possibleValues = possibleValues;
             this.type = type;
         }
         public String describe;
-        public List<String> possibleValues;
+        public List<PossibleValue> possibleValues;
         public ParamType type;
+    }
+
+    public class PossibleValue
+    {
+        public string value;
+        public string describe;
+        public PossibleValue()
+        {
+
+        }
+        public PossibleValue(string value)
+        {
+            this.value = value;
+        }
+        public PossibleValue(string value, string describe)
+        {
+            this.value = value;
+            this.describe = describe;
+        }
     }
 }

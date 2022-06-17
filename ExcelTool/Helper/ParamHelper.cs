@@ -19,7 +19,7 @@ namespace ExcelTool.Helper
                 {
                     foreach (string key in paramDic.Keys)
                     {
-                        paramStr = $"{ paramStr }|{key}:{DecodeToEscaped(paramDic[key])}";
+                        paramStr = $"{paramStr}|{key}:{paramDic[key]}";
                     }
                 }
                 else
@@ -27,11 +27,11 @@ namespace ExcelTool.Helper
                     string paramStrTemp = "";
                     foreach (string key in paramDic.Keys)
                     {
-                        paramStrTemp = $"{ paramStrTemp }|{key}:{DecodeToEscaped(paramDic[key])}";
+                        paramStrTemp = $"{paramStrTemp}|{key}:{paramDic[key]}";
                     }
                     paramStrTemp = paramStrTemp.Substring(1);
 
-                    paramStr = $"{ paramStr }|{analyzerName}{{{paramStrTemp}}}";
+                    paramStr = DecodeToEscaped($"{paramStr}|{analyzerName}{{{paramStrTemp}}}");
                 }
             }
             if (paramStr.Length >= 1)
@@ -144,21 +144,37 @@ namespace ExcelTool.Helper
 
         public static string EncodeFromEscaped(string paramStr)
         {
+            if (paramStr == null)
+            {
+                return null;
+            }
             return paramStr.Replace("\\\\", "*Backslash*").Replace("\\{", "*LeftCurlyBrace*").Replace("\\}", "*RightCurlyBrace*").Replace("\\:", "*Colon*").Replace("\\|", "*VerticalLine*").Replace("\\+", "*PlusSign*");
         }
 
         public static string DecodeForDisplay(string paramStr)
         {
+            if (paramStr == null)
+            {
+                return null;
+            }
             return paramStr.Replace("*Backslash*", "\\").Replace("*LeftCurlyBrace*", "{").Replace("*RightCurlyBrace*", "}").Replace("*Colon*", ":").Replace("*VerticalLine*", "|").Replace("*PlusSign*", "+");
         }
 
         public static string EncodeFromDisplay(string paramStr)
         {
+            if (paramStr == null)
+            {
+                return null;
+            }
             return paramStr.Replace("\\", "*Backslash*").Replace("{", "*LeftCurlyBrace*").Replace("}", "*RightCurlyBrace*").Replace(":", "*Colon*").Replace("|", "*VerticalLine*").Replace("+", "*PlusSign*");
         }
 
         public static string DecodeToEscaped(string paramStr)
         {
+            if (paramStr == null)
+            {
+                return null;
+            }
             return paramStr.Replace("*Backslash*", "\\\\").Replace("*LeftCurlyBrace*", "\\{").Replace("*RightCurlyBrace*", "\\}").Replace("*Colon*", "\\:").Replace("*VerticalLine*", "\\|").Replace("*PlusSign*", "\\+");
         }
 

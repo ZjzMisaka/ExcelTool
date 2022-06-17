@@ -449,7 +449,7 @@ namespace ExcelTool.ViewModel
             {
                 foreach (string str in paramDicForChange.Keys)
                 {
-                    textEditorL.Text += $"{str}\n";
+                    textEditorL.Text += $"{ParamHelper.DecodeToEscaped(str)}\n";
                 }
             }
             Grid.SetRow(textEditorL, 0);
@@ -474,7 +474,7 @@ namespace ExcelTool.ViewModel
             {
                 foreach (ParamInfo paramInfo in paramDicForChange.Values)
                 {
-                    textEditorM.Text += $"{paramInfo.describe}\n";
+                    textEditorM.Text += $"{ParamHelper.DecodeToEscaped(paramInfo.describe)}\n";
                 }
             }
             Grid.SetRow(textEditorM, 0);
@@ -502,15 +502,29 @@ namespace ExcelTool.ViewModel
                     string possibleValues = "";
                     if (paramInfo.possibleValues != null)
                     {
-                        foreach (string possibleValue in paramInfo.possibleValues)
+                        foreach (PossibleValue possibleValue in paramInfo.possibleValues)
                         {
                             if (paramInfo.type == ParamType.Single)
                             {
-                                possibleValues += $"{possibleValue}|";
+                                if (possibleValue.describe == null)
+                                {
+                                    possibleValues += $"{possibleValue.value}|";
+                                }
+                                else
+                                {
+                                    possibleValues += $"{possibleValue.value}:{possibleValue.describe}|";
+                                }
                             }
                             else if (paramInfo.type == ParamType.Multiple)
                             {
-                                possibleValues += $"{possibleValue}+";
+                                if (possibleValue.describe == null)
+                                {
+                                    possibleValues += $"{possibleValue.value}+";
+                                }
+                                else
+                                {
+                                    possibleValues += $"{possibleValue.value}:{possibleValue.describe}+";
+                                }
                             }
                         }
                     }
@@ -534,9 +548,9 @@ namespace ExcelTool.ViewModel
             btnOk.Click += (s, ex) =>
             {
                 List<string> keyList = textEditorL.Text.Replace("\r", "").Split('\n').Where(str => str.Trim() != "").ToList();
-                List<string> describeList = textEditorM.Text.Replace("\r", "").Split('\n').Where(str => str.Trim() != "").ToList();
+                List<string> describeList = textEditorM.Text.Replace("\r", "").Split('\n').ToList();
                 List<string> possibleValueList = textEditorR.Text.Replace("\r", "").Split('\n').ToList();
-                if (keyList.Count == describeList.Count)
+                if (keyList.Count <= describeList.Count && keyList.Count <= possibleValueList.Count)
                 {
                     Dictionary<string, ParamInfo> changedParamDic = new Dictionary<string, ParamInfo>();
                     for (int i = 0; i < keyList.Count; ++i)
@@ -544,15 +558,74 @@ namespace ExcelTool.ViewModel
                         string possibleValue = ParamHelper.EncodeFromEscaped(possibleValueList[i]);
                         if (possibleValue.Contains('|'))
                         {
-                            changedParamDic.Add(keyList[i], new ParamInfo(describeList[i], possibleValue.Split('|').ToList(), ParamType.Single));
+                            List<string> valueList = possibleValue.Split('|').ToList();
+                            List<PossibleValue> possibleValueListOr = new List<PossibleValue>();
+                            foreach (string value in valueList)
+                            {
+                                string valveInClass = null;
+                                string describe = null;
+                                if (value.Contains(':'))
+                                {
+                                    string[] splited = value.Split(':');
+                                    valveInClass = splited[0];
+                                    describe = splited[1];
+                                    possibleValueListOr.Add(new PossibleValue(valveInClass, describe));
+                                }
+                                else
+                                {
+                                    valveInClass = value;
+                                    possibleValueListOr.Add(new PossibleValue(valveInClass));
+                                }
+                            }
+                            if (describeList[i].Trim() == "")
+                            {
+                                changedParamDic.Add(ParamHelper.EncodeFromEscaped(keyList[i]), new ParamInfo(possibleValueListOr, ParamType.Single));
+                            }
+                            else
+                            {
+                                changedParamDic.Add(ParamHelper.EncodeFromEscaped(keyList[i]), new ParamInfo(ParamHelper.EncodeFromEscaped(describeList[i]), possibleValueListOr, ParamType.Single));
+                            }
                         }
                         else if (possibleValue.Contains('+'))
                         {
-                            changedParamDic.Add(keyList[i], new ParamInfo(describeList[i], possibleValue.Split('+').ToList(), ParamType.Multiple));
+                            List<string> valueList = possibleValue.Split('+').ToList();
+                            List<PossibleValue> possibleValueListAnd = new List<PossibleValue>();
+                            foreach (string value in valueList)
+                            {
+                                string valveInClass = null;
+                                string describe = null;
+                                if (value.Contains(':'))
+                                {
+                                    string[] splited = value.Split(':');
+                                    valveInClass = splited[0];
+                                    describe = splited[1];
+                                    possibleValueListAnd.Add(new PossibleValue(valveInClass, describe));
+                                }
+                                else
+                                {
+                                    valveInClass = value;
+                                    possibleValueListAnd.Add(new PossibleValue(valveInClass));
+                                }
+                            }
+                            if (describeList[i].Trim() == "")
+                            {
+                                changedParamDic.Add(ParamHelper.EncodeFromEscaped(keyList[i]), new ParamInfo(possibleValueListAnd, ParamType.Single));
+                            }
+                            else
+                            {
+                                changedParamDic.Add(ParamHelper.EncodeFromEscaped(keyList[i]), new ParamInfo(ParamHelper.EncodeFromEscaped(describeList[i]), possibleValueListAnd, ParamType.Multiple));
+                            }
                         }
                         else
                         {
-                            changedParamDic.Add(keyList[i], new ParamInfo(describeList[i], null, ParamType.Multiple));
+                            if (describeList[i].Trim() == "")
+                            {
+                                changedParamDic.Add(ParamHelper.EncodeFromEscaped(keyList[i]), new ParamInfo(null, ParamType.Single));
+                            }
+                            else
+                            {
+                                changedParamDic.Add(ParamHelper.EncodeFromEscaped(keyList[i]), new ParamInfo(ParamHelper.EncodeFromEscaped(describeList[i]), null, ParamType.Multiple));
+                            }
                         }
                     }
                     paramDicForChange = changedParamDic;
