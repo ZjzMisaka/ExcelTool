@@ -87,6 +87,8 @@ List<string> Get(string key);
 string GetOne(string key);
 // 获取参数键的集合
 IEnumerable<String> GetKeys();
+// 判断是否包含参数
+bool ContainsKey(string key);
 ```
 
 ##### RunBeforeAnalyze函数
