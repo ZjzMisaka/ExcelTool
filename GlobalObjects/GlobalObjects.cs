@@ -203,7 +203,7 @@ namespace AnalyzeCode
         {
             if (!paramDic.ContainsKey(key))
             {
-                return null;
+                return new List<string>();
             }
             return paramDic[key];
         }
