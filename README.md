@@ -1,5 +1,5 @@
 # ExcelTool
-批量分析Excel文件, 并将分析结果输出到Excel文件中  
+可拓展, 批量分析Excel文件, 并将分析结果输出到Excel文件中  
 [查看示例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [执行时的gif图](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
 
