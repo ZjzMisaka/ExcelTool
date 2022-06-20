@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using CustomizableMessageBox;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,18 +16,24 @@ namespace GlobalObjects
 
     public static class GlobalObjects
     {
-        private static Object globalParam;
+        private static ConcurrentDictionary<CompilerResults, Object> globalParamDic;
         private static PropertiesSetter ps = null;
         private static PropertiesSetter psWithTimmer = null;
         private static Style style = null;
 
-        public static Object GetGlobalParam()
+        public static Object GetGlobalParam(CompilerResults compilerResults)
         {
-            return globalParam;
+            Object res;
+            globalParamDic.TryGetValue(compilerResults, out res);
+            return res;
         }
-        public static void SetGlobalParam(Object _globalParam)
+        public static void SetGlobalParam(CompilerResults compilerResults, Object globalParam)
         {
-            globalParam = _globalParam;
+            globalParamDic.AddOrUpdate(compilerResults, globalParam, (key, oldValue) => { return globalParam; });
+        }
+        public static void ClearGlobalParamDic()
+        {
+            globalParamDic = new ConcurrentDictionary<CompilerResults, object>();
         }
         public static Style GetBtnStyle()
         {

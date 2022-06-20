@@ -1565,7 +1565,7 @@ namespace ExcelTool.ViewModel
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
-            GlobalObjects.GlobalObjects.SetGlobalParam(null);
+            GlobalObjects.GlobalObjects.ClearGlobalParamDic();
 
             Scanner.ResetAll();
             Output.ClearWorkbooks();
@@ -1741,6 +1741,7 @@ namespace ExcelTool.ViewModel
                 filePathListDic.Add(sheetExplainer, allFilePathList);
 
                 CompilerResults cresult = GetCresult(analyzer);
+                GlobalObjects.GlobalObjects.SetGlobalParam(cresult, new Object());
                 Tuple<CompilerResults, SheetExplainer> cresultTuple = new Tuple<CompilerResults, SheetExplainer>(cresult, sheetExplainer);
                 compilerDic.Add(analyzer, cresultTuple);
 
@@ -2215,9 +2216,9 @@ namespace ExcelTool.ViewModel
                     Assembly objAssembly = cresult.CompiledAssembly;
                     object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                     MethodInfo objMI = obj.GetType().GetMethod("RunBeforeAnalyzeSheet");
-                    object[] objList = new object[] { param, GlobalObjects.GlobalObjects.GetGlobalParam(), allFilePathList };
+                    object[] objList = new object[] { param, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), allFilePathList };
                     objMI.Invoke(obj, objList);
-                    GlobalObjects.GlobalObjects.SetGlobalParam(objList[1]);
+                    GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[1]);
                 }
                 catch (Exception e)
                 {
@@ -2239,9 +2240,9 @@ namespace ExcelTool.ViewModel
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("RunBeforeSetResult");
-                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys, allFilePathList };
+                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), resultList.Keys, allFilePathList };
                 objMI.Invoke(obj, objList);
-                GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
+                GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[2]);
             }
             catch (Exception e)
             {
@@ -2262,9 +2263,9 @@ namespace ExcelTool.ViewModel
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("RunEnd");
-                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(), resultList.Keys, allFilePathList };
+                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), resultList.Keys, allFilePathList };
                 objMI.Invoke(obj, objList);
-                GlobalObjects.GlobalObjects.SetGlobalParam(objList[2]);
+                GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[2]);
             }
             catch (Exception e)
             {
@@ -2422,9 +2423,9 @@ namespace ExcelTool.ViewModel
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("AnalyzeSheet");
                 ++analyzeSheetInvokeCount;
-                object[] objList = new object[] { param, sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(), analyzeSheetInvokeCount };
+                object[] objList = new object[] { param, sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), analyzeSheetInvokeCount };
                 objMI.Invoke(obj, objList);
-                GlobalObjects.GlobalObjects.SetGlobalParam(objList[3]);
+                GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[3]);
             }
             catch (Exception e)
             {
@@ -2460,9 +2461,9 @@ namespace ExcelTool.ViewModel
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("SetResult");
                 ++setResultInvokeCount;
-                object[] objList = new object[] { param, workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(), setResultInvokeCount, totalCount };
+                object[] objList = new object[] { param, workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), setResultInvokeCount, totalCount };
                 objMI.Invoke(obj, objList);
-                GlobalObjects.GlobalObjects.SetGlobalParam(objList[3]);
+                GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[3]);
             }
             catch (Exception e)
             {
