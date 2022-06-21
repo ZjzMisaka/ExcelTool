@@ -68,4 +68,5 @@
     <sys:String x:Key="ParamKey">Param key</sys:String>
     <sys:String x:Key="ParamDescription">Param description</sys:String>
     <sys:String x:Key="ParamPossibleValues">Possible values</sys:String>
+    <sys:String x:Key="ExecuteInSequence">Execute in sequence</sys:String>
 </ResourceDictionary>

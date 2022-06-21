@@ -197,14 +197,14 @@ namespace ExcelTool.Helper
             }
         }
 
-        public static void SaveWorkbook(bool isAuto, string filePath, XLWorkbook workbook, bool isAutoOpen)
+        public static void SaveWorkbook(bool isAuto, string filePath, XLWorkbook workbook, bool isAutoOpen, bool isExecuteInSequence)
         {
             bool saveResult = false;
-            SaveFile(isAuto, filePath, workbook, out saveResult);
+            SaveFile(isAuto, isExecuteInSequence, filePath, workbook, out saveResult);
             if (!saveResult)
             {
                 string fileNotSavedStr = $"{Application.Current.FindResource("FileNotSaved").ToString()}: \n{filePath}";
-                if (!isAuto)
+                if (!isAuto && !isExecuteInSequence)
                 {
                     Logger.Error(fileNotSavedStr);
                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource(Application.Current.FindResource("Ok").ToString()).ToString() }, fileNotSavedStr, Application.Current.FindResource("Info").ToString());
@@ -219,7 +219,7 @@ namespace ExcelTool.Helper
 
             string fileSavedStr = $"{Application.Current.FindResource("FileSaved").ToString()}: \n{filePath}";
             Logger.Info(fileSavedStr);
-            if (!isAuto && isAutoOpen == false)
+            if (!isAuto && isAutoOpen == false && !isExecuteInSequence)
             {
                 Button btnOpenFile = new Button();
                 btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
@@ -258,7 +258,7 @@ namespace ExcelTool.Helper
             }
         }
 
-        private static void SaveFile(bool isAuto, string filePath, XLWorkbook workbook, out bool result)
+        private static void SaveFile(bool isAuto, bool isExecuteInSequence, string filePath, XLWorkbook workbook, out bool result)
         {
             try
             {
@@ -268,7 +268,7 @@ namespace ExcelTool.Helper
             catch (Exception e)
             {
                 int res = 2;
-                if (!isAuto)
+                if (!isAuto && !isExecuteInSequence)
                 {
                     res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Yes").ToString(), Application.Current.FindResource("No").ToString() }, $"{Application.Current.FindResource("FailedToSaveFile").ToString()} \n{e.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Question);
                 }
@@ -278,7 +278,7 @@ namespace ExcelTool.Helper
                 }
                 else
                 {
-                    SaveFile(isAuto, filePath, workbook, out result);
+                    SaveFile(isAuto, isExecuteInSequence, filePath, workbook, out result);
                 }
             }
         }

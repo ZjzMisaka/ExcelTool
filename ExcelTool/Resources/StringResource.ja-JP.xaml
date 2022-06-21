@@ -68,4 +68,5 @@
     <sys:String x:Key="ParamKey">パラメータキー</sys:String>
     <sys:String x:Key="ParamDescription">パラメータ説明</sys:String>
     <sys:String x:Key="ParamPossibleValues">可能な値</sys:String>
+    <sys:String x:Key="ExecuteInSequence">順番に実行する</sys:String>
 </ResourceDictionary>

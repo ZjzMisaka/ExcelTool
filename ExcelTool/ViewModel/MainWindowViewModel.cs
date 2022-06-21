@@ -180,6 +180,16 @@ namespace ExcelTool.ViewModel
             }
         }
 
+        private bool cbExecuteInSequenceIsChecked = false;
+        public bool CbExecuteInSequenceIsChecked
+        {
+            get => cbExecuteInSequenceIsChecked;
+            set
+            {
+                SetProperty<bool>(ref cbExecuteInSequenceIsChecked, value);
+            }
+        }
+
         private List<string> paramsItems = new List<string>();
         public List<string> ParamsItems
         {
@@ -1234,6 +1244,7 @@ namespace ExcelTool.ViewModel
 
                 TeAnalyzersDocument = new TextDocument(rule.analyzers);
                 TeSheetExplainersDocument = new TextDocument(rule.sheetExplainers);
+                CbExecuteInSequenceIsChecked = rule.executeInSequence;
                 TeParams.Dispatcher.Invoke(() =>
                 {
                     TeParams.Text = rule.param;
@@ -1272,6 +1283,7 @@ namespace ExcelTool.ViewModel
                 RunningRule runningRule = new RunningRule();
                 runningRule.analyzers = TeAnalyzersDocument.Text;
                 runningRule.sheetExplainers = TeSheetExplainersDocument.Text;
+                runningRule.executeInSequence = CbExecuteInSequenceIsChecked;
                 TeParams.Dispatcher.Invoke(() =>
                 {
                     runningRule.param = TeParams.Text;
@@ -1439,14 +1451,37 @@ namespace ExcelTool.ViewModel
             });
         }
 
-        private void Start()
+        private async void Start()
         {
             string param = "";
             TeParams.Dispatcher.Invoke(() =>
             {
                 param = TeParams.Text;
             });
-            StartLogic(TeSheetExplainersDocument.Text, TeAnalyzersDocument.Text, param, TbBasePathText, TbOutputPathText, TbOutputNameText, false);
+            List<SheetExplainer> sheetExplainers = new List<SheetExplainer>();
+            List<Analyzer> analyzer = new List<Analyzer>();
+            if (!GetSheetExplainersAndSnalyzers(TeSheetExplainersDocument.Text, TeAnalyzersDocument.Text, true, ref sheetExplainers, ref analyzer))
+            {
+                return;
+            }
+
+            ResetLog(false);
+
+            if (!CbExecuteInSequenceIsChecked)
+            {
+                StartLogic(sheetExplainers, analyzer, param, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked);
+            }
+            else 
+            {
+                for (int i = 0; i < sheetExplainers.Count; ++i)
+                {
+                    StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, param, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked);
+                    while (isRunning)
+                    {
+                        await Task.Delay(freshInterval);
+                    }
+                }
+            }
         }
 
         // ---------------------------------------------------- Common Logic
@@ -1528,7 +1563,31 @@ namespace ExcelTool.ViewModel
                                 SelectedRulesIndex = 0;
                                 return;
                             }
-                            StartLogic(rule.sheetExplainers, rule.analyzers, rule.param, rule.basePath, rule.outputPath, rule.outputName, true);
+
+                            List<SheetExplainer> sheetExplainers = new List<SheetExplainer>();
+                            List<Analyzer> analyzer = new List<Analyzer>();
+                            if (!GetSheetExplainersAndSnalyzers(rule.sheetExplainers, rule.analyzers, true, ref sheetExplainers, ref analyzer))
+                            {
+                                return;
+                            }
+
+                            ResetLog(true);
+
+                            if (!rule.executeInSequence)
+                            {
+                                StartLogic(sheetExplainers, analyzer, rule.param, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence);
+                            }
+                            else
+                            {
+                                for (int i = 0; i < sheetExplainers.Count; ++i)
+                                {
+                                    StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, rule.param, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence);
+                                    while (isRunning)
+                                    {
+                                        Thread.Sleep(freshInterval);
+                                    }
+                                }
+                            }
                         }
                         finally
                         {
@@ -1550,9 +1609,81 @@ namespace ExcelTool.ViewModel
             FileSystemWatcherInvokeThread.Start();
         }
 
+        private bool GetSheetExplainersAndSnalyzers(string sheetExplainersStr, string analyzersStr, bool isAuto, ref List<SheetExplainer> sheetExplainers, ref List<Analyzer> analyzers)
+        {
+            List<String> sheetExplainersList = sheetExplainersStr.Split('\n').Where(str => str.Trim() != "").ToList();
+            List<String> analyzersList = analyzersStr.Split('\n').Where(str => str.Trim() != "").ToList();
+            if (sheetExplainersList.Count != analyzersList.Count || sheetExplainersList.Count == 0)
+            {
+                return false;
+            }
+            foreach (string name in sheetExplainersList)
+            {
+                SheetExplainer sheetExplainer = null;
+                try
+                {
+                    sheetExplainer = JsonConvert.DeserializeObject<SheetExplainer>(File.ReadAllText($".\\SheetExplainers\\{name}.json"));
+                    if (sheetExplainer.pathes == null || sheetExplainer.pathes.Count == 0)
+                    {
+                        sheetExplainer.pathes = new List<string>();
+                        sheetExplainer.pathes.Add("");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (!isAuto)
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        Logger.Error(ex.Message);
+                    }
+                    return false;
+                }
+                sheetExplainers.Add(sheetExplainer);
+            }
+            foreach (string name in analyzersList)
+            {
+                Analyzer analyzer = null;
+                try
+                {
+                    analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{name}.json"));
+                }
+                catch (Exception ex)
+                {
+                    if (!isAuto)
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        Logger.Error(ex.Message);
+                    }
+                    return false;
+                }
+                analyzers.Add(analyzer);
+            }
+            return true;
+        }
 
+        private void ResetLog(bool isAuto)
+        {
+            if (!isAuto)
+            {
+                TeLog.Dispatcher.Invoke(() =>
+                {
+                    TeLog.Text = "";
+                });
+                Logger.Clear();
+            }
+            else
+            {
+                Logger.Print("---- AUTO ANALYZE ----");
+            }
+        }
 
-        private async void StartLogic(string sheetExplainersStr, string analyzersStr, string paramStr, string basePath, string outputPath, string outputName, bool isAuto)
+        private async void StartLogic(List<SheetExplainer> sheetExplainers, List<Analyzer> analyzers, string paramStr, string basePath, string outputPath, string outputName, bool isAuto, bool isExecuteInSequence)
         {
             BtnStartIsEnabled = false;
             BtnStopIsEnabled = true;
@@ -1571,27 +1702,7 @@ namespace ExcelTool.ViewModel
             Output.ClearWorkbooks();
             Output.IsSaveDefaultWorkBook = true;
 
-            if (!isAuto)
-            {
-                TeLog.Dispatcher.Invoke(() =>
-                {
-                    TeLog.Text = "";
-                });
-                Logger.Clear();
-            }
-            else
-            {
-                Logger.Print("---- AUTO ANALYZE ----");
-            }
             runNotSuccessed = false;
-
-            List<String> sheetExplainersList = sheetExplainersStr.Split('\n').Where(str => str.Trim() != "").ToList();
-            List<String> analyzersList = analyzersStr.Split('\n').Where(str => str.Trim() != "").ToList();
-            if (sheetExplainersList.Count != analyzersList.Count || sheetExplainersList.Count == 0)
-            {
-                FinishRunning();
-                return;
-            }
 
             paramStr = $"{paramStr.Replace("\r\n", "").Replace("\n", "")}";
             TeParams.Dispatcher.Invoke(() =>
@@ -1645,62 +1756,9 @@ namespace ExcelTool.ViewModel
             };
             RenewSmartThreadPoolOutput(stpOutput);
 
-
-            List<SheetExplainer> sheetExplainers = new List<SheetExplainer>();
-            List<Analyzer> analyzers = new List<Analyzer>();
-            foreach (string name in sheetExplainersList)
-            {
-                SheetExplainer sheetExplainer = null;
-                try
-                {
-                    sheetExplainer = JsonConvert.DeserializeObject<SheetExplainer>(File.ReadAllText($".\\SheetExplainers\\{name}.json"));
-                    if (sheetExplainer.pathes == null || sheetExplainer.pathes.Count == 0)
-                    {
-                        sheetExplainer.pathes = new List<string>();
-                        sheetExplainer.pathes.Add("");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (!isAuto)
-                    {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        Logger.Error(ex.Message);
-                    }
-                    FinishRunning();
-                    return;
-                }
-                sheetExplainers.Add(sheetExplainer);
-            }
-            foreach (string name in analyzersList)
-            {
-                Analyzer analyzer = null;
-                try
-                {
-                    analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{name}.json"));
-                }
-                catch (Exception ex)
-                {
-                    if (!isAuto)
-                    {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        Logger.Error(ex.Message);
-                    }
-                    FinishRunning();
-                    return;
-                }
-                analyzers.Add(analyzer);
-            }
-
             Dictionary<Analyzer, Tuple<CompilerResults, SheetExplainer>> compilerDic = new Dictionary<Analyzer, Tuple<CompilerResults, SheetExplainer>>();
             int totalCount = 0;
-            for (int i = 0; i < sheetExplainersList.Count; ++i)
+            for (int i = 0; i < sheetExplainers.Count; ++i)
             {
                 long startTime = GetNowSs();
 
@@ -2102,7 +2160,7 @@ namespace ExcelTool.ViewModel
                     {
                         filePath = $"{resPath}/{outputName}.xlsx";
                     }
-                    FileHelper.SaveWorkbook(isAuto, filePath, workbook, CbIsAutoOpenIsChecked);
+                    FileHelper.SaveWorkbook(isAuto, filePath, workbook, CbIsAutoOpenIsChecked, isExecuteInSequence);
                 }
                 foreach (string name in Output.GetAllWorkbooks().Keys)
                 {
@@ -2115,7 +2173,7 @@ namespace ExcelTool.ViewModel
                     {
                         filePath = $"{resPath}/{name}.xlsx";
                     }
-                    FileHelper.SaveWorkbook(isAuto, filePath, Output.GetWorkbook(name), CbIsAutoOpenIsChecked);
+                    FileHelper.SaveWorkbook(isAuto, filePath, Output.GetWorkbook(name), CbIsAutoOpenIsChecked, isExecuteInSequence);
                 }
             }
 
@@ -2318,7 +2376,6 @@ namespace ExcelTool.ViewModel
             {
                 result.AddOrUpdate(ResultType.MESSAGE, "文件正在被使用中", (key, oldValue) => null);
                 methodResult.AddOrUpdate(ReadFileReturnType.RESULT, result, (key, oldValue) => null);
-                return methodResult;
             }
 
             XLWorkbook workbook = null;

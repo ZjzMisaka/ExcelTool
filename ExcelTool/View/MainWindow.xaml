@@ -36,7 +36,7 @@
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="25"/>
                     <RowDefinition Height="5*" MinHeight="50"/>
-                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="25"/>
                     
                     <RowDefinition Height="25"/>
                     <RowDefinition Height="30"/>
@@ -68,7 +68,8 @@
                 <avalonEdit:TextEditor Name="te_sheetexplainers" Document="{Binding TeSheetExplainersDocument, Mode=TwoWay}" Margin="10 2" Grid.Row="2" Grid.Column="0" ShowLineNumbers="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
                 <Label Grid.Row="2" Margin="10 2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="="/>
                 <avalonEdit:TextEditor Name="te_analyzers" Document="{Binding TeAnalyzersDocument, Mode=TwoWay}" Margin="10 2" Grid.Row="2" Grid.Column="1" ShowLineNumbers="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
-
+                <CheckBox Grid.Row="3" Grid.Column="1" Width="auto" Height="25" Content="{DynamicResource ExecuteInSequence}" IsChecked="{Binding CbExecuteInSequenceIsChecked, Mode=TwoWay}" Name="cb_executeinsequence" HorizontalAlignment="Right" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center"></CheckBox>
+                
                 <Label Height="25" Margin="10 2 10 0" Grid.Row="4" Grid.ColumnSpan="2" Content="{DynamicResource Parameter}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <ComboBox Name="cb_params" ItemsSource="{Binding ParamsItems, Mode=TwoWay}" SelectedItem="{Binding SelectedParamsItem, Mode=TwoWay}" SelectedIndex="{Binding SelectedParamsIndex, Mode=TwoWay}" Grid.Row="5" Margin="10 2" Grid.Column="0" Grid.ColumnSpan="1" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbParamsPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbParamsSelectionChangedCommand}" />
                 <Button Name="btn_params"  Command="{Binding EditParamCommand}" Grid.Row="5" Margin="10 2" Grid.Column="1" Grid.ColumnSpan="1" Content="{DynamicResource Edit}" Height="25" HorizontalAlignment="Right" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"></Button>

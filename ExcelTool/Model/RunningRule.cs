@@ -10,6 +10,7 @@ namespace ExcelTool
     {
         public string analyzers;
         public string sheetExplainers;
+        public bool executeInSequence;
         public string param;
         public string basePath;
         public string outputPath;

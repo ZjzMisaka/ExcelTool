@@ -68,4 +68,5 @@
     <sys:String x:Key="ParamKey">参数键</sys:String>
     <sys:String x:Key="ParamDescription">参数描述</sys:String>
     <sys:String x:Key="ParamPossibleValues">参数可能值</sys:String>
+    <sys:String x:Key="ExecuteInSequence">顺序执行</sys:String>
 </ResourceDictionary>
