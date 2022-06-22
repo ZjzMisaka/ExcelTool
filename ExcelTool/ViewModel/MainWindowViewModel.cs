@@ -649,6 +649,7 @@ namespace ExcelTool.ViewModel
         {
             AnalyzersItems = FileHelper.GetAnalyzersList();
         }
+
         private void CbAnalyzersSelectionChanged()
         {
             if (SelectedAnalyzersIndex == 0)
@@ -1462,11 +1463,19 @@ namespace ExcelTool.ViewModel
 
         private async void Start()
         {
-            string param = "";
+            string paramStr = "";
             TeParams.Dispatcher.Invoke(() =>
             {
-                param = TeParams.Text;
+                paramStr = TeParams.Text;
             });
+            paramStr = $"{paramStr.Replace("\r\n", "").Replace("\n", "")}";
+            TeParams.Dispatcher.Invoke(() =>
+            {
+                TeParams.Text = paramStr;
+            });
+            paramStr = ParamHelper.EncodeFromEscaped(paramStr);
+            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
+
             List<SheetExplainer> sheetExplainers = new List<SheetExplainer>();
             List<Analyzer> analyzer = new List<Analyzer>();
             if (!GetSheetExplainersAndSnalyzers(TeSheetExplainersDocument.Text, TeAnalyzersDocument.Text, true, ref sheetExplainers, ref analyzer))
@@ -1479,19 +1488,23 @@ namespace ExcelTool.ViewModel
             SetStartRunningBtnState();
             if (!CbExecuteInSequenceIsChecked)
             {
-                StartLogic(sheetExplainers, analyzer, param, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked);
+                _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked);
             }
             else 
             {
                 for (int i = 0; i < sheetExplainers.Count; ++i)
                 {
-                    StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, param, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked);
+                    if (!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked))
+                    {
+                        break;
+                    }
                     while (isRunning)
                     {
                         await Task.Delay(freshInterval);
                     }
                 }
             }
+            SaveParam(paramStr, false);
             SetFinishRunningBtnState();
         }
 
@@ -1546,7 +1559,7 @@ namespace ExcelTool.ViewModel
 
         private void FileSystemWatcherInvoke(object sender, FileSystemEventArgs e)
         {
-            FileSystemWatcherInvokeThread = new Thread(() =>
+            FileSystemWatcherInvokeThread = new Thread(async () =>
             {
                 if (stopwatchBeforeFileSystemWatcherInvoke == null)
                 {
@@ -1582,18 +1595,24 @@ namespace ExcelTool.ViewModel
                                 return;
                             }
 
+                            string paramStr = ParamHelper.EncodeFromEscaped(rule.param);
+                            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
+
                             ResetLog(true);
 
                             SetStartRunningBtnState();
                             if (!rule.executeInSequence)
                             {
-                                StartLogic(sheetExplainers, analyzer, rule.param, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence);
+                                _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence);
                             }
                             else
                             {
                                 for (int i = 0; i < sheetExplainers.Count; ++i)
                                 {
-                                    StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, rule.param, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence);
+                                    if(!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence))
+                                    {
+                                        break;
+                                    }
                                     while (isRunning)
                                     {
                                         Thread.Sleep(freshInterval);
@@ -1696,7 +1715,7 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private async void StartLogic(List<SheetExplainer> sheetExplainers, List<Analyzer> analyzers, string paramStr, string basePath, string outputPath, string outputName, bool isAuto, bool isExecuteInSequence)
+        private async Task<bool> StartLogic(List<SheetExplainer> sheetExplainers, List<Analyzer> analyzers, Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string basePath, string outputPath, string outputName, bool isAuto, bool isExecuteInSequence)
         {
             BtnStartIsEnabled = false;
             BtnStopIsEnabled = true;
@@ -1716,15 +1735,6 @@ namespace ExcelTool.ViewModel
             Output.IsSaveDefaultWorkBook = true;
 
             runNotSuccessed = false;
-
-            paramStr = $"{paramStr.Replace("\r\n", "").Replace("\n", "")}";
-            TeParams.Dispatcher.Invoke(() =>
-            {
-                TeParams.Text = paramStr;
-            });
-            paramStr = ParamHelper.EncodeFromEscaped(paramStr);
-            Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
-
 
             STPStartInfo stpAnalyze = new STPStartInfo();
             stpAnalyze.CallToPostExecute = CallToPostExecute.WhenWorkItemNotCanceled;
@@ -1803,7 +1813,7 @@ namespace ExcelTool.ViewModel
                             Logger.Error(Application.Current.FindResource("PathNotExists").ToString());
                         }
                         FinishRunning(true);
-                        return;
+                        return false;
                     }
 
                     FileHelper.FileTraverse(isAuto, basePathTemp, sheetExplainer, filePathList);
@@ -1832,7 +1842,7 @@ namespace ExcelTool.ViewModel
                             // DO NOTHING
                         }
                         FinishRunning(true);
-                        return;
+                        return false;
                     }
                     long timeCostSs = GetNowSs() - startTime;
                     if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
@@ -1854,7 +1864,7 @@ namespace ExcelTool.ViewModel
                             Logger.Error($"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                         }
                         FinishRunning(true);
-                        return;
+                        return false;
                     }
                     await Task.Delay(freshInterval);
                 }
@@ -1903,7 +1913,7 @@ namespace ExcelTool.ViewModel
 
                         }
                         FinishRunning(true);
-                        return;
+                        return false;
                     }
 
                     StringBuilder sb = new StringBuilder();
@@ -1928,7 +1938,7 @@ namespace ExcelTool.ViewModel
                                     Logger.Error($"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                                 }
                                 FinishRunning(true);
-                                return;
+                                return false;
                             }
                             sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append(" [").Append((timeCostSs / 1000.0).ToString("0.0")).Append("s]\n");
                         }
@@ -1943,7 +1953,7 @@ namespace ExcelTool.ViewModel
                     smartThreadPoolAnalyze.Dispose();
                     Logger.Error($"{Application.Current.FindResource("ExceptionHasBeenThrowed").ToString()} \n{e.Message}");
                     FinishRunning(true);
-                    return;
+                    return false;
                 }
             }
             smartThreadPoolAnalyze.Dispose();
@@ -1967,7 +1977,7 @@ namespace ExcelTool.ViewModel
                         {
                             runBeforeSetResultThread.Abort();
                             FinishRunning(true);
-                            return;
+                            return false;
                         }
                         long timeCostSs = GetNowSs() - startTime;
                         if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
@@ -1982,7 +1992,7 @@ namespace ExcelTool.ViewModel
                                 Logger.Error($"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                             }
                             FinishRunning(true);
-                            return;
+                            return false;
                         }
                         await Task.Delay(freshInterval);
                     }
@@ -2023,7 +2033,7 @@ namespace ExcelTool.ViewModel
                                 }
                             }
                             FinishRunning(true);
-                            return;
+                            return false;
                         }
 
                         StringBuilder sb = new StringBuilder();
@@ -2048,7 +2058,7 @@ namespace ExcelTool.ViewModel
                                         Logger.Error($"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)");
                                     }
                                     FinishRunning(true);
-                                    return;
+                                    return false;
                                 }
                                 sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append(" [").Append((timeCostSs / 1000.0).ToString("0.0")).Append("s]\n");
                             }
@@ -2063,7 +2073,7 @@ namespace ExcelTool.ViewModel
                         smartThreadPoolOutput.Dispose();
                         Logger.Error($"{Application.Current.FindResource("ExceptionHasBeenThrowed").ToString()} \n{e.Message}");
                         FinishRunning(true);
-                        return;
+                        return false;
                     }
                 }
                 smartThreadPoolOutput.Dispose();
@@ -2082,7 +2092,7 @@ namespace ExcelTool.ViewModel
                         {
                             runEndThread.Abort();
                             FinishRunning(true);
-                            return;
+                            return false;
                         }
                         long timeCostSs = GetNowSs() - startTime;
                         if (perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
@@ -2098,7 +2108,7 @@ namespace ExcelTool.ViewModel
                                 Logger.Error($"RunEnd\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)");
                             }
                             FinishRunning(true);
-                            return;
+                            return false;
                         }
                         await Task.Delay(freshInterval);
                     }
@@ -2107,58 +2117,9 @@ namespace ExcelTool.ViewModel
                 if (runNotSuccessed)
                 {
                     FinishRunning(true);
-                    return;
+                    return false;
                 }
                 TbStatusText = "";
-
-                String paramStrFromFile = File.ReadAllText(".\\Params.txt");
-                List<string> paramsList = paramStrFromFile.Split('\n').ToList<string>();
-                List<string> newParamsList = new List<string>();
-                foreach (string param in paramsList)
-                {
-                    if (param.Trim() != "")
-                    {
-                        newParamsList.Add(param.Trim());
-                    }
-                }
-                paramsList = newParamsList;
-                if (paramsList.Count >= 5 && !paramsList.Contains(paramStr))
-                {
-                    paramsList.RemoveAt(4);
-                }
-                if (paramsList.Contains(paramStr))
-                {
-                    paramsList.Remove(paramStr);
-                }
-                paramsList.Insert(0, paramStr);
-
-                try
-                {
-                    if (!File.Exists(".\\Params.txt"))
-                    {
-                        FileStream fs = null;
-                        fs = File.Create(".\\Params.txt");
-                        fs.Close();
-                    }
-                    StreamWriter sw = File.CreateText(".\\Params.txt");
-                    foreach (string param in paramsList)
-                    {
-                        sw.WriteLine(param);
-                    }
-                    sw.Flush();
-                    sw.Close();
-                }
-                catch (Exception ex)
-                {
-                    if (!isAuto)
-                    {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        Logger.Error(ex.Message);
-                    }
-                }
 
                 if (Output.IsSaveDefaultWorkBook)
                 {
@@ -2194,6 +2155,60 @@ namespace ExcelTool.ViewModel
             });
 
             FinishRunning(false);
+
+            return true;
+        }
+
+        private void SaveParam(string paramStr, bool isAuto)
+        {
+            String paramStrFromFile = File.ReadAllText(".\\Params.txt");
+            List<string> paramsList = paramStrFromFile.Split('\n').ToList<string>();
+            List<string> newParamsList = new List<string>();
+            foreach (string param in paramsList)
+            {
+                if (param.Trim() != "")
+                {
+                    newParamsList.Add(param.Trim());
+                }
+            }
+            paramsList = newParamsList;
+            if (paramsList.Count >= 5 && !paramsList.Contains(paramStr))
+            {
+                paramsList.RemoveAt(4);
+            }
+            if (paramsList.Contains(paramStr))
+            {
+                paramsList.Remove(paramStr);
+            }
+            paramsList.Insert(0, paramStr);
+
+            try
+            {
+                if (!File.Exists(".\\Params.txt"))
+                {
+                    FileStream fs = null;
+                    fs = File.Create(".\\Params.txt");
+                    fs.Close();
+                }
+                StreamWriter sw = File.CreateText(".\\Params.txt");
+                foreach (string param in paramsList)
+                {
+                    sw.WriteLine(param);
+                }
+                sw.Flush();
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                if (!isAuto)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    Logger.Error(ex.Message);
+                }
+            }
         }
 
         private void WhenRunning()
@@ -2251,13 +2266,13 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private void FinishRunning(bool hasError)
+        private void FinishRunning(bool isInterrupted)
         {
             CheckAndCloseThreads(false);
             isRunning = false;
-            if (hasError)
+            if (isInterrupted)
             {
-                SetFinishRunningBtnState();
+                Logger.Error(Application.Current.FindResource("RunFailed").ToString());
             }
 
             TbStatusText = "";
@@ -2399,7 +2414,7 @@ namespace ExcelTool.ViewModel
 
             if (filePath.Contains("~$") || isFileUsing(filePath))
             {
-                result.AddOrUpdate(ResultType.MESSAGE, "文件正在被使用中", (key, oldValue) => null);
+                result.AddOrUpdate(ResultType.MESSAGE, Application.Current.FindResource("FileIsInUse").ToString(), (key, oldValue) => null);
                 methodResult.AddOrUpdate(ReadFileReturnType.RESULT, result, (key, oldValue) => null);
             }
 
@@ -2411,7 +2426,7 @@ namespace ExcelTool.ViewModel
             }
             catch
             {
-                result.AddOrUpdate(ResultType.MESSAGE, "文件损坏", (key, oldValue) => null);
+                result.AddOrUpdate(ResultType.MESSAGE, Application.Current.FindResource("FileIsDamaged").ToString(), (key, oldValue) => null);
                 methodResult.AddOrUpdate(ReadFileReturnType.RESULT, result, (key, oldValue) => null);
                 return methodResult;
             }

@@ -158,10 +158,6 @@ namespace ExcelTool.Helper
                 {
                     fs = File.Create(".\\Params.txt");
                     fs.Close();
-                    StreamWriter sw = File.CreateText(".\\Params.txt");
-                    sw.Write("key1:value1|key2:value2|key3:value3");
-                    sw.Flush();
-                    sw.Close();
                 }
                 catch (Exception ex)
                 {

@@ -69,4 +69,7 @@
     <sys:String x:Key="ParamDescription">Param description</sys:String>
     <sys:String x:Key="ParamPossibleValues">Possible values</sys:String>
     <sys:String x:Key="ExecuteInSequence">Execute in sequence</sys:String>
+    <sys:String x:Key="RunFailed">Run failed</sys:String>
+    <sys:String x:Key="FileIsInUse">File is in use</sys:String>
+    <sys:String x:Key="FileIsDamaged">File is damaged</sys:String>
 </ResourceDictionary>

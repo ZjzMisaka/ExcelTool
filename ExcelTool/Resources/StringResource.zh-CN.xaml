@@ -69,4 +69,7 @@
     <sys:String x:Key="ParamDescription">参数描述</sys:String>
     <sys:String x:Key="ParamPossibleValues">参数可能值</sys:String>
     <sys:String x:Key="ExecuteInSequence">顺序执行</sys:String>
+    <sys:String x:Key="RunFailed">运行失败</sys:String>
+    <sys:String x:Key="FileIsInUse">文件正在被使用中</sys:String>
+    <sys:String x:Key="FileIsDamaged">文件损坏</sys:String>
 </ResourceDictionary>
