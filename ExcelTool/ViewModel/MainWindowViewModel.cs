@@ -2076,8 +2076,6 @@ namespace ExcelTool.ViewModel
                         {
                             runEndThread.Abort();
 
-                            BtnStartIsEnabled = true;
-                            BtnStopIsEnabled = false;
                             if (!isAuto)
                             {
                                 CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"RunEnd\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
