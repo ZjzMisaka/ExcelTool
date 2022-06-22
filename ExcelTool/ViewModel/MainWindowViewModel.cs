@@ -1467,6 +1467,7 @@ namespace ExcelTool.ViewModel
 
             ResetLog(false);
 
+            SetStartRunningBtnState();
             if (!CbExecuteInSequenceIsChecked)
             {
                 StartLogic(sheetExplainers, analyzer, param, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked);
@@ -1482,6 +1483,7 @@ namespace ExcelTool.ViewModel
                     }
                 }
             }
+            SetFinishRunningBtnState();
         }
 
         // ---------------------------------------------------- Common Logic
@@ -1573,6 +1575,7 @@ namespace ExcelTool.ViewModel
 
                             ResetLog(true);
 
+                            SetStartRunningBtnState();
                             if (!rule.executeInSequence)
                             {
                                 StartLogic(sheetExplainers, analyzer, rule.param, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence);
@@ -1588,6 +1591,7 @@ namespace ExcelTool.ViewModel
                                     }
                                 }
                             }
+                            SetFinishRunningBtnState();
                         }
                         finally
                         {
@@ -1789,7 +1793,7 @@ namespace ExcelTool.ViewModel
                         {
                             Logger.Error(Application.Current.FindResource("PathNotExists").ToString());
                         }
-                        FinishRunning();
+                        FinishRunning(true);
                         return;
                     }
 
@@ -1818,7 +1822,7 @@ namespace ExcelTool.ViewModel
                         {
                             // DO NOTHING
                         }
-                        FinishRunning();
+                        FinishRunning(true);
                         return;
                     }
                     long timeCostSs = GetNowSs() - startTime;
@@ -1840,7 +1844,7 @@ namespace ExcelTool.ViewModel
                         {
                             Logger.Error($"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                         }
-                        FinishRunning();
+                        FinishRunning(true);
                         return;
                     }
                     await Task.Delay(freshInterval);
@@ -1889,7 +1893,7 @@ namespace ExcelTool.ViewModel
                             }
 
                         }
-                        FinishRunning();
+                        FinishRunning(true);
                         return;
                     }
 
@@ -1914,7 +1918,7 @@ namespace ExcelTool.ViewModel
                                 {
                                     Logger.Error($"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                                 }
-                                FinishRunning();
+                                FinishRunning(true);
                                 return;
                             }
                             sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append(" [").Append((timeCostSs / 1000.0).ToString("0.0")).Append("s]\n");
@@ -1929,7 +1933,7 @@ namespace ExcelTool.ViewModel
                 {
                     smartThreadPoolAnalyze.Dispose();
                     Logger.Error($"{Application.Current.FindResource("ExceptionHasBeenThrowed").ToString()} \n{e.Message}");
-                    FinishRunning();
+                    FinishRunning(true);
                     return;
                 }
             }
@@ -1953,7 +1957,7 @@ namespace ExcelTool.ViewModel
                         if (isStopByUser)
                         {
                             runBeforeSetResultThread.Abort();
-                            FinishRunning();
+                            FinishRunning(true);
                             return;
                         }
                         long timeCostSs = GetNowSs() - startTime;
@@ -1968,7 +1972,7 @@ namespace ExcelTool.ViewModel
                             {
                                 Logger.Error($"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                             }
-                            FinishRunning();
+                            FinishRunning(true);
                             return;
                         }
                         await Task.Delay(freshInterval);
@@ -2009,7 +2013,7 @@ namespace ExcelTool.ViewModel
                                     Logger.Error($"{Application.Current.FindResource("TotalTimeout").ToString()}. \n{totalTimeoutLimitOutput / 1000.0}(s)");
                                 }
                             }
-                            FinishRunning();
+                            FinishRunning(true);
                             return;
                         }
 
@@ -2034,7 +2038,7 @@ namespace ExcelTool.ViewModel
                                     {
                                         Logger.Error($"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)");
                                     }
-                                    FinishRunning();
+                                    FinishRunning(true);
                                     return;
                                 }
                                 sb.Append(key.Substring(key.LastIndexOf('\\') + 1)).Append(" [").Append((timeCostSs / 1000.0).ToString("0.0")).Append("s]\n");
@@ -2049,7 +2053,7 @@ namespace ExcelTool.ViewModel
                     {
                         smartThreadPoolOutput.Dispose();
                         Logger.Error($"{Application.Current.FindResource("ExceptionHasBeenThrowed").ToString()} \n{e.Message}");
-                        FinishRunning();
+                        FinishRunning(true);
                         return;
                     }
                 }
@@ -2068,7 +2072,7 @@ namespace ExcelTool.ViewModel
                         if (isStopByUser)
                         {
                             runEndThread.Abort();
-                            FinishRunning();
+                            FinishRunning(true);
                             return;
                         }
                         long timeCostSs = GetNowSs() - startTime;
@@ -2084,7 +2088,7 @@ namespace ExcelTool.ViewModel
                             {
                                 Logger.Error($"RunEnd\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)");
                             }
-                            FinishRunning();
+                            FinishRunning(true);
                             return;
                         }
                         await Task.Delay(freshInterval);
@@ -2093,7 +2097,7 @@ namespace ExcelTool.ViewModel
 
                 if (runNotSuccessed)
                 {
-                    FinishRunning();
+                    FinishRunning(true);
                     return;
                 }
                 TbStatusText = "";
@@ -2180,7 +2184,7 @@ namespace ExcelTool.ViewModel
                 TeLog.Text += Logger.Get();
             });
 
-            FinishRunning();
+            FinishRunning(false);
         }
 
         private void WhenRunning()
@@ -2238,15 +2242,29 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private void FinishRunning()
+        private void FinishRunning(bool hasError)
         {
             CheckAndCloseThreads(false);
             isRunning = false;
-            BtnStartIsEnabled = true;
-            BtnStopIsEnabled = false;
+            if (hasError)
+            {
+                SetFinishRunningBtnState();
+            }
 
             TbStatusText = "";
             LProcessContent = "";
+        }
+
+        private void SetStartRunningBtnState()
+        {
+            BtnStartIsEnabled = false;
+            BtnStopIsEnabled = true;
+        }
+
+        private void SetFinishRunningBtnState()
+        {
+            BtnStartIsEnabled = true;
+            BtnStopIsEnabled = false;
         }
 
         private void RunBeforeAnalyzeSheet(CompilerResults cresult, Param param, Analyzer analyzer, List<String> allFilePathList)
