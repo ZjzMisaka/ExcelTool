@@ -38,6 +38,7 @@ namespace ExcelTool
             parsedINIDataToBeSaved["Window"].AddKey("AnalyzerEditorHeight", "450");
             parsedINIDataToBeSaved["Window"].AddKey("SheetExplainerEditorWidth", "800");
             parsedINIDataToBeSaved["Window"].AddKey("SheetExplainerEditorHeight", "450");
+            parsedINIDataToBeSaved["Window"].AddKey("IsExecuteInSequence", "False");
             parsedINIDataToBeSaved["Window"].AddKey("IsAutoOpen", "False");
             parsedINIDataToBeSaved["Window"].AddKey("Language", Thread.CurrentThread.CurrentUICulture.Name);
             parsedINIDataToBeSaved.Sections.AddSection("Value");
@@ -246,6 +247,31 @@ namespace ExcelTool
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
             return new Point(Double.Parse(data["Window"][$"{wndName}Width"]), Double.Parse(data["Window"][$"{wndName}Height"]));
+        }
+
+        public static void SetIsExecuteInSequence(bool isExecuteInSequence)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Window"]["IsExecuteInSequence"] = isExecuteInSequence.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetIsExecuteInSequence()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return false;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Window"]["IsExecuteInSequence"]);
         }
 
         public static void SetIsAutoOpen(bool isAutoOpen)

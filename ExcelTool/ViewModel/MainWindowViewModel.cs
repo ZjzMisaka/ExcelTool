@@ -519,6 +519,7 @@ namespace ExcelTool.ViewModel
             totalTimeoutLimitOutput = IniHelper.GetTotalTimeoutLimitOutput();
             perTimeoutLimitOutput = IniHelper.GetPerTimeoutLimitOutput();
 
+            CbExecuteInSequenceIsChecked = IniHelper.GetIsExecuteInSequence();
             CbIsAutoOpenIsChecked = IniHelper.GetIsAutoOpen();
 
             fileSystemWatcherInvokeDalay = IniHelper.GetFileSystemWatcherInvokeDalay();
@@ -592,6 +593,14 @@ namespace ExcelTool.ViewModel
             IniHelper.SetOutputFileName(TbOutputNameText);
             IniHelper.SetLanguage(language);
 
+            if (CbExecuteInSequenceIsChecked == true)
+            {
+                IniHelper.SetIsExecuteInSequence(true);
+            }
+            else
+            {
+                IniHelper.SetIsExecuteInSequence(false);
+            }
             if (CbIsAutoOpenIsChecked == true)
             {
                 IniHelper.SetIsAutoOpen(true);
