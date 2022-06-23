@@ -44,7 +44,7 @@ namespace ExcelTool
             parsedINIDataToBeSaved.Sections.AddSection("Value");
             parsedINIDataToBeSaved["Value"].AddKey("DefaultBasePath", "");
             parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputPath", Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
-            parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputFileName", "输出");
+            parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputFileName", "Output");
             
 
             //保存文件
