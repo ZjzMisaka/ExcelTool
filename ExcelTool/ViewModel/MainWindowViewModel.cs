@@ -1730,6 +1730,7 @@ namespace ExcelTool.ViewModel
             resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             GlobalObjects.GlobalObjects.ClearGlobalParamDic();
 
+            Logger.IsOutputMethodNotFoundWarning = true;
             Scanner.ResetAll();
             Output.ClearWorkbooks();
             Output.IsSaveDefaultWorkBook = true;
@@ -2314,6 +2315,14 @@ namespace ExcelTool.ViewModel
                     Assembly objAssembly = cresult.CompiledAssembly;
                     object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                     MethodInfo objMI = obj.GetType().GetMethod("RunBeforeAnalyzeSheet");
+                    if (objMI == null)
+                    {
+                        if (Logger.IsOutputMethodNotFoundWarning)
+                        {
+                            Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", "RunBeforeAnalyzeSheet"));
+                        }
+                        return;
+                    }
                     object[] objList = new object[] { param, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), allFilePathList };
                     objMI.Invoke(obj, objList);
                     GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[1]);
@@ -2338,6 +2347,14 @@ namespace ExcelTool.ViewModel
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("RunBeforeSetResult");
+                if (objMI == null)
+                {
+                    if (Logger.IsOutputMethodNotFoundWarning)
+                    {
+                        Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", "RunBeforeSetResult"));
+                    }
+                    return;
+                }
                 object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), resultList.Keys, allFilePathList };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[2]);
@@ -2361,6 +2378,14 @@ namespace ExcelTool.ViewModel
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("RunEnd");
+                if (objMI == null)
+                {
+                    if (Logger.IsOutputMethodNotFoundWarning)
+                    {
+                        Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", "RunEnd"));
+                    }
+                    return;
+                }
                 object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), resultList.Keys, allFilePathList };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[2]);
@@ -2519,6 +2544,14 @@ namespace ExcelTool.ViewModel
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("AnalyzeSheet");
+                if (objMI == null)
+                {
+                    if (Logger.IsOutputMethodNotFoundWarning)
+                    {
+                        Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", "AnalyzeSheet"));
+                    }
+                    return;
+                }
                 ++analyzeSheetInvokeCount;
                 object[] objList = new object[] { param, sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), analyzeSheetInvokeCount };
                 objMI.Invoke(obj, objList);
@@ -2557,6 +2590,15 @@ namespace ExcelTool.ViewModel
                 Assembly objAssembly = cresult.CompiledAssembly;
                 object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
                 MethodInfo objMI = obj.GetType().GetMethod("SetResult");
+                if (objMI == null)
+                {
+                    if (Logger.IsOutputMethodNotFoundWarning)
+                    {
+                        Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", "SetResult"));
+                    }
+                    resBoolean = false;
+                    return new Object[] { resBoolean, result };
+                }
                 ++setResultInvokeCount;
                 object[] objList = new object[] { param, workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), setResultInvokeCount, totalCount };
                 objMI.Invoke(obj, objList);

@@ -239,6 +239,10 @@ namespace AnalyzeCode
     {
         private static string log = "";
 
+        private static bool isOutputMethodNotFoundWarning = true;
+
+        public static bool IsOutputMethodNotFoundWarning { get => isOutputMethodNotFoundWarning; set => isOutputMethodNotFoundWarning = value; }
+
         public static void Info(string info)
         {
             log = $"{log}[Info] {info}\n";

@@ -72,4 +72,5 @@
     <sys:String x:Key="RunFailed">运行失败</sys:String>
     <sys:String x:Key="FileIsInUse">文件正在被使用中</sys:String>
     <sys:String x:Key="FileIsDamaged">文件损坏</sys:String>
+    <sys:String x:Key="MethodNotFound">函数{0}未找到</sys:String>
 </ResourceDictionary>
