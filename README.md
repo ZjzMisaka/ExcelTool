@@ -43,6 +43,9 @@ void Info(string info);
 void Warn(string warn);
 void Error(string error);
 void Print(string str);
+
+// ---- 当找不到函数时是否报出警告属性 ----
+bool IsOutputMethodNotFoundWarning { get => isOutputMethodNotFoundWarning; set => isOutputMethodNotFoundWarning = value; }
 ```
 
 ##### Scanner静态类
