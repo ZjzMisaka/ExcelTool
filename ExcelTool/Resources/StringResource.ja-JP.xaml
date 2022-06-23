@@ -73,4 +73,5 @@
     <sys:String x:Key="FileIsInUse">ファイルが使用中</sys:String>
     <sys:String x:Key="FileIsDamaged">ファイルが破損している</sys:String>
     <sys:String x:Key="MethodNotFound">関数{0}が見つかりません</sys:String>
+    <sys:String x:Key="FileNotFound">ファイル{0}が見つかりません</sys:String>
 </ResourceDictionary>

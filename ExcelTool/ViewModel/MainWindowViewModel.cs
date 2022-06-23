@@ -396,6 +396,7 @@ namespace ExcelTool.ViewModel
         public ICommand SelectPathCommand { get; set; }
         public ICommand OpenPathCommand { get; set; }
         public ICommand SelectNameCommand { get; set; }
+        public ICommand OpenOutputCommand { get; set; }
         public ICommand CbRulesChangedCommand { get; set; }
         public ICommand CbRulesPreviewMouseLeftButtonDownCommand { get; set; }
         public ICommand SaveRuleCommand { get; set; }
@@ -455,6 +456,7 @@ namespace ExcelTool.ViewModel
             SelectPathCommand = new RelayCommand<object>(SelectPath);
             OpenPathCommand = new RelayCommand(OpenPath);
             SelectNameCommand = new RelayCommand(SelectName);
+            OpenOutputCommand = new RelayCommand(OpenOutput);
             CbRulesChangedCommand = new RelayCommand(CbRulesChanged);
             CbRulesPreviewMouseLeftButtonDownCommand = new RelayCommand(CbRulesPreviewMouseLeftButtonDown);
             SaveRuleCommand = new RelayCommand(SaveRule);
@@ -1218,6 +1220,28 @@ namespace ExcelTool.ViewModel
             {
                 string[] names = fileDialog.FileNames;
                 TbOutputNameText = Path.GetFileNameWithoutExtension(names[0]);
+            }
+        }
+
+        private void OpenOutput()
+        {
+            string resPath = TbOutputPathText.Replace("\\", "/");
+            string filePath;
+            if (TbOutputPathText.EndsWith("/"))
+            {
+                filePath = $"{resPath}{TbOutputNameText}.xlsx";
+            }
+            else
+            {
+                filePath = $"{resPath}/{TbOutputNameText}.xlsx";
+            }
+            if (File.Exists(filePath))
+            {
+                Process.Start(filePath);
+            }
+            else
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), Application.Current.FindResource("FileNotFound").ToString().Replace("{0}", filePath), Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
