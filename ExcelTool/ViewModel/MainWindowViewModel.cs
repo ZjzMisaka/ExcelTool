@@ -1513,6 +1513,10 @@ namespace ExcelTool.ViewModel
             if (!CbExecuteInSequenceIsChecked)
             {
                 _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked);
+                while (isRunning)
+                {
+                    await Task.Delay(freshInterval);
+                }
             }
             else 
             {
@@ -1628,6 +1632,10 @@ namespace ExcelTool.ViewModel
                             if (!rule.executeInSequence)
                             {
                                 _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence);
+                                while (isRunning)
+                                {
+                                    Thread.Sleep(freshInterval);
+                                }
                             }
                             else
                             {
@@ -1741,9 +1749,6 @@ namespace ExcelTool.ViewModel
 
         private async Task<bool> StartLogic(List<SheetExplainer> sheetExplainers, List<Analyzer> analyzers, Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string basePath, string outputPath, string outputName, bool isAuto, bool isExecuteInSequence)
         {
-            BtnStartIsEnabled = false;
-            BtnStopIsEnabled = true;
-
             Dictionary<SheetExplainer, List<string>> filePathListDic = new Dictionary<SheetExplainer, List<string>>();
 
             isRunning = true;
