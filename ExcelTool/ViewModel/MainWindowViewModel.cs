@@ -708,6 +708,16 @@ namespace ExcelTool.ViewModel
 
             List<string> addedAnalyzerNameList = new List<string>();
 
+            AnalyzersItems = FileHelper.GetAnalyzersList();
+            foreach (string analyzer in analyzersList)
+            {
+                if (!AnalyzersItems.Contains(analyzer))
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), Application.Current.FindResource("FileNotFound").ToString().Replace("{0}", $"{analyzer}.json"), Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
             foreach (string analyzerName in analyzersList)
             {
                 if (addedAnalyzerNameList.Contains(analyzerName))
