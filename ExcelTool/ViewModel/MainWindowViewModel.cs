@@ -700,11 +700,6 @@ namespace ExcelTool.ViewModel
 
             List<String> analyzersList = TeAnalyzersDocument.Text.Split('\n').Where(str => str.Trim() != "").ToList();
 
-            ColumnDefinition columnDefinitionL = new ColumnDefinition();
-            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
-            ColumnDefinition columnDefinitionR = new ColumnDefinition();
-            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
-
             double maxTextlength = 0;
 
             List<string> addedAnalyzerNameList = new List<string>();
@@ -720,6 +715,10 @@ namespace ExcelTool.ViewModel
             }
 
             ParamEditor paramEditor = new ParamEditor();
+            ColumnDefinition columnDefinitionL = new ColumnDefinition();
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
+            ColumnDefinition columnDefinitionR = new ColumnDefinition();
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
 
             foreach (string analyzerName in analyzersList)
             {
