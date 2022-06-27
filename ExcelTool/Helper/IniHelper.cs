@@ -13,7 +13,7 @@ namespace ExcelTool
 {
     public static class IniHelper
     {
-        public static void CheckAndCreateIniFile() 
+        public static void CheckAndCreateIniFile()
         {
             FileIniDataParser parser = new FileIniDataParser();
 
@@ -45,7 +45,7 @@ namespace ExcelTool
             parsedINIDataToBeSaved["Value"].AddKey("DefaultBasePath", "");
             parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputPath", Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
             parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputFileName", "Output");
-            
+
 
             //保存文件
             parser.WriteFile("Setting.ini", parsedINIDataToBeSaved);
@@ -371,7 +371,7 @@ namespace ExcelTool
 
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
-            string defaultOutputPath =  data["Value"]["DefaultOutputPath"];
+            string defaultOutputPath = data["Value"]["DefaultOutputPath"];
             if (String.IsNullOrWhiteSpace(defaultOutputPath))
             {
                 defaultOutputPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);

@@ -14,8 +14,8 @@ namespace ExcelTool
     public class ParamInfo
     {
         public ParamInfo()
-        { 
-        
+        {
+
         }
         public ParamInfo(List<PossibleValue> possibleValues, ParamType type)
         {

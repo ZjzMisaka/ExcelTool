@@ -500,14 +500,16 @@ namespace ExcelTool.ViewModel
             double height = IniHelper.GetWindowSize(WindowName).Y;
             if (width > 0)
             {
-                window.Dispatcher.Invoke(() => {
+                window.Dispatcher.Invoke(() =>
+                {
                     window.Width = width;
                 });
             }
 
             if (height > 0)
             {
-                window.Dispatcher.Invoke(() => {
+                window.Dispatcher.Invoke(() =>
+                {
                     window.Height = height;
                 });
             }
@@ -978,7 +980,7 @@ namespace ExcelTool.ViewModel
                                         {
                                             paramDicEachAnalyzer[analyzerName][key] += possibleValue.value;
                                         }
-                                        else 
+                                        else
                                         {
                                             if (!paramDicEachAnalyzer[analyzerName][key].Split('+').ToArray().Contains(possibleValue.value))
                                             {
@@ -1042,7 +1044,7 @@ namespace ExcelTool.ViewModel
                         tbValue.HorizontalAlignment = HorizontalAlignment.Stretch;
                         tbValue.VerticalAlignment = VerticalAlignment.Top;
                         tbValue.VerticalContentAlignment = VerticalAlignment.Center;
-                        
+
                         tbValue.TextChanged += (s, ex) =>
                         {
                             if (tbValue.Text == "")
@@ -1085,7 +1087,7 @@ namespace ExcelTool.ViewModel
             {
                 columnDefinitionL.Width = new GridLength(maxTextlength + 10);
             }
-            else 
+            else
             {
                 columnDefinitionL.Width = new GridLength(200);
             }
@@ -1165,7 +1167,7 @@ namespace ExcelTool.ViewModel
                 {
                     TbBasePathText = dataObject.GetFileDropList()[0];
                 }
-                else if(parentName == "tb_output_path")
+                else if (parentName == "tb_output_path")
                 {
                     TbOutputPathText = dataObject.GetFileDropList()[0];
                 }
@@ -1528,7 +1530,7 @@ namespace ExcelTool.ViewModel
                     await Task.Delay(freshInterval);
                 }
             }
-            else 
+            else
             {
                 for (int i = 0; i < sheetExplainers.Count; ++i)
                 {
@@ -1651,7 +1653,7 @@ namespace ExcelTool.ViewModel
                             {
                                 for (int i = 0; i < sheetExplainers.Count; ++i)
                                 {
-                                    if(!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence))
+                                    if (!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence))
                                     {
                                         break;
                                     }

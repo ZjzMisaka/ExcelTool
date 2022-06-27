@@ -329,12 +329,13 @@ namespace AnalyzeCode
         public static string GetInput()
         {
             return GetInput("", false);
-            
         }
+
         public static string GetInput(string value)
         {
             return GetInput(value, false);
         }
+
         private static string GetInput(string value, bool isWait)
         {
             lock (lockObj)

@@ -545,7 +545,7 @@ namespace ExcelTool.ViewModel
                     {
                         textEditorR.Text += $"{ParamHelper.DecodeToEscaped(possibleValues.Remove(possibleValues.Length - 1))}\n";
                     }
-                    else 
+                    else
                     {
                         textEditorR.Text += "\n";
                     }

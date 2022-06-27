@@ -131,7 +131,7 @@ namespace ExcelTool.Helper
             {
                 dic = paramDicEachAnalyzer["public"];
             }
-            
+
             foreach (string key in dic.Keys)
             {
                 if (!aimDic.ContainsKey(key))
