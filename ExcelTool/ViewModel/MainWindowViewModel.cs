@@ -684,7 +684,6 @@ namespace ExcelTool.ViewModel
 
         private void EditParam()
         {
-            ParamEditor paramEditor = new ParamEditor();
             int groupIndex = 0;
 
             string paramStr = "";
@@ -719,6 +718,8 @@ namespace ExcelTool.ViewModel
                     return;
                 }
             }
+
+            ParamEditor paramEditor = new ParamEditor();
 
             foreach (string analyzerName in analyzersList)
             {
