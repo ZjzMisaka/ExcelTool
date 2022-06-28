@@ -53,7 +53,8 @@
     <sys:String x:Key="Cancel">取消</sys:String>
     <sys:String x:Key="Saving">正在保存</sys:String>
     <sys:String x:Key="Name">名字</sys:String>
-    <sys:String x:Key="WatchPathAndFilter">请输入监视路径与匹配文件的表达式</sys:String>
+    <sys:String x:Key="WatchPath">请输入监视路径</sys:String>
+    <sys:String x:Key="WatchFilter">请输入监视匹配文件的表达式</sys:String>
     <sys:String x:Key="WatchPathNotExists">监视路径不存在</sys:String>
     <sys:String x:Key="Unknown">未知的</sys:String>
     <sys:String x:Key="SetAuto">设为自动</sys:String>

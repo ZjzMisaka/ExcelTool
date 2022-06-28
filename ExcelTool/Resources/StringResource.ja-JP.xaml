@@ -53,7 +53,8 @@
     <sys:String x:Key="Cancel">ﾁｬﾝセル</sys:String>
     <sys:String x:Key="Saving">保存</sys:String>
     <sys:String x:Key="Name">名前</sys:String>
-    <sys:String x:Key="WatchPathAndFilter">監視パスとファイルに一致する式を入力してください</sys:String>
+    <sys:String x:Key="WatchPath">監視パスを入力してください</sys:String>
+    <sys:String x:Key="WatchFilter">監視ファイルに一致する式を入力してください</sys:String>
     <sys:String x:Key="WatchPathNotExists">監視パスが存在しません</sys:String>
     <sys:String x:Key="Unknown">不明な</sys:String>
     <sys:String x:Key="SetAuto">自動に設定</sys:String>

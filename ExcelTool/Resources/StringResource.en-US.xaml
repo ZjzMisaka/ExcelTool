@@ -53,7 +53,8 @@
     <sys:String x:Key="Cancel">Cancel</sys:String>
     <sys:String x:Key="Saving">Saving</sys:String>
     <sys:String x:Key="Name">Name</sys:String>
-    <sys:String x:Key="WatchPathAndFilter">Please enter the monitoring path and expression for matching files</sys:String>
+    <sys:String x:Key="WatchPath">Please enter the expression for matching files</sys:String>
+    <sys:String x:Key="WatchFilter">Please enter the monitoring path</sys:String>
     <sys:String x:Key="WatchPathNotExists">Monitoring path does not exist</sys:String>
     <sys:String x:Key="Unknown">Unknown</sys:String>
     <sys:String x:Key="SetAuto">Set to automatic</sys:String>

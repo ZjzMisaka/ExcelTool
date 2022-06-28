@@ -1372,20 +1372,89 @@ namespace ExcelTool.ViewModel
         {
             string ruleName = SelectedRulesItem;
             RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
+
+            PropertiesSetter propertiesSetter = GlobalObjects.GlobalObjects.GetPropertiesSetter();
+            Grid messageboxGrid = new Grid();
+            messageboxGrid.Margin = new Thickness(0, 8, 0, 8);
+            messageboxGrid.Height = 31;
+            messageboxGrid.Width = propertiesSetter.WindowWidth;
+            RowDefinition rowDefinition = new RowDefinition();
+            messageboxGrid.RowDefinitions.Add(rowDefinition);
+            ColumnDefinition columnDefinitionL = new ColumnDefinition();
+            columnDefinitionL.Width = new GridLength(2, GridUnitType.Star);
+            messageboxGrid.ColumnDefinitions.Add(columnDefinitionL);
+            ColumnDefinition columnDefinitionM = new ColumnDefinition();
+            columnDefinitionM.Width = new GridLength(1, GridUnitType.Star);
+            messageboxGrid.ColumnDefinitions.Add(columnDefinitionM);
+            ColumnDefinition columnDefinitionR = new ColumnDefinition();
+            columnDefinitionR.Width = new GridLength(1, GridUnitType.Star);
+            messageboxGrid.ColumnDefinitions.Add(columnDefinitionR);
             TextBox tbPath = new TextBox();
-            tbPath.Margin = new Thickness(5, 8, 5, 8);
+            tbPath.Height = 25;
+            tbPath.Margin = new Thickness(5, 0, 5, 0);
             tbPath.VerticalContentAlignment = VerticalAlignment.Center;
+            Grid.SetRow(tbPath, 0);
+            Grid.SetColumn(tbPath, 0);
             TextBox tbFilter = new TextBox();
-            tbFilter.Margin = new Thickness(5, 8, 5, 8);
+            tbFilter.Height = 25;
+            tbFilter.Margin = new Thickness(5, 0, 5, 0);
             tbFilter.VerticalContentAlignment = VerticalAlignment.Center;
-            int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbPath, tbFilter, Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("WatchPathAndFilter").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
-            if (result == 2)
+            Grid.SetRow(tbFilter, 0);
+            Grid.SetColumn(tbFilter, 0);
+            Button buttonCancel = new Button();
+            buttonCancel.Height = 25;
+            buttonCancel.Margin = new Thickness(5, 0, 5, 0);
+            buttonCancel.Content = Application.Current.FindResource("Cancel").ToString();
+            buttonCancel.Click += (sender, e) =>
+            {
+                CustomizableMessageBox.MessageBox.CloseNow();
+            };
+            Grid.SetRow(buttonCancel, 0);
+            Grid.SetColumn(buttonCancel, 2);
+            Button buttonOkPath = new Button();
+            buttonOkPath.Height = 25;
+            buttonOkPath.Margin = new Thickness(5, 0, 5, 0);
+            buttonOkPath.Content = Application.Current.FindResource("Ok").ToString();
+            Grid.SetRow(buttonOkPath, 0);
+            Grid.SetColumn(buttonOkPath, 1);
+            buttonOkPath.Click += (sender, e) =>
             {
                 rule.watchPath = tbPath.Text;
-                rule.filter = tbFilter.Text;
-            }
-            else
+                CustomizableMessageBox.MessageBox.MessageText = Application.Current.FindResource("WatchFilter").ToString();
+                Button buttonOkFilter = new Button();
+                buttonOkFilter.Height = 25;
+                buttonOkFilter.Margin = new Thickness(5, 0, 5, 0);
+                buttonOkFilter.Content = Application.Current.FindResource("Ok").ToString();
+                Grid.SetRow(buttonOkFilter, 0);
+                Grid.SetColumn(buttonOkFilter, 1);
+                buttonOkFilter.Click += (senderF, eF) =>
+                {
+                    rule.filter = tbFilter.Text;
+                    CustomizableMessageBox.MessageBox.CloseNow();
+                };
+                messageboxGrid.Children.Clear();
+                messageboxGrid.Children.Add(tbFilter);
+                messageboxGrid.Children.Add(buttonOkFilter);
+                messageboxGrid.Children.Add(buttonCancel);
+                CustomizableMessageBox.MessageBox.ButtonList = new List<Object>() { messageboxGrid };
+            };
+            messageboxGrid.Children.Add(tbPath);
+            messageboxGrid.Children.Add(buttonOkPath);
+            messageboxGrid.Children.Add(buttonCancel);
+            CustomizableMessageBox.MessageBox.Show(propertiesSetter, new List<Object>() { messageboxGrid }, Application.Current.FindResource("WatchPath").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
+
+            if (rule.watchPath == null || rule.filter == null)
             {
+                return;
+            }
+
+            try
+            {
+                SetAuto(rule, ruleName);
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -1405,8 +1474,6 @@ namespace ExcelTool.ViewModel
             {
                 CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            SetAuto(rule, ruleName);
         }
 
         private void UnsetAuto()
