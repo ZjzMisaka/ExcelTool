@@ -75,4 +75,5 @@
     <sys:String x:Key="FileIsDamaged">ファイルが破損している</sys:String>
     <sys:String x:Key="MethodNotFound">関数{0}が見つかりません</sys:String>
     <sys:String x:Key="FileNotFound">ファイル{0}が見つかりません</sys:String>
+    <sys:String x:Key="UnblockDllsCopiedFromTheWeb" xml:space="preserve">.Dllファイル「{0}」はネットワークまたはほかのコンピュータから取得されましたから、先に許可して、ソフトウェアを再起動してください。&#13;&#10;1. ファイルを右クリックして「プロパティ」を開く&#13;&#10;2. 「全般」タブの「許可する」ボタンをクリックする&#13;&#10;3. 「OK」ボタンをクリックする</sys:String>
 </ResourceDictionary>

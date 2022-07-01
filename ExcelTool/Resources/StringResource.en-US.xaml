@@ -75,4 +75,5 @@
     <sys:String x:Key="FileIsDamaged">File is damaged</sys:String>
     <sys:String x:Key="MethodNotFound">Method {0} not found</sys:String>
     <sys:String x:Key="FileNotFound">File {0} not found</sys:String>
+    <sys:String x:Key="UnblockDllsCopiedFromTheWeb" xml:space="preserve">The .dll file {0} may copied from the web or another computer, please unblock to use the dll file and restart the software. &#13;&#10;1. Right clicking on the Assembly file and selecting properties&#13;&#10;2. Click Unblock button under the General tab&#13;&#10;3. Click Apply and then OK</sys:String>
 </ResourceDictionary>

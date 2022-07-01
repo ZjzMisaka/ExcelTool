@@ -31,7 +31,8 @@ namespace ExcelTool.ViewModel
         private RoslynHost _host;
         private RoslynCodeEditor editor;
         private Dictionary<string, ParamInfo> paramDicForChange;
-        ItemsControl itemsControl;
+        private ItemsControl itemsControl;
+        private bool loadFailed;
 
         private double windowWidth;
         public double WindowWidth
@@ -171,6 +172,7 @@ namespace ExcelTool.ViewModel
         {
             _documents = new ObservableCollection<DocumentViewModel>();
             ItemsSource = _documents;
+            loadFailed = false;
 
             WindowLoadedCommand = new RelayCommand<RoutedEventArgs>(WindowLoaded);
             WindowClosingCommand = new RelayCommand<CancelEventArgs>(WindowClosing);
@@ -234,7 +236,18 @@ namespace ExcelTool.ViewModel
             }
             foreach (string dll in dlls)
             {
-                var dllFile = Assembly.LoadFrom(dll);
+                Assembly dllFile = null;
+                try
+                {
+                    dllFile = Assembly.LoadFrom(dll);
+                }
+                catch (FileLoadException ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("UnblockDllsCopiedFromTheWeb").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                    window.Close();
+                    loadFailed = true;
+                    return;
+                }
                 foreach (Type type in dllFile.GetExportedTypes())
                 {
                     assemblies.Add(type.Assembly);
@@ -267,6 +280,11 @@ namespace ExcelTool.ViewModel
 
         private void WindowContentRendered()
         {
+            if (loadFailed)
+            {
+                return;
+            }
+
             foreach (RoslynCodeEditor editorTemp in FindVisualChildren<RoslynCodeEditor>(itemsControl))
             {
                 if (editorTemp.Name == "rce_editor")

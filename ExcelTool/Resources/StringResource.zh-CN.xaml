@@ -75,4 +75,5 @@
     <sys:String x:Key="FileIsDamaged">文件损坏</sys:String>
     <sys:String x:Key="MethodNotFound">函数{0}未找到</sys:String>
     <sys:String x:Key="FileNotFound">文件{0}未找到</sys:String>
+    <sys:String x:Key="UnblockDllsCopiedFromTheWeb" xml:space="preserve">.Dll文件 "{0}" 可能获取自网络或其他机器, 请先添加信任并重启软件. &#13;&#10;1. 右击文件打开属性&#13;&#10;2. 点击常规标签页里的解锁按钮&#13;&#10;3. 点击确定 </sys:String>
 </ResourceDictionary>
