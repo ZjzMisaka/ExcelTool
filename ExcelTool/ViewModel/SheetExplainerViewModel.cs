@@ -87,7 +87,7 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private string tbPathsText = null;
+        private string tbPathsText = "";
         public string TbPathsText
         {
             get { return tbPathsText; }
@@ -107,7 +107,7 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private string tbFileNamesText = null;
+        private string tbFileNamesText = "";
         public string TbFileNamesText
         {
             get { return tbFileNamesText; }
@@ -127,7 +127,7 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private string tbSheetNamesText = null;
+        private string tbSheetNamesText = "";
         public string TbSheetNamesText
         {
             get { return tbSheetNamesText; }
