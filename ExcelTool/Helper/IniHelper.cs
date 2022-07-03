@@ -428,7 +428,7 @@ namespace ExcelTool
 
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
-            return bool.Parse(data["Value"]["DefaultOutputFileName"]);
+            return bool.Parse(data["Check"]["SecurityCheck"]);
         }
     }
 }
