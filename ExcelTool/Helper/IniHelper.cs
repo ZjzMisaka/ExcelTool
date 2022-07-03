@@ -45,6 +45,8 @@ namespace ExcelTool
             parsedINIDataToBeSaved["Value"].AddKey("DefaultBasePath", "");
             parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputPath", Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
             parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputFileName", "Output");
+            parsedINIDataToBeSaved.Sections.AddSection("Check");
+            parsedINIDataToBeSaved["Check"].AddKey("SecurityCheck", "True");
 
 
             //保存文件
@@ -402,6 +404,31 @@ namespace ExcelTool
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
             return data["Value"]["DefaultOutputFileName"];
+        }
+
+        public static void SetSecurityCheck(bool securityCheck)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Check"]["SecurityCheck"] = securityCheck.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetSecurityCheck()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return true;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Value"]["DefaultOutputFileName"]);
         }
     }
 }

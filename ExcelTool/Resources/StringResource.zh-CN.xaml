@@ -75,5 +75,81 @@
     <sys:String x:Key="FileIsDamaged">文件损坏</sys:String>
     <sys:String x:Key="MethodNotFound">函数{0}未找到</sys:String>
     <sys:String x:Key="FileNotFound">文件{0}未找到</sys:String>
-    <sys:String x:Key="UnblockDllsCopiedFromTheWeb" xml:space="preserve">.Dll文件 "{0}" 可能获取自网络或其他机器, 请先添加信任并重启软件. &#13;&#10;1. 右击文件打开属性&#13;&#10;2. 点击常规标签页里的解锁按钮&#13;&#10;3. 点击确定 </sys:String>
+    <sys:String x:Key="UnblockDllsCopiedFromTheWeb" xml:space="preserve">.Dll文件 "{0}" 不被支持或者可能获取自网络或其他计算机, 请先添加信任并重启软件. &#13;&#10;1. 右击文件打开属性&#13;&#10;2. 点击常规标签页里的解除锁定按钮&#13;&#10;3. 点击确定&#13;&#10;&#13;&#10;如需绕过安全检查, 请将Setting.ini中SecurityCheck字段改为False. </sys:String>
+    <sys:String x:Key="FileNotSupported">.Dll文件 "{0}" 不被支持. </sys:String>
+    <sys:String x:Key="Code" xml:space="preserve">using ClosedXML.Excel;
+using GlobalObjects;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+
+namespace AnalyzeCode
+{
+    class Analyze
+    {
+        /// &lt;summary>
+        /// 在所有分析前调用
+        /// &lt;/summary>
+        /// &lt;param name="param">传入的参数&lt;/param>
+        /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
+        /// &lt;param name="allFilePathList">将会分析的所有文件路径列表&lt;/param>
+        public void RunBeforeAnalyzeSheet(Param param, ref Object globalObject, List&lt;string> allFilePathList)
+        {
+            
+        }
+
+        /// &lt;summary>
+        /// 分析一个sheet
+        /// &lt;/summary>
+        /// &lt;param name="param">传入的参数&lt;/param>
+        /// &lt;param name="sheet">被分析的sheet&lt;/param>
+        /// &lt;param name="result">存储当前文件的信息 ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }&lt;/param>
+        /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
+        /// &lt;param name="invokeCount">此分析函数被调用的次数&lt;/param>
+        public void AnalyzeSheet(Param param, IXLWorksheet sheet, ConcurrentDictionary&lt;ResultType, Object> result, ref Object globalObject, int invokeCount)
+        {
+            
+        }
+
+        /// &lt;summary>
+        /// 在所有输出前调用
+        /// &lt;/summary>
+        /// &lt;param name="param">传入的参数&lt;/param>
+        /// &lt;param name="workbook">用于输出的excel文件&lt;/param>
+        /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
+        /// &lt;param name="resultList">所有文件的信息&lt;/param>
+        /// &lt;param name="allFilePathList">分析的所有文件路径列表&lt;/param>
+        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, ICollection&lt;ConcurrentDictionary&lt;ResultType, Object>> resultList, List&lt;string> allFilePathList)
+        {
+            
+        }
+
+        /// &lt;summary>
+        /// 根据分析结果输出到excel中
+        /// &lt;/summary>
+        /// &lt;param name="param">传入的参数&lt;/param>
+        /// &lt;param name="workbook">用于输出的excel文件&lt;/param>
+        /// &lt;param name="result">存储当前文件的信息 ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }&lt;/param>
+        /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
+        /// &lt;param name="invokeCount">此输出函数被调用的次数&lt;/param>
+        /// &lt;param name="totalCount">总共需要调用的输出函数的次数&lt;/param>
+        public void SetResult(Param param, XLWorkbook workbook, ConcurrentDictionary&lt;ResultType, Object> result, ref Object globalObject, int invokeCount, int totalCount)
+        {
+            
+        }
+
+        /// &lt;summary>
+        /// 所有调用结束后调用
+        /// &lt;/summary>
+        /// &lt;param name="param">传入的参数&lt;/param>
+        /// &lt;param name="workbook">用于输出的excel文件&lt;/param>
+        /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
+        /// &lt;param name="resultList">所有文件的信息&lt;/param>
+        /// &lt;param name="allFilePathList">分析的所有文件路径列表&lt;/param>
+        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, ICollection&lt;ConcurrentDictionary&lt;ResultType, Object>> resultList, List&lt;string> allFilePathList)
+        {
+            
+        }
+    }
+}</sys:String>
 </ResourceDictionary>

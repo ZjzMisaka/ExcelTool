@@ -237,23 +237,39 @@ namespace ExcelTool.ViewModel
             foreach (string dll in dlls)
             {
                 Assembly dllFile = null;
-                try
+                if (IniHelper.GetSecurityCheck())
                 {
-                    dllFile = Assembly.LoadFrom(dll);
+                    try
+                    {
+                        dllFile = Assembly.LoadFrom(dll);
+                    }
+                    catch (FileLoadException ex)
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("UnblockDllsCopiedFromTheWeb").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                        window.Close();
+                        loadFailed = true;
+                        return;
+                    }
                 }
-                catch (FileLoadException ex)
+                else
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("UnblockDllsCopiedFromTheWeb").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-                    window.Close();
-                    loadFailed = true;
-                    return;
+                    try
+                    {
+                        dllFile = Assembly.UnsafeLoadFrom(dll);
+                    }
+                    catch (FileLoadException ex)
+                    {
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("FileNotSupported").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                        window.Close();
+                        loadFailed = true;
+                        return;
+                    }
                 }
                 foreach (Type type in dllFile.GetExportedTypes())
                 {
                     assemblies.Add(type.Assembly);
                 }
             }
-
 
             _host = new RoslynHost(additionalAssemblies: new[]
             {
