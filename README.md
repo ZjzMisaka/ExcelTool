@@ -101,6 +101,7 @@ bool ContainsKey(string key);
 |param|Param|传入的参数||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |allFilePathList|List<string>|将会分析的所有文件路径列表||
+|isExecuteInSequence|bool|是否顺序执行||
 
 ##### AnalyzeSheet函数
 |参数|类型|含义|备注|
@@ -109,6 +110,7 @@ bool ContainsKey(string key);
 |sheet|IXLWorksheet|当前被分析的sheet||
 |result|ConcurrentDictionary<ResultType, Object>|存储当前文件的信息||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
+|isExecuteInSequence|bool|是否顺序执行||
 |invokeCount|int|此分析函数被调用的次数|第一次调用时值为1|
 
 ##### RunBeforeSetResult函数
@@ -119,6 +121,7 @@ bool ContainsKey(string key);
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
 |allFilePathList|List<string>|分析的所有文件路径列表||
+|isExecuteInSequence|bool|是否顺序执行||
 
 ##### SetResult函数
 |参数|类型|含义|备注|
@@ -127,6 +130,7 @@ bool ContainsKey(string key);
 |workbook|XLWorkbook|用于输出的Excel文件||
 |result|ConcurrentDictionary<ResultType, Object>|存储当前文件的信息||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
+|isExecuteInSequence|bool|是否顺序执行||
 |invokeCount|int|此输出函数被调用的次数|第一次调用时值为1|
 |totalCount|int|总共需要调用的输出函数的次数|当invokeCount与totalCount值相同时即为最后一次调用|
 
@@ -138,6 +142,7 @@ bool ContainsKey(string key);
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
 |allFilePathList|List<string>|分析的所有文件路径列表||
+|isExecuteInSequence|bool|是否顺序执行||
 
 # 使用的开源库
 |开源库|开源协议|
