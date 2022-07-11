@@ -2441,7 +2441,14 @@ namespace ExcelTool.ViewModel
                 {
                     if (!(e is ThreadAbortException))
                     {
-                        Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunBeforeAnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                        if (e.InnerException != null)
+                        {
+                            Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunBeforeAnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                        }
+                        else
+                        {
+                            Logger.Error($"\n    {e.Message}\n    {analyzer.name}.RunBeforeAnalyzeSheet(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
+                        }
                         runNotSuccessed = true;
                         Stop();
                     }
@@ -2473,7 +2480,14 @@ namespace ExcelTool.ViewModel
             {
                 if (!(e is ThreadAbortException))
                 {
-                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunBeforeSetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                    if (e.InnerException != null)
+                    {
+                        Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunBeforeSetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                    }
+                    else
+                    {
+                        Logger.Error($"\n    {e.Message}\n    {analyzer.name}.RunBeforeSetResult(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
+                    }
                     runNotSuccessed = true;
                     Stop();
                 }
@@ -2504,7 +2518,14 @@ namespace ExcelTool.ViewModel
             {
                 if (!(e is ThreadAbortException))
                 {
-                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunEnd(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                    if (e.InnerException != null)
+                    {
+                        Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunEnd(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                    }
+                    else 
+                    {
+                        Logger.Error($"\n    {e.Message}\n    {analyzer.name}.RunEnd(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
+                    }
                     runNotSuccessed = true;
                     Stop();
                 }
@@ -2664,13 +2685,20 @@ namespace ExcelTool.ViewModel
                     return;
                 }
                 ++analyzeSheetInvokeCount;
-                object[] objList = new object[] { param, sheet, result, isExecuteInSequence, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), analyzeSheetInvokeCount };
+                object[] objList = new object[] { param, sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), isExecuteInSequence, analyzeSheetInvokeCount };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[3]);
             }
             catch (Exception e)
             {
-                Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                if (e.InnerException != null)
+                {
+                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                }
+                else
+                {
+                    Logger.Error($"\n    {e.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
+                }
                 runNotSuccessed = true;
                 Stop();
             }
@@ -2718,7 +2746,14 @@ namespace ExcelTool.ViewModel
             }
             catch (Exception e)
             {
-                Logger.Error($"\n    {e.InnerException.Message}\n    {analyzerName}.SetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                if (e.InnerException != null)
+                {
+                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzerName}.SetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                }
+                else 
+                {
+                    Logger.Error($"\n    {e.Message}\n    {analyzerName}.SetResult(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
+                }
                 runNotSuccessed = true;
                 resBoolean = false;
                 Stop();

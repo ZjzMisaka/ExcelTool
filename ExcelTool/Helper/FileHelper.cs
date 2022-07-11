@@ -199,7 +199,7 @@ namespace ExcelTool.Helper
             SaveFile(isAuto, isExecuteInSequence, filePath, workbook, out saveResult);
             if (!saveResult)
             {
-                string fileNotSavedStr = $"{Application.Current.FindResource("FileNotSaved").ToString()}: \n{filePath}";
+                string fileNotSavedStr = $"{Application.Current.FindResource("FileNotSaved")}: \n{filePath}";
                 if (!isAuto && !isExecuteInSequence)
                 {
                     Logger.Error(fileNotSavedStr);
