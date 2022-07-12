@@ -666,7 +666,7 @@ namespace ExcelTool.ViewModel
 
         private void CbParamsPreviewMouseLeftButtonDown()
         {
-            paramsItems = FileHelper.GetParamsList();
+            ParamsItems = FileHelper.GetParamsList();
         }
 
         private void CbParamsSelectionChanged()
