@@ -1092,13 +1092,9 @@ namespace ExcelTool.ViewModel
                 columnDefinitionL.Width = new GridLength(200);
             }
 
-            RowDefinition rowDefinitionBlank = new RowDefinition();
-            paramEditor.g_main.RowDefinitions.Add(rowDefinitionBlank);
-            ++rowNum;
             RowDefinition rowDefinitionOk = new RowDefinition();
             rowDefinitionOk.Height = new GridLength(35);
-            paramEditor.g_main.RowDefinitions.Add(rowDefinitionOk);
-            ++rowNum;
+            paramEditor.g_btn.RowDefinitions.Add(rowDefinitionOk);
             Button btnOk = new Button();
             btnOk.VerticalAlignment = VerticalAlignment.Center;
             btnOk.Height = 30;
@@ -1109,9 +1105,8 @@ namespace ExcelTool.ViewModel
                 TeParams.Text = ParamHelper.GetParamStr(paramDicEachAnalyzer);
                 paramEditor.Close();
             };
-            Grid.SetRow(btnOk, rowNum);
-            Grid.SetColumnSpan(btnOk, 2);
-            paramEditor.g_main.Children.Add(btnOk);
+            Grid.SetRow(btnOk, 0);
+            paramEditor.g_btn.Children.Add(btnOk);
 
             paramEditor.ShowDialog();
         }

@@ -425,8 +425,8 @@ namespace ExcelTool.ViewModel
             paramEditor.g_main.RowDefinitions.Add(rowDefinition);
 
             RowDefinition rowDefinitionOk = new RowDefinition();
-            rowDefinitionOk.Height = new GridLength(30);
-            paramEditor.g_main.RowDefinitions.Add(rowDefinitionOk);
+            rowDefinitionOk.Height = new GridLength(35);
+            paramEditor.g_btn.RowDefinitions.Add(rowDefinitionOk);
 
             ColumnDefinition columnDefinitionL = new ColumnDefinition();
             paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
@@ -682,7 +682,7 @@ namespace ExcelTool.ViewModel
             };
             Grid.SetRow(btnOk, 1);
             Grid.SetColumnSpan(btnOk, 5);
-            paramEditor.g_main.Children.Add(btnOk);
+            paramEditor.g_btn.Children.Add(btnOk);
 
             paramEditor.ShowDialog();
         }

@@ -6,9 +6,18 @@
         xmlns:local="clr-namespace:ExcelTool"
         mc:Ignorable="d"
         Title="{DynamicResource ParameterEditor}" Height="450" Width="800">
-    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-        <Grid Name="g_main" Margin="5px">
+    <Grid Margin="10, 7">
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Grid Name="g_main">
+
+            </Grid>
+        </ScrollViewer>
+        <Grid Name="g_btn" Grid.Row="1">
 
         </Grid>
-    </ScrollViewer>
+    </Grid>
 </Window>
