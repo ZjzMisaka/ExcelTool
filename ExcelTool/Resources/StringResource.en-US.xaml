@@ -90,7 +90,7 @@ namespace AnalyzeCode
         /// &lt;summary>
         /// Call before all analyses
         /// &lt;/summary>
-        /// &lt;param name="param">incoming parameters&lt;/param>
+        /// &lt;param name="param">Parameters passed in&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
         /// &lt;param name="allFilePathList">A list of all file paths that will be analyzed&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
@@ -102,8 +102,8 @@ namespace AnalyzeCode
         /// &lt;summary>
         /// Analyze a sheet
         /// &lt;/summary>
-        /// &lt;param name="param">incoming parameters&lt;/param>
-        /// &lt;param name="sheet">sheet to be analyzed&lt;/param>
+        /// &lt;param name="param">Parameters passed in&lt;/param>
+        /// &lt;param name="sheet">Sheet to be analyzed&lt;/param>
         /// &lt;param name="result">Store the information of the current file ResultType { (String) FILEPATH [file path], (String) FILENAME [file name], (String) MESSAGE [message output when there is a problem with searching], (Object) RESULTOBJECT [user-defined Analysis results] }&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
@@ -116,8 +116,8 @@ namespace AnalyzeCode
         /// &lt;summary>
         /// call before all output
         /// &lt;/summary>
-        /// &lt;param name="param">incoming parameters&lt;/param>
-        /// &lt;param name="workbook">excel file for output&lt;/param>
+        /// &lt;param name="param">Parameters passed in&lt;/param>
+        /// &lt;param name="workbook">Excel file for output&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
         /// &lt;param name="resultList">Information on all files&lt;/param>
         /// &lt;param name="allFilePathList">List of all file paths analyzed&lt;/param>
@@ -130,8 +130,8 @@ namespace AnalyzeCode
         /// &lt;summary>
         /// Export the analysis results to excel
         /// &lt;/summary>
-        /// &lt;param name="param">incoming parameters&lt;/param>
-        /// &lt;param name="workbook">excel file for output&lt;/param>
+        /// &lt;param name="param">Parameters passed in&lt;/param>
+        /// &lt;param name="workbook">Excel file for output&lt;/param>
         /// &lt;param name="result">Store the information of the current file ResultType { (String) FILEPATH [file path], (String) FILENAME [file name], (String) MESSAGE [message output when there is a problem with searching], (Object) RESULTOBJECT [user-defined Analysis results] }&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
@@ -145,8 +145,8 @@ namespace AnalyzeCode
         /// &lt;summary>
         /// Call after all calls have finished
         /// &lt;/summary>
-        /// &lt;param name="param">incoming parameters&lt;/param>
-        /// &lt;param name="workbook">excel file for output&lt;/param>
+        /// &lt;param name="param">Parameters passed in&lt;/param>
+        /// &lt;param name="workbook">Excel file for output&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
         /// &lt;param name="resultList">Information on all files&lt;/param>
         /// &lt;param name="allFilePathList">List of all file paths analyzed&lt;/param>

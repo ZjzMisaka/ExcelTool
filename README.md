@@ -1,149 +1,150 @@
 # ExcelTool
-可插件式拓展功能, 可批量处理, 并将结果输出到Excel文件中  
-[查看示例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
-[执行时的gif图](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
+Plug-in extension function, batch processing, and output of results to Excel file  
+[中文ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_zh-CN.md) | [日本語ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_ja-JP.md)  
+[View example](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
+[Gif image when executed](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
 
-### 多语言
+### multi-language
 - [x] 简体中文
 - [x] 日本語
 - [x] English
 
-### 主界面
-- 通过下拉框选择检索信息和处理逻辑 (插件), 使它们一一对应
-- 可以设定传入参数, 设定检索根目录和默认输出目录, 输出文件名
-- 通过规则下拉框选择保存过的规则可以自动填充以上内容
-    - 选择规则后可以设定监视对一些文件夹和文件进行监视, 出现变动后自动执行这项规则
-- 有顺序执行与同时执行两种执行方式  
+### Main interface
+- Select retrieval information and processing logic (plug-in) through the drop-down box, make sure they are correspond one by one
+- Can set incoming parameters, set search root directory and default output directory, output file name
+- There are two execution modes: sequential execution and simultaneous execution
+- The above content can be automatically filled in by selecting a saved rule from the rule drop-down box
+    - After selecting a rule, you can set monitoring to monitor some folders and files, and automatically execute this rule when there is a change
 
-### 检索信息设定界面
-**用于设定需要查找指定路径下指定Excel文件的指定Sheet**
-- 查找的方式可以有选择全部, 完整匹配, 部分包含和正则表达式
+### Search information setting interface
+**Used to set the specified Sheet that needs to find the specified Excel file in the specified path**
+- The search method can be selected all, complete match, partial contain and regular expression
 
-### 处理逻辑 (插件编码) 界面
-**用于设定对某一类Sheet进行的处理逻辑以及处理完毕后的输出逻辑**
-- 在编辑器中编写代码, 运行中会依次执行.  
-- 可以设定参数, 插件使用者可以在主界面中编辑参数, 并且在运行中传递给代码使用.  
+### Processing logic (plug-in coding) interface
+**Used to set the processing logic for a certain type of Sheet and the output logic after processing**
+- Write code in the editor, and it will be executed in sequence during operation.
+- Parameters can be set, plug-in users can edit the parameters in the main interface, and pass them to the code to use at runtime.  
 
-#### 编码相关
-- 全程自动补全与着色, 可以自行向Dlls文件夹添加dll文件, 添加后可以直接引用
-- 编码内容依赖[ClosedXML](https://github.com/ClosedXML/ClosedXML)开源库
-- 可以使用额外提供的函数与属性, 在运行中进行
-    - 事实在主界面Log区域输出Log
-    - 挂起并等待, 读取用户输入
-    - 额外的Excel文件操作
-- 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
+#### Coding related
+- Automatic completion and coloring throughout the process, you can add dll files to the Dlls folder by yourself, and you can directly reference them after adding
+- Encoding content depends on the [ClosedXML](https://github.com/ClosedXML/ClosedXML) open source library
+- Can use additional provided functions and properties to perform on-the-fly
+    - Real-time output of Log in the Log area of the main interface
+    - Hang and wait, read user input
+    - Additional Excel file operations
+- When a compilation error or a running error occurs, the relevant debugging information will appear in the log area at the bottom of the main interface
 
-##### Logger (静态类)
+##### Logger (static class)
 ```c#
-// ---- 输出Log函数 ----
-// 根据输出log类型不同, 会有不同的着色区分. 
+// ---- Output Log function ----
+// Depending on the output log type, there will be different coloring distinctions.
 void Info(string info);
 void Warn(string warn);
 void Error(string error);
 void Print(string str);
 
-// ---- 当找不到函数时是否报出警告属性 ----
+// ---- Whether to warn when a function is not found ----
 bool IsOutputMethodNotFoundWarning { get => isOutputMethodNotFoundWarning; set => isOutputMethodNotFoundWarning = value; }
 ```
 
-##### Scanner (静态类)
+##### Scanner (static class)
 ```c#
-// ---- 获取输入函数 ----
-// 参数是获取输入的提示语, 执行后会等待直到用户进行输入. 
-// 如果有其他线程正在等待输入中, 则会先等待排在前面的线程获取完毕, 再执行此语句的内容.  
+// ---- Get the input function ----
+// The parameter is the prompt to get the input, and after execution, it will wait until the user enters it.  
+// If there are other threads waiting for input, it will first wait for the thread in front to get it, and then execute the content of this statement.  
 string GetInput();
 string GetInput(string value);
 
-// ---- 等待输入函数 ----
-// 可能是无用函数. 可以在其他线程正在执行输入时等待直到用户输入被获取. 
-// 返回最近用户输入的内容. 
+// ---- Waiting for input function ----
+// Possibly a useless function. Can wait until user input is obtained while other threads are performing input. 
+// Returns the most recent user input. 
 string WaitInput();
 
-// ---- 最近输入内容属性 ----
+// ---- Recently entered content ----
 string LastInputValue { get => lastInputValue; set => lastInputValue = value; }
 ```
 
-##### Output (静态类)
+##### Output (static class)
 ```c#
-// ---- Excel文件操作 ----
-// 新建一个excel文件
+// ---- Excel file operations ----
+// Create a new excel file
 XLWorkbook CreateWorkbook(string name);
-// 获得一个通过CreateWorkbook创建的excel文件
+// Get an excel file created via CreateWorkbook
 XLWorkbook GetWorkbook(string name);
-// 获取一个sheet
+// Get a sheet
 IXLWorksheet GetSheet(string workbookName, string sheetName);
 IXLWorksheet GetSheet(XLWorkbook workbook, string sheetName);
-// 获取创建的所有excel文件
+// Get all excel files created
 Dictionary<string, XLWorkbook> GetAllWorkbooks();
-// 清除创建的所有excel文件
+// Clear all created excel files
 void ClearWorkbooks();
 
-// ---- 是否保存默认输出文件属性 ----
+// ---- Whether to save the default output file ----
 bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultWorkBook = value; }
 ```
 
-##### Param (类)
+##### Param (class)
 ```c#
-// 获取参数
+// Get parameters
 List<string> Get(string key);
 string GetOne(string key);
-// 获取参数键的集合
+// Get a collection of parameter keys
 IEnumerable<String> GetKeys();
-// 判断是否包含参数
+// Check whether parameter is included
 bool ContainsKey(string key);
 ```
 
-##### RunBeforeAnalyze函数
-|参数|类型|含义|备注|
+##### RunBeforeAnalyze Function
+|Parameter|Type|Description|Remarks|
 |----|----|----|----|
-|param|Param|传入的参数||
-|globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
-|allFilePathList|List<string>|将会处理的所有文件路径列表||
-|isExecuteInSequence|bool|是否顺序执行||
+|param|Param|Parameters passed in||
+|globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
+|allFilePathList|List<string>|A list of all file paths that will be analyzed||
+|isExecuteInSequence|bool|Whether to execute sequentially||
 
-##### AnalyzeSheet函数
-|参数|类型|含义|备注|
+##### AnalyzeSheet Function
+|Parameter|Type|Description|Remarks|
 |----|----|----|----|
-|param|Param|传入的参数||
-|sheet|IXLWorksheet|当前被处理的sheet||
-|result|ConcurrentDictionary<ResultType, Object>|存储当前文件的信息||
-|globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
-|isExecuteInSequence|bool|是否顺序执行||
-|invokeCount|int|此处理函数被调用的次数|第一次调用时值为1|
+|param|Param|Parameters passed in||
+|sheet|IXLWorksheet|Sheet to be analyzed||
+|result|ConcurrentDictionary<ResultType, Object>|Store information about the current file||
+|globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
+|isExecuteInSequence|bool|Whether to execute sequentially||
+|invokeCount|int|The number of times this analysis function was called|The value is 1 on the first call|
 
-##### RunBeforeSetResult函数
-|参数|类型|含义|备注|
+##### RunBeforeSetResult Function
+|Parameter|Type|Description|Remarks|
 |----|----|----|----|
-|param|Param|传入的参数||
-|workbook|XLWorkbook|用于输出的Excel文件||
-|globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
-|resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
-|allFilePathList|List<string>|处理的所有文件路径列表||
-|isExecuteInSequence|bool|是否顺序执行||
+|param|Param|Parameters passed in||
+|workbook|XLWorkbook|Excel file for output||
+|globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
+|resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|Information on all files||
+|allFilePathList|List<string>|List of all file paths analyzed||
+|isExecuteInSequence|bool|Whether to execute sequentially||
 
-##### SetResult函数
-|参数|类型|含义|备注|
+##### SetResult Function
+|Parameter|Type|Description|Remarks|
 |----|----|----|----|
-|param|Param|传入的参数||
-|workbook|XLWorkbook|用于输出的Excel文件||
-|result|ConcurrentDictionary<ResultType, Object>|存储当前文件的信息||
-|globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
-|isExecuteInSequence|bool|是否顺序执行||
-|invokeCount|int|此输出函数被调用的次数|第一次调用时值为1|
-|totalCount|int|总共需要调用的输出函数的次数|当invokeCount与totalCount值相同时即为最后一次调用|
+|param|Param|Parameters passed in||
+|workbook|XLWorkbook|Excel file for output||
+|result|ConcurrentDictionary<ResultType, Object>|Store information about the current file||
+|globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
+|isExecuteInSequence|bool|Whether to execute sequentially||
+|invokeCount|int|The number of times this output function was called|The value is 1 on the first call|
+|totalCount|int|The total number of times the output function needs to be called|The last call is when invokeCount is the same as totalCount|
 
-##### RunEnd函数
-|参数|类型|含义|备注|
+##### RunEnd Function
+|Parameter|Type|Description|Remarks|
 |----|----|----|----|
-|param|Param|传入的参数||
-|workbook|XLWorkbook|用于输出的Excel文件||
-|globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
-|resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
-|allFilePathList|List<string>|处理的所有文件路径列表||
-|isExecuteInSequence|bool|是否顺序执行||
+|param|Param|Parameters passed in||
+|workbook|XLWorkbook|Excel file for output||
+|globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
+|resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|Information on all files||
+|allFilePathList|List<string>|List of all file paths analyzed||
+|isExecuteInSequence|bool|Whether to execute sequentially||
 
-# 使用的开源库
-|开源库|开源协议|
+# Open Source Libraries Used
+|Open source library|Open source protocol|
 |----|----|
 |[roslynpad/roslynpad](https://github.com/roslynpad/roslynpad)|MIT|
 |[icsharpcode/AvalonEdit](https://github.com/icsharpcode/AvalonEdit)|MIT|
