@@ -34,7 +34,7 @@
     <sys:String x:Key="PathNotExists">Path does not exist</sys:String>
     <sys:String x:Key="Ok">Ok</sys:String>
     <sys:String x:Key="Timeout">Timeout</sys:String>
-    <sys:String x:Key="TotalTimeout">Total timeoutト</sys:String>
+    <sys:String x:Key="TotalTimeout">Total timeout</sys:String>
     <sys:String x:Key="Analyzing">Analyzing...</sys:String>
     <sys:String x:Key="ExceptionHasBeenThrowed">Exception has been thrown</sys:String>
     <sys:String x:Key="Outputting">Outputting...</sys:String>
