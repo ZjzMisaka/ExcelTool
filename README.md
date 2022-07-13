@@ -9,17 +9,17 @@
 - [x] English
 
 ### 主界面
-- 通过下拉框选择检索信息和分析逻辑 (插件), 使它们一一对应
+- 通过下拉框选择检索信息和处理逻辑 (插件), 使它们一一对应
 - 可以设定传入参数, 设定检索根目录和默认输出目录, 输出文件名
 - 通过规则下拉框选择保存过的规则可以自动填充以上内容
     - 选择规则后可以设定监视对一些文件夹和文件进行监视, 出现变动后自动执行这项规则
 - 有顺序执行与同时执行两种执行方式  
 
-### 检索信息分析界面
+### 检索信息设定界面
 **用于设定需要查找指定路径下指定Excel文件的指定Sheet**
 - 查找的方式可以有选择全部, 完整匹配, 部分包含和正则表达式
 
-### 逻辑分析 (插件编码) 界面
+### 处理逻辑 (插件编码) 界面
 **用于设定对某一类Sheet进行的处理逻辑以及处理完毕后的输出逻辑**
 - 在编辑器中编写代码, 运行中会依次执行.  
 - 可以设定参数, 插件使用者可以在主界面中编辑参数, 并且在运行中传递给代码使用.  
@@ -98,18 +98,18 @@ bool ContainsKey(string key);
 |----|----|----|----|
 |param|Param|传入的参数||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
-|allFilePathList|List<string>|将会分析的所有文件路径列表||
+|allFilePathList|List<string>|将会处理的所有文件路径列表||
 |isExecuteInSequence|bool|是否顺序执行||
 
 ##### AnalyzeSheet函数
 |参数|类型|含义|备注|
 |----|----|----|----|
 |param|Param|传入的参数||
-|sheet|IXLWorksheet|当前被分析的sheet||
+|sheet|IXLWorksheet|当前被处理的sheet||
 |result|ConcurrentDictionary<ResultType, Object>|存储当前文件的信息||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |isExecuteInSequence|bool|是否顺序执行||
-|invokeCount|int|此分析函数被调用的次数|第一次调用时值为1|
+|invokeCount|int|此处理函数被调用的次数|第一次调用时值为1|
 
 ##### RunBeforeSetResult函数
 |参数|类型|含义|备注|
@@ -118,7 +118,7 @@ bool ContainsKey(string key);
 |workbook|XLWorkbook|用于输出的Excel文件||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
-|allFilePathList|List<string>|分析的所有文件路径列表||
+|allFilePathList|List<string>|处理的所有文件路径列表||
 |isExecuteInSequence|bool|是否顺序执行||
 
 ##### SetResult函数
@@ -139,7 +139,7 @@ bool ContainsKey(string key);
 |workbook|XLWorkbook|用于输出的Excel文件||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
-|allFilePathList|List<string>|分析的所有文件路径列表||
+|allFilePathList|List<string>|处理的所有文件路径列表||
 |isExecuteInSequence|bool|是否顺序执行||
 
 # 使用的开源库
