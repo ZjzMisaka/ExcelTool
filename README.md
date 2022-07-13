@@ -9,8 +9,8 @@
 - [x] English
 
 ### 主界面
-- 设定完成检索信息和分析逻辑后通过下拉框选择, 使一行检索信息和一行分析逻辑一一对应
-- 可以设定传入参数, 设定检索根目录和输出目录, 默认输出文件的输出文件名
+- 通过下拉框选择检索信息和分析逻辑 (插件), 使它们一一对应
+- 可以设定传入参数, 设定检索根目录和默认输出目录, 输出文件名
 - 通过规则下拉框选择保存过的规则可以自动填充以上内容
     - 选择规则后可以设定监视对一些文件夹和文件进行监视, 出现变动后自动执行这项规则
 - 有顺序执行与同时执行两种执行方式  
@@ -33,7 +33,7 @@
     - 额外的Excel文件操作
 - 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
 
-##### Logger静态类
+##### Logger (静态类)
 ```c#
 // ---- 输出Log函数 ----
 // 根据输出log类型不同, 会有不同的着色区分. 
@@ -46,7 +46,7 @@ void Print(string str);
 bool IsOutputMethodNotFoundWarning { get => isOutputMethodNotFoundWarning; set => isOutputMethodNotFoundWarning = value; }
 ```
 
-##### Scanner静态类
+##### Scanner (静态类)
 ```c#
 // ---- 获取输入函数 ----
 // 参数是获取输入的提示语, 执行后会等待直到用户进行输入. 
@@ -63,7 +63,7 @@ string WaitInput();
 string LastInputValue { get => lastInputValue; set => lastInputValue = value; }
 ```
 
-##### Output静态类
+##### Output (静态类)
 ```c#
 // ---- Excel文件操作 ----
 // 新建一个excel文件
@@ -82,7 +82,7 @@ void ClearWorkbooks();
 bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultWorkBook = value; }
 ```
 
-##### Param类
+##### Param (类)
 ```c#
 // 获取参数
 List<string> Get(string key);
