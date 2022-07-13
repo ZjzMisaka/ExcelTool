@@ -1,5 +1,5 @@
 # ExcelTool
-可拓展, 批量分析Excel文件, 并将分析结果输出到Excel文件中  
+可插件式拓展功能, 可批量处理, 并将结果输出到Excel文件中  
 [查看示例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [执行时的gif图](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
 
@@ -14,24 +14,22 @@
 - 通过规则下拉框选择保存过的规则可以自动填充以上内容
     - 选择规则后可以设定监视对一些文件夹和文件进行监视, 出现变动后自动执行这项规则
 - 有顺序执行与同时执行两种执行方式  
-<img src="https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool01.png?20220603" width="400px" />
 
 ### 检索信息分析界面
-**用于设定需要查找哪些路径下的哪些Excel文件的哪些Sheet**
+**用于设定需要查找指定路径下指定Excel文件的指定Sheet**
 - 查找的方式可以有选择全部, 完整匹配, 部分包含和正则表达式
-<img src="https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool03.png?20220603" width="400px" />
 
-### 逻辑分析界面
-**用于设定对某一类Sheet进行怎样的分析, 分析完毕后如何进行输出 (或者如何处理并保留分析的结果供后续使用)**
+### 逻辑分析 (插件编码) 界面
+**用于设定对某一类Sheet进行的处理逻辑以及处理完毕后的输出逻辑**
 - 在编辑器中编写代码, 运行中会依次执行.  
-<img src="https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool02.png?20220603" width="400px" />
+- 可以设定参数, 插件使用者可以在主界面中编辑参数, 并且在运行中传递给代码使用.  
 
 #### 编码相关
-- 全程自动补全与着色, 可以自行向Dlls文件夹添加dll文件
+- 全程自动补全与着色, 可以自行向Dlls文件夹添加dll文件, 添加后可以直接引用
 - 编码内容依赖[ClosedXML](https://github.com/ClosedXML/ClosedXML)开源库
-- 可以使用GlobalObjects中提供的函数与属性, 在运行中进行
-    - Log的输出
-    - 用户输入的读取
+- 可以使用额外提供的函数与属性, 在运行中进行
+    - 事实在主界面Log区域输出Log
+    - 挂起并等待, 读取用户输入
     - 额外的Excel文件操作
 - 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
 
