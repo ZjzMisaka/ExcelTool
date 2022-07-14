@@ -41,13 +41,12 @@ namespace GlobalObjects
             {
                 style = new Style();
                 style.TargetType = typeof(Button);
-                style.Setters.Add(new Setter(Button.BackgroundProperty, new SolidColorBrush(Colors.White)));
-                style.Setters.Add(new Setter(Button.BorderBrushProperty, new SolidColorBrush(Colors.LightGray)));
+                style.Setters.Add(new Setter(Button.BackgroundProperty, new SolidColorBrush(Colors.LightGray)));
+                style.Setters.Add(new Setter(Button.BorderThicknessProperty, new Thickness(0)));
                 style.Setters.Add(new Setter(Button.ForegroundProperty, new SolidColorBrush(Colors.Black)));
                 style.Setters.Add(new Setter(Button.FontSizeProperty, (double)12));
-                style.Setters.Add(new Setter(Button.BorderThicknessProperty, new Thickness(1)));
                 style.Setters.Add(new Setter(Button.MarginProperty, new Thickness(5)));
-                style.Setters.Add(new Setter(Button.HeightProperty, 25d));
+                style.Setters.Add(new Setter(Button.HeightProperty, 40d));
             }
             return style;
         }

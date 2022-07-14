@@ -8,6 +8,8 @@
         xmlns:Behavior="clr-namespace:Behavior"
         xmlns:dd="urn:gong-wpf-dragdrop"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
         Title="{DynamicResource WinTitle}" Name="w_MainWindow" Tag="{Binding WindowName}" Height="{Binding WindowHeight, Mode=OneWayToSource}" Width="{Binding WindowWidth, Mode=OneWayToSource}" MinHeight="685" MinWidth="500">
     <i:Interaction.Triggers>
@@ -26,73 +28,91 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="8*"/>
                 <RowDefinition Height="*" MinHeight="50"/>
-                <RowDefinition Height="30"/>
+                <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Grid Grid.Row="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="35"/>
                     <RowDefinition Height="5*" MinHeight="50"/>
-                    <RowDefinition Height="25"/>
-                    
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="30"/>
                     <RowDefinition Height="30"/>
                     
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="30"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="40"/>
+                    
+                    <RowDefinition/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="35"/>
 
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="30"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="35"/>
 
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <Button Name="btn_opensheetexplainereditor" Content="{DynamicResource SetSheetExplainer}" Height="25" Grid.Row="0" Grid.Column="0" Margin="10 2" Command="{Binding BtnOpenSheetExplainerEditorClickCommand}"/>
-                <Button Name="btn_openanalyzereditor" Content="{DynamicResource SetAnalyzer}" Height="25" Grid.Row="0" Grid.Column="1" Margin="10 2" Command="{Binding BtnOpenAnalyzerEditorClickCommand}"/>
-                <ComboBox Name="cb_sheetexplainers" ItemsSource="{Binding SheetExplainersItems, Mode=TwoWay}" SelectedItem="{Binding SelectedSheetExplainersItem, Mode=TwoWay}" SelectedIndex="{Binding SelectedSheetExplainersIndex, Mode=TwoWay}" Grid.Row="1" Margin="10 2" Grid.Column="0" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbSheetExplainersPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbSheetExplainersSelectionChangedCommand}"/>
-                <ComboBox Name="cb_analyzers" ItemsSource="{Binding AnalyzersItems, Mode=TwoWay}" SelectedItem="{Binding SelectedAnalyzersItem, Mode=TwoWay}" SelectedIndex="{Binding SelectedAnalyzersIndex, Mode=TwoWay}" Grid.Row="1" Margin="10 2" Grid.Column="1" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbAnalyzersPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbAnalyzersSelectionChangedCommand}"/>
+                <Button Name="btn_opensheetexplainereditor" Content="{DynamicResource SetSheetExplainer}" HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0" Margin="10 2" Command="{Binding BtnOpenSheetExplainerEditorClickCommand}"/>
+                <Button Name="btn_openanalyzereditor" Content="{DynamicResource SetAnalyzer}" HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="1" Margin="10 2" Command="{Binding BtnOpenAnalyzerEditorClickCommand}"/>
+                <ComboBox Name="cb_sheetexplainers" ItemsSource="{Binding SheetExplainersItems, Mode=TwoWay}" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectedSheetExplainersItem, Mode=TwoWay}" SelectedIndex="{Binding SelectedSheetExplainersIndex, Mode=TwoWay}" Grid.Row="1" Margin="10 2" Grid.Column="0" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbSheetExplainersPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbSheetExplainersSelectionChangedCommand}"/>
+                <ComboBox Name="cb_analyzers" ItemsSource="{Binding AnalyzersItems, Mode=TwoWay}" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectedAnalyzersItem, Mode=TwoWay}" SelectedIndex="{Binding SelectedAnalyzersIndex, Mode=TwoWay}" Grid.Row="1" Margin="10 2" Grid.Column="1" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbAnalyzersPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbAnalyzersSelectionChangedCommand}"/>
                 <avalonEdit:TextEditor Name="te_sheetexplainers" Document="{Binding TeSheetExplainersDocument, Mode=TwoWay}" Margin="10 2" Grid.Row="2" Grid.Column="0" ShowLineNumbers="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
                 <Label Grid.Row="2" Margin="10 2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="="/>
                 <avalonEdit:TextEditor Name="te_analyzers" Document="{Binding TeAnalyzersDocument, Mode=TwoWay}" Margin="10 2" Grid.Row="2" Grid.Column="1" ShowLineNumbers="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
-                <CheckBox Grid.Row="3" Grid.Column="1" Width="auto" Height="25" Content="{DynamicResource ExecuteInSequence}" IsChecked="{Binding CbExecuteInSequenceIsChecked, Mode=TwoWay}" Name="cb_executeinsequence" HorizontalAlignment="Right" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center"></CheckBox>
+                <CheckBox Grid.Row="3" Grid.Column="1" Width="auto" Content="{DynamicResource ExecuteInSequence}" IsChecked="{Binding CbExecuteInSequenceIsChecked, Mode=TwoWay}" Name="cb_executeinsequence" HorizontalAlignment="Right" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center"></CheckBox>
                 
-                <Label Height="25" Margin="10 2 10 0" Grid.Row="4" Grid.ColumnSpan="2" Content="{DynamicResource Parameter}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
-                <ComboBox Name="cb_params" ItemsSource="{Binding ParamsItems, Mode=TwoWay}" SelectedItem="{Binding SelectedParamsItem, Mode=TwoWay}" SelectedIndex="{Binding SelectedParamsIndex, Mode=TwoWay}" Grid.Row="5" Margin="10 2" Grid.Column="0" Grid.ColumnSpan="1" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbParamsPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbParamsSelectionChangedCommand}" />
-                <Button Name="btn_params"  Command="{Binding EditParamCommand}" Grid.Row="5" Margin="10 2" Grid.Column="1" Grid.ColumnSpan="1" Content="{DynamicResource Edit}" Height="25" HorizontalAlignment="Right" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"></Button>
-                <ContentControl Content="{Binding TeParams}" Margin="10 2" Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Behavior:LostFocus.Command="{Binding TbParamsLostFocusCommand}" AllowDrop="False" VerticalContentAlignment="Center" FontSize="14"/>
+                <Label Margin="10 2 10 0" Grid.Row="4" Grid.ColumnSpan="2" Content="{DynamicResource Parameter}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                <ComboBox Name="cb_params" ItemsSource="{Binding ParamsItems, Mode=TwoWay}" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectedParamsItem, Mode=TwoWay}" SelectedIndex="{Binding SelectedParamsIndex, Mode=TwoWay}" Grid.Row="5" Margin="10 2" Grid.Column="0" Grid.ColumnSpan="1" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbParamsPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbParamsSelectionChangedCommand}" />
+                <Button Name="btn_params"  Command="{Binding EditParamCommand}" Grid.Row="5" Margin="10 2" Grid.Column="1" Grid.ColumnSpan="1" Content="{DynamicResource Edit}" HorizontalAlignment="Right" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"></Button>
+                <Border Margin="10 2" Focusable="True" Background="Transparent" Padding="3" Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CornerRadius="3">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="DimGray"/>
+                            <Setter Property="BorderThickness" Value="1"></Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="BorderBrush" Value="Black" />
+                                    <Setter Property="BorderThickness" Value="1" />
+                                </Trigger>
+                                <Trigger Property="IsFocused" Value="True">
+                                    <Setter Property="BorderBrush" Value="Yellow"></Setter>
+                                    <Setter Property="BorderThickness" Value="1"></Setter>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <ContentControl Content="{Binding TeParams}" Behavior:LostFocus.Command="{Binding TbParamsLostFocusCommand}" AllowDrop="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" FontSize="14"/>
+                </Border>
 
-                <Label Height="25" Margin="10 2 10 0" Grid.Row="7" Grid.ColumnSpan="2" Content="{DynamicResource Workbase}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                <Label Margin="10 2 10 0" Grid.Row="7" Grid.ColumnSpan="2" Content="{DynamicResource Workbase}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <TextBox Grid.Row="8" Grid.ColumnSpan="2" Name="tb_base_path" dd:DragDrop.IsDropTarget="True" dd:DragDrop.DropHandler="{Binding}" TextWrapping="NoWrap" Text="{Binding TbBasePathText, Mode=TwoWay}" Margin="10 2" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                <Button Grid.Row="9" Grid.ColumnSpan="2" Height="25" Name="btn_select_output_path" Command="{Binding SelectPathCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" Margin="10 2" Content="{DynamicResource Select}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Label Height="25" Margin="10 2 10 0" Grid.Row="10" Grid.ColumnSpan="2" Content="{DynamicResource OutputPath}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                <Button Grid.Row="9" Grid.ColumnSpan="2" Name="btn_select_output_path" Command="{Binding SelectPathCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" Margin="10 2" Content="{DynamicResource Select}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Label Margin="10 2 10 0" Grid.Row="10" Grid.ColumnSpan="2" Content="{DynamicResource OutputPath}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <TextBox Grid.Row="11" Grid.ColumnSpan="2" Name="tb_output_path" dd:DragDrop.IsDropTarget="True" dd:DragDrop.DropHandler="{Binding}" TextWrapping="NoWrap" Text="{Binding TbOutputPathText, Mode=TwoWay}" Margin="10 2" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                <Button Grid.Row="12" Grid.ColumnSpan="2" Height="25" Name="btn_select_result_path" Command="{Binding SelectPathCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" Margin="10 2" Content="{DynamicResource Select}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Button Grid.Row="12" Grid.ColumnSpan="2" Height="25" Name="btn_open_result_path" Command="{Binding OpenPathCommand}" Margin="95 2 10 2" Content="{DynamicResource Open}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Label Height="25" Margin="10 2 10 0" Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="1" Content="{DynamicResource OutputFileName}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                <Button Grid.Row="12" Grid.ColumnSpan="2" Name="btn_select_result_path" Command="{Binding SelectPathCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" Margin="10 2" Content="{DynamicResource Select}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="12" Grid.ColumnSpan="2" Name="btn_open_result_path" Command="{Binding OpenPathCommand}" Margin="95 2 10 2" Content="{DynamicResource Open}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Label Margin="10 2 10 0" Grid.Row="13" Grid.Column="0" Grid.ColumnSpan="1" Content="{DynamicResource OutputFileName}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <TextBox Grid.Row="14" Grid.ColumnSpan="1" Grid.Column="0" Name="tb_output_name" dd:DragDrop.IsDropTarget="True" dd:DragDrop.DropHandler="{Binding}" TextWrapping="NoWrap" Text="{Binding TbOutputNameText, Mode=TwoWay}" Margin="10 2" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                <Button Grid.Row="15" Grid.ColumnSpan="2" Height="25" Name="btn_select_output_filename" Command="{Binding SelectNameCommand}" Margin="10 2" Content="{DynamicResource Select}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Button Grid.Row="15" Grid.ColumnSpan="2" Height="25" Name="btn_open_output_file" Command="{Binding OpenOutputCommand}" Margin="95 2 10 2" Content="{DynamicResource Open}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="15" Grid.ColumnSpan="2" Name="btn_select_output_filename" Command="{Binding SelectNameCommand}" Margin="10 2" Content="{DynamicResource Select}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="15" Grid.ColumnSpan="2" Name="btn_open_output_file" Command="{Binding OpenOutputCommand}" Margin="95 2 10 2" Content="{DynamicResource Open}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
                 
-                <Label Height="25" Margin="10 2 10 0" Grid.Row="16" Grid.ColumnSpan="2" Content="{DynamicResource Rule}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
-                <ComboBox Name="cb_rules" ItemsSource="{Binding RuleItems, Mode=TwoWay}" SelectedIndex="{Binding SelectedRulesIndex, Mode=TwoWay}" SelectedItem="{Binding SelectedRulesItem, Mode=TwoWay}" Grid.Row="17" Margin="10 2" Grid.Column="0" Behavior:SelectionChanged.Command="{Binding CbRulesChangedCommand}" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbRulesPreviewMouseLeftButtonDownCommand}"/>
-                <Button Grid.Row="17" Grid.ColumnSpan="2" Height="25" Content="{DynamicResource Save}" Name="btn_saverule" Command="{Binding SaveRuleCommand}" Visibility="{Binding BtnSaveRuleVisibility, Mode=TwoWay}" HorizontalAlignment="Right" Margin="10 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Button Grid.Row="17" Grid.ColumnSpan="2" Height="25" Content="{DynamicResource Delete}" Name="btn_deleterule" Command="{Binding DeleteRuleCommand}" Visibility="{Binding BtnDeleteRuleVisibility, Mode=TwoWay}" IsEnabled="{Binding BtnDeleteRuleIsEnabled, Mode=TwoWay}" HorizontalAlignment="Right" Margin="10 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Button Grid.Row="18" Grid.ColumnSpan="2" Height="25" Name="btn_setauto" Command="{Binding SetAutoCommand}" Visibility="{Binding BtnSetAutoVisibility, Mode=TwoWay}" Margin="10 2" Content="{DynamicResource SetAuto}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Button Grid.Row="18" Grid.ColumnSpan="2" Height="25" Name="btn_unsetauto" Command="{Binding UnsetAutoCommand}" Visibility="{Binding BtnUnsetAutoVisibility, Mode=TwoWay}" Margin="10 2" Content="{DynamicResource SetManual}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Label Margin="10 2 10 0" Grid.Row="16" Grid.ColumnSpan="2" Content="{DynamicResource Rule}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                <ComboBox Name="cb_rules" ItemsSource="{Binding RuleItems, Mode=TwoWay}" HorizontalAlignment="Stretch" SelectedIndex="{Binding SelectedRulesIndex, Mode=TwoWay}" SelectedItem="{Binding SelectedRulesItem, Mode=TwoWay}" Grid.Row="17" Margin="10 2" Grid.Column="0" Behavior:SelectionChanged.Command="{Binding CbRulesChangedCommand}" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbRulesPreviewMouseLeftButtonDownCommand}"/>
+                <Button Grid.Row="17" Grid.ColumnSpan="2" Content="{DynamicResource Save}" Name="btn_saverule" Command="{Binding SaveRuleCommand}" Visibility="{Binding BtnSaveRuleVisibility, Mode=TwoWay}" HorizontalAlignment="Right" Margin="10 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="17" Grid.ColumnSpan="2" Content="{DynamicResource Delete}" Name="btn_deleterule" Command="{Binding DeleteRuleCommand}" Visibility="{Binding BtnDeleteRuleVisibility, Mode=TwoWay}" IsEnabled="{Binding BtnDeleteRuleIsEnabled, Mode=TwoWay}" HorizontalAlignment="Right" Margin="10 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="18" Grid.ColumnSpan="2" Name="btn_setauto" Command="{Binding SetAutoCommand}" Visibility="{Binding BtnSetAutoVisibility, Mode=TwoWay}" Margin="10 2" Content="{DynamicResource SetAuto}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="18" Grid.ColumnSpan="2" Name="btn_unsetauto" Command="{Binding UnsetAutoCommand}" Visibility="{Binding BtnUnsetAutoVisibility, Mode=TwoWay}" Margin="10 2" Content="{DynamicResource SetManual}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
             </Grid>
             <GridSplitter x:Name="gs_gridsplitter" BorderBrush="Black" BorderThickness="0, 1, 0, 1" Height="4" Grid.Row="1" Background="AntiqueWhite" HorizontalAlignment="Stretch" VerticalAlignment="Top" Panel.ZIndex="100"/>
             <Label Grid.Row="1" FontSize="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" BorderThickness="1px" BorderBrush="Gray">
@@ -129,9 +149,9 @@
 
                 <Label Grid.Row="0" Grid.Column="0" FontSize="10" Name="l_process" Content="{Binding LProcessContent, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
-                <CheckBox Grid.Row="0" Grid.Column="1" Height="25" Content="{DynamicResource AutomaticallyOpening}" IsChecked="{Binding CbIsAutoOpenIsChecked, Mode=TwoWay}" Name="cb_isautoopen" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" />
-                <Button Grid.Row="0" Grid.Column="2" Height="25" Content="{DynamicResource Stop}" Name="btn_stop" Command="{Binding StopCommand}" IsEnabled="{Binding BtnStopIsEnabled, Mode=TwoWay}" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
-                <Button Grid.Row="0" Grid.Column="3" Height="25" Content="{DynamicResource Start}" Name="btn_start" Command="{Binding StartCommand}" IsEnabled="{Binding BtnStartIsEnabled, Mode=TwoWay}" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"/>
+                <CheckBox Grid.Row="0" Grid.Column="1" Content="{DynamicResource AutomaticallyOpening}" IsChecked="{Binding CbIsAutoOpenIsChecked, Mode=TwoWay}" Name="cb_isautoopen" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Center" VerticalContentAlignment="Center" />
+                <Button Grid.Row="0" Grid.Column="2" Content="{DynamicResource Stop}" Name="btn_stop" Command="{Binding StopCommand}" IsEnabled="{Binding BtnStopIsEnabled, Mode=TwoWay}" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Center" VerticalContentAlignment="Center" Width="75"/>
+                <Button Grid.Row="0" Grid.Column="3" Content="{DynamicResource Start}" Name="btn_start" Command="{Binding StartCommand}" IsEnabled="{Binding BtnStartIsEnabled, Mode=TwoWay}" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Center" VerticalContentAlignment="Center" Width="75"/>
             </Grid>
 
         </Grid>
