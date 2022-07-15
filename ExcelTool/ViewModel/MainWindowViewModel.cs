@@ -1309,7 +1309,8 @@ namespace ExcelTool.ViewModel
         private void SaveRule()
         {
             TextBox tbName = new TextBox();
-            tbName.Margin = new Thickness(5, 8, 5, 8);
+            tbName.Margin = new Thickness(5);
+            tbName.Height = 30;
             tbName.VerticalContentAlignment = VerticalAlignment.Center;
             if (SelectedRulesIndex >= 1)
             {
@@ -1366,29 +1367,11 @@ namespace ExcelTool.ViewModel
             RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
 
             PropertiesSetter propertiesSetter = GlobalObjects.GlobalObjects.GetPropertiesSetter();
-            Grid messageboxGrid = new Grid();
-            messageboxGrid.Margin = new Thickness(0, 8, 0, 8);
-            messageboxGrid.Height = 31;
-            messageboxGrid.Width = propertiesSetter.WindowWidth;
-            RowDefinition rowDefinition = new RowDefinition();
-            messageboxGrid.RowDefinitions.Add(rowDefinition);
-            ColumnDefinition columnDefinitionL = new ColumnDefinition();
-            columnDefinitionL.Width = new GridLength(2, GridUnitType.Star);
-            messageboxGrid.ColumnDefinitions.Add(columnDefinitionL);
-            ColumnDefinition columnDefinitionM = new ColumnDefinition();
-            columnDefinitionM.Width = new GridLength(1, GridUnitType.Star);
-            messageboxGrid.ColumnDefinitions.Add(columnDefinitionM);
-            ColumnDefinition columnDefinitionR = new ColumnDefinition();
-            columnDefinitionR.Width = new GridLength(1, GridUnitType.Star);
-            messageboxGrid.ColumnDefinitions.Add(columnDefinitionR);
+            
             TextBox tbPath = new TextBox();
             tbPath.VerticalContentAlignment = VerticalAlignment.Center;
-            Grid.SetRow(tbPath, 0);
-            Grid.SetColumn(tbPath, 0);
             TextBox tbFilter = new TextBox();
             tbFilter.VerticalContentAlignment = VerticalAlignment.Center;
-            Grid.SetRow(tbFilter, 0);
-            Grid.SetColumn(tbFilter, 0);
             Button buttonCancel = new Button();
             buttonCancel.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
             buttonCancel.Content = Application.Current.FindResource("Cancel").ToString();
@@ -1396,13 +1379,9 @@ namespace ExcelTool.ViewModel
             {
                 CustomizableMessageBox.MessageBox.CloseNow();
             };
-            Grid.SetRow(buttonCancel, 0);
-            Grid.SetColumn(buttonCancel, 2);
             Button buttonOkPath = new Button();
             buttonOkPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
             buttonOkPath.Content = Application.Current.FindResource("Ok").ToString();
-            Grid.SetRow(buttonOkPath, 0);
-            Grid.SetColumn(buttonOkPath, 1);
             buttonOkPath.Click += (sender, e) =>
             {
                 rule.watchPath = tbPath.Text;
@@ -1410,23 +1389,14 @@ namespace ExcelTool.ViewModel
                 Button buttonOkFilter = new Button();
                 buttonOkFilter.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
                 buttonOkFilter.Content = Application.Current.FindResource("Ok").ToString();
-                Grid.SetRow(buttonOkFilter, 0);
-                Grid.SetColumn(buttonOkFilter, 1);
                 buttonOkFilter.Click += (senderF, eF) =>
                 {
                     rule.filter = tbFilter.Text;
                     CustomizableMessageBox.MessageBox.CloseNow();
                 };
-                messageboxGrid.Children.Clear();
-                messageboxGrid.Children.Add(tbFilter);
-                messageboxGrid.Children.Add(buttonOkFilter);
-                messageboxGrid.Children.Add(buttonCancel);
-                CustomizableMessageBox.MessageBox.ButtonList = new List<Object>() { messageboxGrid };
+                CustomizableMessageBox.MessageBox.ButtonList = new List<Object>() { tbFilter, new ButtonSpacer(1, GridUnitType.Star, true), buttonOkFilter, buttonCancel };
             };
-            messageboxGrid.Children.Add(tbPath);
-            messageboxGrid.Children.Add(buttonOkPath);
-            messageboxGrid.Children.Add(buttonCancel);
-            CustomizableMessageBox.MessageBox.Show(propertiesSetter, new List<Object>() { messageboxGrid }, Application.Current.FindResource("WatchPath").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
+            CustomizableMessageBox.MessageBox.Show(propertiesSetter, new List<Object>() { tbPath, new ButtonSpacer(1, GridUnitType.Star, true), buttonOkPath, buttonCancel }, Application.Current.FindResource("WatchPath").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
 
             if (rule.watchPath == null || rule.filter == null)
             {

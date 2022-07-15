@@ -46,7 +46,7 @@ namespace GlobalObjects
                 style.Setters.Add(new Setter(Button.ForegroundProperty, new SolidColorBrush(Colors.Black)));
                 style.Setters.Add(new Setter(Button.FontSizeProperty, (double)12));
                 style.Setters.Add(new Setter(Button.MarginProperty, new Thickness(5)));
-                style.Setters.Add(new Setter(Button.HeightProperty, 40d));
+                style.Setters.Add(new Setter(Button.HeightProperty, 30d));
             }
             return style;
         }
