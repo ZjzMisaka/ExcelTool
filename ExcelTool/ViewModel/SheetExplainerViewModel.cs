@@ -423,7 +423,7 @@ namespace ExcelTool.ViewModel
             {
                 sheetNamesFindingMethod = FindingMethod.ALL;
             }
-            KeyValuePair<FindingMethod, List<string>> sheetNames = new KeyValuePair<FindingMethod, List<string>>(sheetNamesFindingMethod, StringListDeteleBlank(tbSheetNamesText.Split('\n').ToList()));
+            KeyValuePair<FindingMethod, List<string>> sheetNames = new KeyValuePair<FindingMethod, List<string>>(sheetNamesFindingMethod, StringListDeteleBlank(TbSheetNamesText.Split('\n').ToList()));
             sheetExplainer.sheetNames = sheetNames;
 
             string json = JsonConvert.SerializeObject(sheetExplainer);
