@@ -707,6 +707,7 @@ namespace ExcelTool.ViewModel
         {
             TextBox tbName = new TextBox();
             tbName.Margin = new Thickness(5);
+            tbName.Height = 30;
             tbName.VerticalContentAlignment = VerticalAlignment.Center;
 
             string newName = "";
