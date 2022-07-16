@@ -186,7 +186,7 @@
       <Version>0.95.4</Version>
     </PackageReference>
     <PackageReference Include="CustomizableMessageBox">
-      <Version>1.1.1</Version>
+      <Version>1.1.4</Version>
     </PackageReference>
     <PackageReference Include="DocumentFormat.OpenXml">
       <Version>2.7.2</Version>

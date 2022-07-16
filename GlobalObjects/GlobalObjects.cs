@@ -35,21 +35,6 @@ namespace GlobalObjects
         {
             globalParamDic = new ConcurrentDictionary<CompilerResults, object>();
         }
-        public static Style GetBtnStyle()
-        {
-            if (style == null)
-            {
-                style = new Style();
-                style.TargetType = typeof(Button);
-                style.Setters.Add(new Setter(Button.BackgroundProperty, new SolidColorBrush(Colors.LightGray)));
-                style.Setters.Add(new Setter(Button.BorderThicknessProperty, new Thickness(0)));
-                style.Setters.Add(new Setter(Button.ForegroundProperty, new SolidColorBrush(Colors.Black)));
-                style.Setters.Add(new Setter(Button.FontSizeProperty, (double)12));
-                style.Setters.Add(new Setter(Button.MarginProperty, new Thickness(5)));
-                style.Setters.Add(new Setter(Button.HeightProperty, 30d));
-            }
-            return style;
-        }
         public static PropertiesSetter GetPropertiesSetter()
         {
             if (ps == null)
@@ -75,9 +60,8 @@ namespace GlobalObjects
                 ps.LockHeight = false;
                 ps.WindowWidth = 450;
                 ps.WindowShowDuration = new Duration(new TimeSpan(0, 0, 0, 0, 300));
-                List<Style> buttonStyleList = new List<Style>();
-                buttonStyleList.Add(GetBtnStyle());
-                ps.ButtonStyleList = buttonStyleList;
+                ps.ButtonMarginList = new List<Thickness>() { new Thickness(5) };
+                ps.ButtonHeightList = new List<double>() { 30 };
             }
 
             return ps;
@@ -108,9 +92,8 @@ namespace GlobalObjects
                 psWithTimmer.WindowWidth = 450;
                 psWithTimmer.WindowShowDuration = new Duration(new TimeSpan(0, 0, 0, 0, 300));
                 psWithTimmer.CloseTimer = new MessageBoxCloseTimer(1, 0);
-                List<Style> buttonStyleList = new List<Style>();
-                buttonStyleList.Add(GetBtnStyle());
-                psWithTimmer.ButtonStyleList = buttonStyleList;
+                psWithTimmer.ButtonMarginList = new List<Thickness>() { new Thickness(5) };
+                psWithTimmer.ButtonHeightList = new List<double>() { 30 };
             }
 
             return psWithTimmer;

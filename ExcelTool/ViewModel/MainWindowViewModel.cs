@@ -1369,25 +1369,35 @@ namespace ExcelTool.ViewModel
             PropertiesSetter propertiesSetter = GlobalObjects.GlobalObjects.GetPropertiesSetter();
             
             TextBox tbPath = new TextBox();
+            tbPath.Margin = new Thickness(5);
+            tbPath.Height = 30;
             tbPath.VerticalContentAlignment = VerticalAlignment.Center;
             TextBox tbFilter = new TextBox();
+            tbFilter.Margin = new Thickness(5);
+            tbFilter.Height = 30;
             tbFilter.VerticalContentAlignment = VerticalAlignment.Center;
             Button buttonCancel = new Button();
-            buttonCancel.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+            buttonCancel.Height = 30;
+            buttonCancel.HorizontalAlignment = HorizontalAlignment.Stretch;
+            buttonCancel.Margin = new Thickness(5);
             buttonCancel.Content = Application.Current.FindResource("Cancel").ToString();
             buttonCancel.Click += (sender, e) =>
             {
                 CustomizableMessageBox.MessageBox.CloseNow();
             };
             Button buttonOkPath = new Button();
-            buttonOkPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+            buttonOkPath.Height = 30;
+            buttonOkPath.HorizontalAlignment = HorizontalAlignment.Stretch;
+            buttonOkPath.Margin = new Thickness(5);
             buttonOkPath.Content = Application.Current.FindResource("Ok").ToString();
             buttonOkPath.Click += (sender, e) =>
             {
                 rule.watchPath = tbPath.Text;
                 CustomizableMessageBox.MessageBox.MessageText = Application.Current.FindResource("WatchFilter").ToString();
                 Button buttonOkFilter = new Button();
-                buttonOkFilter.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                buttonOkFilter.Height = 30;
+                buttonOkFilter.HorizontalAlignment = HorizontalAlignment.Stretch;
+                buttonOkFilter.Margin = new Thickness(5);
                 buttonOkFilter.Content = Application.Current.FindResource("Ok").ToString();
                 buttonOkFilter.Click += (senderF, eF) =>
                 {

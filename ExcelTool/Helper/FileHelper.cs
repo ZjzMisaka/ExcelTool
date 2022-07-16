@@ -218,7 +218,9 @@ namespace ExcelTool.Helper
             if (!isAuto && isAutoOpen == false && !isExecuteInSequence)
             {
                 Button btnOpenFile = new Button();
-                btnOpenFile.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                btnOpenFile.Height = 30;
+                btnOpenFile.HorizontalAlignment = HorizontalAlignment.Stretch;
+                btnOpenFile.Margin = new Thickness(5);
                 btnOpenFile.Content = Application.Current.FindResource("OpenFile").ToString();
                 btnOpenFile.Click += (s, ee) =>
                 {
@@ -227,7 +229,9 @@ namespace ExcelTool.Helper
                 };
 
                 Button btnOpenPath = new Button();
-                btnOpenPath.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                btnOpenPath.Height = 30;
+                btnOpenPath.HorizontalAlignment = HorizontalAlignment.Stretch;
+                btnOpenPath.Margin = new Thickness(5);
                 btnOpenPath.Content = Application.Current.FindResource("OpenPath").ToString();
                 btnOpenPath.Click += (s, ee) =>
                 {
@@ -236,7 +240,9 @@ namespace ExcelTool.Helper
                 };
 
                 Button btnClose = new Button();
-                btnClose.Style = GlobalObjects.GlobalObjects.GetBtnStyle();
+                btnClose.Height = 30;
+                btnClose.HorizontalAlignment = HorizontalAlignment.Stretch;
+                btnClose.Margin = new Thickness(5);
                 btnClose.Content = Application.Current.FindResource("Close").ToString();
                 btnClose.Click += (s, ee) =>
                 {

@@ -358,7 +358,8 @@ namespace ExcelTool.ViewModel
         private void Save(bool isRename)
         {
             TextBox tbName = new TextBox();
-            tbName.Margin = new Thickness(5, 8, 5, 8);
+            tbName.Margin = new Thickness(5);
+            tbName.Height = 30;
             tbName.VerticalContentAlignment = VerticalAlignment.Center;
 
             string newName = "";
