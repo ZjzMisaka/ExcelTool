@@ -222,9 +222,6 @@ namespace ExcelTool.ViewModel
                 dllInfos = dirD.GetFileSystemInfos();
             }
             List<string> dlls = new List<string>();
-            dlls.Add("System.dll");
-            dlls.Add("System.Data.dll");
-            dlls.Add("System.Xml.dll");
             dlls.Add("ClosedXML.dll");
             dlls.Add("GlobalObjects.dll");
             if (dllInfos != null && dllInfos.Count() != 0)
@@ -425,7 +422,7 @@ namespace ExcelTool.ViewModel
             paramEditor.g_main.RowDefinitions.Add(rowDefinition);
 
             RowDefinition rowDefinitionOk = new RowDefinition();
-            rowDefinitionOk.Height = new GridLength(35);
+            rowDefinitionOk.Height = new GridLength(40);
             paramEditor.g_btn.RowDefinitions.Add(rowDefinitionOk);
 
             ColumnDefinition columnDefinitionL = new ColumnDefinition();
@@ -590,7 +587,7 @@ namespace ExcelTool.ViewModel
             paramEditor.g_main.Children.Add(textEditorR);
 
             Button btnOk = new Button();
-            btnOk.Height = 30;
+            btnOk.HorizontalAlignment = HorizontalAlignment.Stretch;
             btnOk.Content = Application.Current.FindResource("Ok").ToString();
             btnOk.Click += (s, ex) =>
             {
@@ -709,7 +706,8 @@ namespace ExcelTool.ViewModel
         private void Save(bool isRename)
         {
             TextBox tbName = new TextBox();
-            tbName.Margin = new Thickness(5, 8, 5, 8);
+            tbName.Margin = new Thickness(5);
+            tbName.Height = 30;
             tbName.VerticalContentAlignment = VerticalAlignment.Center;
 
             string newName = "";

@@ -425,6 +425,7 @@ namespace ExcelTool.ViewModel
 
             scanner.Input += Scanner.UserInput;
 
+            TeLog.Padding = new Thickness(5);
             TeLog.ShowLineNumbers = false;
             TeLog.WordWrap = true;
             TeLog.IsReadOnly = true;
@@ -437,9 +438,7 @@ namespace ExcelTool.ViewModel
             TeParams.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             TeParams.TextChanged += TeParamsTextChanged;
             TeParams.PreviewKeyDown += TeParamsPreviewKeyDown;
-            TeParams.BorderBrush = Brushes.Gray;
-            TeParams.BorderThickness = new Thickness(1);
-            TeParams.Padding = new Thickness(3);
+            TeParams.Padding = new Thickness(8, 5, 8, 5);
             WindowLoadedCommand = new RelayCommand<RoutedEventArgs>(WindowLoaded);
             WindowClosingCommand = new RelayCommand<CancelEventArgs>(WindowClosing);
             WindowClosedCommand = new RelayCommand(WindowClosed);
@@ -482,7 +481,7 @@ namespace ExcelTool.ViewModel
                 dictionaryList.Add(dictionary);
             }
             string requestedCulture = string.Format(@"Resources\StringResource.{0}.xaml", language);
-            ResourceDictionary resourceDictionary = dictionaryList.FirstOrDefault(d => d.Source.OriginalString.Equals(requestedCulture));
+            ResourceDictionary resourceDictionary = dictionaryList.FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Equals(requestedCulture));
             if (resourceDictionary == null)
             {
                 requestedCulture = @"Resources\StringResource.zh-CN.xaml";
@@ -734,13 +733,13 @@ namespace ExcelTool.ViewModel
                 Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{analyzerName}.json"));
 
                 RowDefinition rowDefinition = new RowDefinition();
-                rowDefinition.Height = new GridLength(40);
+                rowDefinition.Height = new GridLength(50);
                 paramEditor.g_main.RowDefinitions.Add(rowDefinition);
                 ++rowNum;
                 TextBlock textBlockAnalyzerName = new TextBlock();
-                textBlockAnalyzerName.Height = 35;
+                textBlockAnalyzerName.Height = 45;
                 textBlockAnalyzerName.FontWeight = FontWeight.FromOpenTypeWeight(600);
-                textBlockAnalyzerName.FontSize = 20;
+                textBlockAnalyzerName.FontSize = 24;
                 textBlockAnalyzerName.VerticalAlignment = VerticalAlignment.Bottom;
                 textBlockAnalyzerName.Text = analyzerName;
                 Grid.SetRow(textBlockAnalyzerName, rowNum);
@@ -832,7 +831,7 @@ namespace ExcelTool.ViewModel
                         {
                             ++groupIndex;
                             RadioButton radioButtonForUncheck = new RadioButton();
-                            radioButtonForUncheck.Height = 20;
+                            radioButtonForUncheck.Height = 30;
                             radioButtonForUncheck.HorizontalAlignment = HorizontalAlignment.Stretch;
                             radioButtonForUncheck.VerticalContentAlignment = VerticalAlignment.Top;
                             radioButtonForUncheck.GroupName = $"{analyzerName}_{key}_{groupIndex}";
@@ -868,7 +867,7 @@ namespace ExcelTool.ViewModel
                             foreach (PossibleValue possibleValue in analyzer.paramDic[key].possibleValues)
                             {
                                 RadioButton radioButton = new RadioButton();
-                                radioButton.Height = 20;
+                                radioButton.Height = 30;
                                 radioButton.HorizontalAlignment = HorizontalAlignment.Stretch;
                                 radioButton.VerticalContentAlignment = VerticalAlignment.Top;
                                 radioButton.GroupName = $"{analyzerName}_{key}_{groupIndex}";
@@ -931,7 +930,7 @@ namespace ExcelTool.ViewModel
                             foreach (PossibleValue possibleValue in analyzer.paramDic[key].possibleValues)
                             {
                                 CheckBox checkBox = new CheckBox();
-                                checkBox.Height = 20;
+                                checkBox.Height = 30;
                                 checkBox.HorizontalAlignment = HorizontalAlignment.Stretch;
                                 checkBox.VerticalContentAlignment = VerticalAlignment.Top;
                                 checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
@@ -1030,17 +1029,16 @@ namespace ExcelTool.ViewModel
                         }
                         if (analyzer.paramDic[key].type == ParamType.Single)
                         {
-                            rowDefinitionKv.Height = new GridLength(20 * (analyzer.paramDic[key].possibleValues.Count + 1) + 10);
+                            rowDefinitionKv.Height = new GridLength(30 * (analyzer.paramDic[key].possibleValues.Count + 1) + 10);
                         }
                         else
                         {
-                            rowDefinitionKv.Height = new GridLength(20 * analyzer.paramDic[key].possibleValues.Count + 10);
+                            rowDefinitionKv.Height = new GridLength(30 * analyzer.paramDic[key].possibleValues.Count + 10);
                         }
                     }
                     else
                     {
                         TextBox tbValue = new TextBox();
-                        tbValue.Height = 25;
                         tbValue.HorizontalAlignment = HorizontalAlignment.Stretch;
                         tbValue.VerticalAlignment = VerticalAlignment.Top;
                         tbValue.VerticalContentAlignment = VerticalAlignment.Center;
@@ -1076,7 +1074,7 @@ namespace ExcelTool.ViewModel
 
                         stackPanel.Children.Add(tbValue);
 
-                        rowDefinitionKv.Height = new GridLength(40);
+                        rowDefinitionKv.Height = new GridLength(50);
                     }
 
                     paramEditor.g_main.Children.Add(stackPanel);
@@ -1097,7 +1095,7 @@ namespace ExcelTool.ViewModel
             paramEditor.g_btn.RowDefinitions.Add(rowDefinitionOk);
             Button btnOk = new Button();
             btnOk.VerticalAlignment = VerticalAlignment.Center;
-            btnOk.Height = 30;
+            btnOk.HorizontalAlignment = HorizontalAlignment.Stretch;
             btnOk.Margin = new Thickness(0, 5, 0, 0);
             btnOk.Content = Application.Current.FindResource("Ok").ToString();
             btnOk.Click += (s, ex) =>
@@ -1312,7 +1310,8 @@ namespace ExcelTool.ViewModel
         private void SaveRule()
         {
             TextBox tbName = new TextBox();
-            tbName.Margin = new Thickness(5, 8, 5, 8);
+            tbName.Margin = new Thickness(5);
+            tbName.Height = 30;
             tbName.VerticalContentAlignment = VerticalAlignment.Center;
             if (SelectedRulesIndex >= 1)
             {
@@ -1369,74 +1368,46 @@ namespace ExcelTool.ViewModel
             RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
 
             PropertiesSetter propertiesSetter = GlobalObjects.GlobalObjects.GetPropertiesSetter();
-            Grid messageboxGrid = new Grid();
-            messageboxGrid.Margin = new Thickness(0, 8, 0, 8);
-            messageboxGrid.Height = 31;
-            messageboxGrid.Width = propertiesSetter.WindowWidth;
-            RowDefinition rowDefinition = new RowDefinition();
-            messageboxGrid.RowDefinitions.Add(rowDefinition);
-            ColumnDefinition columnDefinitionL = new ColumnDefinition();
-            columnDefinitionL.Width = new GridLength(2, GridUnitType.Star);
-            messageboxGrid.ColumnDefinitions.Add(columnDefinitionL);
-            ColumnDefinition columnDefinitionM = new ColumnDefinition();
-            columnDefinitionM.Width = new GridLength(1, GridUnitType.Star);
-            messageboxGrid.ColumnDefinitions.Add(columnDefinitionM);
-            ColumnDefinition columnDefinitionR = new ColumnDefinition();
-            columnDefinitionR.Width = new GridLength(1, GridUnitType.Star);
-            messageboxGrid.ColumnDefinitions.Add(columnDefinitionR);
+            
             TextBox tbPath = new TextBox();
-            tbPath.Height = 25;
-            tbPath.Margin = new Thickness(5, 0, 5, 0);
+            tbPath.Margin = new Thickness(5);
+            tbPath.Height = 30;
             tbPath.VerticalContentAlignment = VerticalAlignment.Center;
-            Grid.SetRow(tbPath, 0);
-            Grid.SetColumn(tbPath, 0);
             TextBox tbFilter = new TextBox();
-            tbFilter.Height = 25;
-            tbFilter.Margin = new Thickness(5, 0, 5, 0);
+            tbFilter.Margin = new Thickness(5);
+            tbFilter.Height = 30;
             tbFilter.VerticalContentAlignment = VerticalAlignment.Center;
-            Grid.SetRow(tbFilter, 0);
-            Grid.SetColumn(tbFilter, 0);
             Button buttonCancel = new Button();
-            buttonCancel.Height = 25;
-            buttonCancel.Margin = new Thickness(5, 0, 5, 0);
+            buttonCancel.Height = 30;
+            buttonCancel.HorizontalAlignment = HorizontalAlignment.Stretch;
+            buttonCancel.Margin = new Thickness(5);
             buttonCancel.Content = Application.Current.FindResource("Cancel").ToString();
             buttonCancel.Click += (sender, e) =>
             {
                 CustomizableMessageBox.MessageBox.CloseNow();
             };
-            Grid.SetRow(buttonCancel, 0);
-            Grid.SetColumn(buttonCancel, 2);
             Button buttonOkPath = new Button();
-            buttonOkPath.Height = 25;
-            buttonOkPath.Margin = new Thickness(5, 0, 5, 0);
+            buttonOkPath.Height = 30;
+            buttonOkPath.HorizontalAlignment = HorizontalAlignment.Stretch;
+            buttonOkPath.Margin = new Thickness(5);
             buttonOkPath.Content = Application.Current.FindResource("Ok").ToString();
-            Grid.SetRow(buttonOkPath, 0);
-            Grid.SetColumn(buttonOkPath, 1);
             buttonOkPath.Click += (sender, e) =>
             {
                 rule.watchPath = tbPath.Text;
                 CustomizableMessageBox.MessageBox.MessageText = Application.Current.FindResource("WatchFilter").ToString();
                 Button buttonOkFilter = new Button();
-                buttonOkFilter.Height = 25;
-                buttonOkFilter.Margin = new Thickness(5, 0, 5, 0);
+                buttonOkFilter.Height = 30;
+                buttonOkFilter.HorizontalAlignment = HorizontalAlignment.Stretch;
+                buttonOkFilter.Margin = new Thickness(5);
                 buttonOkFilter.Content = Application.Current.FindResource("Ok").ToString();
-                Grid.SetRow(buttonOkFilter, 0);
-                Grid.SetColumn(buttonOkFilter, 1);
                 buttonOkFilter.Click += (senderF, eF) =>
                 {
                     rule.filter = tbFilter.Text;
                     CustomizableMessageBox.MessageBox.CloseNow();
                 };
-                messageboxGrid.Children.Clear();
-                messageboxGrid.Children.Add(tbFilter);
-                messageboxGrid.Children.Add(buttonOkFilter);
-                messageboxGrid.Children.Add(buttonCancel);
-                CustomizableMessageBox.MessageBox.ButtonList = new List<Object>() { messageboxGrid };
+                CustomizableMessageBox.MessageBox.ButtonList = new List<Object>() { tbFilter, new ButtonSpacer(1, GridUnitType.Star, true), buttonOkFilter, buttonCancel };
             };
-            messageboxGrid.Children.Add(tbPath);
-            messageboxGrid.Children.Add(buttonOkPath);
-            messageboxGrid.Children.Add(buttonCancel);
-            CustomizableMessageBox.MessageBox.Show(propertiesSetter, new List<Object>() { messageboxGrid }, Application.Current.FindResource("WatchPath").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
+            CustomizableMessageBox.MessageBox.Show(propertiesSetter, new List<Object>() { tbPath, new ButtonSpacer(1, GridUnitType.Star, true), buttonOkPath, buttonCancel }, Application.Current.FindResource("WatchPath").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
 
             if (rule.watchPath == null || rule.filter == null)
             {
