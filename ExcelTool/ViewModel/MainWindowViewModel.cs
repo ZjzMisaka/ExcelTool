@@ -425,6 +425,7 @@ namespace ExcelTool.ViewModel
 
             scanner.Input += Scanner.UserInput;
 
+            TeLog.Padding = new Thickness(5);
             TeLog.ShowLineNumbers = false;
             TeLog.WordWrap = true;
             TeLog.IsReadOnly = true;

@@ -39,22 +39,22 @@
                     <RowDefinition Height="35"/>
                     <RowDefinition Height="5*" MinHeight="50"/>
                     <RowDefinition Height="30"/>
-                    
-                    <RowDefinition/>
+
+                    <RowDefinition Height="30"/>
                     <RowDefinition Height="35"/>
                     <RowDefinition Height="40"/>
-                    
-                    <RowDefinition/>
+
+                    <RowDefinition Height="30"/>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="35"/>
-                    <RowDefinition/>
+                    <RowDefinition Height="30"/>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="35"/>
-                    <RowDefinition/>
+                    <RowDefinition Height="30"/>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="35"/>
 
-                    <RowDefinition/>
+                    <RowDefinition Height="30"/>
                     <RowDefinition Height="35"/>
                     <RowDefinition Height="35"/>
 
@@ -127,7 +127,7 @@
                         </Grid.ColumnDefinitions>
 
                         <ScrollViewer>
-                            <TextBlock Name="tb_status" Text="{Binding TbStatusText, Mode=TwoWay}"  Grid.Row="0" Grid.Column="0" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                            <TextBlock Name="tb_status" Text="{Binding TbStatusText, Mode=TwoWay}" Padding="5" Grid.Row="0" Grid.Column="0" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
                         </ScrollViewer>
                         <GridSplitter x:Name="gs_gridsplitterbutton" BorderBrush="Black" BorderThickness="1, 0, 1, 0" Width="4" Grid.Row="1" Background="AntiqueWhite" HorizontalAlignment="Right" VerticalAlignment="Stretch" Panel.ZIndex="100"/>
                         <ContentControl Content="{Binding TeLog}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False" Padding="3px" />
