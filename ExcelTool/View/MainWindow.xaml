@@ -36,20 +36,30 @@
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Row="0">
                 <Menu DockPanel.Dock="Top">
-                    <MenuItem Header="_文件">
-                        <MenuItem Header="_打开">
-                            <MenuItem Header="_检索信息文件夹" Command="" />
-                            <MenuItem Header="_处理逻辑文件夹" />
-                            <MenuItem Header="_DLL文件夹" />
-                            <MenuItem Header="_规则文件夹" />
-                            <Separator />
-                            <MenuItem Header="_工作目录" />
-                            <MenuItem Header="_输出目录" />
-                            <MenuItem Header="_输出文件" />
-                        </MenuItem>
+                    <MenuItem Header="_打开">
+                        <MenuItem Header="_检索信息文件夹" Command="" />
+                        <MenuItem Header="_处理逻辑文件夹" />
+                        <MenuItem Header="_DLL文件夹" />
+                        <MenuItem Header="_规则文件夹" />
+                        <Separator />
+                        <MenuItem Header="_工作目录" />
+                        <MenuItem Header="_输出目录" />
+                        <MenuItem Header="_输出文件" />
                     </MenuItem>
                     <MenuItem Header="_帮助">
-                        <MenuItem Header="_设置"/>
+                        <MenuItem Header="_设置">
+                            <MenuItem Header="_语言" />
+                            <MenuItem Header="_DLL文件安全检查" />
+                            <MenuItem Header="_线程">
+                                <MenuItem Header="_MaxThreadCount" />
+                                <MenuItem Header="_TotalTimeoutLimitAnalyze" />
+                                <MenuItem Header="_PerTimeoutLimitAnalyze" />
+                                <MenuItem Header="_TotalTimeoutLimitOutput" />
+                                <MenuItem Header="_PerTimeoutLimitOutput" />
+                                <MenuItem Header="_FileSystemWatcherInvokeDalay" />
+                                <MenuItem Header="_FreshInterval" />
+                            </MenuItem>
+                        </MenuItem>
                         <MenuItem Header="_软件源码"/>
                     </MenuItem>
                 </Menu>
