@@ -407,6 +407,8 @@ namespace ExcelTool.ViewModel
         public ICommand StartCommand { get; set; }
         public MainWindowViewModel()
         {
+            GlobalObjects.GlobalObjects.ProgramCurrentStatus = ProgramStatus.Default;
+
             ICSharpCode.AvalonEdit.Search.SearchPanel.Install(TeLog);
 
             currentAnalizingDictionary = new ConcurrentDictionary<string, long>();
@@ -571,22 +573,20 @@ namespace ExcelTool.ViewModel
         }
         private void WindowClosing(CancelEventArgs eventArgs)
         {
-            if (Application.Current.Windows.Count > 1)
+            if (GlobalObjects.GlobalObjects.ProgramCurrentStatus == ProgramStatus.Default && Application.Current.Windows.Count > 1)
             {
                 MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), Application.Current.FindResource("ProgramClosingCheck").ToString(), Application.Current.FindResource("Warning").ToString(), MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.No)
                 {
                     eventArgs.Cancel = true;
                 }
-                else
+            }
+
+            foreach (Window currentWindow in Application.Current.Windows)
+            {
+                if (Application.Current.MainWindow != currentWindow)
                 {
-                    foreach (Window currentWindow in Application.Current.Windows)
-                    {
-                        if (Application.Current.MainWindow != currentWindow)
-                        {
-                            currentWindow.Close();
-                        }
-                    }
+                    currentWindow.Close();
                 }
             }
 
@@ -617,8 +617,11 @@ namespace ExcelTool.ViewModel
         private void WindowClosed()
         {
             CheckAndCloseThreads(true);
-
             FileHelper.DeleteCopiedDlls(copiedDllsList);
+            if (GlobalObjects.GlobalObjects.ProgramCurrentStatus == ProgramStatus.Restart)
+            {
+                Process.Start("ExcelTool.exe");
+            }
         }
 
         private void BtnOpenSheetExplainerEditorClick()

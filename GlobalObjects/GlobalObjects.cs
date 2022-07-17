@@ -13,13 +13,18 @@ using System.Windows.Media;
 namespace GlobalObjects
 {
     public enum ResultType { FILEPATH, FILENAME, MESSAGE, RESULTOBJECT };
+    public enum ProgramStatus { Default, Shutdown, Restart };
 
     public static class GlobalObjects
     {
+        private static ProgramStatus programCurrentStatus;
+
         private static ConcurrentDictionary<CompilerResults, Object> globalParamDic;
         private static PropertiesSetter ps = null;
         private static PropertiesSetter psWithTimmer = null;
         private static Style style = null;
+
+        public static ProgramStatus ProgramCurrentStatus { get => programCurrentStatus; set => programCurrentStatus = value; }
 
         public static Object GetGlobalParam(CompilerResults compilerResults)
         {

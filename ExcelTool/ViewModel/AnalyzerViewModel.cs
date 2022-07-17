@@ -242,7 +242,35 @@ namespace ExcelTool.ViewModel
                     }
                     catch (FileLoadException ex)
                     {
-                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("UnblockDllsCopiedFromTheWeb").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                        ComboBox comboBox = new ComboBox();
+                        comboBox.HorizontalAlignment = HorizontalAlignment.Stretch;
+                        comboBox.Margin = new Thickness(5);
+                        List<string> items = new List<string>();
+                        items.Add(Application.Current.FindResource("NoAction").ToString());
+                        items.Add(Application.Current.FindResource("CloseTheProgramOnly").ToString());
+                        items.Add(Application.Current.FindResource("BanSecurityCheckWithoutRestart").ToString());
+                        items.Add(Application.Current.FindResource("BanSecurityCheckWithRestart").ToString());
+                        comboBox.ItemsSource = items;
+                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { comboBox, Application.Current.FindResource("Ok").ToString() }, $"{Application.Current.FindResource("UnblockDllsCopiedFromTheWeb").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                        if (comboBox.SelectedIndex == 0)
+                        { 
+                            // Do Nothing
+                        }
+                        else if (comboBox.SelectedIndex == 1)
+                        {
+                            GlobalObjects.GlobalObjects.ProgramCurrentStatus = GlobalObjects.ProgramStatus.Shutdown;
+                            Application.Current.Shutdown();
+                        }
+                        else if (comboBox.SelectedIndex == 2)
+                        {
+                            IniHelper.SetSecurityCheck(false);
+                        }
+                        else if (comboBox.SelectedIndex == 3)
+                        {
+                            IniHelper.SetSecurityCheck(false);
+                            GlobalObjects.GlobalObjects.ProgramCurrentStatus = GlobalObjects.ProgramStatus.Restart;
+                            Application.Current.Shutdown();
+                        }
                         window.Close();
                         loadFailed = true;
                         return;

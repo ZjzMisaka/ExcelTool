@@ -157,4 +157,8 @@ namespace AnalyzeCode
         }
     }
 }</sys:String>
+    <sys:String x:Key="NoAction">No action</sys:String>
+    <sys:String x:Key="CloseTheProgramOnly">Close the program only</sys:String>
+    <sys:String x:Key="BanSecurityCheckWithoutRestart">Security checks will not be performed in the future (it will take effect after restarting the program)</sys:String>
+    <sys:String x:Key="BanSecurityCheckWithRestart">No more security checks in the future, and restart the program</sys:String>
 </ResourceDictionary>
