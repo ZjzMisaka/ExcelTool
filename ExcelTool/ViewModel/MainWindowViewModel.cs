@@ -455,7 +455,7 @@ namespace ExcelTool.ViewModel
             EditParamCommand = new RelayCommand(EditParam);
             TbParamsLostFocusCommand = new RelayCommand(TbParamsLostFocus);
             SelectPathCommand = new RelayCommand<object>(SelectPath);
-            OpenPathCommand = new RelayCommand(OpenPath);
+            OpenPathCommand = new RelayCommand<object>(OpenPath);
             SelectNameCommand = new RelayCommand(SelectName);
             OpenOutputCommand = new RelayCommand(OpenOutput);
             CbRulesChangedCommand = new RelayCommand(CbRulesChanged);
@@ -1182,39 +1182,50 @@ namespace ExcelTool.ViewModel
         {
             System.Windows.Forms.FolderBrowserDialog openFileDialog = new System.Windows.Forms.FolderBrowserDialog();
 
+            string btnName = ((Button)sender).Name;
+
             if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                if (((Button)sender).Name == "btn_select_output_path")
+                if (btnName == "btn_select_base_path")
                 {
                     TbBasePathText = openFileDialog.SelectedPath;
                 }
-                else
+                else if (btnName == "btn_select_output_path")
                 {
                     TbOutputPathText = openFileDialog.SelectedPath;
                 }
             }
         }
 
-        private void OpenPath()
+        private void OpenPath(object sender)
         {
-            string resPath = TbOutputPathText.Replace("\\", "/");
-            string filePath;
-            if (TbOutputPathText.EndsWith("/"))
+            string btnName = ((Button)sender).Name;
+
+            if (btnName == "btn_open_output_path")
             {
-                filePath = $"{resPath}{TbOutputNameText}.xlsx";
+                string resPath = TbOutputPathText.Replace("\\", "/");
+                string filePath;
+                if (TbOutputPathText.EndsWith("/"))
+                {
+                    filePath = $"{resPath}{TbOutputNameText}.xlsx";
+                }
+                else
+                {
+                    filePath = $"{resPath}/{TbOutputNameText}.xlsx";
+                }
+                if (File.Exists(filePath))
+                {
+                    System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
+                }
+                else
+                {
+                    filePath = filePath.Replace("/", "\\");
+                    System.Diagnostics.Process.Start("Explorer", $"{filePath.Substring(0, filePath.LastIndexOf('\\'))}");
+                }
             }
-            else
+            else if (btnName == "btn_open_base_path")
             {
-                filePath = $"{resPath}/{TbOutputNameText}.xlsx";
-            }
-            if (File.Exists(filePath))
-            {
-                System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
-            }
-            else
-            {
-                filePath = filePath.Replace("/", "\\");
-                System.Diagnostics.Process.Start("Explorer", $"{filePath.Substring(0, filePath.LastIndexOf('\\'))}");
+                System.Diagnostics.Process.Start("Explorer", TbBasePathText);
             }
         }
 
