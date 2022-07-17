@@ -1,5 +1,5 @@
 # ExcelTool
-可插件式拓展功能, 可批量处理, 并将结果输出到Excel文件中  
+可插件式拓展功能, 可批量处理, 并将结果输出到Excel文件中.  
 [English ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README.md) | [日本語ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_ja-JP.md)  
 [查看示例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [执行时的gif图](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)

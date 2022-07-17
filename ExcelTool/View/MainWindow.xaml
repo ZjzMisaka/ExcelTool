@@ -26,6 +26,7 @@
     <Grid>
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
                 <RowDefinition Height="8*"/>
                 <RowDefinition Height="*" MinHeight="50"/>
                 <RowDefinition Height="40"/>
@@ -33,7 +34,27 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Grid Grid.Row="0">
+            <DockPanel Grid.Row="0">
+                <Menu DockPanel.Dock="Top">
+                    <MenuItem Header="_文件">
+                        <MenuItem Header="_打开">
+                            <MenuItem Header="_检索信息文件夹" Command="" />
+                            <MenuItem Header="_处理逻辑文件夹" />
+                            <MenuItem Header="_DLL文件夹" />
+                            <MenuItem Header="_规则文件夹" />
+                            <Separator />
+                            <MenuItem Header="_工作目录" />
+                            <MenuItem Header="_输出目录" />
+                            <MenuItem Header="_输出文件" />
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="_帮助">
+                        <MenuItem Header="_设置"/>
+                        <MenuItem Header="_软件源码"/>
+                    </MenuItem>
+                </Menu>
+            </DockPanel>
+            <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="35"/>
                     <RowDefinition Height="35"/>
@@ -115,8 +136,8 @@
                 <Button Grid.Row="18" Grid.ColumnSpan="2" Name="btn_setauto" Command="{Binding SetAutoCommand}" Visibility="{Binding BtnSetAutoVisibility, Mode=TwoWay}" Margin="10 2" Content="{DynamicResource SetAuto}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
                 <Button Grid.Row="18" Grid.ColumnSpan="2" Name="btn_unsetauto" Command="{Binding UnsetAutoCommand}" Visibility="{Binding BtnUnsetAutoVisibility, Mode=TwoWay}" Margin="10 2" Content="{DynamicResource SetManual}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
             </Grid>
-            <GridSplitter x:Name="gs_gridsplitter" BorderBrush="Black" BorderThickness="0, 1, 0, 1" Height="4" Grid.Row="1" Background="AntiqueWhite" HorizontalAlignment="Stretch" VerticalAlignment="Top" Panel.ZIndex="100"/>
-            <Label Grid.Row="1" FontSize="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" BorderThickness="1px" BorderBrush="Gray">
+            <GridSplitter x:Name="gs_gridsplitter" BorderBrush="Black" BorderThickness="0, 1, 0, 1" Height="4" Grid.Row="2" Background="AntiqueWhite" HorizontalAlignment="Stretch" VerticalAlignment="Top" Panel.ZIndex="100"/>
+            <Label Grid.Row="2" FontSize="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" BorderThickness="1px" BorderBrush="Gray">
                 <ScrollViewer VerticalAlignment="Stretch" HorizontalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Disabled">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -137,7 +158,7 @@
             </Label>
 
 
-            <Grid  Grid.Row="2" Grid.ColumnSpan="2">
+            <Grid  Grid.Row="3" Grid.ColumnSpan="2">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
