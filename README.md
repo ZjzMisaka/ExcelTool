@@ -2,7 +2,7 @@
 Plug-in extension function, batch processing, and output of results to Excel file  
 [中文ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_zh-CN.md) | [日本語ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_ja-JP.md)  
 [View example](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
-[Gif image when executed](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
+[Gif image when executing](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
 
 ### multi-language
 - [x] 简体中文
