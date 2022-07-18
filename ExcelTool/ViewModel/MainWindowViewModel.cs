@@ -751,7 +751,15 @@ namespace ExcelTool.ViewModel
                 {
                     return;
                 }
-                IniHelper.SetMaxThreadCount(int.Parse(textBox.Text.Trim()));
+                try
+                {
+                    maxThreadCount = int.Parse(textBox.Text.Trim());
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                }
+                IniHelper.SetMaxThreadCount(maxThreadCount);
             }
             else if (((MenuItem)sender).Name == "menu_total_timeout_limit_analyze")
             {
@@ -761,7 +769,14 @@ namespace ExcelTool.ViewModel
                 {
                     return;
                 }
-                totalTimeoutLimitAnalyze = int.Parse(textBox.Text.Trim());
+                try
+                {
+                    totalTimeoutLimitAnalyze = int.Parse(textBox.Text.Trim());
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                }
                 IniHelper.SetTotalTimeoutLimitAnalyze(totalTimeoutLimitAnalyze);
             }
             else if (((MenuItem)sender).Name == "menu_per_timeout_limit_analyze")
@@ -772,7 +787,14 @@ namespace ExcelTool.ViewModel
                 {
                     return;
                 }
-                perTimeoutLimitAnalyze = int.Parse(textBox.Text.Trim());
+                try
+                {
+                    perTimeoutLimitAnalyze = int.Parse(textBox.Text.Trim());
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                }
                 IniHelper.SetPerTimeoutLimitAnalyze(perTimeoutLimitAnalyze);
             }
             else if (((MenuItem)sender).Name == "menu_total_timeout_limit_output")
@@ -783,7 +805,14 @@ namespace ExcelTool.ViewModel
                 {
                     return;
                 }
-                totalTimeoutLimitOutput = int.Parse(textBox.Text.Trim());
+                try
+                {
+                    totalTimeoutLimitOutput = int.Parse(textBox.Text.Trim());
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                }
                 IniHelper.SetTotalTimeoutLimitOutput(totalTimeoutLimitOutput);
             }
             else if (((MenuItem)sender).Name == "menu_per_timeout_limit_output")
@@ -794,7 +823,14 @@ namespace ExcelTool.ViewModel
                 {
                     return;
                 }
-                perTimeoutLimitOutput = int.Parse(textBox.Text.Trim());
+                try
+                {
+                    perTimeoutLimitOutput = int.Parse(textBox.Text.Trim());
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                }
                 IniHelper.SetPerTimeoutLimitOutput(perTimeoutLimitOutput);
             }
             else if (((MenuItem)sender).Name == "menu_file_system_watcher_invoke_dalay")
@@ -805,7 +841,14 @@ namespace ExcelTool.ViewModel
                 {
                     return;
                 }
-                fileSystemWatcherInvokeDalay = int.Parse(textBox.Text.Trim());
+                try
+                {
+                    fileSystemWatcherInvokeDalay = int.Parse(textBox.Text.Trim());
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                }
                 IniHelper.SetFileSystemWatcherInvokeDalay(fileSystemWatcherInvokeDalay);
             }
             else if (((MenuItem)sender).Name == "menu_fresh_interval")
@@ -816,7 +859,14 @@ namespace ExcelTool.ViewModel
                 {
                     return;
                 }
-                freshInterval = int.Parse(textBox.Text.Trim());
+                try
+                {
+                    freshInterval = int.Parse(textBox.Text.Trim());
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                }
                 IniHelper.SetFreshInterval(freshInterval);
             }
         }
