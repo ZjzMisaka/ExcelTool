@@ -580,6 +580,7 @@ namespace ExcelTool.ViewModel
                 if (result == MessageBoxResult.No)
                 {
                     eventArgs.Cancel = true;
+                    return;
                 }
             }
 
