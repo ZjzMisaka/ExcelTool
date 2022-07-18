@@ -13,8 +13,12 @@
     <sys:String x:Key="MenuOutputFile">输出文件 (_F)</sys:String>
     <sys:String x:Key="MenuHelp">帮助 (_H)</sys:String>
     <sys:String x:Key="MenuSetting">设置 (_S)</sys:String>
+    <sys:String x:Key="Setting">设置</sys:String>
     <sys:String x:Key="MenuLanguage">语言 (_L)</sys:String>
+    <sys:String x:Key="SetLanguage">设置语言</sys:String>
     <sys:String x:Key="MenuDLLSecurityCheck">DLL文件安全检查 (_D)</sys:String>
+    <sys:String x:Key="DLLSecurityCheck">DLL文件安全检查</sys:String>
+    <sys:String x:Key="IsEnable">是否启用</sys:String>
     <sys:String x:Key="MenuThreadRelated">线程相关 (_T)</sys:String>
     <sys:String x:Key="MenuMaxThreadCount">最大线程数 (_M)</sys:String>
     <sys:String x:Key="MenuTotalTimeoutLimitAnalyze">分析阶段超时时间 (_T)</sys:String>
@@ -23,7 +27,14 @@
     <sys:String x:Key="MenuPerTimeoutLimitOutput">单次输出超时时间 (_P)</sys:String>
     <sys:String x:Key="MenuFileSystemWatcherInvokeDalay">监视文件响应时间 (_D)</sys:String>
     <sys:String x:Key="MenuFreshInterval">线程中界面刷新间隔 (_F)</sys:String>
-    <sys:String x:Key="MenuSourceCode">软件源码 (_C)</sys:String>
+    <sys:String x:Key="MaxThreadCount">最大线程数</sys:String>
+    <sys:String x:Key="TotalTimeoutLimitAnalyze">分析阶段超时时间</sys:String>
+    <sys:String x:Key="PerTimeoutLimitAnalyze">单次分析超时时间</sys:String>
+    <sys:String x:Key="TotalTimeoutLimitOutput">输出阶段超时时间</sys:String>
+    <sys:String x:Key="PerTimeoutLimitOutput">单次输出超时时间</sys:String>
+    <sys:String x:Key="FileSystemWatcherInvokeDalay">监视文件响应时间</sys:String>
+    <sys:String x:Key="FreshInterval">线程中界面刷新间隔</sys:String>
+    <sys:String x:Key="SourceCode">软件源码 (_C)</sys:String>
 
     <sys:String x:Key="Analyzer">表格文件处理逻辑</sys:String>
     <sys:String x:Key="SheetExplainer">检索信息</sys:String>

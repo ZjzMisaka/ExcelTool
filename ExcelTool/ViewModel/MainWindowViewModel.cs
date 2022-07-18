@@ -54,6 +54,7 @@ namespace ExcelTool.ViewModel
         private List<string> copiedDllsList;
         private int analyzeSheetInvokeCount;
         private int setResultInvokeCount;
+        private int maxThreadCount;
         private int totalTimeoutLimitAnalyze;
         private int perTimeoutLimitAnalyze;
         private int totalTimeoutLimitOutput;
@@ -383,6 +384,11 @@ namespace ExcelTool.ViewModel
         public ICommand WindowLoadedCommand { get; set; }
         public ICommand WindowClosingCommand { get; set; }
         public ICommand WindowClosedCommand { get; set; }
+        public ICommand MenuOpenCommand { get; set; }
+        public ICommand ChangeLanguageCommand { get; set; }
+        public ICommand MenuDllSecurityCheckCommand { get; set; }
+        public ICommand MenuSetStrCommand { get; set; }
+        public ICommand OpenSourceCodeUrlCommand { get; set; }
         public ICommand BtnOpenSheetExplainerEditorClickCommand { get; set; }
         public ICommand BtnOpenAnalyzerEditorClickCommand { get; set; }
         public ICommand CbSheetExplainersPreviewMouseLeftButtonDownCommand { get; set; }
@@ -444,6 +450,11 @@ namespace ExcelTool.ViewModel
             WindowLoadedCommand = new RelayCommand<RoutedEventArgs>(WindowLoaded);
             WindowClosingCommand = new RelayCommand<CancelEventArgs>(WindowClosing);
             WindowClosedCommand = new RelayCommand(WindowClosed);
+            MenuOpenCommand = new RelayCommand<object>(MenuOpen);
+            ChangeLanguageCommand = new RelayCommand(ChangeLanguage);
+            MenuDllSecurityCheckCommand = new RelayCommand(MenuDllSecurityCheck);
+            MenuSetStrCommand = new RelayCommand<object>(MenuSetStr);
+            OpenSourceCodeUrlCommand = new RelayCommand(OpenSourceCodeUrl);
             BtnOpenSheetExplainerEditorClickCommand = new RelayCommand(BtnOpenSheetExplainerEditorClick);
             BtnOpenAnalyzerEditorClickCommand = new RelayCommand(BtnOpenAnalyzerEditorClick);
             CbSheetExplainersPreviewMouseLeftButtonDownCommand = new RelayCommand(CbSheetExplainersPreviewMouseLeftButtonDown);
@@ -482,18 +493,7 @@ namespace ExcelTool.ViewModel
             {
                 dictionaryList.Add(dictionary);
             }
-            string requestedCulture = string.Format(@"Resources\StringResource.{0}.xaml", language);
-            ResourceDictionary resourceDictionary = dictionaryList.FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Equals(requestedCulture));
-            if (resourceDictionary == null)
-            {
-                requestedCulture = @"Resources\StringResource.zh-CN.xaml";
-                resourceDictionary = dictionaryList.FirstOrDefault(d => d.Source.OriginalString.Equals(requestedCulture));
-            }
-            if (resourceDictionary != null)
-            {
-                Application.Current.Resources.MergedDictionaries.Remove(resourceDictionary);
-                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
-            }
+            ChangeLanguage(language, dictionaryList);
 
             IniHelper.CheckAndCreateIniFile();
 
@@ -519,6 +519,7 @@ namespace ExcelTool.ViewModel
             TbOutputPathText = IniHelper.GetOutputPath();
             TbOutputNameText = IniHelper.GetOutputFileName();
 
+            maxThreadCount = IniHelper.GetMaxThreadCount();
             totalTimeoutLimitAnalyze = IniHelper.GetTotalTimeoutLimitAnalyze();
             perTimeoutLimitAnalyze = IniHelper.GetPerTimeoutLimitAnalyze();
             totalTimeoutLimitOutput = IniHelper.GetTotalTimeoutLimitOutput();
@@ -622,6 +623,212 @@ namespace ExcelTool.ViewModel
             {
                 Process.Start("ExcelTool.exe");
             }
+        }
+
+        private void MenuOpen(object sender)
+        {
+            if (((MenuItem)sender).Name == "menu_sheet_explainer_folder")
+            {
+                Process.Start(".\\SheetExplainers");
+            }
+            else if (((MenuItem)sender).Name == "menu_analyzer_folder")
+            {
+                Process.Start(".\\Analyzers");
+            }
+            else if (((MenuItem)sender).Name == "menu_dll_folder")
+            {
+                Process.Start(".\\Dlls");
+            }
+            else if (((MenuItem)sender).Name == "menu_rule_folder")
+            {
+                Process.Start(".\\Rules");
+            }
+            else if (((MenuItem)sender).Name == "menu_work_folder")
+            {
+                System.Diagnostics.Process.Start("Explorer", TbBasePathText);
+            }
+            else if (((MenuItem)sender).Name == "menu_output_folder")
+            {
+                string resPath = TbOutputPathText.Replace("\\", "/");
+                string filePath;
+                if (TbOutputPathText.EndsWith("/"))
+                {
+                    filePath = $"{resPath}{TbOutputNameText}.xlsx";
+                }
+                else
+                {
+                    filePath = $"{resPath}/{TbOutputNameText}.xlsx";
+                }
+                if (File.Exists(filePath))
+                {
+                    System.Diagnostics.Process.Start("Explorer", $"/e,/select,{filePath.Replace("/", "\\")}");
+                }
+                else
+                {
+                    filePath = filePath.Replace("/", "\\");
+                    System.Diagnostics.Process.Start("Explorer", $"{filePath.Substring(0, filePath.LastIndexOf('\\'))}");
+                }
+            }
+            else if (((MenuItem)sender).Name == "menu_output_file")
+            {
+                OpenOutput();
+            }
+        }
+
+        private void ChangeLanguage()
+        {
+            List<string> items = new List<string>();
+            Dictionary<string, string> cultureDic = new Dictionary<string, string>();
+            List<ResourceDictionary> dictionaryList = new List<ResourceDictionary>();
+            foreach (ResourceDictionary dictionary in Application.Current.Resources.MergedDictionaries)
+            {
+                if (dictionary.Source != null)
+                {
+                    string originalString = dictionary.Source.OriginalString;
+                    CultureInfo cultureInfo = new CultureInfo(originalString.Substring(originalString.IndexOf(".") + 1, (originalString.LastIndexOf(".") - originalString.IndexOf(".") - 1)), false);
+                    string nativeName = cultureInfo.NativeName;
+                    items.Add(nativeName);
+                    cultureDic.Add(nativeName, cultureInfo.Name);
+                    dictionaryList.Add(dictionary);
+                }
+            }
+
+            ComboBox comboBox = new ComboBox();
+            comboBox.HorizontalAlignment = HorizontalAlignment.Stretch;
+            comboBox.Margin = new Thickness(5);
+            comboBox.ItemsSource = items;
+            comboBox.SelectionChanged += (s, e) => 
+            {
+                string language = cultureDic[comboBox.SelectedItem.ToString()];
+                ChangeLanguage(language, dictionaryList);
+            };
+            int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { comboBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("SetLanguage").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+            if (res == 3)
+            {
+                ChangeLanguage(language, dictionaryList);
+                return;
+            }
+            
+            language = cultureDic[comboBox.SelectedItem.ToString()];
+            IniHelper.SetLanguage(language);
+        }
+
+        private void MenuDllSecurityCheck()
+        {
+            CheckBox checkBox = new CheckBox();
+            checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+            checkBox.Margin = new Thickness(5);
+            checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+            checkBox.IsChecked = IniHelper.GetSecurityCheck();
+            int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("DLLSecurityCheck").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+            if (res == 3)
+            {
+                return;
+            }
+
+            if ((bool)checkBox.IsChecked)
+            {
+                IniHelper.SetSecurityCheck(true);
+            }
+            else
+            {
+                IniHelper.SetSecurityCheck(false);
+            }
+        }
+
+        private void MenuSetStr(object sender)
+        {
+            TextBox textBox = new TextBox();
+            textBox.Margin = new Thickness(5);
+            textBox.Height = 30;
+            textBox.VerticalContentAlignment = VerticalAlignment.Center;
+
+            if (((MenuItem)sender).Name == "menu_max_thread_count")
+            {
+                textBox.Text = IniHelper.GetMaxThreadCount().ToString();
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("MaxThreadCount").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                if (res == 3)
+                {
+                    return;
+                }
+                IniHelper.SetMaxThreadCount(int.Parse(textBox.Text.Trim()));
+            }
+            else if (((MenuItem)sender).Name == "menu_total_timeout_limit_analyze")
+            {
+                textBox.Text = IniHelper.GetTotalTimeoutLimitAnalyze().ToString();
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("TotalTimeoutLimitAnalyze").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                if (res == 3)
+                {
+                    return;
+                }
+                totalTimeoutLimitAnalyze = int.Parse(textBox.Text.Trim());
+                IniHelper.SetTotalTimeoutLimitAnalyze(totalTimeoutLimitAnalyze);
+            }
+            else if (((MenuItem)sender).Name == "menu_per_timeout_limit_analyze")
+            {
+                textBox.Text = IniHelper.GetPerTimeoutLimitAnalyze().ToString();
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("PerTimeoutLimitAnalyze").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                if (res == 3)
+                {
+                    return;
+                }
+                perTimeoutLimitAnalyze = int.Parse(textBox.Text.Trim());
+                IniHelper.SetPerTimeoutLimitAnalyze(perTimeoutLimitAnalyze);
+            }
+            else if (((MenuItem)sender).Name == "menu_total_timeout_limit_output")
+            {
+                textBox.Text = IniHelper.GetTotalTimeoutLimitOutput().ToString();
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("TotalTimeoutLimitOutput").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                if (res == 3)
+                {
+                    return;
+                }
+                totalTimeoutLimitOutput = int.Parse(textBox.Text.Trim());
+                IniHelper.SetTotalTimeoutLimitOutput(totalTimeoutLimitOutput);
+            }
+            else if (((MenuItem)sender).Name == "menu_per_timeout_limit_output")
+            {
+                textBox.Text = IniHelper.GetPerTimeoutLimitOutput().ToString();
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("PerTimeoutLimitOutput").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                if (res == 3)
+                {
+                    return;
+                }
+                perTimeoutLimitOutput = int.Parse(textBox.Text.Trim());
+                IniHelper.SetPerTimeoutLimitOutput(perTimeoutLimitOutput);
+            }
+            else if (((MenuItem)sender).Name == "menu_file_system_watcher_invoke_dalay")
+            {
+                textBox.Text = IniHelper.GetFileSystemWatcherInvokeDalay().ToString();
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("FileSystemWatcherInvokeDalay").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                if (res == 3)
+                {
+                    return;
+                }
+                fileSystemWatcherInvokeDalay = int.Parse(textBox.Text.Trim());
+                IniHelper.SetFileSystemWatcherInvokeDalay(fileSystemWatcherInvokeDalay);
+            }
+            else if (((MenuItem)sender).Name == "menu_fresh_interval")
+            {
+                textBox.Text = IniHelper.GetFreshInterval().ToString();
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("FreshInterval").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                if (res == 3)
+                {
+                    return;
+                }
+                freshInterval = int.Parse(textBox.Text.Trim());
+                IniHelper.SetFreshInterval(freshInterval);
+            }
+        }
+
+        private void OpenSourceCodeUrl()
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = @"https:\\www.github.com\ZjzMisaka\ExcelTool",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
         }
 
         private void BtnOpenSheetExplainerEditorClick()
@@ -2744,7 +2951,6 @@ namespace ExcelTool.ViewModel
         private void RenewSmartThreadPoolAnalyze(STPStartInfo stp)
         {
             smartThreadPoolAnalyze = new SmartThreadPool(stp);
-            int maxThreadCount = IniHelper.GetMaxThreadCount();
             if (maxThreadCount > 0)
             {
                 smartThreadPoolAnalyze.MaxThreads = maxThreadCount;
@@ -2754,7 +2960,6 @@ namespace ExcelTool.ViewModel
         private void RenewSmartThreadPoolOutput(STPStartInfo stp)
         {
             smartThreadPoolOutput = new SmartThreadPool(stp);
-            int maxThreadCount = IniHelper.GetMaxThreadCount();
             if (maxThreadCount > 0)
             {
                 smartThreadPoolOutput.MaxThreads = maxThreadCount;
@@ -2875,6 +3080,22 @@ namespace ExcelTool.ViewModel
                     FileSystemWatcherInvokeThread.Abort();
                 }
                 runningThread.Abort();
+            }
+        }
+
+        private void ChangeLanguage(string language, List<ResourceDictionary> dictionaryList)
+        {
+            string requestedCulture = string.Format(@"Resources\StringResource.{0}.xaml", language);
+            ResourceDictionary resourceDictionary = dictionaryList.FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Equals(requestedCulture));
+            if (resourceDictionary == null)
+            {
+                requestedCulture = @"Resources\StringResource.zh-CN.xaml";
+                resourceDictionary = dictionaryList.FirstOrDefault(d => d.Source.OriginalString.Equals(requestedCulture));
+            }
+            if (resourceDictionary != null)
+            {
+                Application.Current.Resources.MergedDictionaries.Remove(resourceDictionary);
+                Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
             }
         }
     }

@@ -37,30 +37,30 @@
             <DockPanel Grid.Row="0">
                 <Menu DockPanel.Dock="Top">
                     <MenuItem Header="{DynamicResource MenuOpen}">
-                        <MenuItem Header="{DynamicResource MenuSheetExplainerFolder}" Command="" />
-                        <MenuItem Header="{DynamicResource MenuAnalyzerFolder}" />
-                        <MenuItem Header="{DynamicResource MenuDLLFolder}" />
-                        <MenuItem Header="{DynamicResource MenuRuleFolder}" />
+                        <MenuItem Header="{DynamicResource MenuSheetExplainerFolder}" Name="menu_sheet_explainer_folder" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="{DynamicResource MenuAnalyzerFolder}" Name="menu_analyzer_folder" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="{DynamicResource MenuDLLFolder}" Name="menu_dll_folder" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="{DynamicResource MenuRuleFolder}" Name="menu_rule_folder" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
                         <Separator />
-                        <MenuItem Header="{DynamicResource MenuWorkFolder}" />
-                        <MenuItem Header="{DynamicResource MenuOutputFolder}" />
-                        <MenuItem Header="{DynamicResource MenuOutputFile}" />
+                        <MenuItem Header="{DynamicResource MenuWorkFolder}" Name="menu_work_folder" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="{DynamicResource MenuOutputFolder}" Name="menu_output_folder" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="{DynamicResource MenuOutputFile}" Name="menu_output_file" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
                     </MenuItem>
                     <MenuItem Header="{DynamicResource MenuHelp}">
                         <MenuItem Header="{DynamicResource MenuSetting}">
-                            <MenuItem Header="{DynamicResource MenuLanguage}" />
-                            <MenuItem Header="{DynamicResource MenuDLLSecurityCheck}" />
+                            <MenuItem Header="{DynamicResource MenuLanguage}" Command="{Binding ChangeLanguageCommand}" />
+                            <MenuItem Header="{DynamicResource MenuDLLSecurityCheck}" Command="{Binding MenuDllSecurityCheckCommand}" />
                             <MenuItem Header="{DynamicResource MenuThreadRelated}">
-                                <MenuItem Header="{DynamicResource MenuMaxThreadCount}" />
-                                <MenuItem Header="{DynamicResource MenuTotalTimeoutLimitAnalyze}" />
-                                <MenuItem Header="{DynamicResource MenuPerTimeoutLimitAnalyze}" />
-                                <MenuItem Header="{DynamicResource MenuTotalTimeoutLimitOutput}" />
-                                <MenuItem Header="{DynamicResource MenuPerTimeoutLimitOutput}" />
-                                <MenuItem Header="{DynamicResource MenuFileSystemWatcherInvokeDalay}" />
-                                <MenuItem Header="{DynamicResource MenuFreshInterval}" />
+                                <MenuItem Header="{DynamicResource MenuMaxThreadCount}" Name="menu_max_thread_count" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}"/>
+                                <MenuItem Header="{DynamicResource MenuTotalTimeoutLimitAnalyze}" Name="menu_total_timeout_limit_analyze" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                                <MenuItem Header="{DynamicResource MenuPerTimeoutLimitAnalyze}" Name="menu_per_timeout_limit_analyze" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                                <MenuItem Header="{DynamicResource MenuTotalTimeoutLimitOutput}" Name="menu_total_timeout_limit_output" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                                <MenuItem Header="{DynamicResource MenuPerTimeoutLimitOutput}" Name="menu_per_timeout_limit_output" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                                <MenuItem Header="{DynamicResource MenuFileSystemWatcherInvokeDalay}" Name="menu_file_system_watcher_invoke_dalay" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                                <MenuItem Header="{DynamicResource MenuFreshInterval}" Name="menu_fresh_interval" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
                             </MenuItem>
                         </MenuItem>
-                        <MenuItem Header="{DynamicResource MenuSourceCode}"/>
+                        <MenuItem Header="{DynamicResource MenuSourceCode}" Command="{Binding OpenSourceCodeUrlCommand}"/>
                     </MenuItem>
                 </Menu>
             </DockPanel>
