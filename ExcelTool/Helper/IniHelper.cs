@@ -32,8 +32,8 @@ namespace ExcelTool
             parsedINIDataToBeSaved["Thread"].AddKey("FileSystemWatcherInvokeDalay", "1000");
             parsedINIDataToBeSaved["Thread"].AddKey("FreshInterval", "100");
             parsedINIDataToBeSaved.Sections.AddSection("Window");
-            parsedINIDataToBeSaved["Window"].AddKey("MainWindowWidth", "750");
-            parsedINIDataToBeSaved["Window"].AddKey("MainWindowHeight", "800");
+            parsedINIDataToBeSaved["Window"].AddKey("MainWindowWidth", "800");
+            parsedINIDataToBeSaved["Window"].AddKey("MainWindowHeight", "900");
             parsedINIDataToBeSaved["Window"].AddKey("AnalyzerEditorWidth", "800");
             parsedINIDataToBeSaved["Window"].AddKey("AnalyzerEditorHeight", "450");
             parsedINIDataToBeSaved["Window"].AddKey("SheetExplainerEditorWidth", "800");
