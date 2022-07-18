@@ -757,7 +757,7 @@ namespace ExcelTool.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                 }
                 IniHelper.SetMaxThreadCount(maxThreadCount);
             }
@@ -775,7 +775,7 @@ namespace ExcelTool.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                 }
                 IniHelper.SetTotalTimeoutLimitAnalyze(totalTimeoutLimitAnalyze);
             }
@@ -793,7 +793,7 @@ namespace ExcelTool.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                 }
                 IniHelper.SetPerTimeoutLimitAnalyze(perTimeoutLimitAnalyze);
             }
@@ -811,7 +811,7 @@ namespace ExcelTool.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                 }
                 IniHelper.SetTotalTimeoutLimitOutput(totalTimeoutLimitOutput);
             }
@@ -829,7 +829,7 @@ namespace ExcelTool.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                 }
                 IniHelper.SetPerTimeoutLimitOutput(perTimeoutLimitOutput);
             }
@@ -847,7 +847,7 @@ namespace ExcelTool.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                 }
                 IniHelper.SetFileSystemWatcherInvokeDalay(fileSystemWatcherInvokeDalay);
             }
@@ -865,7 +865,7 @@ namespace ExcelTool.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                 }
                 IniHelper.SetFreshInterval(freshInterval);
             }
