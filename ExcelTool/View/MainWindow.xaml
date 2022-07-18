@@ -36,21 +36,21 @@
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Row="0">
                 <Menu DockPanel.Dock="Top">
-                    <MenuItem Header="_打开">
-                        <MenuItem Header="_检索信息文件夹" Command="" />
-                        <MenuItem Header="_处理逻辑文件夹" />
-                        <MenuItem Header="_DLL文件夹" />
-                        <MenuItem Header="_规则文件夹" />
+                    <MenuItem Header="打开 (_O)">
+                        <MenuItem Header="检索信息文件夹 (_E)" Command="" />
+                        <MenuItem Header="处理逻辑文件夹 (_A)" />
+                        <MenuItem Header="DLL文件夹 (_D)" />
+                        <MenuItem Header="规则文件夹 (_R)" />
                         <Separator />
-                        <MenuItem Header="_工作目录" />
-                        <MenuItem Header="_输出目录" />
-                        <MenuItem Header="_输出文件" />
+                        <MenuItem Header="工作目录 (_W)" />
+                        <MenuItem Header="输出目录 (_O)" />
+                        <MenuItem Header="输出文件 (_F)" />
                     </MenuItem>
-                    <MenuItem Header="_帮助">
-                        <MenuItem Header="_设置">
-                            <MenuItem Header="_语言" />
-                            <MenuItem Header="_DLL文件安全检查" />
-                            <MenuItem Header="_线程">
+                    <MenuItem Header="帮助 (_H)">
+                        <MenuItem Header="设置 (_S)">
+                            <MenuItem Header="语言 (_L)" />
+                            <MenuItem Header="DLL文件安全检查 (_D)" />
+                            <MenuItem Header="线程相关 (_T)">
                                 <MenuItem Header="_MaxThreadCount" />
                                 <MenuItem Header="_TotalTimeoutLimitAnalyze" />
                                 <MenuItem Header="_PerTimeoutLimitAnalyze" />
@@ -60,7 +60,7 @@
                                 <MenuItem Header="_FreshInterval" />
                             </MenuItem>
                         </MenuItem>
-                        <MenuItem Header="_软件源码"/>
+                        <MenuItem Header="_软件源码 (_C)"/>
                     </MenuItem>
                 </Menu>
             </DockPanel>
