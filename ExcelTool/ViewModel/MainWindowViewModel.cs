@@ -702,7 +702,7 @@ namespace ExcelTool.ViewModel
                 string language = cultureDic[comboBox.SelectedItem.ToString()];
                 ChangeLanguage(language, dictionaryList);
             };
-            int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { comboBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("SetLanguage").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+            int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { comboBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("SetLanguage").ToString(), Application.Current.FindResource("Setting").ToString());
             if (res == 3)
             {
                 ChangeLanguage(language, dictionaryList);
@@ -720,7 +720,7 @@ namespace ExcelTool.ViewModel
             checkBox.Margin = new Thickness(5);
             checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
             checkBox.IsChecked = IniHelper.GetSecurityCheck();
-            int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("DLLSecurityCheck").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+            int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("DLLSecurityCheck").ToString(), Application.Current.FindResource("Setting").ToString());
             if (res == 3)
             {
                 return;
@@ -746,7 +746,7 @@ namespace ExcelTool.ViewModel
             if (((MenuItem)sender).Name == "menu_max_thread_count")
             {
                 textBox.Text = IniHelper.GetMaxThreadCount().ToString();
-                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("MaxThreadCount").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("MaxThreadCount").ToString(), Application.Current.FindResource("Setting").ToString());
                 if (res == 3)
                 {
                     return;
@@ -756,7 +756,7 @@ namespace ExcelTool.ViewModel
             else if (((MenuItem)sender).Name == "menu_total_timeout_limit_analyze")
             {
                 textBox.Text = IniHelper.GetTotalTimeoutLimitAnalyze().ToString();
-                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("TotalTimeoutLimitAnalyze").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("TotalTimeoutLimitAnalyze").ToString(), Application.Current.FindResource("Setting").ToString());
                 if (res == 3)
                 {
                     return;
@@ -767,7 +767,7 @@ namespace ExcelTool.ViewModel
             else if (((MenuItem)sender).Name == "menu_per_timeout_limit_analyze")
             {
                 textBox.Text = IniHelper.GetPerTimeoutLimitAnalyze().ToString();
-                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("PerTimeoutLimitAnalyze").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("PerTimeoutLimitAnalyze").ToString(), Application.Current.FindResource("Setting").ToString());
                 if (res == 3)
                 {
                     return;
@@ -778,7 +778,7 @@ namespace ExcelTool.ViewModel
             else if (((MenuItem)sender).Name == "menu_total_timeout_limit_output")
             {
                 textBox.Text = IniHelper.GetTotalTimeoutLimitOutput().ToString();
-                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("TotalTimeoutLimitOutput").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("TotalTimeoutLimitOutput").ToString(), Application.Current.FindResource("Setting").ToString());
                 if (res == 3)
                 {
                     return;
@@ -789,7 +789,7 @@ namespace ExcelTool.ViewModel
             else if (((MenuItem)sender).Name == "menu_per_timeout_limit_output")
             {
                 textBox.Text = IniHelper.GetPerTimeoutLimitOutput().ToString();
-                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("PerTimeoutLimitOutput").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("PerTimeoutLimitOutput").ToString(), Application.Current.FindResource("Setting").ToString());
                 if (res == 3)
                 {
                     return;
@@ -800,7 +800,7 @@ namespace ExcelTool.ViewModel
             else if (((MenuItem)sender).Name == "menu_file_system_watcher_invoke_dalay")
             {
                 textBox.Text = IniHelper.GetFileSystemWatcherInvokeDalay().ToString();
-                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("FileSystemWatcherInvokeDalay").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("FileSystemWatcherInvokeDalay").ToString(), Application.Current.FindResource("Setting").ToString());
                 if (res == 3)
                 {
                     return;
@@ -811,7 +811,7 @@ namespace ExcelTool.ViewModel
             else if (((MenuItem)sender).Name == "menu_fresh_interval")
             {
                 textBox.Text = IniHelper.GetFreshInterval().ToString();
-                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("FreshInterval").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Error);
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("FreshInterval").ToString(), Application.Current.FindResource("Setting").ToString());
                 if (res == 3)
                 {
                     return;
@@ -828,6 +828,13 @@ namespace ExcelTool.ViewModel
                 FileName = @"https:\\www.github.com\ZjzMisaka\ExcelTool",
                 UseShellExecute = true
             };
+
+            int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(2, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("OpenBrowser").ToString(), Application.Current.FindResource("Setting").ToString(), MessageBoxImage.Warning);
+            if (res == 2)
+            {
+                return;
+            }
+
             Process.Start(psi);
         }
 
