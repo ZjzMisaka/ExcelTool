@@ -2,6 +2,29 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <sys:String x:Key="WinTitle">Excel分析工具</sys:String>
+
+    <sys:String x:Key="MenuOpen">打开 (_O)</sys:String>
+    <sys:String x:Key="MenuSheetExplainerFolder">检索信息文件夹 (_E)</sys:String>
+    <sys:String x:Key="MenuAnalyzerFolder">处理逻辑文件夹 (_A)</sys:String>
+    <sys:String x:Key="MenuDLLFolder">DLL文件夹 (_D)</sys:String>
+    <sys:String x:Key="MenuRuleFolder">规则文件夹 (_R)</sys:String>
+    <sys:String x:Key="MenuWorkFolder">工作目录 (_W)</sys:String>
+    <sys:String x:Key="MenuOutputFolder">输出目录 (_O)</sys:String>
+    <sys:String x:Key="MenuOutputFile">输出文件 (_F)</sys:String>
+    <sys:String x:Key="MenuHelp">帮助 (_H)</sys:String>
+    <sys:String x:Key="MenuSetting">设置 (_S)</sys:String>
+    <sys:String x:Key="MenuLanguage">语言 (_L)</sys:String>
+    <sys:String x:Key="MenuDLLSecurityCheck">DLL文件安全检查 (_D)</sys:String>
+    <sys:String x:Key="MenuThreadRelated">线程相关 (_T)</sys:String>
+    <sys:String x:Key="MenuMaxThreadCount">最大线程数 (_M)</sys:String>
+    <sys:String x:Key="MenuTotalTimeoutLimitAnalyze">分析阶段超时时间 (_T)</sys:String>
+    <sys:String x:Key="MenuPerTimeoutLimitAnalyze">单次分析超时时间 (_P)</sys:String>
+    <sys:String x:Key="MenuTotalTimeoutLimitOutput">输出阶段超时时间 (_T)</sys:String>
+    <sys:String x:Key="MenuPerTimeoutLimitOutput">单次输出超时时间 (_P)</sys:String>
+    <sys:String x:Key="MenuFileSystemWatcherInvokeDalay">监视文件响应时间 (_D)</sys:String>
+    <sys:String x:Key="MenuFreshInterval">线程中界面刷新间隔 (_F)</sys:String>
+    <sys:String x:Key="MenuSourceCode">软件源码 (_C)</sys:String>
+
     <sys:String x:Key="Analyzer">表格文件处理逻辑</sys:String>
     <sys:String x:Key="SheetExplainer">检索信息</sys:String>
     <sys:String x:Key="SetSheetExplainer">检索信息设定</sys:String>

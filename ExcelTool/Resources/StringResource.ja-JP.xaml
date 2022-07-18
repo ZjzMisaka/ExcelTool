@@ -2,6 +2,29 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <sys:String x:Key="WinTitle">エクセルツール</sys:String>
+
+    <sys:String x:Key="MenuOpen">開く (_O)</sys:String>
+    <sys:String x:Key="MenuSheetExplainerFolder">検索情報フォルダ (_E)</sys:String>
+    <sys:String x:Key="MenuAnalyzerFolder">エクセルファイル処理のロジックフォルダ (_A)</sys:String>
+    <sys:String x:Key="MenuDLLFolder">DLLフォルダ (_D)</sys:String>
+    <sys:String x:Key="MenuRuleFolder">ルールフォルダ (_R)</sys:String>
+    <sys:String x:Key="MenuWorkFolder">作業ベース (_W)</sys:String>
+    <sys:String x:Key="MenuOutputFolder">出力ディレクトリ (_O)</sys:String>
+    <sys:String x:Key="MenuOutputFile">出力ファイル (_F)</sys:String>
+    <sys:String x:Key="MenuHelp">ヘルプ (_H)</sys:String>
+    <sys:String x:Key="MenuSetting">設定 (_S)</sys:String>
+    <sys:String x:Key="MenuLanguage">言語 (_L)</sys:String>
+    <sys:String x:Key="MenuDLLSecurityCheck">DLLファイルセキュリティーチェック (_D)</sys:String>
+    <sys:String x:Key="MenuThreadRelated">スレッド関連 (_T)</sys:String>
+    <sys:String x:Key="MenuMaxThreadCount">スレッドの最大数 (_M)</sys:String>
+    <sys:String x:Key="MenuTotalTimeoutLimitAnalyze">分析フェーズのタイムアウト (_T)</sys:String>
+    <sys:String x:Key="MenuPerTimeoutLimitAnalyze">単一の分析のタイムアウト (_P)</sys:String>
+    <sys:String x:Key="MenuTotalTimeoutLimitOutput">出力ステージのタイムアウト (_T)</sys:String>
+    <sys:String x:Key="MenuPerTimeoutLimitOutput">単一出力タイムアウト (_P)</sys:String>
+    <sys:String x:Key="MenuFileSystemWatcherInvokeDalay">ウォッチファイル反応時間 (_D)</sys:String>
+    <sys:String x:Key="MenuFreshInterval">スレッド内のインターフェイスの更新間隔 (_F)</sys:String>
+    <sys:String x:Key="MenuSourceCode">ソフトウェアのソースコード (_C)</sys:String>
+
     <sys:String x:Key="Analyzer">エクセルファイル処理のロジック</sys:String>
     <sys:String x:Key="SheetExplainer">検索情報</sys:String>
     <sys:String x:Key="SetSheetExplainer">検索情報の設定</sys:String>

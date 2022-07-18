@@ -36,31 +36,31 @@
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Row="0">
                 <Menu DockPanel.Dock="Top">
-                    <MenuItem Header="打开 (_O)">
-                        <MenuItem Header="检索信息文件夹 (_E)" Command="" />
-                        <MenuItem Header="处理逻辑文件夹 (_A)" />
-                        <MenuItem Header="DLL文件夹 (_D)" />
-                        <MenuItem Header="规则文件夹 (_R)" />
+                    <MenuItem Header="{DynamicResource MenuOpen}">
+                        <MenuItem Header="{DynamicResource MenuSheetExplainerFolder}" Command="" />
+                        <MenuItem Header="{DynamicResource MenuAnalyzerFolder}" />
+                        <MenuItem Header="{DynamicResource MenuDLLFolder}" />
+                        <MenuItem Header="{DynamicResource MenuRuleFolder}" />
                         <Separator />
-                        <MenuItem Header="工作目录 (_W)" />
-                        <MenuItem Header="输出目录 (_O)" />
-                        <MenuItem Header="输出文件 (_F)" />
+                        <MenuItem Header="{DynamicResource MenuWorkFolder}" />
+                        <MenuItem Header="{DynamicResource MenuOutputFolder}" />
+                        <MenuItem Header="{DynamicResource MenuOutputFile}" />
                     </MenuItem>
-                    <MenuItem Header="帮助 (_H)">
-                        <MenuItem Header="设置 (_S)">
-                            <MenuItem Header="语言 (_L)" />
-                            <MenuItem Header="DLL文件安全检查 (_D)" />
-                            <MenuItem Header="线程相关 (_T)">
-                                <MenuItem Header="_MaxThreadCount" />
-                                <MenuItem Header="_TotalTimeoutLimitAnalyze" />
-                                <MenuItem Header="_PerTimeoutLimitAnalyze" />
-                                <MenuItem Header="_TotalTimeoutLimitOutput" />
-                                <MenuItem Header="_PerTimeoutLimitOutput" />
-                                <MenuItem Header="_FileSystemWatcherInvokeDalay" />
-                                <MenuItem Header="_FreshInterval" />
+                    <MenuItem Header="{DynamicResource MenuHelp}">
+                        <MenuItem Header="{DynamicResource MenuSetting}">
+                            <MenuItem Header="{DynamicResource MenuLanguage}" />
+                            <MenuItem Header="{DynamicResource MenuDLLSecurityCheck}" />
+                            <MenuItem Header="{DynamicResource MenuThreadRelated}">
+                                <MenuItem Header="{DynamicResource MenuMaxThreadCount}" />
+                                <MenuItem Header="{DynamicResource MenuTotalTimeoutLimitAnalyze}" />
+                                <MenuItem Header="{DynamicResource MenuPerTimeoutLimitAnalyze}" />
+                                <MenuItem Header="{DynamicResource MenuTotalTimeoutLimitOutput}" />
+                                <MenuItem Header="{DynamicResource MenuPerTimeoutLimitOutput}" />
+                                <MenuItem Header="{DynamicResource MenuFileSystemWatcherInvokeDalay}" />
+                                <MenuItem Header="{DynamicResource MenuFreshInterval}" />
                             </MenuItem>
                         </MenuItem>
-                        <MenuItem Header="_软件源码 (_C)"/>
+                        <MenuItem Header="{DynamicResource MenuSourceCode}"/>
                     </MenuItem>
                 </Menu>
             </DockPanel>

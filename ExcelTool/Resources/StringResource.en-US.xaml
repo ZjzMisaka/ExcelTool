@@ -2,6 +2,29 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <sys:String x:Key="WinTitle">Excel Tool</sys:String>
+
+    <sys:String x:Key="MenuOpen">_Open</sys:String>
+    <sys:String x:Key="MenuSheetExplainerFolder">Sheet explainer folder (_E)</sys:String>
+    <sys:String x:Key="MenuAnalyzerFolder">_Analyzer folder</sys:String>
+    <sys:String x:Key="MenuDLLFolder">_DLL folder</sys:String>
+    <sys:String x:Key="MenuRuleFolder">_Rule folder</sys:String>
+    <sys:String x:Key="MenuWorkFolder">_Workbase</sys:String>
+    <sys:String x:Key="MenuOutputFolder">_Output folder</sys:String>
+    <sys:String x:Key="MenuOutputFile">Output file (_F)</sys:String>
+    <sys:String x:Key="MenuHelp">_Help</sys:String>
+    <sys:String x:Key="MenuSetting">_Setting</sys:String>
+    <sys:String x:Key="MenuLanguage">_Language</sys:String>
+    <sys:String x:Key="MenuDLLSecurityCheck">_DLL file security check</sys:String>
+    <sys:String x:Key="MenuThreadRelated">_Thread related</sys:String>
+    <sys:String x:Key="MenuMaxThreadCount">_Maximum number of threads</sys:String>
+    <sys:String x:Key="MenuTotalTimeoutLimitAnalyze">Analysis stage timeout (_T)</sys:String>
+    <sys:String x:Key="MenuPerTimeoutLimitAnalyze">Single analysis timeout (_P)</sys:String>
+    <sys:String x:Key="MenuTotalTimeoutLimitOutput">Output stage timeout (_T)</sys:String>
+    <sys:String x:Key="MenuPerTimeoutLimitOutput">Single output timeout (_P)</sys:String>
+    <sys:String x:Key="MenuFileSystemWatcherInvokeDalay">Watch file response time (_D)</sys:String>
+    <sys:String x:Key="MenuFreshInterval">Interface refresh interval in thread (_F)</sys:String>
+    <sys:String x:Key="MenuSourceCode">Source code (_C)</sys:String>
+
     <sys:String x:Key="Analyzer">Analyzer</sys:String>
     <sys:String x:Key="SheetExplainer">Sheet explainer</sys:String>
     <sys:String x:Key="SetSheetExplainer">Set sheet explainer</sys:String>
