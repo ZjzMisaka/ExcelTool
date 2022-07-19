@@ -1599,6 +1599,12 @@ namespace ExcelTool.ViewModel
             int result = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object>() { tbName, Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("Name").ToString(), Application.Current.FindResource("Saving").ToString(), MessageBoxImage.Information);
             if (result == 1)
             {
+                if (tbName.Text == "")
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), Application.Current.FindResource("FileNameEmptyError").ToString(), Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 RunningRule runningRule = new RunningRule();
                 runningRule.analyzers = TeAnalyzersDocument.Text;
                 runningRule.sheetExplainers = TeSheetExplainersDocument.Text;
@@ -1638,6 +1644,9 @@ namespace ExcelTool.ViewModel
             {
                 File.Delete(path);
                 SelectedAnalyzersIndex = 0;
+
+                RuleItems = FileHelper.GetRulesList();
+                SelectedRulesIndex = 0;
             }
         }
 

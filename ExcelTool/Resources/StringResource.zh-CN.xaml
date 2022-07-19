@@ -196,4 +196,5 @@ namespace AnalyzeCode
     <sys:String x:Key="CloseTheProgramOnly">仅关闭程序</sys:String>
     <sys:String x:Key="BanSecurityCheckWithoutRestart">今后不再进行安全检查 (重启程序后生效)</sys:String>
     <sys:String x:Key="BanSecurityCheckWithRestart">今后不再进行安全检查并重启程序</sys:String>
+    <sys:String x:Key="FileNameEmptyError">文件名不能为空</sys:String>
 </ResourceDictionary>

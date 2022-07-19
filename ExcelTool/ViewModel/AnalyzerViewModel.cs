@@ -756,6 +756,12 @@ namespace ExcelTool.ViewModel
                     return;
                 }
 
+                if (tbName.Text == "")
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), Application.Current.FindResource("FileNameEmptyError").ToString(), Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 newName = tbName.Text;
             }
 
