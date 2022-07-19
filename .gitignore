@@ -350,3 +350,4 @@ MigrationBackup/
 .ionide/
 ExcelTool/AnalyzeCode.cs
 ExcelTool/Code.cs
+*.psd
