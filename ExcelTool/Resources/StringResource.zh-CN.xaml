@@ -28,12 +28,12 @@
     <sys:String x:Key="MenuFileSystemWatcherInvokeDalay">监视文件响应时间 (_D)</sys:String>
     <sys:String x:Key="MenuFreshInterval">线程中界面刷新间隔 (_F)</sys:String>
     <sys:String x:Key="MaxThreadCount">最大线程数</sys:String>
-    <sys:String x:Key="TotalTimeoutLimitAnalyze">分析阶段超时时间</sys:String>
-    <sys:String x:Key="PerTimeoutLimitAnalyze">单次分析超时时间</sys:String>
-    <sys:String x:Key="TotalTimeoutLimitOutput">输出阶段超时时间</sys:String>
-    <sys:String x:Key="PerTimeoutLimitOutput">单次输出超时时间</sys:String>
-    <sys:String x:Key="FileSystemWatcherInvokeDalay">监视文件响应时间</sys:String>
-    <sys:String x:Key="FreshInterval">线程中界面刷新间隔</sys:String>
+    <sys:String x:Key="TotalTimeoutLimitAnalyze">分析阶段超时时间 (ms)</sys:String>
+    <sys:String x:Key="PerTimeoutLimitAnalyze">单次分析超时时间 (ms)</sys:String>
+    <sys:String x:Key="TotalTimeoutLimitOutput">输出阶段超时时间 (ms)</sys:String>
+    <sys:String x:Key="PerTimeoutLimitOutput">单次输出超时时间 (ms)</sys:String>
+    <sys:String x:Key="FileSystemWatcherInvokeDalay">监视文件响应时间 (ms)</sys:String>
+    <sys:String x:Key="FreshInterval">线程中界面刷新间隔 (ms)</sys:String>
     <sys:String x:Key="MenuSourceCode">软件源码 (_C)</sys:String>
     <sys:String x:Key="OpenBrowser">即将打开浏览器, 是否继续? </sys:String>
 

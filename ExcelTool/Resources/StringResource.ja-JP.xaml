@@ -28,12 +28,12 @@
     <sys:String x:Key="MenuFileSystemWatcherInvokeDalay">ウォッチファイル反応時間 (_D)</sys:String>
     <sys:String x:Key="MenuFreshInterval">スレッド内のインターフェイスの更新間隔 (_F)</sys:String>
     <sys:String x:Key="MaxThreadCount">スレッドの最大数</sys:String>
-    <sys:String x:Key="TotalTimeoutLimitAnalyze">分析フェーズのタイムアウト</sys:String>
-    <sys:String x:Key="PerTimeoutLimitAnalyze">単一の分析のタイムアウト</sys:String>
-    <sys:String x:Key="TotalTimeoutLimitOutput">出力ステージのタイムアウト</sys:String>
-    <sys:String x:Key="PerTimeoutLimitOutput">単一出力タイムアウト</sys:String>
-    <sys:String x:Key="FileSystemWatcherInvokeDalay">ウォッチファイル反応時間</sys:String>
-    <sys:String x:Key="FreshInterval">スレッド内のインターフェイスの更新間隔</sys:String>
+    <sys:String x:Key="TotalTimeoutLimitAnalyze">分析フェーズのタイムアウト (ms)</sys:String>
+    <sys:String x:Key="PerTimeoutLimitAnalyze">単一の分析のタイムアウト (ms)</sys:String>
+    <sys:String x:Key="TotalTimeoutLimitOutput">出力ステージのタイムアウト (ms)</sys:String>
+    <sys:String x:Key="PerTimeoutLimitOutput">単一出力タイムアウト (ms)</sys:String>
+    <sys:String x:Key="FileSystemWatcherInvokeDalay">ウォッチファイル反応時間 (ms)</sys:String>
+    <sys:String x:Key="FreshInterval">スレッド内のインターフェイスの更新間隔 (ms)</sys:String>
     <sys:String x:Key="MenuSourceCode">ソフトウェアのソースコード (_C)</sys:String>
     <sys:String x:Key="OpenBrowser">ブラウザが開こうとしています。続行しますか？</sys:String>
 

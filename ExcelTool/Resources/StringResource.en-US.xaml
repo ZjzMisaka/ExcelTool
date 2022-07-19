@@ -28,12 +28,12 @@
     <sys:String x:Key="MenuFileSystemWatcherInvokeDalay">Watch file response time (_D)</sys:String>
     <sys:String x:Key="MenuFreshInterval">Interface refresh interval in thread (_F)</sys:String>
     <sys:String x:Key="MaxThreadCount">_Maximum number of threads</sys:String>
-    <sys:String x:Key="TotalTimeoutLimitAnalyze">Analysis stage timeout</sys:String>
-    <sys:String x:Key="PerTimeoutLimitAnalyze">Single analysis timeout</sys:String>
-    <sys:String x:Key="TotalTimeoutLimitOutput">Output stage timeout</sys:String>
-    <sys:String x:Key="PerTimeoutLimitOutput">Single output timeout</sys:String>
-    <sys:String x:Key="FileSystemWatcherInvokeDalay">Watch file response time</sys:String>
-    <sys:String x:Key="FreshInterval">Interface refresh interval in thread</sys:String>
+    <sys:String x:Key="TotalTimeoutLimitAnalyze">Analysis stage timeout (ms)</sys:String>
+    <sys:String x:Key="PerTimeoutLimitAnalyze">Single analysis timeout (ms)</sys:String>
+    <sys:String x:Key="TotalTimeoutLimitOutput">Output stage timeout (ms)</sys:String>
+    <sys:String x:Key="PerTimeoutLimitOutput">Single output timeout (ms)</sys:String>
+    <sys:String x:Key="FileSystemWatcherInvokeDalay">Watch file response time (ms)</sys:String>
+    <sys:String x:Key="FreshInterval">Interface refresh interval in thread (ms)</sys:String>
     <sys:String x:Key="MenuSourceCode">Source code (_C)</sys:String>
     <sys:String x:Key="OpenBrowser">The browser is about to open, do you want to continue?</sys:String>
 
