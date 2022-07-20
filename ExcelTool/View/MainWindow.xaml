@@ -106,9 +106,10 @@
                 <Label Margin="10 2 10 0" Grid.Row="4" Grid.ColumnSpan="2" Content="{DynamicResource Parameter}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <ComboBox Name="cb_params" ItemsSource="{Binding ParamsItems, Mode=TwoWay}" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectedParamsItem, Mode=TwoWay}" SelectedIndex="{Binding SelectedParamsIndex, Mode=TwoWay}" Grid.Row="5" Margin="10 2" Grid.Column="0" Grid.ColumnSpan="1" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbParamsPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbParamsSelectionChangedCommand}" />
                 <Button Name="btn_params"  Command="{Binding EditParamCommand}" Grid.Row="5" Margin="10 2" Grid.Column="1" Grid.ColumnSpan="1" Content="{DynamicResource Edit}" HorizontalAlignment="Right" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="75"></Button>
-                <Border Margin="10 2" Focusable="True" Background="Transparent" Padding="3" Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CornerRadius="3">
+                <Border Margin="10 2" Focusable="True" Padding="3" Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CornerRadius="3">
                     <Border.Style>
                         <Style TargetType="Border">
+                            <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="BorderBrush" Value="DimGray"/>
                             <Setter Property="BorderThickness" Value="1"></Setter>
                             <Style.Triggers>
@@ -117,7 +118,7 @@
                                     <Setter Property="BorderThickness" Value="1" />
                                 </Trigger>
                                 <Trigger Property="IsFocused" Value="True">
-                                    <Setter Property="BorderBrush" Value="Yellow"></Setter>
+                                    <Setter Property="BorderBrush" Value="SkyBlue"></Setter>
                                     <Setter Property="BorderThickness" Value="1"></Setter>
                                 </Trigger>
                             </Style.Triggers>
@@ -146,7 +147,30 @@
                 <Button Grid.Row="18" Grid.ColumnSpan="2" Name="btn_setauto" Command="{Binding SetAutoCommand}" Visibility="{Binding BtnSetAutoVisibility, Mode=TwoWay}" Margin="10 2" Content="{DynamicResource SetAuto}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
                 <Button Grid.Row="18" Grid.ColumnSpan="2" Name="btn_unsetauto" Command="{Binding UnsetAutoCommand}" Visibility="{Binding BtnUnsetAutoVisibility, Mode=TwoWay}" Margin="10 2" Content="{DynamicResource SetManual}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
             </Grid>
-            <GridSplitter x:Name="gs_gridsplitter" BorderBrush="Black" BorderThickness="0, 1, 0, 1" Height="4" Grid.Row="2" Background="AntiqueWhite" HorizontalAlignment="Stretch" VerticalAlignment="Top" Panel.ZIndex="100"/>
+            <GridSplitter x:Name="gs_gridsplitter" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Panel.ZIndex="100">
+                <GridSplitter.Style>
+                    <Style TargetType="GridSplitter">
+                        <Setter Property="Height" Value="3" />
+                        <Setter Property="BorderBrush" Value="DarkGray" />
+                        <Setter Property="BorderThickness" Value="0, 1, 0, 1" />
+                        <Setter Property="Background" Value="White" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Height" Value="5" />
+                                <Setter Property="BorderBrush" Value="DarkGray" />
+                                <Setter Property="BorderThickness" Value="0, 1, 0, 1" />
+                                <Setter Property="Background" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter Property="Height" Value="5" />
+                                <Setter Property="BorderBrush" Value="DarkGray" />
+                                <Setter Property="BorderThickness" Value="0, 1, 0, 1" />
+                                <Setter Property="Background" Value="DarkGray" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </GridSplitter.Style>
+            </GridSplitter>
             <Label Grid.Row="2" FontSize="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" BorderThickness="1px" BorderBrush="Gray">
                 <ScrollViewer VerticalAlignment="Stretch" HorizontalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Disabled">
                     <Grid>
@@ -155,14 +179,38 @@
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
+                            <ColumnDefinition Width="auto" />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
 
                         <ScrollViewer>
                             <TextBlock Name="tb_status" Text="{Binding TbStatusText, Mode=TwoWay}" Padding="5" Grid.Row="0" Grid.Column="0" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
                         </ScrollViewer>
-                        <GridSplitter x:Name="gs_gridsplitterbutton" BorderBrush="Black" BorderThickness="1, 0, 1, 0" Width="4" Grid.Row="1" Background="AntiqueWhite" HorizontalAlignment="Right" VerticalAlignment="Stretch" Panel.ZIndex="100"/>
-                        <ContentControl Content="{Binding TeLog}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False" Padding="3px" />
+                        <GridSplitter x:Name="gs_gridsplitterbutton" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Panel.ZIndex="100">
+                            <GridSplitter.Style>
+                                <Style TargetType="GridSplitter">
+                                    <Setter Property="Width" Value="3" />
+                                    <Setter Property="BorderBrush" Value="DarkGray" />
+                                    <Setter Property="BorderThickness" Value="1, 0, 1, 0" />
+                                    <Setter Property="Background" Value="White" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Width" Value="5" />
+                                            <Setter Property="BorderBrush" Value="DarkGray" />
+                                            <Setter Property="BorderThickness" Value="1, 0, 1, 0" />
+                                            <Setter Property="Background" Value="White" />
+                                        </Trigger>
+                                        <Trigger Property="IsDragging" Value="True">
+                                            <Setter Property="Width" Value="5" />
+                                            <Setter Property="BorderBrush" Value="DarkGray" />
+                                            <Setter Property="BorderThickness" Value="1, 0, 1, 0" />
+                                            <Setter Property="Background" Value="DarkGray" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </GridSplitter.Style>
+                        </GridSplitter>
+                        <ContentControl Content="{Binding TeLog}" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False" Padding="3px" />
                     </Grid>
                 </ScrollViewer>
             </Label>

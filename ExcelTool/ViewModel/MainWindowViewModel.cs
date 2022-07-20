@@ -31,6 +31,7 @@ using CustomizableMessageBox;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Globalization;
+using System.Windows.Data;
 
 namespace ExcelTool.ViewModel
 {
@@ -984,6 +985,9 @@ namespace ExcelTool.ViewModel
             ParamEditor paramEditor = new ParamEditor();
             ColumnDefinition columnDefinitionL = new ColumnDefinition();
             paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
+            ColumnDefinition columnDefinitionM = new ColumnDefinition();
+            columnDefinitionM.Width = new GridLength(1, GridUnitType.Auto);
+            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionM);
             ColumnDefinition columnDefinitionR = new ColumnDefinition();
             paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
 
@@ -1026,16 +1030,39 @@ namespace ExcelTool.ViewModel
                 }
 
                 GridSplitter gridSplitter = new GridSplitter();
-                Panel.SetZIndex(gridSplitter, 9999);
-                gridSplitter.HorizontalAlignment = HorizontalAlignment.Right;
+                gridSplitter.HorizontalAlignment = HorizontalAlignment.Center;
                 gridSplitter.VerticalAlignment = VerticalAlignment.Stretch;
-                gridSplitter.Width = 4;
-                gridSplitter.BorderThickness = new Thickness(1, 0, 1, 0);
-                gridSplitter.BorderBrush = Brushes.Black;
-                gridSplitter.Background = Brushes.AntiqueWhite;
+                Panel.SetZIndex(gridSplitter, 9999);
+                Style style = new Style();
+                style.TargetType = typeof(GridSplitter);
+                style.Setters.Add(new Setter(GridSplitter.WidthProperty, 3d));
+                style.Setters.Add(new Setter(GridSplitter.BorderBrushProperty, Brushes.DarkGray));
+                style.Setters.Add(new Setter(GridSplitter.BorderThicknessProperty, new Thickness(1, 0, 1, 0)));
+                style.Setters.Add(new Setter(GridSplitter.BackgroundProperty, Brushes.White));
+                MultiDataTrigger triggerIsMouseOver = new MultiDataTrigger();
+                Condition conditionIsMouseOver = new Condition();
+                conditionIsMouseOver.Binding = new Binding() { Path = new PropertyPath("IsMouseOver"), RelativeSource = RelativeSource.Self };
+                conditionIsMouseOver.Value = true;
+                triggerIsMouseOver.Conditions.Add(conditionIsMouseOver);
+                triggerIsMouseOver.Setters.Add(new Setter(GridSplitter.WidthProperty, 5d));
+                triggerIsMouseOver.Setters.Add(new Setter(GridSplitter.BorderBrushProperty, Brushes.DarkGray));
+                triggerIsMouseOver.Setters.Add(new Setter(GridSplitter.BorderThicknessProperty, new Thickness(1, 0, 1, 0)));
+                triggerIsMouseOver.Setters.Add(new Setter(GridSplitter.BackgroundProperty, Brushes.White));
+                style.Triggers.Add(triggerIsMouseOver);
+                MultiDataTrigger triggerIsDragging = new MultiDataTrigger();
+                Condition conditionIsDragging = new Condition();
+                conditionIsDragging.Binding = new Binding() { Path = new PropertyPath("IsDragging"), RelativeSource = RelativeSource.Self };
+                conditionIsDragging.Value = true;
+                triggerIsDragging.Conditions.Add(conditionIsDragging);
+                triggerIsDragging.Setters.Add(new Setter(GridSplitter.WidthProperty, 5d));
+                triggerIsDragging.Setters.Add(new Setter(GridSplitter.BorderBrushProperty, Brushes.DarkGray));
+                triggerIsDragging.Setters.Add(new Setter(GridSplitter.BorderThicknessProperty, new Thickness(1, 0, 1, 0)));
+                triggerIsDragging.Setters.Add(new Setter(GridSplitter.BackgroundProperty, Brushes.DarkGray));
+                style.Triggers.Add(triggerIsDragging);
+                gridSplitter.Style = style;
                 Grid.SetRow(gridSplitter, rowNum + 1);
                 Grid.SetRowSpan(gridSplitter, analyzer.paramDic.Keys.Count);
-                Grid.SetColumn(gridSplitter, 0);
+                Grid.SetColumn(gridSplitter, 1);
                 paramEditor.g_main.Children.Add(gridSplitter);
 
                 foreach (string key in analyzer.paramDic.Keys)
@@ -1091,7 +1118,7 @@ namespace ExcelTool.ViewModel
                     StackPanel stackPanel = new StackPanel();
                     stackPanel.Margin = new Thickness(5, 5, 0, 5);
                     Grid.SetRow(stackPanel, rowNum);
-                    Grid.SetColumn(stackPanel, 1);
+                    Grid.SetColumn(stackPanel, 2);
 
                     if (analyzer.paramDic[key].possibleValues != null && analyzer.paramDic[key].possibleValues.Count > 0)
                     {
