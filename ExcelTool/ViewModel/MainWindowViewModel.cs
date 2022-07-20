@@ -65,6 +65,7 @@ namespace ExcelTool.ViewModel
         private int fileSystemWatcherInvokeDalay;
         private int freshInterval;
         private string language;
+        private bool teParamsFocused;
 
         private TextEditor teLog = new TextEditor();
         public TextEditor TeLog => teLog;
@@ -441,11 +442,16 @@ namespace ExcelTool.ViewModel
             TeLog.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             TeLog.PreviewKeyDown += TeLogPreviewKeyDown;
             TeLog.TextChanged += TeLogTextChanged;
+            teParamsFocused = false;
             TeParams.ShowLineNumbers = false;
             TeParams.WordWrap = false;
             TeParams.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
             TeParams.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             TeParams.TextChanged += TeParamsTextChanged;
+            TeParams.GotFocus += TeParamsGotFocus;
+            TeParams.LostFocus += TeParamsLostFocus;
+            TeParams.MouseEnter += TeParamsMouseEnter;
+            TeParams.MouseLeave += TeParamsMouseLeave;
             TeParams.PreviewKeyDown += TeParamsPreviewKeyDown;
             TeParams.Padding = new Thickness(8, 5, 8, 5);
             WindowLoadedCommand = new RelayCommand<RoutedEventArgs>(WindowLoaded);
@@ -1409,6 +1415,42 @@ namespace ExcelTool.ViewModel
             CbParamsSelectionChangedCommand = null;
             SelectedParamsIndex = 0;
             CbParamsSelectionChangedCommand = new RelayCommand(CbParamsSelectionChanged);
+        }
+
+        private void TeParamsGotFocus(object sender, EventArgs e)
+        {
+            Border border = (Border)((ContentControl)((TextEditor)sender).Parent).Parent;
+            border.BorderBrush = Brushes.SkyBlue;
+            border.BorderThickness = new Thickness(2);
+            teParamsFocused = true;
+        }
+
+        private void TeParamsLostFocus(object sender, EventArgs e)
+        {
+            Border border = (Border)((ContentControl)((TextEditor)sender).Parent).Parent;
+            border.BorderBrush = Brushes.DimGray;
+            border.BorderThickness = new Thickness(1);
+            teParamsFocused = false;
+        }
+
+        private void TeParamsMouseEnter(object sender, EventArgs e)
+        {
+            if (!teParamsFocused)
+            {
+                Border border = (Border)((ContentControl)((TextEditor)sender).Parent).Parent;
+                border.BorderBrush = Brushes.Black;
+                border.BorderThickness = new Thickness(1);
+            }
+        }
+
+        private void TeParamsMouseLeave(object sender, EventArgs e)
+        {
+            if (!teParamsFocused)
+            {
+                Border border = (Border)((ContentControl)((TextEditor)sender).Parent).Parent;
+                border.BorderBrush = Brushes.DimGray;
+                border.BorderThickness = new Thickness(1);
+            }
         }
 
         private void TeParamsPreviewKeyDown(object sender, KeyEventArgs e)
