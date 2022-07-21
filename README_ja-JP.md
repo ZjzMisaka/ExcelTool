@@ -1,4 +1,5 @@
 # ExcelTool
+![ICON](https://om.namanime.com/Pictures/ExcelTool/ExcelTool.ico)  
 プラグイン拡張機能、バッチ処理、およびExcelファイルへの結果の出力。  
 [中文ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_zh-CN.md) | [English ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README.md)  
 [例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
