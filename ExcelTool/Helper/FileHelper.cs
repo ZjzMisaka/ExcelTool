@@ -284,5 +284,33 @@ namespace ExcelTool.Helper
                 }
             }
         }
+
+        public static void CheckAndCreateFolders()
+        {
+            try
+            {
+                if (!Directory.Exists(".\\Analyzers"))
+                {
+                    Directory.CreateDirectory(".\\Analyzers");
+                }
+                if (!Directory.Exists(".\\SheetExplainers"))
+                {
+                    Directory.CreateDirectory(".\\SheetExplainers");
+                }
+                if (!Directory.Exists(".\\Rules"))
+                {
+                    Directory.CreateDirectory(".\\Rules");
+                }
+                if (!Directory.Exists(".\\Dlls"))
+                {
+                    Directory.CreateDirectory(".\\Dlls");
+                }
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("FailedToCreateANewFolder").ToString()}\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+        }
     }
 }

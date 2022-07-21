@@ -538,6 +538,7 @@ namespace ExcelTool.ViewModel
             fileSystemWatcherInvokeDalay = IniHelper.GetFileSystemWatcherInvokeDalay();
             freshInterval = IniHelper.GetFreshInterval();
 
+            FileHelper.CheckAndCreateFolders();
             LoadFiles();
 
             SetAutoStatusAll();
@@ -2949,27 +2950,6 @@ namespace ExcelTool.ViewModel
 
         private void LoadFiles()
         {
-            try
-            {
-                if (!Directory.Exists(".\\Analyzers"))
-                {
-                    Directory.CreateDirectory(".\\Analyzers");
-                }
-                if (!Directory.Exists(".\\SheetExplainers"))
-                {
-                    Directory.CreateDirectory(".\\SheetExplainers");
-                }
-                if (!Directory.Exists(".\\Rules"))
-                {
-                    Directory.CreateDirectory(".\\Rules");
-                }
-            }
-            catch (Exception ex)
-            {
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), $"{Application.Current.FindResource("FailedToCreateANewFolder").ToString()}\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
             SheetExplainersItems = FileHelper.GetSheetExplainersList();
             AnalyzersItems = FileHelper.GetAnalyzersList();
             RuleItems = FileHelper.GetRulesList();
