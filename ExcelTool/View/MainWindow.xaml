@@ -217,7 +217,7 @@
 
                 <Label Grid.Row="0" Grid.Column="0" FontSize="10" Name="l_process" Content="{Binding LProcessContent, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5, 0, 0, 0"/>
 
-                <CheckBox Grid.Row="0" Grid.Column="1" Content="{DynamicResource AutomaticallyOpening}" IsChecked="{Binding CbIsAutoOpenIsChecked, Mode=TwoWay}" Name="cb_isautoopen" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Center" VerticalContentAlignment="Center" />
+                <CheckBox Grid.Row="0" Grid.Column="1" Content="{DynamicResource AutomaticallyOpening}" IsChecked="{Binding CbIsAutoOpenIsChecked, Mode=TwoWay}" Width="auto" Name="cb_isautoopen" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Center" VerticalContentAlignment="Center" />
                 <Button Grid.Row="0" Grid.Column="2" Content="{DynamicResource Stop}" Name="btn_stop" Command="{Binding StopCommand}" IsEnabled="{Binding BtnStopIsEnabled, Mode=TwoWay}" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Center" VerticalContentAlignment="Center" Width="75"/>
                 <Button Grid.Row="0" Grid.Column="3" Content="{DynamicResource Start}" Name="btn_start" Command="{Binding StartCommand}" IsEnabled="{Binding BtnStartIsEnabled, Mode=TwoWay}" HorizontalAlignment="Center" Margin="5 2" VerticalAlignment="Center" VerticalContentAlignment="Center" Width="75"/>
             </Grid>

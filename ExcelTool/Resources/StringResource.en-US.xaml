@@ -15,7 +15,7 @@
     <sys:String x:Key="MenuSetting">_Setting</sys:String>
     <sys:String x:Key="Setting">Setting</sys:String>
     <sys:String x:Key="MenuLanguage">_Language</sys:String>
-    <sys:String x:Key="SetLanguage">Language　setting</sys:String>
+    <sys:String x:Key="SetLanguage">Language setting</sys:String>
     <sys:String x:Key="MenuDLLSecurityCheck">_DLL file security check</sys:String>
     <sys:String x:Key="DLLSecurityCheck">DLL file security check</sys:String>
     <sys:String x:Key="IsEnable">Is enable</sys:String>
