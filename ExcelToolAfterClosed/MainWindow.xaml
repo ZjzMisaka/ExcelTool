@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ExcelToolAfterClosed"
         mc:Ignorable="d"
-        Title="Wait..." Height="70" Width="500" Loaded="WindowLoaded" ShowInTaskbar="False" Name="w_AfterClosedMainWindow">
+        Title="Wait..." Height="70" Width="500" Loaded="WindowLoaded" ShowInTaskbar="False" Name="w_AfterClosedMainWindow" WindowStartupLocation="CenterScreen">
     <StackPanel>
         <Label Content="Wait..." Height="20px" FontSize="10px" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center"></Label>
         <ProgressBar x:Name="pb_process" Height="20"></ProgressBar>
