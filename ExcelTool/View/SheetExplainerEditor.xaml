@@ -8,6 +8,8 @@
         xmlns:dd="urn:gong-wpf-dragdrop"
         xmlns:Behavior="clr-namespace:Behavior"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        ui:WindowHelper.UseModernWindowStyle="True"
         Title="{DynamicResource SheetExplainerEditor}" Name="w_SheetExplainerEditor" Tag="{Binding WindowName}" Height="{Binding WindowHeight, Mode=OneWayToSource}" Width="{Binding WindowWidth, Mode=OneWayToSource}" MinHeight="430" MinWidth="500" >
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">

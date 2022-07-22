@@ -73,6 +73,16 @@ namespace ExcelTool.ViewModel
         private TextEditor teParams = new TextEditor();
         public TextEditor TeParams => teParams;
 
+        private Color themeControlBackground;
+        public Color ThemeControlBackground
+        {
+            get { return themeControlBackground; }
+            set
+            {
+                SetProperty<Color>(ref themeControlBackground, value);
+            }
+        }
+
         private double windowWidth;
         public double WindowWidth
         {

@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using CustomizableMessageBox;
+using ModernWpf;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
@@ -14,6 +15,26 @@ namespace GlobalObjects
 {
     public enum ResultType { FILEPATH, FILENAME, MESSAGE, RESULTOBJECT };
     public enum ProgramStatus { Default, Shutdown, Restart };
+
+    public static class Theme
+    {
+        private static Color themeControlBackground;
+        public static Color ThemeControlBackground
+        {
+            get { return themeControlBackground; }
+            set { themeControlBackground = value; }
+        }
+        public static void SetTheme()
+        {
+            ThemeManager.Current.ActualApplicationThemeChanged += (themeManager, obj) => 
+            {
+                if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
+                {
+                    themeControlBackground = new MessageBoxColor("#2F2F31").solidColorBrush.Color;
+                }
+            };
+        }
+    }
 
     public static class GlobalObjects
     {
