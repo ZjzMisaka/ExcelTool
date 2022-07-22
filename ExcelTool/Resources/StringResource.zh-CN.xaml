@@ -67,7 +67,7 @@
     <sys:String x:Key="SheetNameList">Sheet名列表</sys:String>
     <sys:String x:Key="Error">错误</sys:String>
     <sys:String x:Key="PathNotExists">路径不存在</sys:String>
-    <sys:String x:Key="Ok">Ok</sys:String>
+    <sys:String x:Key="Ok">确定</sys:String>
     <sys:String x:Key="Timeout">超时</sys:String>
     <sys:String x:Key="TotalTimeout">总时间超时</sys:String>
     <sys:String x:Key="Analyzing">正在分析...</sys:String>

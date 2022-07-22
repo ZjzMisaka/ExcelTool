@@ -67,7 +67,7 @@
     <sys:String x:Key="SheetNameList">シート名一覧</sys:String>
     <sys:String x:Key="Error">エラー</sys:String>
     <sys:String x:Key="PathNotExists">パスが存在しません</sys:String>
-    <sys:String x:Key="Ok">Ok</sys:String>
+    <sys:String x:Key="Ok">OK</sys:String>
     <sys:String x:Key="Timeout">タイムアウト</sys:String>
     <sys:String x:Key="TotalTimeout">合計時間タイムアウト</sys:String>
     <sys:String x:Key="Analyzing">分析しています...</sys:String>
