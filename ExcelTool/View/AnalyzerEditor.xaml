@@ -58,7 +58,7 @@
             </i:Interaction.Triggers>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <roslynPad:RoslynCodeEditor Height="100px" x:Name="rce_editor" FontSize="14" SyntaxHighlighting="C#" ShowLineNumbers="True"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <roslynPad:RoslynCodeEditor Background="{Binding ThemeBackground, Mode=TwoWay}" Height="100px" x:Name="rce_editor" FontSize="14" SyntaxHighlighting="C#" ShowLineNumbers="True"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         
                     </roslynPad:RoslynCodeEditor>
                 </DataTemplate>

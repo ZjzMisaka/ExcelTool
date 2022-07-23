@@ -11,7 +11,7 @@
                 <ResourceDictionary Source="Resources\StringResource.ja-JP.xaml" />
                 <ResourceDictionary Source="Resources\StringResource.en-US.xaml" />
 
-                <ui:ThemeResources RequestedTheme="Dark">
+                <ui:ThemeResources RequestedTheme="Light">
                     <ui:ThemeResources.ThemeDictionaries>
                         <ResourceDictionary x:Key="Dark">
                             <ResourceDictionary.MergedDictionaries>

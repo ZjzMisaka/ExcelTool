@@ -18,21 +18,78 @@ namespace GlobalObjects
 
     public static class Theme
     {
-        private static Color themeControlBackground;
-        public static Color ThemeControlBackground
+        private static Brush themeBackground;
+        public static Brush ThemeBackground
+        {
+            get { return themeBackground; }
+            set { themeBackground = value; }
+        }
+
+        private static Brush themeControlBackground;
+        public static Brush ThemeControlBackground
         {
             get { return themeControlBackground; }
             set { themeControlBackground = value; }
         }
+
+        private static Brush themeControlFocusBackground;
+        public static Brush ThemeControlFocusBackground
+        {
+            get { return themeControlFocusBackground; }
+            set { themeControlFocusBackground = value; }
+        }
+
+        private static Brush themeControlForeground;
+        public static Brush ThemeControlForeground
+        {
+            get { return themeControlForeground; }
+            set { themeControlForeground = value; }
+        }
+
+        private static Brush themeControlBorderBrush;
+        public static Brush ThemeControlBorderBrush
+        {
+            get { return themeControlBorderBrush; }
+            set { themeControlBorderBrush = value; }
+        }
+
+        private static Brush themeControlHoverBorderBrush;
+        public static Brush ThemeControlHoverBorderBrush
+        {
+            get { return themeControlHoverBorderBrush; }
+            set { themeControlHoverBorderBrush = value; }
+        }
+
+        private static Brush themeMessageBoxTitlePanelBackgroundBrush;
+        public static Brush ThemeMessageBoxTitlePanelBackgroundBrush
+        {
+            get { return themeMessageBoxTitlePanelBackgroundBrush; }
+            set { themeMessageBoxTitlePanelBackgroundBrush = value; }
+        }
+
         public static void SetTheme()
         {
-            ThemeManager.Current.ActualApplicationThemeChanged += (themeManager, obj) => 
+            if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
             {
-                if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
-                {
-                    themeControlBackground = new MessageBoxColor("#2F2F31").solidColorBrush.Color;
-                }
-            };
+                themeBackground = new MessageBoxColor("#2F2F31").solidColorBrush;
+                themeControlBackground = new MessageBoxColor("#1C1C1D").solidColorBrush;
+                ThemeControlFocusBackground = new MessageBoxColor("#2F2F31").solidColorBrush;
+                themeControlForeground = Brushes.White;
+                themeControlBorderBrush = Brushes.Gainsboro;
+                themeControlHoverBorderBrush = Brushes.Gainsboro;
+                ThemeMessageBoxTitlePanelBackgroundBrush = Brushes.DimGray;
+            }
+            else
+            {
+                themeBackground = Brushes.White;
+                themeControlBackground = Brushes.White;
+                ThemeControlFocusBackground = Brushes.White;
+                themeControlForeground = Brushes.Black;
+                themeControlBorderBrush = new MessageBoxColor(ThemeManager.Current.ActualAccentColor).solidColorBrush;
+                themeControlHoverBorderBrush = Brushes.Black;
+                ThemeMessageBoxTitlePanelBackgroundBrush = Brushes.LightGray;
+            }
+
         }
     }
 
@@ -43,7 +100,6 @@ namespace GlobalObjects
         private static ConcurrentDictionary<CompilerResults, Object> globalParamDic;
         private static PropertiesSetter ps = null;
         private static PropertiesSetter psWithTimmer = null;
-        private static Style style = null;
 
         public static ProgramStatus ProgramCurrentStatus { get => programCurrentStatus; set => programCurrentStatus = value; }
 
@@ -61,27 +117,36 @@ namespace GlobalObjects
         {
             globalParamDic = new ConcurrentDictionary<CompilerResults, object>();
         }
+
+        public static void ClearPropertiesSetter()
+        {
+            ps = null;
+            psWithTimmer = null;
+        }
+
         public static PropertiesSetter GetPropertiesSetter()
         {
+            Theme.SetTheme();
             if (ps == null)
             {
                 ps = new PropertiesSetter();
                 ps.WndBorderThickness = new Thickness(1);
-                ps.WndBorderColor = new MessageBoxColor(Colors.LightGray);
-                ps.ButtonPanelColor = new MessageBoxColor("White");
-                ps.MessagePanelColor = new MessageBoxColor("White");
-                ps.TitlePanelColor = new MessageBoxColor(Colors.LightGray);
+                ps.WndBorderColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBackgroundBrush).Color);
+                ps.ButtonPanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeBackground).Color);
+                ps.MessagePanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeBackground).Color);
+                ps.ButtonFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
+                ps.TitlePanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBackgroundBrush).Color);
                 ps.TitlePanelBorderThickness = new Thickness(0, 0, 0, 2);
                 ps.TitlePanelBorderColor = new MessageBoxColor("#FFEFE2E2");
                 ps.MessagePanelBorderThickness = new Thickness(0);
                 ps.ButtonPanelBorderThickness = new Thickness(0);
                 ps.TitleFontSize = 14;
                 ps.TitleFontColor = new MessageBoxColor(Colors.Black);
-                ps.MessageFontColor = new MessageBoxColor(Colors.Black);
+                ps.MessageFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
                 ps.MessageFontSize = 14;
                 ps.ButtonFontSize = 16;
-                ps.ButtonBorderThickness = new Thickness(1);
-                ps.ButtonBorderColor = new MessageBoxColor(Colors.LightGray);
+                ps.ButtonBorderBrushList = new List<Brush>() { Theme.ThemeBackground };
+                ps.ButtonBorderThicknessList = new List<Thickness>() { new Thickness(0) };
                 ps.WindowMinHeight = 200;
                 ps.LockHeight = false;
                 ps.WindowWidth = 450;
