@@ -32,6 +32,7 @@ using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Data;
+using ModernWpf;
 
 namespace ExcelTool.ViewModel
 {
@@ -72,6 +73,66 @@ namespace ExcelTool.ViewModel
 
         private TextEditor teParams = new TextEditor();
         public TextEditor TeParams => teParams;
+
+        private Brush themeBackground;
+        public Brush ThemeBackground
+        {
+            get { return themeBackground; }
+            set
+            {
+                SetProperty<Brush>(ref themeBackground, value);
+            }
+        }
+
+        private Brush themeControlBackground;
+        public Brush ThemeControlBackground
+        {
+            get { return themeControlBackground; }
+            set
+            {
+                SetProperty<Brush>(ref themeControlBackground, value);
+            }
+        }
+
+        private Brush themeControlFocusBackground;
+        public Brush ThemeControlFocusBackground
+        {
+            get { return themeControlFocusBackground; }
+            set
+            {
+                SetProperty<Brush>(ref themeControlFocusBackground, value);
+            }
+        }
+
+        private Brush themeControlForeground;
+        public Brush ThemeControlForeground
+        {
+            get { return themeControlForeground; }
+            set
+            {
+                SetProperty<Brush>(ref themeControlForeground, value);
+            }
+        }
+
+        private Brush themeControlBorderBrush;
+        public Brush ThemeControlBorderBrush
+        {
+            get { return themeControlBorderBrush; }
+            set
+            {
+                SetProperty<Brush>(ref themeControlBorderBrush, value);
+            }
+        }
+
+        private Brush themeControlHoverBorderBrush;
+        public Brush ThemeControlHoverBorderBrush
+        {
+            get { return themeControlHoverBorderBrush; }
+            set
+            {
+                SetProperty<Brush>(ref themeControlHoverBorderBrush, value);
+            }
+        }
 
         private double windowWidth;
         public double WindowWidth
@@ -387,6 +448,7 @@ namespace ExcelTool.ViewModel
         public ICommand WindowClosingCommand { get; set; }
         public ICommand WindowClosedCommand { get; set; }
         public ICommand MenuOpenCommand { get; set; }
+        public ICommand ChangeThemeCommand { get; set; }
         public ICommand ChangeLanguageCommand { get; set; }
         public ICommand MenuDllSecurityCheckCommand { get; set; }
         public ICommand MenuSetStrCommand { get; set; }
@@ -458,6 +520,7 @@ namespace ExcelTool.ViewModel
             WindowClosingCommand = new RelayCommand<CancelEventArgs>(WindowClosing);
             WindowClosedCommand = new RelayCommand(WindowClosed);
             MenuOpenCommand = new RelayCommand<object>(MenuOpen);
+            ChangeThemeCommand = new RelayCommand(ChangeTheme);
             ChangeLanguageCommand = new RelayCommand(ChangeLanguage);
             MenuDllSecurityCheckCommand = new RelayCommand(MenuDllSecurityCheck);
             MenuSetStrCommand = new RelayCommand<object>(MenuSetStr);
@@ -484,6 +547,8 @@ namespace ExcelTool.ViewModel
             UnsetAutoCommand = new RelayCommand(UnsetAuto);
             StopCommand = new RelayCommand(Stop);
             StartCommand = new RelayCommand(Start);
+
+            ModernWpf.ThemeManager.Current.ActualApplicationThemeChanged += ActualApplicationThemeChanged;
         }
 
         private void WindowLoaded(RoutedEventArgs eventArgs)
@@ -521,6 +586,8 @@ namespace ExcelTool.ViewModel
                     window.Height = height;
                 });
             }
+
+            ActualApplicationThemeChanged(null, null);
 
             TbBasePathText = IniHelper.GetBasePath();
             TbOutputPathText = IniHelper.GetOutputPath();
@@ -681,6 +748,18 @@ namespace ExcelTool.ViewModel
             else if (((MenuItem)sender).Name == "menu_output_file")
             {
                 OpenOutput();
+            }
+        }
+
+        private void ChangeTheme()
+        {
+            if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
+            {
+                ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+            }
+            else if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
+            {
+                ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
             }
         }
 
@@ -1410,17 +1489,23 @@ namespace ExcelTool.ViewModel
 
         private void TeParamsGotFocus(object sender, EventArgs e)
         {
+            teParams.Background = ThemeControlFocusBackground;
+            teParams.Foreground = ThemeControlForeground;
             Border border = (Border)((ContentControl)((TextEditor)sender).Parent).Parent;
-            border.BorderBrush = Brushes.SkyBlue;
+            border.BorderBrush = ThemeControlBorderBrush;
             border.BorderThickness = new Thickness(2);
+            border.Background = ThemeControlFocusBackground;
             teParamsFocused = true;
         }
 
         private void TeParamsLostFocus(object sender, EventArgs e)
         {
+            teParams.Background = ThemeControlBackground;
+            teParams.Foreground = ThemeControlForeground;
             Border border = (Border)((ContentControl)((TextEditor)sender).Parent).Parent;
             border.BorderBrush = Brushes.DimGray;
             border.BorderThickness = new Thickness(1);
+            border.Background = ThemeControlBackground;
             teParamsFocused = false;
         }
 
@@ -1428,8 +1513,11 @@ namespace ExcelTool.ViewModel
         {
             if (!teParamsFocused)
             {
+                teParams.Background = ThemeControlBackground;
+                teParams.Foreground = ThemeControlForeground;
                 Border border = (Border)((ContentControl)((TextEditor)sender).Parent).Parent;
-                border.BorderBrush = Brushes.Black;
+                border.BorderBrush = ThemeControlHoverBorderBrush;
+                border.Background = ThemeControlBackground;
                 border.BorderThickness = new Thickness(1);
             }
         }
@@ -1438,8 +1526,11 @@ namespace ExcelTool.ViewModel
         {
             if (!teParamsFocused)
             {
+                teParams.Background = ThemeControlBackground;
+                teParams.Foreground = ThemeControlForeground;
                 Border border = (Border)((ContentControl)((TextEditor)sender).Parent).Parent;
                 border.BorderBrush = Brushes.DimGray;
+                border.Background = ThemeControlBackground;
                 border.BorderThickness = new Thickness(1);
             }
         }
@@ -1483,7 +1574,7 @@ namespace ExcelTool.ViewModel
                 && dataObject.GetDataPresent(DataFormats.FileDrop)
                 && dataObject.ContainsFileDropList())
             {
-                string parentName = ((TextBox)((Border)dropInfo.TargetScrollViewer.Parent).TemplatedParent).Name;
+                string parentName = ((TextBox)((Grid)dropInfo.TargetScrollViewer.Parent).TemplatedParent).Name;
                 if (parentName == "tb_base_path")
                 {
                     TbBasePathText = dataObject.GetFileDropList()[0];
@@ -3203,6 +3294,27 @@ namespace ExcelTool.ViewModel
                 Application.Current.Resources.MergedDictionaries.Remove(resourceDictionary);
                 Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
             }
+        }
+
+        private void ActualApplicationThemeChanged(ThemeManager themeManager, object obj)
+        {
+            GlobalObjects.GlobalObjects.ClearPropertiesSetter();
+
+            GlobalObjects.Theme.SetTheme();
+            ThemeBackground = Theme.ThemeBackground;
+            ThemeControlBackground = Theme.ThemeControlBackground;
+            ThemeControlFocusBackground = Theme.ThemeControlFocusBackground;
+            ThemeControlForeground = Theme.ThemeControlForeground;
+            ThemeControlBorderBrush = Theme.ThemeControlBorderBrush;
+            ThemeControlHoverBorderBrush = Theme.ThemeControlHoverBorderBrush;
+
+            teParams.Background = ThemeControlBackground;
+            teParams.Foreground = ThemeControlForeground;
+            Border border = (Border)((ContentControl)((TextEditor)teParams).Parent).Parent;
+            border.Background = ThemeControlBackground;
+
+            teLog.Background = ThemeBackground;
+            teLog.Foreground = ThemeControlForeground;
         }
     }
 

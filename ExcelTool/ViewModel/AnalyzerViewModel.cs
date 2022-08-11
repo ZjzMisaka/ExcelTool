@@ -1,11 +1,17 @@
 ﻿using CustomizableMessageBox;
 using ExcelTool.Helper;
+using GlobalObjects;
+using Highlighting;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Scripting.Hosting;
 using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.CodeAnalysis.Scripting.Hosting;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
+using ModernWpf;
 using Newtonsoft.Json;
 using RoslynPad.Editor;
 using RoslynPad.Roslyn;
@@ -34,6 +40,9 @@ namespace ExcelTool.ViewModel
         private Dictionary<string, ParamInfo> paramDicForChange;
         private ItemsControl itemsControl;
         private bool loadFailed;
+        private DocumentViewModel documentViewModel;
+        private DocumentId darkModeDocumentId;
+        private DocumentId lightModeDocumentId;
 
         private double windowWidth;
         public double WindowWidth
@@ -188,6 +197,8 @@ namespace ExcelTool.ViewModel
             BtnEditParamClickCommand = new RelayCommand(BtnEditParamClick);
             ItemLoadedCommand = new RelayCommand<object>(ItemLoaded);
             BtnSaveClickCommand = new RelayCommand(BtnSaveClick);
+
+            ModernWpf.ThemeManager.Current.ActualApplicationThemeChanged += ActualApplicationThemeChanged;
         }
 
         private void WindowLoaded(RoutedEventArgs e)
@@ -340,24 +351,18 @@ namespace ExcelTool.ViewModel
 
             ResetEditorSize(editor);
 
-            var viewModel = (DocumentViewModel)editor.DataContext;
-            var workingDirectory = Directory.GetCurrentDirectory();
+            documentViewModel = (DocumentViewModel)editor.DataContext;
 
-            var previous = viewModel.LastGoodPrevious;
-            if (previous != null)
-            {
-                editor.CreatingDocument += (o, args) =>
-                {
-                    args.DocumentId = _host.AddRelatedDocument(previous.Id, new DocumentCreationArgs(
-                        args.TextContainer, workingDirectory, args.ProcessDiagnostics,
-                        args.TextContainer.UpdateText));
-                };
-            }
+            
+            ActualApplicationThemeChanged(null, null);
 
-            var documentId = editor.Initialize(_host, new ClassificationHighlightColors(),
-                workingDirectory, string.Empty);
-
-            viewModel.Initialize(documentId);
+            editor.TextArea.SelectionCornerRadius = 0;
+            editor.TextArea.SelectionBorder = new Pen(new SolidColorBrush(Colors.Black), 0);
+            editor.TextArea.SelectionBrush = new SolidColorBrush(Color.FromArgb(100, 51, 153, 255));
+            editor.TextArea.SelectionForeground = new SolidColorBrush(Color.FromRgb(220, 220, 220));
+            editor.Options.HighlightCurrentLine = true;
+            editor.Options.IndentationSize = 4;
+            editor.Options.ShowSpaces = true;
 
             editor.Text = GlobalObjects.GlobalObjects.GetDefaultCode();
         }
@@ -814,10 +819,27 @@ namespace ExcelTool.ViewModel
             }
         }
 
+        private void ActualApplicationThemeChanged(ThemeManager themeManager, object obj)
+        {
+            if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
+            {
+                lightModeDocumentId = editor.Initialize(_host, new ClassificationHighlightColors(),
+                    Directory.GetCurrentDirectory(), string.Empty);
+                documentViewModel.Initialize(lightModeDocumentId);
+            }
+            else if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
+            {
+                darkModeDocumentId = editor.Initialize(_host, new DarkModeHighlightColors(),
+                    Directory.GetCurrentDirectory(), string.Empty);
+                documentViewModel.Initialize(darkModeDocumentId);
+            }
+        }
+
         public class DocumentViewModel : INotifyPropertyChanged
         {
             private bool _isReadOnly;
             private readonly RoslynHost _host;
+            private string _result;
 
             public DocumentViewModel(RoslynHost host, DocumentViewModel previous)
             {
@@ -862,8 +884,75 @@ namespace ExcelTool.ViewModel
 
             public bool HasError { get; private set; }
 
+            public string Result
+            {
+                get { return _result; }
+                private set { SetProperty(ref _result, value); }
+            }
+
             private static MethodInfo HasSubmissionResult { get; } =
                 typeof(Compilation).GetMethod(nameof(HasSubmissionResult), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+            private static PrintOptions PrintOptions { get; } =
+                new PrintOptions { MemberDisplayFormat = MemberDisplayFormat.SeparateLines };
+
+            public async Task<bool> TrySubmit()
+            {
+                Result = null;
+
+                Script = LastGoodPrevious?.Script.ContinueWith(Text) ??
+                    CSharpScript.Create(Text, ScriptOptions.Default
+                        .WithReferences(_host.DefaultReferences)
+                        .WithImports(_host.DefaultImports));
+
+                var compilation = Script.GetCompilation();
+                var hasResult = (bool)HasSubmissionResult.Invoke(compilation, null);
+                var diagnostics = Script.Compile();
+                if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
+                {
+                    Result = string.Join(Environment.NewLine, diagnostics.Select(FormatObject));
+                    return false;
+                }
+
+                IsReadOnly = true;
+
+                await Execute(hasResult);
+
+                return true;
+            }
+
+            private async Task Execute(bool hasResult)
+            {
+                try
+                {
+                    var result = await Script.RunAsync();
+
+                    if (result.Exception != null)
+                    {
+                        HasError = true;
+                        Result = FormatException(result.Exception);
+                    }
+                    else
+                    {
+                        Result = hasResult ? FormatObject(result.ReturnValue) : null;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HasError = true;
+                    Result = FormatException(ex);
+                }
+            }
+
+            private static string FormatException(Exception ex)
+            {
+                return CSharpObjectFormatter.Instance.FormatException(ex);
+            }
+
+            private static string FormatObject(object o)
+            {
+                return CSharpObjectFormatter.Instance.FormatObject(o, PrintOptions);
+            }
 
             public event PropertyChangedEventHandler PropertyChanged;
 

@@ -9,6 +9,8 @@
         xmlns:Behavior="clr-namespace:Behavior"
         xmlns:dd="urn:gong-wpf-dragdrop"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
         Title="{DynamicResource AnalyzerEditor}" Name="w_AnalyzerEditor" Tag="{Binding WindowName}" WindowState="{Binding WindowNowState, Mode=OneWayToSource}" Height="{Binding WindowHeight, Mode=OneWayToSource}" Width="{Binding WindowWidth, Mode=OneWayToSource}" MinHeight="430" MinWidth="500" 
         local:SizeBindingHelper.Active="True"
@@ -56,7 +58,7 @@
             </i:Interaction.Triggers>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <roslynPad:RoslynCodeEditor Height="100px" x:Name="rce_editor" FontSize="14" SyntaxHighlighting="C#" ShowLineNumbers="True"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <roslynPad:RoslynCodeEditor Background="{Binding ThemeBackground, Mode=TwoWay}" Height="100px" x:Name="rce_editor" FontSize="14" SyntaxHighlighting="C#" ShowLineNumbers="True"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         
                     </roslynPad:RoslynCodeEditor>
                 </DataTemplate>

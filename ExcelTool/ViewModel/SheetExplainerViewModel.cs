@@ -327,7 +327,7 @@ namespace ExcelTool.ViewModel
                 && dataObject.GetDataPresent(DataFormats.FileDrop)
                 && dataObject.ContainsFileDropList())
             {
-                string parentName = ((TextBox)((Border)dropInfo.TargetScrollViewer.Parent).TemplatedParent).Name;
+                string parentName = ((TextBox)((Grid)dropInfo.TargetScrollViewer.Parent).TemplatedParent).Name;
                 if (parentName == "tb_paths" || parentName == "tb_filenames")
                 {
                     string msg = dataObject.GetFileDropList()[0];
