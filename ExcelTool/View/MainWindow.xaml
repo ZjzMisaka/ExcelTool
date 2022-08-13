@@ -154,7 +154,7 @@
                         <Setter Property="Height" Value="4" />
                         <Setter Property="BorderBrush" Value="DarkGray" />
                         <Setter Property="BorderThickness" Value="0, 1, 0, 1" />
-                        <Setter Property="Background" Value="White" />
+                        <Setter Property="Background" Value="{Binding ThemeBackground, Mode=TwoWay}" />
                         <Style.Triggers>
                             <Trigger Property="IsDragging" Value="True">
                                 <Setter Property="Height" Value="4" />
@@ -187,7 +187,7 @@
                                     <Setter Property="Width" Value="4" />
                                     <Setter Property="BorderBrush" Value="DarkGray" />
                                     <Setter Property="BorderThickness" Value="1, 0, 1, 0" />
-                                    <Setter Property="Background" Value="White" />
+                                    <Setter Property="Background" Value="{Binding ThemeBackground, Mode=TwoWay}" />
                                     <Style.Triggers>
                                         <Trigger Property="IsDragging" Value="True">
                                             <Setter Property="Width" Value="4" />

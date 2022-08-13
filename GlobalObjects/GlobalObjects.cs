@@ -74,7 +74,7 @@ namespace GlobalObjects
                 themeBackground = new MessageBoxColor("#2F2F31").solidColorBrush;
                 themeControlBackground = new MessageBoxColor("#1C1C1D").solidColorBrush;
                 ThemeControlFocusBackground = new MessageBoxColor("#2F2F31").solidColorBrush;
-                themeControlForeground = Brushes.White;
+                themeControlForeground = new SolidColorBrush(Color.FromRgb(220, 220, 220));
                 themeControlBorderBrush = Brushes.Gainsboro;
                 themeControlHoverBorderBrush = Brushes.Gainsboro;
                 ThemeMessageBoxTitlePanelBackgroundBrush = Brushes.DimGray;

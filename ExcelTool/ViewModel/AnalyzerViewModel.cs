@@ -199,6 +199,8 @@ namespace ExcelTool.ViewModel
             BtnSaveClickCommand = new RelayCommand(BtnSaveClick);
 
             ModernWpf.ThemeManager.Current.ActualApplicationThemeChanged += ActualApplicationThemeChanged;
+
+
         }
 
         private void WindowLoaded(RoutedEventArgs e)
@@ -265,7 +267,7 @@ namespace ExcelTool.ViewModel
                         comboBox.ItemsSource = items;
                         CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { comboBox, Application.Current.FindResource("Ok").ToString() }, $"{Application.Current.FindResource("UnblockDllsCopiedFromTheWeb").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                         if (comboBox.SelectedIndex == 0)
-                        { 
+                        {
                             // Do Nothing
                         }
                         else if (comboBox.SelectedIndex == 1)
@@ -353,7 +355,6 @@ namespace ExcelTool.ViewModel
 
             documentViewModel = (DocumentViewModel)editor.DataContext;
 
-            
             ActualApplicationThemeChanged(null, null);
 
             editor.TextArea.SelectionCornerRadius = 0;
@@ -821,6 +822,14 @@ namespace ExcelTool.ViewModel
 
         private void ActualApplicationThemeChanged(ThemeManager themeManager, object obj)
         {
+            //if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
+            //{
+            //    editor.Foreground = Brushes.Black;
+            //}
+            //else if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
+            //{
+            //    editor.Foreground = new SolidColorBrush(Color.FromRgb(220, 220, 220));
+            //}
             if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
             {
                 lightModeDocumentId = editor.Initialize(_host, new ClassificationHighlightColors(),
