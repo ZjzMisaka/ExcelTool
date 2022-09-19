@@ -12,10 +12,10 @@
 
 ### メインインターフェース
 - ドロップダウンボックスから検索情報と処理ロジック（プラグイン）を選択し、1つずつ対応させます。
-- 着信パラメータの設定、検索ルートディレクトリとデフォルトの出力ディレクトリ、出力ファイル名の設定が可能
+- 着信パラメータの設定、検索ルートディレクトリとデフォルトの出力ディレクトリ、出力ファイル名の設定が可能です。
 - 実行モードには、順次実行と同時実行の2つがあります。
-- 上記のコンテンツは、ルールのドロップダウンボックスから保存されたルールを選択することで自動的に入力できます
-    - ルールを選択した後、いくつかのフォルダとファイルを監視するように監視を設定し、変更があったときにこのルールを自動的に実行できます  
+- 上記のコンテンツは、ルールのドロップダウンボックスから保存されたルールを選択することで自動的に入力できます。
+    - ルールを選択した後、いくつかのフォルダとファイルを監視するように監視を設定し、変更があったときにこのルールを自動的に実行できます。  
 
 ### 検索情報設定インターフェース
 **指定されたパスで指定されたExcelファイルを見つける必要がある指定されたシートを設定するために使用されます**
@@ -70,12 +70,12 @@ string LastInputValue { get => lastInputValue; set => lastInputValue = value; }
 // ---- Excelファイルの操作 ----
 // 新しいexcelファイルを作成する
 XLWorkbook CreateWorkbook(string name);
-// CreateWorkbookで作成されたExcelファイルを取得します
+// CreateWorkbookで作成されたExcelファイルを取得する
 XLWorkbook GetWorkbook(string name);
 // シート取得します
 IXLWorksheet GetSheet(string workbookName, string sheetName);
 IXLWorksheet GetSheet(XLWorkbook workbook, string sheetName);
-// 作成されたすべてのexcelファイルを取得します
+// 作成されたすべてのexcelファイルを取得する
 Dictionary<string, XLWorkbook> GetAllWorkbooks();
 // 作成したすべてのExcelファイルをクリアする
 void ClearWorkbooks();
