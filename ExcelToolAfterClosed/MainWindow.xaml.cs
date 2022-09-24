@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static CustomizableMessageBox.MessageBox;
 
 namespace ExcelToolAfterClosed
 {
@@ -52,7 +53,7 @@ namespace ExcelToolAfterClosed
                 }
                 catch (Exception ex)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"Failed to delete dll file. \n{path}\n{ex.Message}\n{ex.StackTrace}", "错误", MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"Failed to delete dll file. \n{path}\n{ex.Message}\n{ex.StackTrace}", "错误", MessageBoxImage.Error);
                 }
             }
 
@@ -84,7 +85,7 @@ namespace ExcelToolAfterClosed
 
                 if (tried == 10)
                 {
-                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new List<Object> { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"Tried 10 times and cannot kill process ExcelTool. \nLog: {message}", "Error", MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"Tried 10 times and cannot kill process ExcelTool. \nLog: {message}", "Error", MessageBoxImage.Error);
                 }
 
                 Thread.Sleep(100);
