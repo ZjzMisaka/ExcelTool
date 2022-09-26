@@ -67,27 +67,54 @@ namespace GlobalObjects
             set { themeMessageBoxTitlePanelBackgroundBrush = value; }
         }
 
+        private static Brush themeMessageBoxTitlePanelBorderBrush;
+        public static Brush ThemeMessageBoxTitlePanelBorderBrush
+        {
+            get { return themeMessageBoxTitlePanelBorderBrush; }
+            set { themeMessageBoxTitlePanelBorderBrush = value; }
+        }
+
+        private static Brush themeSelectionBrush;
+        public static Brush ThemeSelectionBrush
+        {
+            get { return themeSelectionBrush; }
+            set { themeSelectionBrush = value; }
+        }
+
+        private static Brush themeSelectionForeground;
+        public static Brush ThemeSelectionForeground
+        {
+            get { return themeSelectionForeground; }
+            set { themeSelectionForeground = value; }
+        }
+
         public static void SetTheme()
         {
             if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
             {
-                themeBackground = new MessageBoxColor("#2F2F31").solidColorBrush;
-                themeControlBackground = new MessageBoxColor("#1C1C1D").solidColorBrush;
+                ThemeBackground = new MessageBoxColor("#2F2F31").solidColorBrush;
+                ThemeControlBackground = new MessageBoxColor("#1C1C1D").solidColorBrush;
                 ThemeControlFocusBackground = new MessageBoxColor("#2F2F31").solidColorBrush;
-                themeControlForeground = new SolidColorBrush(Color.FromRgb(220, 220, 220));
-                themeControlBorderBrush = Brushes.Gainsboro;
-                themeControlHoverBorderBrush = Brushes.Gainsboro;
+                ThemeControlForeground = new SolidColorBrush(Color.FromRgb(220, 220, 220));
+                ThemeControlBorderBrush = Brushes.Gainsboro;
+                ThemeControlHoverBorderBrush = Brushes.Gainsboro;
                 ThemeMessageBoxTitlePanelBackgroundBrush = Brushes.DimGray;
+                ThemeMessageBoxTitlePanelBorderBrush = Brushes.Gray;
+                ThemeSelectionBrush = new SolidColorBrush(Color.FromArgb(100, 51, 153, 255));
+                ThemeSelectionForeground = new SolidColorBrush(Color.FromRgb(220, 220, 220));
             }
             else
             {
-                themeBackground = Brushes.White;
-                themeControlBackground = Brushes.White;
+                ThemeBackground = Brushes.White;
+                ThemeControlBackground = Brushes.White;
                 ThemeControlFocusBackground = Brushes.White;
-                themeControlForeground = Brushes.Black;
-                themeControlBorderBrush = new MessageBoxColor(ThemeManager.Current.ActualAccentColor).solidColorBrush;
-                themeControlHoverBorderBrush = Brushes.Black;
+                ThemeControlForeground = Brushes.Black;
+                ThemeControlBorderBrush = new MessageBoxColor(ThemeManager.Current.ActualAccentColor).solidColorBrush;
+                ThemeControlHoverBorderBrush = Brushes.Black;
                 ThemeMessageBoxTitlePanelBackgroundBrush = Brushes.LightGray;
+                ThemeMessageBoxTitlePanelBorderBrush = new MessageBoxColor("#FFEFE2E2").solidColorBrush;
+                ThemeSelectionBrush = new SolidColorBrush(Colors.SkyBlue);
+                ThemeSelectionForeground = new SolidColorBrush(Colors.White);
             }
 
         }
@@ -137,7 +164,7 @@ namespace GlobalObjects
                 ps.ButtonFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
                 ps.TitlePanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBackgroundBrush).Color);
                 ps.TitlePanelBorderThickness = new Thickness(0, 0, 0, 2);
-                ps.TitlePanelBorderColor = new MessageBoxColor("#FFEFE2E2");
+                ps.TitlePanelBorderColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBorderBrush).Color);
                 ps.MessagePanelBorderThickness = new Thickness(0);
                 ps.ButtonPanelBorderThickness = new Thickness(0);
                 ps.TitleFontSize = 14;

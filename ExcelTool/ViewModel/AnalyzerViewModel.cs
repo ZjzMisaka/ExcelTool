@@ -1,4 +1,5 @@
 ﻿using CustomizableMessageBox;
+using DocumentFormat.OpenXml.Bibliography;
 using ExcelTool.Helper;
 using GlobalObjects;
 using Highlighting;
@@ -42,8 +43,7 @@ namespace ExcelTool.ViewModel
         private ItemsControl itemsControl;
         private bool loadFailed;
         private DocumentViewModel documentViewModel;
-        private DocumentId darkModeDocumentId;
-        private DocumentId lightModeDocumentId;
+        private DocumentId documentId;
 
         private double windowWidth;
         public double WindowWidth
@@ -200,8 +200,6 @@ namespace ExcelTool.ViewModel
             BtnSaveClickCommand = new RelayCommand(BtnSaveClick);
 
             ModernWpf.ThemeManager.Current.ActualApplicationThemeChanged += ActualApplicationThemeChanged;
-
-
         }
 
         private void WindowLoaded(RoutedEventArgs e)
@@ -359,9 +357,7 @@ namespace ExcelTool.ViewModel
             ActualApplicationThemeChanged(null, null);
 
             editor.TextArea.SelectionCornerRadius = 0;
-            editor.TextArea.SelectionBorder = new Pen(new SolidColorBrush(Colors.Black), 0);
-            editor.TextArea.SelectionBrush = new SolidColorBrush(Color.FromArgb(100, 51, 153, 255));
-            editor.TextArea.SelectionForeground = new SolidColorBrush(Color.FromRgb(220, 220, 220));
+            editor.TextArea.SelectionBorder = new Pen(new SolidColorBrush(Colors.DeepSkyBlue), 1);
             editor.Options.HighlightCurrentLine = true;
             editor.Options.IndentationSize = 4;
             editor.Options.ShowSpaces = true;
@@ -823,26 +819,55 @@ namespace ExcelTool.ViewModel
 
         private void ActualApplicationThemeChanged(ThemeManager themeManager, object obj)
         {
-            //if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
-            //{
-            //    editor.Foreground = Brushes.Black;
-            //}
-            //else if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
-            //{
-            //    editor.Foreground = new SolidColorBrush(Color.FromRgb(220, 220, 220));
-            //}
-            if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
+            if (themeManager == null)
             {
-                lightModeDocumentId = editor.Initialize(_host, new ClassificationHighlightColors(),
+                if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
+                {
+                    documentId = editor.Initialize(_host, new ClassificationHighlightColors(),
                     Directory.GetCurrentDirectory(), string.Empty);
-                documentViewModel.Initialize(lightModeDocumentId);
+                    documentViewModel.Initialize(documentId);
+                }
+                else if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
+                {
+                    documentId = editor.Initialize(_host, new DarkModeHighlightColors(),
+                        Directory.GetCurrentDirectory(), string.Empty);
+                    documentViewModel.Initialize(documentId);
+                }
             }
-            else if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
+            else
             {
-                darkModeDocumentId = editor.Initialize(_host, new DarkModeHighlightColors(),
-                    Directory.GetCurrentDirectory(), string.Empty);
-                documentViewModel.Initialize(darkModeDocumentId);
+                if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
+                {
+                    ClassificationHighlightColors classificationHighlightColors = new ClassificationHighlightColors();
+
+                    FieldInfo classificationHighlightColorsFieldInfo = editor.GetType().GetField("_classificationHighlightColors",
+                        BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.ExactBinding);
+                    classificationHighlightColorsFieldInfo.SetValue(editor, classificationHighlightColors);
+
+                    FieldInfo braceMatcherHighlighterFieldInfo = editor.GetType().GetField("_braceMatcherHighlighter",
+                        BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.ExactBinding);
+                    braceMatcherHighlighterFieldInfo.SetValue(editor, new BraceMatcherHighlightRenderer(editor.TextArea.TextView, classificationHighlightColors));
+
+                    editor.RefreshHighlighting();
+                }
+                else if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
+                {
+                    DarkModeHighlightColors darkModeHighlightColors = new DarkModeHighlightColors();
+
+                    FieldInfo classificationHighlightColorsFieldInfo = editor.GetType().GetField("_classificationHighlightColors",
+                        BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.ExactBinding);
+                    classificationHighlightColorsFieldInfo.SetValue(editor, darkModeHighlightColors);
+
+                    FieldInfo braceMatcherHighlighterFieldInfo = editor.GetType().GetField("_braceMatcherHighlighter",
+                        BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.ExactBinding);
+                    braceMatcherHighlighterFieldInfo.SetValue(editor, new BraceMatcherHighlightRenderer(editor.TextArea.TextView, darkModeHighlightColors));
+
+                    editor.RefreshHighlighting();
+                }
             }
+
+            editor.TextArea.SelectionBrush = Theme.ThemeSelectionBrush;
+            editor.TextArea.SelectionForeground = Theme.ThemeSelectionForeground;
         }
 
         public class DocumentViewModel : INotifyPropertyChanged
