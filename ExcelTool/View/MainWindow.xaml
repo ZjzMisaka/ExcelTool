@@ -48,7 +48,7 @@
                     </MenuItem>
                     <MenuItem Header="{DynamicResource MenuHelp}">
                         <MenuItem Header="{DynamicResource MenuSetting}">
-                            <MenuItem Header="Theme" Command="{Binding ChangeThemeCommand}" />
+                            <MenuItem Header="{DynamicResource MenuTheme}" Command="{Binding ChangeThemeCommand}" />
                             <MenuItem Header="{DynamicResource MenuLanguage}" Command="{Binding ChangeLanguageCommand}" />
                             <MenuItem Header="{DynamicResource MenuDLLSecurityCheck}" Command="{Binding MenuDllSecurityCheckCommand}" />
                             <MenuItem Header="{DynamicResource MenuThreadRelated}">

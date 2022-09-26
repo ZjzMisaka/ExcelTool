@@ -790,6 +790,12 @@ namespace ExcelTool.ViewModel
             {
                 string language = cultureDic[comboBox.SelectedItem.ToString()];
                 ChangeLanguage(language, dictionaryList);
+                CustomizableMessageBox.MessageBox.TitleText = Application.Current.FindResource("Setting").ToString();
+                CustomizableMessageBox.MessageBox.MessageText = Application.Current.FindResource("SetLanguage").ToString();
+                RefreshList refreshList = CustomizableMessageBox.MessageBox.ButtonList;
+                refreshList[2] = Application.Current.FindResource("Ok").ToString();
+                refreshList[3] = Application.Current.FindResource("Cancel").ToString();
+                CustomizableMessageBox.MessageBox.ButtonList = refreshList;
             };
             int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { comboBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("SetLanguage").ToString(), Application.Current.FindResource("Setting").ToString());
             if (res == 3)
