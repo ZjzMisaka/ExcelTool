@@ -568,6 +568,16 @@ namespace ExcelTool.ViewModel
             }
             ChangeLanguage(language, dictionaryList);
 
+            if (IniHelper.GetTheme() == "Light")
+            {
+                ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
+            }
+            else if(IniHelper.GetTheme() == "Dark")
+            {
+                ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+            }
+            ActualApplicationThemeChanged(null, null);
+
             IniHelper.CheckAndCreateIniFile();
 
             double width = IniHelper.GetWindowSize(WindowName).X;
@@ -587,8 +597,6 @@ namespace ExcelTool.ViewModel
                     window.Height = height;
                 });
             }
-
-            ActualApplicationThemeChanged(null, null);
 
             TbBasePathText = IniHelper.GetBasePath();
             TbOutputPathText = IniHelper.GetOutputPath();
@@ -757,10 +765,12 @@ namespace ExcelTool.ViewModel
             if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
             {
                 ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+                IniHelper.SetTheme("Dark");
             }
             else if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
             {
                 ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
+                IniHelper.SetTheme("Light");
             }
         }
 
@@ -1131,7 +1141,7 @@ namespace ExcelTool.ViewModel
                 style.Setters.Add(new Setter(GridSplitter.WidthProperty, 4d));
                 style.Setters.Add(new Setter(GridSplitter.BorderBrushProperty, Brushes.DarkGray));
                 style.Setters.Add(new Setter(GridSplitter.BorderThicknessProperty, new Thickness(1, 0, 1, 0)));
-                style.Setters.Add(new Setter(GridSplitter.BackgroundProperty, Brushes.White));
+                style.Setters.Add(new Setter(GridSplitter.BackgroundProperty, ThemeBackground));
                 MultiDataTrigger triggerIsDragging = new MultiDataTrigger();
                 Condition conditionIsDragging = new Condition();
                 conditionIsDragging.Binding = new Binding() { Path = new PropertyPath("IsDragging"), RelativeSource = RelativeSource.Self };

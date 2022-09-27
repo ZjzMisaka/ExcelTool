@@ -168,7 +168,7 @@ namespace GlobalObjects
                 ps.MessagePanelBorderThickness = new Thickness(0);
                 ps.ButtonPanelBorderThickness = new Thickness(0);
                 ps.TitleFontSize = 14;
-                ps.TitleFontColor = new MessageBoxColor(Colors.Black);
+                ps.TitleFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
                 ps.MessageFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
                 ps.MessageFontSize = 14;
                 ps.ButtonFontSize = 16;
@@ -188,30 +188,8 @@ namespace GlobalObjects
         {
             if (psWithTimmer == null)
             {
-                psWithTimmer = new PropertiesSetter();
-                psWithTimmer.WndBorderThickness = new Thickness(1);
-                psWithTimmer.WndBorderColor = new MessageBoxColor(Colors.LightGray);
-                psWithTimmer.ButtonPanelColor = new MessageBoxColor("White");
-                psWithTimmer.MessagePanelColor = new MessageBoxColor("White");
-                psWithTimmer.TitlePanelColor = new MessageBoxColor(Colors.LightGray);
-                psWithTimmer.TitlePanelBorderThickness = new Thickness(0, 0, 0, 2);
-                psWithTimmer.TitlePanelBorderColor = new MessageBoxColor("#FFEFE2E2");
-                psWithTimmer.MessagePanelBorderThickness = new Thickness(0);
-                psWithTimmer.ButtonPanelBorderThickness = new Thickness(0);
-                psWithTimmer.TitleFontSize = 14;
-                psWithTimmer.TitleFontColor = new MessageBoxColor(Colors.Black);
-                psWithTimmer.MessageFontColor = new MessageBoxColor(Colors.Black);
-                psWithTimmer.MessageFontSize = 14;
-                psWithTimmer.ButtonFontSize = 16;
-                psWithTimmer.ButtonBorderThickness = new Thickness(1);
-                psWithTimmer.ButtonBorderColor = new MessageBoxColor(Colors.LightGray);
-                psWithTimmer.WindowMinHeight = 200;
-                psWithTimmer.LockHeight = false;
-                psWithTimmer.WindowWidth = 450;
-                psWithTimmer.WindowShowDuration = new Duration(new TimeSpan(0, 0, 0, 0, 300));
+                psWithTimmer = new PropertiesSetter(GetPropertiesSetter());
                 psWithTimmer.CloseTimer = new MessageBoxCloseTimer(1, 0);
-                psWithTimmer.ButtonMarginList = new List<Thickness>() { new Thickness(5) };
-                psWithTimmer.ButtonHeightList = new List<double>() { 30 };
             }
 
             return psWithTimmer;

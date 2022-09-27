@@ -40,6 +40,7 @@ namespace ExcelTool
             parsedINIDataToBeSaved["Window"].AddKey("SheetExplainerEditorHeight", "450");
             parsedINIDataToBeSaved["Window"].AddKey("IsExecuteInSequence", "False");
             parsedINIDataToBeSaved["Window"].AddKey("IsAutoOpen", "False");
+            parsedINIDataToBeSaved["Window"].AddKey("Theme", "Light");
             parsedINIDataToBeSaved["Window"].AddKey("Language", Thread.CurrentThread.CurrentUICulture.Name);
             parsedINIDataToBeSaved.Sections.AddSection("Value");
             parsedINIDataToBeSaved["Value"].AddKey("DefaultBasePath", "");
@@ -299,6 +300,31 @@ namespace ExcelTool
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
             return bool.Parse(data["Window"]["IsAutoOpen"]);
+        }
+
+        public static void SetTheme(string theme)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Window"]["Theme"] = theme;
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static string GetTheme()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return "Light";
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return data["Window"]["Theme"];
         }
 
         public static void SetLanguage(String language)

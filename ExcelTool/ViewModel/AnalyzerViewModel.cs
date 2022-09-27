@@ -513,6 +513,8 @@ namespace ExcelTool.ViewModel
             textEditorL.ShowLineNumbers = true;
             textEditorL.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
             textEditorL.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorL.Background = Theme.ThemeControlBackground;
+            textEditorL.Foreground = Theme.ThemeControlForeground;
             if (paramDicForChange != null && paramDicForChange.Keys != null && paramDicForChange.Keys.Count > 0)
             {
                 foreach (string str in paramDicForChange.Keys)
@@ -542,6 +544,8 @@ namespace ExcelTool.ViewModel
             textEditorM.ShowLineNumbers = true;
             textEditorM.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
             textEditorM.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorM.Background = Theme.ThemeControlBackground;
+            textEditorM.Foreground = Theme.ThemeControlForeground;
             if (paramDicForChange != null && paramDicForChange.Keys != null && paramDicForChange.Keys.Count > 0)
             {
                 foreach (ParamInfo paramInfo in paramDicForChange.Values)
@@ -571,6 +575,8 @@ namespace ExcelTool.ViewModel
             textEditorR.ShowLineNumbers = true;
             textEditorR.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
             textEditorR.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorR.Background = Theme.ThemeControlBackground;
+            textEditorR.Foreground = Theme.ThemeControlForeground;
             if (paramDicForChange != null && paramDicForChange.Keys != null && paramDicForChange.Keys.Count > 0)
             {
                 foreach (ParamInfo paramInfo in paramDicForChange.Values)
