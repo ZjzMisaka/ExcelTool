@@ -267,6 +267,7 @@ namespace ExcelTool.ViewModel
                         items.Add(Application.Current.FindResource("BanSecurityCheckWithoutRestart").ToString());
                         items.Add(Application.Current.FindResource("BanSecurityCheckWithRestart").ToString());
                         comboBox.ItemsSource = items;
+                        comboBox.SelectedIndex = 0;
                         CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { comboBox, Application.Current.FindResource("Ok").ToString() }, $"{Application.Current.FindResource("UnblockDllsCopiedFromTheWeb").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                         if (comboBox.SelectedIndex == 0)
                         {

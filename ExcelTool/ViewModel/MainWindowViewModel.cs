@@ -996,13 +996,27 @@ namespace ExcelTool.ViewModel
         private void BtnOpenSheetExplainerEditorClick()
         {
             SheetExplainerEditor sheetExplainerEditor = new SheetExplainerEditor();
-            sheetExplainerEditor.Show();
+            try
+            {
+                sheetExplainerEditor.Show();
+            }
+            catch
+            {
+                // Do nothing
+            }
         }
 
         private void BtnOpenAnalyzerEditorClick()
         {
             AnalyzerEditor analyzerEditor = new AnalyzerEditor();
-            analyzerEditor.Show();
+            try
+            {
+                analyzerEditor.Show();
+            }
+            catch
+            { 
+                // Do nothing
+            }
         }
 
         private void CbSheetExplainersPreviewMouseLeftButtonDown()
