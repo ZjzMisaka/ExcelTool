@@ -334,22 +334,27 @@ namespace ExcelTool.ViewModel
             if (((MenuItem)sender).Name == "menu_show_spaces")
             {
                 editor.Options.ShowSpaces = !editor.Options.ShowSpaces;
+                IniHelper.SetShowSpaces(editor.Options.ShowSpaces);
             }
             else if (((MenuItem)sender).Name == "menu_show_tabs")
             {
                 editor.Options.ShowTabs = !editor.Options.ShowTabs;
+                IniHelper.SetShowTabs(editor.Options.ShowTabs);
             }
             else if (((MenuItem)sender).Name == "menu_show_end_of_line")
             {
                 editor.Options.ShowEndOfLine = !editor.Options.ShowEndOfLine;
+                IniHelper.SetShowEndOfLine(editor.Options.ShowEndOfLine);
             }
             else if (((MenuItem)sender).Name == "menu_show_box_for_control_characters")
             {
                 editor.Options.ShowBoxForControlCharacters = !editor.Options.ShowBoxForControlCharacters;
+                IniHelper.SetShowBoxForControlCharacters(editor.Options.ShowBoxForControlCharacters);
             }
             else if (((MenuItem)sender).Name == "menu_enable_hyperlinks")
             {
                 editor.Options.EnableHyperlinks = !editor.Options.EnableHyperlinks;
+                IniHelper.SetEnableHyperlinks(editor.Options.EnableHyperlinks);
             }
             else if (((MenuItem)sender).Name == "menu_indentation_size")
             {
@@ -371,26 +376,33 @@ namespace ExcelTool.ViewModel
                 {
                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                 }
+
+                IniHelper.SetIndentationSize(editor.Options.IndentationSize);
             }
             else if (((MenuItem)sender).Name == "menu_convert_tabs_to_spaces")
             {
                 editor.Options.ConvertTabsToSpaces = !editor.Options.ConvertTabsToSpaces;
+                IniHelper.SetConvertTabsToSpaces(editor.Options.ConvertTabsToSpaces);
             }
             else if (((MenuItem)sender).Name == "menu_highlight_current_line")
             {
                 editor.Options.HighlightCurrentLine = !editor.Options.HighlightCurrentLine;
+                IniHelper.SetHighlightCurrentLine(editor.Options.HighlightCurrentLine);
             }
             else if (((MenuItem)sender).Name == "menu_hide_cursor_while_typing")
             {
                 editor.Options.HideCursorWhileTyping = !editor.Options.HideCursorWhileTyping;
+                IniHelper.SetHideCursorWhileTyping(editor.Options.HideCursorWhileTyping);
             }
             else if (((MenuItem)sender).Name == "menu_word_wrap")
             {
                 editor.WordWrap = !editor.WordWrap;
+                IniHelper.SetWordWrap(editor.WordWrap);
             }
             else if (((MenuItem)sender).Name == "menu_show_line_numbers")
             {
                 editor.ShowLineNumbers = !editor.ShowLineNumbers;
+                IniHelper.SetShowLineNumbers(editor.ShowLineNumbers);
             }
         }
 
@@ -430,11 +442,25 @@ namespace ExcelTool.ViewModel
 
             editor.TextArea.SelectionCornerRadius = 0;
             editor.TextArea.SelectionBorder = new Pen(new SolidColorBrush(Colors.DeepSkyBlue), 1);
-            editor.Options.HighlightCurrentLine = true;
-            editor.Options.IndentationSize = 4;
-            editor.Options.ShowSpaces = true;
+
+            InitEditor();
 
             editor.Text = GlobalObjects.GlobalObjects.GetDefaultCode();
+        }
+
+        private void InitEditor()
+        {
+            editor.Options.ShowSpaces = IniHelper.GetShowSpaces();
+            editor.Options.ShowTabs = IniHelper.GetShowTabs();
+            editor.Options.ShowEndOfLine = IniHelper.GetShowEndOfLine();
+            editor.Options.ShowBoxForControlCharacters = IniHelper.GetShowBoxForControlCharacters();
+            editor.Options.EnableHyperlinks = IniHelper.GetEnableHyperlinks();
+            editor.Options.IndentationSize = IniHelper.GetIndentationSize();
+            editor.Options.ConvertTabsToSpaces = IniHelper.GetConvertTabsToSpaces();
+            editor.Options.HighlightCurrentLine = IniHelper.GetHighlightCurrentLine();
+            editor.Options.HideCursorWhileTyping = IniHelper.GetHideCursorWhileTyping();
+            editor.WordWrap = IniHelper.GetWordWrap();
+            editor.ShowLineNumbers = IniHelper.GetShowLineNumbers();
         }
 
         private void SaveByKeyDown()

@@ -1,4 +1,5 @@
-﻿using IniParser;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using IniParser;
 using IniParser.Model;
 using System;
 using System.Collections.Generic;
@@ -48,6 +49,18 @@ namespace ExcelTool
             parsedINIDataToBeSaved["Value"].AddKey("DefaultOutputFileName", "Output");
             parsedINIDataToBeSaved.Sections.AddSection("Check");
             parsedINIDataToBeSaved["Check"].AddKey("SecurityCheck", "True");
+            parsedINIDataToBeSaved.Sections.AddSection("Editor");
+            parsedINIDataToBeSaved["Editor"].AddKey("ShowSpaces", "False");
+            parsedINIDataToBeSaved["Editor"].AddKey("ShowTabs", "False");
+            parsedINIDataToBeSaved["Editor"].AddKey("ShowEndOfLine", "False");
+            parsedINIDataToBeSaved["Editor"].AddKey("ShowBoxForControlCharacters", "False");
+            parsedINIDataToBeSaved["Editor"].AddKey("EnableHyperlinks", "True");
+            parsedINIDataToBeSaved["Editor"].AddKey("IndentationSize", "4");
+            parsedINIDataToBeSaved["Editor"].AddKey("ConvertTabsToSpaces", "True");
+            parsedINIDataToBeSaved["Editor"].AddKey("HighlightCurrentLine", "True");
+            parsedINIDataToBeSaved["Editor"].AddKey("HideCursorWhileTyping", "False");
+            parsedINIDataToBeSaved["Editor"].AddKey("WordWrap", "True");
+            parsedINIDataToBeSaved["Editor"].AddKey("ShowLineNumbers", "True");
 
 
             //保存文件
@@ -78,6 +91,7 @@ namespace ExcelTool
             IniData data = parser.ReadFile("Setting.ini");
             return Int32.Parse(data["Thread"]["MaxThreadCount"]);
         }
+
         public static void SetTotalTimeoutLimitAnalyze(int count)
         {
             if (!File.Exists("Setting.ini"))
@@ -455,6 +469,281 @@ namespace ExcelTool
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
             return bool.Parse(data["Check"]["SecurityCheck"]);
+        }
+
+        public static void SetShowSpaces(bool showSpaces)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Editor"]["ShowSpaces"] = showSpaces.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetShowSpaces()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return true;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Editor"]["ShowSpaces"]);
+        }
+
+        public static void SetShowTabs(bool showTabs)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Editor"]["ShowTabs"] = showTabs.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetShowTabs()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return true;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Editor"]["ShowTabs"]);
+        }
+
+        public static void SetShowEndOfLine(bool showEndOfLine)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Editor"]["ShowEndOfLine"] = showEndOfLine.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetShowEndOfLine()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return true;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Editor"]["ShowEndOfLine"]);
+        }
+
+        public static void SetShowBoxForControlCharacters(bool showBoxForControlCharacters)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Editor"]["ShowBoxForControlCharacters"] = showBoxForControlCharacters.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetShowBoxForControlCharacters()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return true;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Editor"]["ShowBoxForControlCharacters"]);
+        }
+
+        public static void SetEnableHyperlinks(bool enableHyperlinks)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Editor"]["EnableHyperlinks"] = enableHyperlinks.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetEnableHyperlinks()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return true;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Editor"]["EnableHyperlinks"]);
+        }
+
+        public static void SetIndentationSize(int indentationSize)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Editor"]["IndentationSize"] = indentationSize.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static int GetIndentationSize()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return -1;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return Int32.Parse(data["Editor"]["IndentationSize"]);
+        }
+
+        public static void SetConvertTabsToSpaces(bool convertTabsToSpaces)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Editor"]["ConvertTabsToSpaces"] = convertTabsToSpaces.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetConvertTabsToSpaces()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return true;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Editor"]["ConvertTabsToSpaces"]);
+        }
+
+        public static void SetHighlightCurrentLine(bool highlightCurrentLine)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Editor"]["HighlightCurrentLine"] = highlightCurrentLine.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetHighlightCurrentLine()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return true;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Editor"]["HighlightCurrentLine"]);
+        }
+
+        public static void SetHideCursorWhileTyping(bool hideCursorWhileTyping)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Editor"]["HideCursorWhileTyping"] = hideCursorWhileTyping.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetHideCursorWhileTyping()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return true;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Editor"]["HideCursorWhileTyping"]);
+        }
+
+        public static void SetWordWrap(bool wordWrap)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Editor"]["WordWrap"] = wordWrap.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetWordWrap()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return true;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Editor"]["WordWrap"]);
+        }
+
+        public static void SetShowLineNumbers(bool showLineNumbers)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Editor"]["ShowLineNumbers"] = showLineNumbers.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetShowLineNumbers()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return true;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Editor"]["ShowLineNumbers"]);
         }
     }
 }
