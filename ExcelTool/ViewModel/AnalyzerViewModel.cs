@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -167,6 +168,7 @@ namespace ExcelTool.ViewModel
 
         public ICommand WindowLoadedCommand { get; set; }
         public ICommand WindowClosingCommand { get; set; }
+        public ICommand MenuOpenCommand { get; set; }
         public ICommand WindowSizeChangedCommand { get; set; }
         public ICommand WindowStateChangedCommand { get; set; }
         public ICommand WindowContentRenderedCommand { get; set; }
@@ -187,6 +189,7 @@ namespace ExcelTool.ViewModel
 
             WindowLoadedCommand = new RelayCommand<RoutedEventArgs>(WindowLoaded);
             WindowClosingCommand = new RelayCommand<CancelEventArgs>(WindowClosing);
+            MenuOpenCommand = new RelayCommand<object>(MenuOpen);
             WindowSizeChangedCommand = new RelayCommand(WindowSizeChanged);
             WindowStateChangedCommand = new RelayCommand(WindowStateChanged);
             WindowContentRenderedCommand = new RelayCommand(WindowContentRendered);
@@ -320,6 +323,75 @@ namespace ExcelTool.ViewModel
         private void WindowClosing(CancelEventArgs e)
         {
             IniHelper.SetWindowSize(WindowName, new Point(WindowActualWidth, WindowActualHeight));
+        }
+
+        private void MenuOpen(object sender)
+        {
+            if (editor == null)
+            {
+                return;
+            }
+            if (((MenuItem)sender).Name == "menu_show_spaces")
+            {
+                editor.Options.ShowSpaces = !editor.Options.ShowSpaces;
+            }
+            else if (((MenuItem)sender).Name == "menu_show_tabs")
+            {
+                editor.Options.ShowTabs = !editor.Options.ShowTabs;
+            }
+            else if (((MenuItem)sender).Name == "menu_show_end_of_line")
+            {
+                editor.Options.ShowEndOfLine = !editor.Options.ShowEndOfLine;
+            }
+            else if (((MenuItem)sender).Name == "menu_show_box_for_control_characters")
+            {
+                editor.Options.ShowBoxForControlCharacters = !editor.Options.ShowBoxForControlCharacters;
+            }
+            else if (((MenuItem)sender).Name == "menu_enable_hyperlinks")
+            {
+                editor.Options.EnableHyperlinks = !editor.Options.EnableHyperlinks;
+            }
+            else if (((MenuItem)sender).Name == "menu_indentation_size")
+            {
+                TextBox textBox = new TextBox();
+                textBox.Margin = new Thickness(5);
+                textBox.Height = 30;
+                textBox.VerticalContentAlignment = VerticalAlignment.Center;
+                textBox.Text = editor.Options.IndentationSize.ToString();
+                int res = CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { textBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("IndentationSize").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+                try
+                {
+                    editor.Options.IndentationSize = int.Parse(textBox.Text.Trim());
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                }
+            }
+            else if (((MenuItem)sender).Name == "menu_convert_tabs_to_spaces")
+            {
+                editor.Options.ConvertTabsToSpaces = !editor.Options.ConvertTabsToSpaces;
+            }
+            else if (((MenuItem)sender).Name == "menu_highlight_current_line")
+            {
+                editor.Options.HighlightCurrentLine = !editor.Options.HighlightCurrentLine;
+            }
+            else if (((MenuItem)sender).Name == "menu_hide_cursor_while_typing")
+            {
+                editor.Options.HideCursorWhileTyping = !editor.Options.HideCursorWhileTyping;
+            }
+            else if (((MenuItem)sender).Name == "menu_word_wrap")
+            {
+                editor.WordWrap = !editor.WordWrap;
+            }
+            else if (((MenuItem)sender).Name == "menu_show_line_numbers")
+            {
+                editor.ShowLineNumbers = !editor.ShowLineNumbers;
+            }
         }
 
         private void WindowSizeChanged()
@@ -736,7 +808,7 @@ namespace ExcelTool.ViewModel
         {
             if (editor != null && WindowNowState != WindowState.Minimized)
             {
-                editor.Height = WindowActualHeight - 100;
+                editor.Height = WindowActualHeight - 155;
             }
         }
 

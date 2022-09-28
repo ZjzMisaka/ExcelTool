@@ -40,6 +40,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
             <RowDefinition/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
@@ -47,10 +48,31 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <ComboBox Name="cb_analyzers" ItemsSource="{Binding AnalyzersItems, Mode=TwoWay}" SelectedIndex="{Binding SelectedAnalyzersIndex, Mode=TwoWay}" SelectedItem="{Binding SelectedAnalyzersItem, Mode=TwoWay}" Grid.Row="0" Margin="10 2" Width="300" VerticalContentAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" Grid.ColumnSpan="2" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbAnalyzersPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbAnalyzersSelectionChangedCommand}" />
-        <Button Name="btn_delete" Content="{DynamicResource Delete}" IsEnabled="{Binding BtnDeleteIsEnabled}" Width="50" Grid.Row="0" Grid.ColumnSpan="2" Margin="10 2" HorizontalAlignment="Right" Command="{Binding BtnDeleteClickCommand}"/>
-        <Button Name="btn_editparam" Content="{DynamicResource EditParameter}" IsEnabled="{Binding BtnEditParamIsEnabled}" Width="auto" Grid.Row="0" Grid.ColumnSpan="2" Margin="10 2 70 2" HorizontalAlignment="Right" Command="{Binding BtnEditParamClickCommand}"/>
-        <ItemsControl Name="items" ItemsSource="{Binding ItemsSource}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+        <DockPanel Grid.Row="0" Grid.ColumnSpan="2" Margin="10, 0">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="{DynamicResource MenuSetting}">
+                    <MenuItem Header="{DynamicResource MenuShowSpaces}" Name="menu_show_spaces" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                    <MenuItem Header="{DynamicResource MenuShowTabs}" Name="menu_show_tabs" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                    <MenuItem Header="{DynamicResource MenuShowEndOfLine}" Name="menu_show_end_of_line" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                    <MenuItem Header="{DynamicResource MenuShowBoxForControlCharacters}" Name="menu_show_box_for_control_characters" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                    <Separator />
+                    <MenuItem Header="{DynamicResource MenuEnableHyperlinks}" Name="menu_enable_hyperlinks" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                    <Separator />
+                    <MenuItem Header="{DynamicResource MenuIndentationSize}" Name="menu_indentation_size" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                    <MenuItem Header="{DynamicResource MenuConvertTabsToSpaces}" Name="menu_convert_tabs_to_spaces" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                    <Separator />
+                    <MenuItem Header="{DynamicResource MenuHighlightCurrentLine}" Name="menu_highlight_current_line" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                    <MenuItem Header="{DynamicResource MenuHideCursorWhileTyping}" Name="menu_hide_cursor_while_typing" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                    <Separator />
+                    <MenuItem Header="{DynamicResource MenuWordWrap}" Name="menu_word_wrap" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                    <MenuItem Header="{DynamicResource MenuShowLineNumbers}" Name="menu_show_line_numbers" Command="{Binding MenuOpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+        <ComboBox Name="cb_analyzers" ItemsSource="{Binding AnalyzersItems, Mode=TwoWay}" SelectedIndex="{Binding SelectedAnalyzersIndex, Mode=TwoWay}" SelectedItem="{Binding SelectedAnalyzersItem, Mode=TwoWay}" Grid.Row="1" Margin="10 2" Width="300" VerticalContentAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" Grid.ColumnSpan="2" Behavior:PreviewMouseLeftButtonDown.Command="{Binding CbAnalyzersPreviewMouseLeftButtonDownCommand}" Behavior:SelectionChanged.Command="{Binding CbAnalyzersSelectionChangedCommand}" />
+        <Button Name="btn_delete" Content="{DynamicResource Delete}" IsEnabled="{Binding BtnDeleteIsEnabled}" Width="50" Grid.Row="1" Grid.ColumnSpan="2" Margin="10 2" HorizontalAlignment="Right" Command="{Binding BtnDeleteClickCommand}"/>
+        <Button Name="btn_editparam" Content="{DynamicResource EditParameter}" IsEnabled="{Binding BtnEditParamIsEnabled}" Width="auto" Grid.Row="1" Grid.ColumnSpan="2" Margin="10 2 70 2" HorizontalAlignment="Right" Command="{Binding BtnEditParamClickCommand}"/>
+        <ItemsControl Name="items" ItemsSource="{Binding ItemsSource}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Loaded">
                     <local:EventCommandAction Command="{Binding ItemLoadedCommand}" />
@@ -64,8 +86,8 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Button Name="btn_save" Grid.Row="2" Grid.Column="0" Content="{DynamicResource Save}" Command="{Binding BtnSaveClickCommand}" Margin="10 2" HorizontalAlignment="Stretch"/>
-        <Button Name="btn_exit" Grid.Row="2" Grid.Column="1" Content="{DynamicResource Close}" Command="{Binding BtnExitClickCommand}" Margin="10 2" HorizontalAlignment="Stretch">
+        <Button Name="btn_save" Grid.Row="3" Grid.Column="0" Content="{DynamicResource Save}" Command="{Binding BtnSaveClickCommand}" Margin="10 2" HorizontalAlignment="Stretch"/>
+        <Button Name="btn_exit" Grid.Row="3" Grid.Column="1" Content="{DynamicResource Close}" Command="{Binding BtnExitClickCommand}" Margin="10 2" HorizontalAlignment="Stretch">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Click">
                     <i:CallMethodAction MethodName="Close"
