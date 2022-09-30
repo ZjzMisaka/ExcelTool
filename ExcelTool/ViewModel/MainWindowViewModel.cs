@@ -2298,8 +2298,8 @@ namespace ExcelTool.ViewModel
                 {
                     string filePath = methodResult[ReadFileReturnType.FILEPATH].ToString();
                     analyzerListForSetResult.TryAdd(filePath, (Analyzer)methodResult[ReadFileReturnType.ANALYZER]);
-                    long value;
-                    currentAnalizingDictionary.TryRemove(filePath, out value);
+
+                    currentAnalizingDictionary.TryRemove(filePath, out _);
                 }
             };
             RenewSmartThreadPoolAnalyze(stpAnalyze);
@@ -2318,8 +2318,7 @@ namespace ExcelTool.ViewModel
                     Logger.Error(ex.Message + "\n" + ex.StackTrace);
                 }
 
-                long value;
-                currentOutputtingDictionary.TryRemove(filePath, out value);
+                currentOutputtingDictionary.TryRemove(filePath, out _);
             };
             RenewSmartThreadPoolOutput(stpOutput);
 
@@ -2332,10 +2331,10 @@ namespace ExcelTool.ViewModel
                 SheetExplainer sheetExplainer = sheetExplainers[i];
                 Analyzer analyzer = analyzers[i];
 
-                List<String> allFilePathList = new List<String>();
-                foreach (String str in sheetExplainer.pathes)
+                List<string> allFilePathList = new List<string>();
+                foreach (string str in sheetExplainer.pathes)
                 {
-                    List<String> filePathList = new List<String>();
+                    List<string> filePathList = new List<string>();
                     string basePathTemp = "";
                     if (Path.IsPathRooted(str))
                     {
@@ -2413,24 +2412,24 @@ namespace ExcelTool.ViewModel
                     await Task.Delay(freshInterval);
                 }
 
-                List<String> filePathListFromSheetExplainer = filePathListDic[sheetExplainer];
+                List<string> filePathListFromSheetExplainer = filePathListDic[sheetExplainer];
                 totalCount += filePathListFromSheetExplainer.Count;
 
                 int filesCount = filePathListFromSheetExplainer.Count;
-                foreach (String filePath in filePathListFromSheetExplainer)
+                foreach (string filePath in filePathListFromSheetExplainer)
                 {
-                    List<String> pathSplit = filePath.Split('\\').ToList<string>();
-                    String fileName = pathSplit[pathSplit.Count - 1];
+                    List<string> pathSplit = filePath.Split('\\').ToList<string>();
+                    string fileName = pathSplit[pathSplit.Count - 1];
                     fileName = fileName.Substring(0, fileName.LastIndexOf('.'));
                     List<object> readFileParams = new List<object>();
                     readFileParams.Add(filePath);
-                    readFileParams.Add(fileName);
+                    readFileParams.Add(i);
                     readFileParams.Add(sheetExplainer);
                     readFileParams.Add(analyzer);
                     readFileParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name));
                     readFileParams.Add(isExecuteInSequence);
                     readFileParams.Add(cresult);
-                    smartThreadPoolAnalyze.QueueWorkItem(new Func<List<object>, Object>(ReadFile), readFileParams);
+                    smartThreadPoolAnalyze.QueueWorkItem(new Func<List<object>, object>(ReadFile), readFileParams);
                 }
             }
 
@@ -2476,11 +2475,11 @@ namespace ExcelTool.ViewModel
                                 smartThreadPoolAnalyze.Dispose();
                                 if (!isAuto)
                                 {
-                                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                                    CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{key.Split('|')[1]}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                                 }
                                 else
                                 {
-                                    Logger.Error($"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
+                                    Logger.Error($"{key.Split('|')[1]}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)");
                                 }
                                 FinishRunning(true);
                                 return false;
@@ -2596,11 +2595,11 @@ namespace ExcelTool.ViewModel
                                     smartThreadPoolOutput.Dispose();
                                     if (!isAuto)
                                     {
-                                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                                        CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{key.Split('|')[1]}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                                     }
                                     else
                                     {
-                                        Logger.Error($"{key}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)");
+                                        Logger.Error($"{key.Split('|')[1]}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)");
                                     }
                                     FinishRunning(true);
                                     return false;
@@ -2985,17 +2984,17 @@ namespace ExcelTool.ViewModel
             return vHandle == HFILE_ERROR;
         }
 
-        private ConcurrentDictionary<ReadFileReturnType, Object> ReadFile(List<object> readFileParams)
+        private ConcurrentDictionary<ReadFileReturnType, object> ReadFile(List<object> readFileParams)
         {
-            String filePath = (String)readFileParams[0];
-            String fileName = (String)readFileParams[1];
+            string filePath = (string)readFileParams[0];
+            int sheetExplainerIndex = (int)readFileParams[1];
             SheetExplainer sheetExplainer = (SheetExplainer)readFileParams[2];
             Analyzer analyzer = (Analyzer)readFileParams[3];
             Param param = (Param)readFileParams[4];
             bool isExecuteInSequence = (bool)readFileParams[5];
             CompilerResults cresult = (CompilerResults)readFileParams[6];
 
-            ConcurrentDictionary<ReadFileReturnType, Object> methodResult = new ConcurrentDictionary<ReadFileReturnType, object>();
+            ConcurrentDictionary<ReadFileReturnType, object> methodResult = new ConcurrentDictionary<ReadFileReturnType, object>();
             methodResult.AddOrUpdate(ReadFileReturnType.ANALYZER, analyzer, (key, oldValue) => null);
 
             if (filePath.Contains("~$") || isFileUsing(filePath))
@@ -3003,6 +3002,8 @@ namespace ExcelTool.ViewModel
                 Logger.Error(Application.Current.FindResource("FileIsInUse").ToString().Replace("{0}", filePath));
                 return methodResult;
             }
+
+            currentAnalizingDictionary.AddOrUpdate(sheetExplainerIndex + "|" + filePath, GetNowSs(), (key, oldValue) => GetNowSs());
 
             XLWorkbook workbook = null;
 
@@ -3012,11 +3013,10 @@ namespace ExcelTool.ViewModel
             }
             catch
             {
+                currentAnalizingDictionary.TryRemove(sheetExplainerIndex + "|" + filePath, out _);
                 Logger.Error(Application.Current.FindResource("FileIsDamaged").ToString().Replace("{0}", filePath));
                 return methodResult;
             }
-
-            currentAnalizingDictionary.AddOrUpdate(filePath, GetNowSs(), (key, oldValue) => GetNowSs());
 
             foreach (IXLWorksheet sheet in workbook.Worksheets)
             {
@@ -3060,7 +3060,7 @@ namespace ExcelTool.ViewModel
                     }
                 }
             }
-            methodResult.AddOrUpdate(ReadFileReturnType.FILEPATH, filePath, (key, oldValue) => null);
+            methodResult.AddOrUpdate(ReadFileReturnType.FILEPATH, sheetExplainerIndex + "|" + filePath, (key, oldValue) => null);
             return methodResult;
         }
 
@@ -3141,7 +3141,7 @@ namespace ExcelTool.ViewModel
                     return filePath;
                 }
                 ++setResultInvokeCount;
-                object[] objList = new object[] { param, workbook, filePath, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), isExecuteInSequence, setResultInvokeCount, totalCount };
+                object[] objList = new object[] { param, workbook, filePath.Split('|')[1], GlobalObjects.GlobalObjects.GetGlobalParam(cresult), isExecuteInSequence, setResultInvokeCount, totalCount };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[3]);
             }

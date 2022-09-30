@@ -17,7 +17,7 @@ namespace ExcelTool.Helper
 {
     public static class FileHelper
     {
-        public static void FileTraverse(bool isAuto, String folderPath, SheetExplainer sheetExplainer, List<String> filePathList)
+        public static void FileTraverse(bool isAuto, string folderPath, SheetExplainer sheetExplainer, List<string> filePathList)
         {
             if (string.IsNullOrEmpty(folderPath))
             {
@@ -39,7 +39,7 @@ namespace ExcelTool.Helper
                     {
                         if (sheetExplainer.fileNames.Key == FindingMethod.SAME)
                         {
-                            foreach (String str in sheetExplainer.fileNames.Value)
+                            foreach (string str in sheetExplainer.fileNames.Value)
                             {
                                 if (fileInfo.Name.Equals(str))
                                 {
@@ -50,7 +50,7 @@ namespace ExcelTool.Helper
                         }
                         else if (sheetExplainer.fileNames.Key == FindingMethod.CONTAIN)
                         {
-                            foreach (String str in sheetExplainer.fileNames.Value)
+                            foreach (string str in sheetExplainer.fileNames.Value)
                             {
                                 if (fileInfo.Name.Contains(str))
                                 {
@@ -61,7 +61,7 @@ namespace ExcelTool.Helper
                         }
                         else if (sheetExplainer.fileNames.Key == FindingMethod.REGEX)
                         {
-                            foreach (String str in sheetExplainer.fileNames.Value)
+                            foreach (string str in sheetExplainer.fileNames.Value)
                             {
                                 Regex rgx = new Regex(str);
                                 if (rgx.IsMatch(fileInfo.Name))
@@ -104,11 +104,11 @@ namespace ExcelTool.Helper
 
         public static List<string> GetSheetExplainersList()
         {
-            List<String> sheetExplainersList = Directory.GetFiles(".\\SheetExplainers", "*.json").ToList();
+            List<string> sheetExplainersList = Directory.GetFiles(".\\SheetExplainers", "*.json").ToList();
             sheetExplainersList.Insert(0, "");
             for (int i = 0; i < sheetExplainersList.Count; ++i)
             {
-                String str = sheetExplainersList[i];
+                string str = sheetExplainersList[i];
                 sheetExplainersList[i] = str.Substring(str.LastIndexOf('\\') + 1);
                 if (sheetExplainersList[i].Contains('.'))
                 {
@@ -120,11 +120,11 @@ namespace ExcelTool.Helper
 
         public static List<string> GetAnalyzersList()
         {
-            List<String> analyzersList = Directory.GetFiles(".\\Analyzers", "*.json").ToList();
+            List<string> analyzersList = Directory.GetFiles(".\\Analyzers", "*.json").ToList();
             analyzersList.Insert(0, "");
             for (int i = 0; i < analyzersList.Count; ++i)
             {
-                String str = analyzersList[i];
+                string str = analyzersList[i];
                 analyzersList[i] = str.Substring(str.LastIndexOf('\\') + 1);
                 if (analyzersList[i].Contains('.'))
                 {
@@ -136,11 +136,11 @@ namespace ExcelTool.Helper
 
         public static List<string> GetRulesList()
         {
-            List<String> rulesList = Directory.GetFiles(".\\Rules", "*.json").ToList();
+            List<string> rulesList = Directory.GetFiles(".\\Rules", "*.json").ToList();
             rulesList.Insert(0, "");
             for (int i = 0; i < rulesList.Count; ++i)
             {
-                String str = rulesList[i];
+                string str = rulesList[i];
                 rulesList[i] = str.Substring(str.LastIndexOf('\\') + 1);
                 if (rulesList[i].Contains('.'))
                 {
@@ -165,7 +165,7 @@ namespace ExcelTool.Helper
                     CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, "ERROR", MessageBoxImage.Error);
                 }
             }
-            String paramStr = ParamHelper.DecodeToEscaped(File.ReadAllText(".\\Params.txt"));
+            string paramStr = ParamHelper.DecodeToEscaped(File.ReadAllText(".\\Params.txt"));
             List<string> paramsList = paramStr.Split('\n').ToList<string>();
             List<string> newParamsList = new List<string>();
             foreach (string param in paramsList)
@@ -249,7 +249,7 @@ namespace ExcelTool.Helper
                 {
                     CustomizableMessageBox.MessageBox.CloseNow();
                 };
-                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, fileSavedStr, Application.Current.FindResource(Application.Current.FindResource("Ok").ToString()).ToString());
+                CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetter(), new RefreshList { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, fileSavedStr, Application.Current.FindResource("Info").ToString());
             }
             else
             {
