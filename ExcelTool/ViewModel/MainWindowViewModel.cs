@@ -39,7 +39,7 @@ namespace ExcelTool.ViewModel
 {
     class MainWindowViewModel : ObservableObject, IDropTarget
     {
-        private enum ReadFileReturnType { ANALYZER, RESULT };
+        private enum ReadFileReturnType { ANALYZER, FILEPATH };
         private Boolean isRunning;
         private Boolean isStopByUser;
         private SmartThreadPool smartThreadPoolAnalyze = null;
@@ -51,7 +51,7 @@ namespace ExcelTool.ViewModel
         private Thread FileSystemWatcherInvokeThread;
         private ConcurrentDictionary<string, long> currentAnalizingDictionary;
         private ConcurrentDictionary<string, long> currentOutputtingDictionary;
-        private ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer> resultList;
+        private ConcurrentDictionary<string, Analyzer> analyzerListForSetResult;
         private Dictionary<FileSystemWatcher, string> fileSystemWatcherDic;
         private Stopwatch stopwatchBeforeFileSystemWatcherInvoke;
         private List<string> copiedDllsList;
@@ -484,7 +484,6 @@ namespace ExcelTool.ViewModel
 
             currentAnalizingDictionary = new ConcurrentDictionary<string, long>();
             currentOutputtingDictionary = new ConcurrentDictionary<string, long>();
-            resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
             fileSystemWatcherDic = new Dictionary<FileSystemWatcher, string>();
             copiedDllsList = new List<string>();
             scanner = new Scanner();
@@ -2271,7 +2270,7 @@ namespace ExcelTool.ViewModel
 
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
-            resultList = new ConcurrentDictionary<ConcurrentDictionary<ResultType, Object>, Analyzer>();
+            analyzerListForSetResult = new ConcurrentDictionary<string, Analyzer>();
             GlobalObjects.GlobalObjects.ClearGlobalParamDic();
 
             Logger.IsOutputMethodNotFoundWarning = true;
@@ -2292,16 +2291,16 @@ namespace ExcelTool.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    methodResult[ReadFileReturnType.RESULT] = new ConcurrentDictionary<ResultType, Object>();
-                    ((ConcurrentDictionary<ResultType, Object>)methodResult[ReadFileReturnType.RESULT]).AddOrUpdate(ResultType.MESSAGE, ex.Message, (key, oldValue) => null);
+                    Logger.Error(ex.Message + "\n" + ex.StackTrace);
                 }
 
-                ConcurrentDictionary<ResultType, Object> result = ((ConcurrentDictionary<ResultType, Object>)methodResult[ReadFileReturnType.RESULT]);
-
-                long value;
-                currentAnalizingDictionary.TryRemove((String)result[ResultType.FILEPATH], out value);
-
-                resultList.AddOrUpdate(result, (Analyzer)methodResult[ReadFileReturnType.ANALYZER], (key, oldValue) => null);
+                if (methodResult.ContainsKey(ReadFileReturnType.FILEPATH))
+                {
+                    string filePath = methodResult[ReadFileReturnType.FILEPATH].ToString();
+                    analyzerListForSetResult.TryAdd(filePath, (Analyzer)methodResult[ReadFileReturnType.ANALYZER]);
+                    long value;
+                    currentAnalizingDictionary.TryRemove(filePath, out value);
+                }
             };
             RenewSmartThreadPoolAnalyze(stpAnalyze);
 
@@ -2309,18 +2308,18 @@ namespace ExcelTool.ViewModel
             stpOutput.CallToPostExecute = CallToPostExecute.WhenWorkItemNotCanceled;
             stpOutput.PostExecuteWorkItemCallback = delegate (IWorkItemResult wir)
             {
-                Object[] methodResult = null;
+                string filePath = null;
                 try
                 {
-                    methodResult = (Object[])wir.GetResult();
+                    filePath = wir.GetResult().ToString();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    methodResult = null;
+                    Logger.Error(ex.Message + "\n" + ex.StackTrace);
                 }
 
                 long value;
-                currentOutputtingDictionary.TryRemove((String)((ConcurrentDictionary<ResultType, Object>)methodResult[1])[ResultType.FILEPATH], out value);
+                currentOutputtingDictionary.TryRemove(filePath, out value);
             };
             RenewSmartThreadPoolOutput(stpOutput);
 
@@ -2544,18 +2543,17 @@ namespace ExcelTool.ViewModel
                     }
                 }
 
-                foreach (ConcurrentDictionary<ResultType, Object> result in resultList.Keys)
+                foreach (string  filePath in analyzerListForSetResult.Keys) 
                 {
-                    Analyzer analyzer = resultList[result];
                     List<object> setResultParams = new List<object>();
                     setResultParams.Add(workbook);
-                    setResultParams.Add(result);
-                    setResultParams.Add(analyzer.name);
-                    setResultParams.Add(resultList.Count);
-                    setResultParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name));
+                    setResultParams.Add(filePath);
+                    setResultParams.Add(analyzerListForSetResult[filePath].name);
+                    setResultParams.Add(compilerDic.Count);
+                    setResultParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzerListForSetResult[filePath].name));
                     setResultParams.Add(isExecuteInSequence);
-                    setResultParams.Add(compilerDic[analyzer].Item1);
-                    smartThreadPoolOutput.QueueWorkItem(new Func<List<object>, Object[]>(SetResult), setResultParams);
+                    setResultParams.Add(compilerDic[analyzerListForSetResult[filePath]].Item1);
+                    smartThreadPoolOutput.QueueWorkItem(new Func<List<object>, string>(SetResult), setResultParams);
                 }
                 startSs = GetNowSs();
                 smartThreadPoolOutput.Join();
@@ -2908,7 +2906,7 @@ namespace ExcelTool.ViewModel
                     }
                     return;
                 }
-                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), resultList.Keys, allFilePathList, isExecuteInSequence };
+                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), allFilePathList, isExecuteInSequence };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[2]);
             }
@@ -2946,7 +2944,7 @@ namespace ExcelTool.ViewModel
                     }
                     return;
                 }
-                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), resultList.Keys, allFilePathList, isExecuteInSequence };
+                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), allFilePathList, isExecuteInSequence };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[2]);
             }
@@ -3000,15 +2998,10 @@ namespace ExcelTool.ViewModel
             ConcurrentDictionary<ReadFileReturnType, Object> methodResult = new ConcurrentDictionary<ReadFileReturnType, object>();
             methodResult.AddOrUpdate(ReadFileReturnType.ANALYZER, analyzer, (key, oldValue) => null);
 
-            ConcurrentDictionary<ResultType, Object> result = new ConcurrentDictionary<ResultType, Object>();
-            result.AddOrUpdate(ResultType.FILEPATH, filePath, (key, oldValue) => null);
-            result.AddOrUpdate(ResultType.FILENAME, fileName, (key, oldValue) => null);
-            currentAnalizingDictionary.AddOrUpdate(filePath, GetNowSs(), (key, oldValue) => GetNowSs());
-
             if (filePath.Contains("~$") || isFileUsing(filePath))
             {
-                result.AddOrUpdate(ResultType.MESSAGE, Application.Current.FindResource("FileIsInUse").ToString(), (key, oldValue) => null);
-                methodResult.AddOrUpdate(ReadFileReturnType.RESULT, result, (key, oldValue) => null);
+                Logger.Error(Application.Current.FindResource("FileIsInUse").ToString().Replace("{0}", filePath));
+                return methodResult;
             }
 
             XLWorkbook workbook = null;
@@ -3019,10 +3012,11 @@ namespace ExcelTool.ViewModel
             }
             catch
             {
-                result.AddOrUpdate(ResultType.MESSAGE, Application.Current.FindResource("FileIsDamaged").ToString(), (key, oldValue) => null);
-                methodResult.AddOrUpdate(ReadFileReturnType.RESULT, result, (key, oldValue) => null);
+                Logger.Error(Application.Current.FindResource("FileIsDamaged").ToString().Replace("{0}", filePath));
                 return methodResult;
             }
+
+            currentAnalizingDictionary.AddOrUpdate(filePath, GetNowSs(), (key, oldValue) => GetNowSs());
 
             foreach (IXLWorksheet sheet in workbook.Worksheets)
             {
@@ -3032,7 +3026,7 @@ namespace ExcelTool.ViewModel
                     {
                         if (sheet.Name.Equals(str))
                         {
-                            Analyze(sheet, result, analyzer, param, isExecuteInSequence, cresult);
+                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, cresult);
                         }
                     }
                 }
@@ -3042,7 +3036,7 @@ namespace ExcelTool.ViewModel
                     {
                         if (sheet.Name.Contains(str))
                         {
-                            Analyze(sheet, result, analyzer, param, isExecuteInSequence, cresult);
+                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, cresult);
                         }
                     }
                 }
@@ -3053,7 +3047,7 @@ namespace ExcelTool.ViewModel
                         Regex rgx = new Regex(str);
                         if (rgx.IsMatch(sheet.Name))
                         {
-                            Analyze(sheet, result, analyzer, param, isExecuteInSequence, cresult);
+                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, cresult);
                         }
                     }
                 }
@@ -3062,11 +3056,11 @@ namespace ExcelTool.ViewModel
                     Regex rgx = new Regex("[\\s\\S]*");
                     if (rgx.IsMatch(sheet.Name))
                     {
-                        Analyze(sheet, result, analyzer, param, isExecuteInSequence, cresult);
+                        Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, cresult);
                     }
                 }
             }
-            methodResult.AddOrUpdate(ReadFileReturnType.RESULT, result, (key, oldValue) => null);
+            methodResult.AddOrUpdate(ReadFileReturnType.FILEPATH, filePath, (key, oldValue) => null);
             return methodResult;
         }
 
@@ -3083,7 +3077,7 @@ namespace ExcelTool.ViewModel
             return (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
         }
 
-        private void Analyze(IXLWorksheet sheet, ConcurrentDictionary<ResultType, Object> result, Analyzer analyzer, Param param, bool isExecuteInSequence, CompilerResults cresult)
+        private void Analyze(IXLWorksheet sheet, string filePath, Analyzer analyzer, Param param, bool isExecuteInSequence, CompilerResults cresult)
         {
             // 通过反射执行代码
             try
@@ -3100,7 +3094,7 @@ namespace ExcelTool.ViewModel
                     return;
                 }
                 ++analyzeSheetInvokeCount;
-                object[] objList = new object[] { param, sheet, result, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), isExecuteInSequence, analyzeSheetInvokeCount };
+                object[] objList = new object[] { param, sheet, filePath, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), isExecuteInSequence, analyzeSheetInvokeCount };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[3]);
             }
@@ -3120,24 +3114,17 @@ namespace ExcelTool.ViewModel
 
         }
 
-        private Object[] SetResult(List<object> setResultParams)
+        private string SetResult(List<object> setResultParams)
         {
             XLWorkbook workbook = (XLWorkbook)setResultParams[0];
-            ConcurrentDictionary<ResultType, Object> result = (ConcurrentDictionary<ResultType, Object>)setResultParams[1];
+            string filePath = setResultParams[1].ToString();
             string analyzerName = (string)setResultParams[2];
             int totalCount = (int)setResultParams[3];
             Param param = (Param)setResultParams[4];
             bool isExecuteInSequence = (bool)setResultParams[5];
             CompilerResults cresult = (CompilerResults)setResultParams[6];
 
-
-            Boolean resBoolean = true;
-
-            Object filePath = null;
-            if (result.TryGetValue(ResultType.FILEPATH, out filePath))
-            {
-                currentOutputtingDictionary.AddOrUpdate(filePath.ToString(), GetNowSs(), (key, oldValue) => GetNowSs());
-            }
+            currentOutputtingDictionary.AddOrUpdate(filePath, GetNowSs(), (key, oldValue) => GetNowSs());
 
             // 通过反射执行代码
             try
@@ -3151,11 +3138,10 @@ namespace ExcelTool.ViewModel
                     {
                         Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", "SetResult"));
                     }
-                    resBoolean = false;
-                    return new Object[] { resBoolean, result };
+                    return filePath;
                 }
                 ++setResultInvokeCount;
-                object[] objList = new object[] { param, workbook, result, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), isExecuteInSequence, setResultInvokeCount, totalCount };
+                object[] objList = new object[] { param, workbook, filePath, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), isExecuteInSequence, setResultInvokeCount, totalCount };
                 objMI.Invoke(obj, objList);
                 GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[3]);
             }
@@ -3170,10 +3156,9 @@ namespace ExcelTool.ViewModel
                     Logger.Error($"\n    {e.Message}\n    {analyzerName}.SetResult(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
                 }
                 runNotSuccessed = true;
-                resBoolean = false;
                 Stop();
             }
-            return new Object[] { resBoolean, result };
+            return filePath;
         }
 
         private void RenewSmartThreadPoolAnalyze(STPStartInfo stp)

@@ -119,8 +119,8 @@
     <sys:String x:Key="ParamPossibleValues">可能な値</sys:String>
     <sys:String x:Key="ExecuteInSequence">順番に実行する</sys:String>
     <sys:String x:Key="RunFailed">実行に失敗しました</sys:String>
-    <sys:String x:Key="FileIsInUse">ファイルが使用中</sys:String>
-    <sys:String x:Key="FileIsDamaged">ファイルが破損している</sys:String>
+    <sys:String x:Key="FileIsInUse">ファイル{0}が使用中</sys:String>
+    <sys:String x:Key="FileIsDamaged">ファイル{0}が破損している</sys:String>
     <sys:String x:Key="MethodNotFound">関数{0}が見つかりません</sys:String>
     <sys:String x:Key="FileNotFound">ファイル{0}が見つかりません</sys:String>
     <sys:String x:Key="UnblockDllsCopiedFromTheWeb" xml:space="preserve">.Dllファイル「{0}」がサポートされていないかネットワークまたはほかのコンピュータから取得されましたから、先に許可して、ソフトウェアを再起動してください。&#13;&#10;1. ファイルを右クリックして「プロパティ」を開く&#13;&#10;2. 「全般」タブの「許可する」ボタンをクリックする&#13;&#10;3. 「OK」ボタンをクリックする&#13;&#10;セキュリティチェックをバイパスするには、設定を変更してください。</sys:String>

@@ -13,7 +13,6 @@ using System.Windows.Media;
 
 namespace GlobalObjects
 {
-    public enum ResultType { FILEPATH, FILENAME, MESSAGE, RESULTOBJECT };
     public enum ProgramStatus { Default, Shutdown, Restart };
 
     public static class Theme
