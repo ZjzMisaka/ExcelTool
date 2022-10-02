@@ -2273,6 +2273,7 @@ namespace ExcelTool.ViewModel
             analyzerListForSetResult = new ConcurrentDictionary<string, Analyzer>();
             GlobalObjects.GlobalObjects.ClearGlobalParamDic();
 
+            GlobalDic.Reset();
             Logger.IsOutputMethodNotFoundWarning = true;
             Scanner.ResetAll();
             Output.ClearWorkbooks();

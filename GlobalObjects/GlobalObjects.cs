@@ -15,6 +15,33 @@ namespace GlobalObjects
 {
     public enum ProgramStatus { Default, Shutdown, Restart };
 
+    public static class GlobalDic
+    {
+        private static ConcurrentDictionary<string, object> globalDic;
+
+        public static void SetObj(string key, object value)
+        {
+            globalDic.AddOrUpdate(key, value, (k, v) => { return v; });
+        }
+
+        public static bool ContainsKey(string key)
+        {
+            return globalDic.ContainsKey(key);
+        }
+
+        public static object GetObj(string key)
+        {
+            object value = null;
+            globalDic.TryGetValue(key, out value);
+            return value;
+        }
+
+        public static void Reset()
+        {
+            globalDic = new ConcurrentDictionary<string, object>();
+        }
+    }
+
     public static class Theme
     {
         private static Brush themeBackground;
