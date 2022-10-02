@@ -152,11 +152,11 @@ namespace AnalyzeCode
         /// &lt;/summary>
         /// &lt;param name="param">Parameters passed in&lt;/param>
         /// &lt;param name="sheet">Sheet to be analyzed&lt;/param>
-        /// &lt;param name="result">Store the information of the current file ResultType { (String) FILEPATH [file path], (String) FILENAME [file name], (String) MESSAGE [message output when there is a problem with searching], (Object) RESULTOBJECT [user-defined Analysis results] }&lt;/param>
+        /// &lt;param name="filePath">File path&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
         /// &lt;param name="invokeCount">The number of times this analysis function was called&lt;/param>
-        public void AnalyzeSheet(Param param, IXLWorksheet sheet, ConcurrentDictionary&lt;ResultType, Object> result, ref Object globalObject, bool isExecuteInSequence, int invokeCount)
+        public void AnalyzeSheet(Param param, IXLWorksheet sheet, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount)
         {
             
         }
@@ -167,10 +167,9 @@ namespace AnalyzeCode
         /// &lt;param name="param">Parameters passed in&lt;/param>
         /// &lt;param name="workbook">Excel file for output&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
-        /// &lt;param name="resultList">Information on all files&lt;/param>
         /// &lt;param name="allFilePathList">List of all file paths analyzed&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
-        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, ICollection&lt;ConcurrentDictionary&lt;ResultType, Object>> resultList, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
         {
             
         }
@@ -180,12 +179,12 @@ namespace AnalyzeCode
         /// &lt;/summary>
         /// &lt;param name="param">Parameters passed in&lt;/param>
         /// &lt;param name="workbook">Excel file for output&lt;/param>
-        /// &lt;param name="result">Store the information of the current file ResultType { (String) FILEPATH [file path], (String) FILENAME [file name], (String) MESSAGE [message output when there is a problem with searching], (Object) RESULTOBJECT [user-defined Analysis results] }&lt;/param>
+        /// &lt;param name="filePath">File path&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
         /// &lt;param name="invokeCount">The number of times this output function was called&lt;/param>
         /// &lt;param name="totalCount">The total number of times the output function needs to be called&lt;/param>
-        public void SetResult(Param param, XLWorkbook workbook, ConcurrentDictionary&lt;ResultType, Object> result, ref Object globalObject, bool isExecuteInSequence, int invokeCount, int totalCount)
+        public void SetResult(Param param, XLWorkbook workbook, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount, int totalCount)
         {
             
         }
@@ -196,10 +195,9 @@ namespace AnalyzeCode
         /// &lt;param name="param">Parameters passed in&lt;/param>
         /// &lt;param name="workbook">Excel file for output&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
-        /// &lt;param name="resultList">Information on all files&lt;/param>
         /// &lt;param name="allFilePathList">List of all file paths analyzed&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
-        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, ICollection&lt;ConcurrentDictionary&lt;ResultType, Object>> resultList, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
         {
             
         }

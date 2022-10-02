@@ -152,11 +152,11 @@ namespace AnalyzeCode
         /// &lt;/summary>
         /// &lt;param name="param">传入的参数&lt;/param>
         /// &lt;param name="sheet">被分析的sheet&lt;/param>
-        /// &lt;param name="result">存储当前文件的信息 ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }&lt;/param>
+        /// &lt;param name="filePath">文件路径&lt;/param>
         /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
         /// &lt;param name="isExecuteInSequence">是否顺序执行&lt;/param>
         /// &lt;param name="invokeCount">此分析函数被调用的次数&lt;/param>
-        public void AnalyzeSheet(Param param, IXLWorksheet sheet, ConcurrentDictionary&lt;ResultType, Object> result, ref Object globalObject, bool isExecuteInSequence, int invokeCount)
+        public void AnalyzeSheet(Param param, IXLWorksheet sheet, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount)
         {
             
         }
@@ -167,10 +167,9 @@ namespace AnalyzeCode
         /// &lt;param name="param">传入的参数&lt;/param>
         /// &lt;param name="workbook">用于输出的excel文件&lt;/param>
         /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
-        /// &lt;param name="resultList">所有文件的信息&lt;/param>
         /// &lt;param name="allFilePathList">分析的所有文件路径列表&lt;/param>
         /// &lt;param name="isExecuteInSequence">是否顺序执行&lt;/param>
-        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, ICollection&lt;ConcurrentDictionary&lt;ResultType, Object>> resultList, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
         {
             
         }
@@ -180,12 +179,12 @@ namespace AnalyzeCode
         /// &lt;/summary>
         /// &lt;param name="param">传入的参数&lt;/param>
         /// &lt;param name="workbook">用于输出的excel文件&lt;/param>
-        /// &lt;param name="result">存储当前文件的信息 ResultType { (String) FILEPATH [文件路径], (String) FILENAME [文件名], (String) MESSAGE [当查找时出现问题时输出的消息], (Object) RESULTOBJECT [用户自定的分析结果] }&lt;/param>
+        /// &lt;param name="filePath">文件路径&lt;/param>
         /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
         /// &lt;param name="isExecuteInSequence">是否顺序执行&lt;/param>
         /// &lt;param name="invokeCount">此输出函数被调用的次数&lt;/param>
         /// &lt;param name="totalCount">总共需要调用的输出函数的次数&lt;/param>
-        public void SetResult(Param param, XLWorkbook workbook, ConcurrentDictionary&lt;ResultType, Object> result, ref Object globalObject, bool isExecuteInSequence, int invokeCount, int totalCount)
+        public void SetResult(Param param, XLWorkbook workbook, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount, int totalCount)
         {
             
         }
@@ -196,10 +195,9 @@ namespace AnalyzeCode
         /// &lt;param name="param">传入的参数&lt;/param>
         /// &lt;param name="workbook">用于输出的excel文件&lt;/param>
         /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
-        /// &lt;param name="resultList">所有文件的信息&lt;/param>
         /// &lt;param name="allFilePathList">分析的所有文件路径列表&lt;/param>
         /// &lt;param name="isExecuteInSequence">是否顺序执行&lt;/param>
-        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, ICollection&lt;ConcurrentDictionary&lt;ResultType, Object>> resultList, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
         {
             
         }

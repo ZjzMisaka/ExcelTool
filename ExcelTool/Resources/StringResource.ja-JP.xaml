@@ -152,11 +152,11 @@ namespace AnalyzeCode
         /// &lt;/summary>
         /// &lt;param name="param">着信パラメータ&lt;/param>
         /// &lt;param name="sheet">分析するシート&lt;/param>
-        /// &lt;param name="result">現在のファイルの情報を保存するResultType{（String）FILEPATH [file path]、（String）FILENAME [file name]、（String）MESSAGE [検索に問題がある場合に出力されるメッセージ]、（Object）RESULTOBJECT [user-定義された分析結果]}&lt;/param>
+        /// &lt;param name="filePath">ファイルパス&lt;/param>
         /// &lt;param name="globalObject">グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。&lt;/param>
         /// &lt;param name="isExecuteInSequence">順番実行するかどうか&lt;/param>
         /// &lt;param name="invokeCount">この分析関数が呼び出された回数&lt;/param>
-        public void AnalyzeSheet(Param param, IXLWorksheet sheet, ConcurrentDictionary&lt;ResultType, Object> result, ref Object globalObject, bool isExecuteInSequence, int invokeCount)
+        public void AnalyzeSheet(Param param, IXLWorksheet sheet, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount)
         {
             
         }
@@ -167,10 +167,9 @@ namespace AnalyzeCode
         /// &lt;param name="param">着信パラメータ&lt;/param>
         /// &lt;param name="workbook">出力用のExcelファイル&lt;/param>
         /// &lt;param name="globalObject">グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。&lt;/param>
-        /// &lt;param name="resultList">すべてのファイルに関する情報&lt;/param>
         /// &lt;param name="allFilePathList">分析されたすべてのファイルパスのリスト&lt;/param>
         /// &lt;param name="isExecuteInSequence">順番実行するかどうか&lt;/param>
-        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, ICollection&lt;ConcurrentDictionary&lt;ResultType, Object>> resultList, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
         {
             
         }
@@ -180,12 +179,12 @@ namespace AnalyzeCode
         /// &lt;/summary>
         /// &lt;param name="param">着信パラメータ&lt;/param>
         /// &lt;param name="workbook">出力用のExcelファイル&lt;/param>
-        /// &lt;param name="result">現在のファイルの情報を保存するResultType{（String）FILEPATH [file path]、（String）FILENAME [file name]、（String）MESSAGE [検索に問題がある場合に出力されるメッセージ]、（Object）RESULTOBJECT [user-定義された分析結果]}&lt;/param>
+        /// &lt;param name="filePath">ファイルパス&lt;/param>
         /// &lt;param name="globalObject">グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。&lt;/param>
         /// &lt;param name="isExecuteInSequence">順番実行するかどうか&lt;/param>
         /// &lt;param name="invokeCount">この出力関数が呼び出された回数&lt;/param>
         /// &lt;param name="totalCount">出力関数を呼び出す必要がある合計回数&lt;/param>
-        public void SetResult(Param param, XLWorkbook workbook, ConcurrentDictionary&lt;ResultType, Object> result, ref Object globalObject, bool isExecuteInSequence, int invokeCount, int totalCount)
+        public void SetResult(Param param, XLWorkbook workbook, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount, int totalCount)
         {
             
         }
@@ -196,10 +195,9 @@ namespace AnalyzeCode
         /// &lt;param name="param">着信パラメータ&lt;/param>
         /// &lt;param name="workbook">出力用のExcelファイル&lt;/param>
         /// &lt;param name="globalObject">グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。&lt;/param>
-        /// &lt;param name="resultList">すべてのファイルに関する情報&lt;/param>
         /// &lt;param name="allFilePathList">分析されたすべてのファイルパスのリスト&lt;/param>
         /// &lt;param name="isExecuteInSequence">順番実行するかどうか&lt;/param>
-        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, ICollection&lt;ConcurrentDictionary&lt;ResultType, Object>> resultList, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
         {
             
         }
