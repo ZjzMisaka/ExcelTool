@@ -35,6 +35,19 @@
     - 额外的Excel文件操作
 - 当产生编译错误或者运行错误时, 相关调试信息会出现在主界面最下方的log区域中
 
+##### GlobalDic (静态类)
+```c#
+// ---- 保存数据 ----
+// 保存数据
+void SetObj(string key, object value);
+// 判断存在
+bool ContainsKey(string key)
+// 获取数据
+object GetObj(string key)
+// 重置所有
+void Reset()
+```
+
 ##### Logger (静态类)
 ```c#
 // ---- 输出Log函数 ----
@@ -108,7 +121,7 @@ bool ContainsKey(string key);
 |----|----|----|----|
 |param|Param|传入的参数||
 |sheet|IXLWorksheet|当前被处理的sheet||
-|result|ConcurrentDictionary<ResultType, Object>|存储当前文件的信息||
+|filePath|string|文件路径||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |isExecuteInSequence|bool|是否顺序执行||
 |invokeCount|int|此处理函数被调用的次数|第一次调用时值为1|
@@ -119,7 +132,6 @@ bool ContainsKey(string key);
 |param|Param|传入的参数||
 |workbook|XLWorkbook|用于输出的Excel文件||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
-|resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
 |allFilePathList|List<string>|处理的所有文件路径列表||
 |isExecuteInSequence|bool|是否顺序执行||
 
@@ -128,7 +140,7 @@ bool ContainsKey(string key);
 |----|----|----|----|
 |param|Param|传入的参数||
 |workbook|XLWorkbook|用于输出的Excel文件||
-|result|ConcurrentDictionary<ResultType, Object>|存储当前文件的信息||
+|filePath|string|文件路径||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
 |isExecuteInSequence|bool|是否顺序执行||
 |invokeCount|int|此输出函数被调用的次数|第一次调用时值为1|
@@ -140,7 +152,6 @@ bool ContainsKey(string key);
 |param|Param|传入的参数||
 |workbook|XLWorkbook|用于输出的Excel文件||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
-|resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|所有文件的信息||
 |allFilePathList|List<string>|处理的所有文件路径列表||
 |isExecuteInSequence|bool|是否顺序执行||
 

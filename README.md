@@ -35,6 +35,19 @@ Plug-in extension function, batch processing, and output of results to Excel fil
     - Additional Excel file operations
 - When a compilation error or a running error occurs, the relevant debugging information will appear in the log area at the bottom of the main interface
 
+##### GlobalDic (静态类)
+```c#
+// ---- Save data function ----
+// Save data.
+void SetObj(string key, object value);
+// Check if key is exist.
+bool ContainsKey(string key)
+// Get data.
+object GetObj(string key)
+// Reset all data.
+void Reset()
+```
+
 ##### Logger (static class)
 ```c#
 // ---- Output Log function ----
@@ -108,7 +121,7 @@ bool ContainsKey(string key);
 |----|----|----|----|
 |param|Param|Parameters passed in||
 |sheet|IXLWorksheet|Sheet to be analyzed||
-|result|ConcurrentDictionary<ResultType, Object>|Store information about the current file||
+|filePath|string|File path||
 |globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
 |isExecuteInSequence|bool|Whether to execute sequentially||
 |invokeCount|int|The number of times this analysis function was called|The value is 1 on the first call|
@@ -119,7 +132,6 @@ bool ContainsKey(string key);
 |param|Param|Parameters passed in||
 |workbook|XLWorkbook|Excel file for output||
 |globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
-|resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|Information on all files||
 |allFilePathList|List<string>|List of all file paths analyzed||
 |isExecuteInSequence|bool|Whether to execute sequentially||
 
@@ -128,7 +140,7 @@ bool ContainsKey(string key);
 |----|----|----|----|
 |param|Param|Parameters passed in||
 |workbook|XLWorkbook|Excel file for output||
-|result|ConcurrentDictionary<ResultType, Object>|Store information about the current file||
+|filePath|string|File path||
 |globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
 |isExecuteInSequence|bool|Whether to execute sequentially||
 |invokeCount|int|The number of times this output function was called|The value is 1 on the first call|
@@ -140,7 +152,6 @@ bool ContainsKey(string key);
 |param|Param|Parameters passed in||
 |workbook|XLWorkbook|Excel file for output||
 |globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
-|resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|Information on all files||
 |allFilePathList|List<string>|List of all file paths analyzed||
 |isExecuteInSequence|bool|Whether to execute sequentially||
 

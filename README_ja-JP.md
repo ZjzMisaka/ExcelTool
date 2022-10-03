@@ -35,6 +35,19 @@
     - 追加のExcelファイル操作処理
 - コンパイルエラーまたは実行エラーが発生すると、関連するデバッグ情報がメインインターフェイスの下部にあるログ領域に表示されます
 
+##### GlobalDic (静态类)
+```c#
+// ---- セーブデータ ----
+// セーブデータ. 
+void SetObj(string key, object value);
+// キーが存在するかどうかを確認します. 
+bool ContainsKey(string key)
+// データを取得する. 
+object GetObj(string key)
+// すべてのデータをリセット.
+void Reset()
+```
+
 ##### Logger (静的クラス)
 ```c#
 // ---- 出力ログ機能 ----
@@ -108,7 +121,7 @@ bool ContainsKey(string key);
 |----|----|----|----|
 |param|Param|着信パラメータ||
 |sheet|IXLWorksheet|分析するシート||
-|result|ConcurrentDictionary<ResultType, Object>|現在のファイルの情報を保存する||
+|filePath|string|ファイルパス||
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
 |isExecuteInSequence|bool|順番実行するかどうか||
 |invokeCount|int|この分析関数が呼び出された回数|最初の呼び出しでの値は1です|
@@ -119,7 +132,6 @@ bool ContainsKey(string key);
 |param|Param|着信パラメータ||
 |workbook|XLWorkbook|出力用のExcelファイル||
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
-|resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|すべてのファイルに関する情報||
 |allFilePathList|List<string>|分析されたすべてのファイルパスのリスト||
 |isExecuteInSequence|bool|順番実行するかどうか||
 
@@ -128,7 +140,7 @@ bool ContainsKey(string key);
 |----|----|----|----|
 |param|Param|着信パラメータ||
 |workbook|XLWorkbook|出力用のExcelファイル||
-|result|ConcurrentDictionary<ResultType, Object>|現在のファイルの情報を保存する||
+|filePath|string|ファイルパス||
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
 |isExecuteInSequence|bool|順番実行するかどうか||
 |invokeCount|int|この出力関数が呼び出された回数|最初の呼び出しでの値は1です|
@@ -140,7 +152,6 @@ bool ContainsKey(string key);
 |param|Param|着信パラメータ||
 |workbook|XLWorkbook|出力用のExcelファイル||
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
-|resultList|ICollection<ConcurrentDictionary<ResultType, Object>>|すべてのファイルに関する情報||
 |allFilePathList|List<string>|分析されたすべてのファイルパスのリスト||
 |isExecuteInSequence|bool|順番実行するかどうか||
 
