@@ -35,7 +35,7 @@ Plug-in extension function, batch processing, and output of results to Excel fil
     - Additional Excel file operations
 - When a compilation error or a running error occurs, the relevant debugging information will appear in the log area at the bottom of the main interface
 
-##### GlobalDic (静态类)
+##### GlobalDic (static class)
 ```c#
 // ---- Save data function ----
 // Save data.
