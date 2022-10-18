@@ -48,7 +48,7 @@
             <Button Name="btn_delete" Content="{DynamicResource Delete}" IsEnabled="{Binding BtnDeleteIsEnabled, Mode=TwoWay}" Width="50" Grid.Row="0" Grid.ColumnSpan="3" Margin="10 2" HorizontalAlignment="Right" Command="{Binding BtnDeleteClickCommand}"/>
 
             <Label Grid.Row="1" Grid.Column="0" Content="{DynamicResource PathList}" Margin="10 2"/>
-            <TextBox Text="{Binding TbPathsText, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Name="tb_paths" Grid.Row="3" Grid.Column="0" Margin="10 2" dd:DragDrop.IsDropTarget="True" dd:DragDrop.DropHandler="{Binding}"/>
+            <TextBox Text="{Binding TbPathsText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AcceptsReturn="True" TextWrapping="Wrap" Name="tb_paths" Grid.Row="3" Grid.Column="0" Margin="10 2" dd:DragDrop.IsDropTarget="True" dd:DragDrop.DropHandler="{Binding}"/>
 
             <Label Grid.Row="1" Grid.Column="1" Content="{DynamicResource FileNameList}" Margin="10 2"/>
             <ComboBox Name="cb_filenamestype" SelectedIndex="{Binding SelectedFileNamesTypeIndex, Mode=TwoWay}" VerticalContentAlignment="Center" Grid.Row="2" Grid.Column="1" Margin="10 2">
@@ -57,7 +57,7 @@
                 <ComboBoxItem Content="{DynamicResource RegExp}"/>
                 <ComboBoxItem Content="{DynamicResource All}"/>
             </ComboBox>
-            <TextBox Text="{Binding TbFileNamesText, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Name="tb_filenames" Grid.Row="3" Grid.Column="1" Margin="10 2" dd:DragDrop.IsDropTarget="True" dd:DragDrop.DropHandler="{Binding}"/>
+            <TextBox Text="{Binding TbFileNamesText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AcceptsReturn="True" TextWrapping="Wrap" Name="tb_filenames" Grid.Row="3" Grid.Column="1" Margin="10 2" dd:DragDrop.IsDropTarget="True" dd:DragDrop.DropHandler="{Binding}"/>
 
             <Label Grid.Row="1" Grid.Column="2" Content="{DynamicResource SheetNameList}" Margin="10 2"/>
             <ComboBox Name="cb_sheetnamestype" SelectedIndex="{Binding SelectedSheetNamesTypeIndex, Mode=TwoWay}" VerticalContentAlignment="Center" Grid.Row="2" Grid.Column="2" Margin="10 2">
@@ -66,7 +66,7 @@
                 <ComboBoxItem Content="{DynamicResource RegExp}"/>
                 <ComboBoxItem Content="{DynamicResource All}"/>
             </ComboBox>
-            <TextBox Text="{Binding TbSheetNamesText, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Name="tb_sheetnames" Grid.Row="3" Grid.Column="2" Margin="10 2"/>
+            <TextBox Text="{Binding TbSheetNamesText, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AcceptsReturn="True" TextWrapping="Wrap" Name="tb_sheetnames" Grid.Row="3" Grid.Column="2" Margin="10 2"/>
         </Grid>
         <Button Name="btn_save" Grid.Row="1" Grid.Column="0" Content="{DynamicResource Save}" Command="{Binding BtnSaveClickCommand}" Margin="10 2" HorizontalAlignment="Stretch"/>
         <Button Name="btn_exit" Grid.Row="1" Grid.Column="1" Content="{DynamicResource Close}" Margin="10 2" HorizontalAlignment="Stretch">

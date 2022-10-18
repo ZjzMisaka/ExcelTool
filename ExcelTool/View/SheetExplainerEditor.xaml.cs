@@ -27,6 +27,22 @@ namespace ExcelTool
         {
             InitializeComponent();
             this.DataContext = new SheetExplainerViewModel();
+
+            tb_paths.TextChanged += new TextChangedEventHandler((s, e) =>
+            {
+                BindingExpression be = tb_paths.GetBindingExpression(TextBox.TextProperty);
+                be.UpdateSource();
+            });
+            tb_filenames.TextChanged += new TextChangedEventHandler((s, e) =>
+            {
+                BindingExpression be = tb_filenames.GetBindingExpression(TextBox.TextProperty);
+                be.UpdateSource();
+            });
+            tb_sheetnames.TextChanged += new TextChangedEventHandler((s, e) =>
+            {
+                BindingExpression be = tb_sheetnames.GetBindingExpression(TextBox.TextProperty);
+                be.UpdateSource();
+            });
         }
     }
 }
