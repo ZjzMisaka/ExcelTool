@@ -924,6 +924,11 @@ namespace ExcelTool.ViewModel
 
         private void ActualApplicationThemeChanged(ThemeManager themeManager, object obj)
         {
+            if (editor == null)
+            {
+                return;
+            }
+
             if (themeManager == null)
             {
                 if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
