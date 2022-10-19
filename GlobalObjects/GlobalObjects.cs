@@ -143,6 +143,32 @@ namespace GlobalObjects
                 ThemeSelectionForeground = new SolidColorBrush(Colors.White);
             }
 
+            GlobalObjects.ps = new PropertiesSetter();
+            GlobalObjects.ps.WndBorderThickness = new Thickness(1);
+            GlobalObjects.ps.WndBorderColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBackgroundBrush).Color);
+            GlobalObjects.ps.ButtonPanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeBackground).Color);
+            GlobalObjects.ps.MessagePanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeBackground).Color);
+            GlobalObjects.ps.ButtonFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
+            GlobalObjects.ps.TitlePanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBackgroundBrush).Color);
+            GlobalObjects.ps.TitlePanelBorderThickness = new Thickness(0, 0, 0, 2);
+            GlobalObjects.ps.TitlePanelBorderColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBorderBrush).Color);
+            GlobalObjects.ps.MessagePanelBorderThickness = new Thickness(0);
+            GlobalObjects.ps.ButtonPanelBorderThickness = new Thickness(0);
+            GlobalObjects.ps.TitleFontSize = 14;
+            GlobalObjects.ps.TitleFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
+            GlobalObjects.ps.MessageFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
+            GlobalObjects.ps.MessageFontSize = 14;
+            GlobalObjects.ps.ButtonFontSize = 16;
+            GlobalObjects.ps.ButtonBorderBrushList = new List<Brush>() { Theme.ThemeBackground };
+            GlobalObjects.ps.ButtonBorderThicknessList = new List<Thickness>() { new Thickness(0) };
+            GlobalObjects.ps.WindowMinHeight = 200;
+            GlobalObjects.ps.LockHeight = false;
+            GlobalObjects.ps.WindowWidth = 450;
+            GlobalObjects.ps.WindowShowDuration = new Duration(new TimeSpan(0, 0, 0, 0, 300));
+            GlobalObjects.ps.ButtonMarginList = new List<Thickness>() { new Thickness(5) };
+            GlobalObjects.ps.ButtonHeightList = new List<double>() { 30 };
+
+            CustomizableMessageBox.MessageBox.DefaultProperties = GlobalObjects.ps;
         }
     }
 
@@ -151,8 +177,8 @@ namespace GlobalObjects
         private static ProgramStatus programCurrentStatus;
 
         private static ConcurrentDictionary<CompilerResults, Object> globalParamDic;
-        private static PropertiesSetter ps = null;
         private static PropertiesSetter psWithTimmer = null;
+        public static PropertiesSetter ps = null;
 
         public static ProgramStatus ProgramCurrentStatus { get => programCurrentStatus; set => programCurrentStatus = value; }
 
@@ -177,44 +203,11 @@ namespace GlobalObjects
             psWithTimmer = null;
         }
 
-        public static PropertiesSetter GetPropertiesSetter()
-        {
-            Theme.SetTheme();
-            if (ps == null)
-            {
-                ps = new PropertiesSetter();
-                ps.WndBorderThickness = new Thickness(1);
-                ps.WndBorderColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBackgroundBrush).Color);
-                ps.ButtonPanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeBackground).Color);
-                ps.MessagePanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeBackground).Color);
-                ps.ButtonFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
-                ps.TitlePanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBackgroundBrush).Color);
-                ps.TitlePanelBorderThickness = new Thickness(0, 0, 0, 2);
-                ps.TitlePanelBorderColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBorderBrush).Color);
-                ps.MessagePanelBorderThickness = new Thickness(0);
-                ps.ButtonPanelBorderThickness = new Thickness(0);
-                ps.TitleFontSize = 14;
-                ps.TitleFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
-                ps.MessageFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
-                ps.MessageFontSize = 14;
-                ps.ButtonFontSize = 16;
-                ps.ButtonBorderBrushList = new List<Brush>() { Theme.ThemeBackground };
-                ps.ButtonBorderThicknessList = new List<Thickness>() { new Thickness(0) };
-                ps.WindowMinHeight = 200;
-                ps.LockHeight = false;
-                ps.WindowWidth = 450;
-                ps.WindowShowDuration = new Duration(new TimeSpan(0, 0, 0, 0, 300));
-                ps.ButtonMarginList = new List<Thickness>() { new Thickness(5) };
-                ps.ButtonHeightList = new List<double>() { 30 };
-            }
-
-            return ps;
-        }
         public static PropertiesSetter GetPropertiesSetterWithTimmer()
         {
             if (psWithTimmer == null)
             {
-                psWithTimmer = new PropertiesSetter(GetPropertiesSetter());
+                psWithTimmer = new PropertiesSetter(ps);
                 psWithTimmer.CloseTimer = new MessageBoxCloseTimer(1, 0);
             }
 
