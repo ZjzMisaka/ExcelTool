@@ -528,7 +528,12 @@ namespace ExcelTool.ViewModel
                 paramDicForChange = new Dictionary<string, ParamInfo>();
                 return;
             }
-            Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{SelectedAnalyzersItem}.json"));
+            Analyzer analyzer = JsonHelper.TryDeserializeObject<Analyzer>($".\\Analyzers\\{SelectedAnalyzersItem}.json");
+            if (analyzer == null)
+            {
+                SelectedAnalyzersIndex = 0;
+                return;
+            }
             editor.Text = analyzer.code;
 
             paramDicForChange = analyzer.paramDic;

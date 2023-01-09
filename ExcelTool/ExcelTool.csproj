@@ -88,6 +88,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helper\JsonHelper.cs" />
     <Compile Include="Highlighting\DarkModeHighlightColors.cs" />
     <Compile Include="Model\Analyzer.cs" />
     <Compile Include="MvvmTool\EventCommandAction.cs" />

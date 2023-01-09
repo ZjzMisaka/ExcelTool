@@ -1,4 +1,5 @@
 ﻿using CustomizableMessageBox;
+using ExcelTool.Helper;
 using GongSolutions.Wpf.DragDrop;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -242,7 +243,12 @@ namespace ExcelTool.ViewModel
             {
                 return;
             }
-            SheetExplainer sheetExplainer = JsonConvert.DeserializeObject<SheetExplainer>(File.ReadAllText($".\\SheetExplainers\\{SelectedSheetExplainersItem}.json"));
+            SheetExplainer sheetExplainer = JsonHelper.TryDeserializeObject<SheetExplainer>($".\\SheetExplainers\\{SelectedSheetExplainersItem}.json");
+            if (sheetExplainer == null)
+            {
+                SelectedSheetExplainersIndex = 0;
+                return;
+            }
             foreach (String str in sheetExplainer.pathes)
             {
                 TbPathsText += $"{str}\n";

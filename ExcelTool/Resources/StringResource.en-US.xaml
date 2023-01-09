@@ -208,4 +208,5 @@ namespace AnalyzeCode
     <sys:String x:Key="BanSecurityCheckWithoutRestart">Security checks will not be performed in the future (it will take effect after restarting the program)</sys:String>
     <sys:String x:Key="BanSecurityCheckWithRestart">No more security checks in the future, and restart the program</sys:String>
     <sys:String x:Key="FileNameEmptyError">Filename cannot be empty</sys:String>
+    <sys:String x:Key="ErrorWhileParsingJsonFile">Error while parsing Json file: {0}</sys:String>
 </ResourceDictionary>

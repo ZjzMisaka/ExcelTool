@@ -1118,7 +1118,11 @@ namespace ExcelTool.ViewModel
                     addedAnalyzerNameList.Add(analyzerName);
                 }
 
-                Analyzer analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{analyzerName}.json"));
+                Analyzer analyzer = JsonHelper.TryDeserializeObject<Analyzer>($".\\Analyzers\\{analyzerName}.json");
+                if (analyzer == null)
+                {
+                    return;
+                }
 
                 RowDefinition rowDefinition = new RowDefinition();
                 rowDefinition.Height = new GridLength(50);
@@ -1717,9 +1721,9 @@ namespace ExcelTool.ViewModel
 
             if (SelectedRulesIndex >= 1)
             {
-                rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{SelectedRulesItem}.json"));
+                rule = JsonHelper.TryDeserializeObject<RunningRule>($".\\Rules\\{SelectedRulesItem}.json");
 
-                if (!CheckRule(rule))
+                if (rule == null || !CheckRule(rule))
                 {
                     SelectedRulesIndex = 0;
                     return;
@@ -1834,7 +1838,11 @@ namespace ExcelTool.ViewModel
         private void SetAuto()
         {
             string ruleName = SelectedRulesItem;
-            RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
+            RunningRule rule = JsonHelper.TryDeserializeObject<RunningRule>($".\\Rules\\{ruleName}.json");
+            if (rule == null)
+            {
+                return;
+            }
             
             TextBox tbPath = new TextBox();
             tbPath.Margin = new Thickness(5);
@@ -1913,7 +1921,7 @@ namespace ExcelTool.ViewModel
         {
             string fileName = $".\\Rules\\{SelectedRulesItem}.json";
 
-            RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText(fileName));
+            RunningRule rule = JsonHelper.TryDeserializeObject<RunningRule>(fileName);
             if (rule == null)
             {
                 return;
@@ -2014,7 +2022,7 @@ namespace ExcelTool.ViewModel
 
             List<SheetExplainer> sheetExplainers = new List<SheetExplainer>();
             List<Analyzer> analyzer = new List<Analyzer>();
-            if (!GetSheetExplainersAndSnalyzers(TeSheetExplainersDocument.Text, TeAnalyzersDocument.Text, true, ref sheetExplainers, ref analyzer))
+            if (!GetSheetExplainersAndAnalyzers(TeSheetExplainersDocument.Text, TeAnalyzersDocument.Text, true, ref sheetExplainers, ref analyzer))
             {
                 return;
             }
@@ -2120,9 +2128,9 @@ namespace ExcelTool.ViewModel
 
                             string ruleName = fileSystemWatcherDic[fileSystemWatcher];
 
-                            RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText($".\\Rules\\{ruleName}.json"));
+                            RunningRule rule = JsonHelper.TryDeserializeObject<RunningRule>($".\\Rules\\{ruleName}.json");
 
-                            if (!CheckRule(rule))
+                            if (rule == null || !CheckRule(rule))
                             {
                                 SelectedRulesIndex = 0;
                                 return;
@@ -2130,7 +2138,7 @@ namespace ExcelTool.ViewModel
 
                             List<SheetExplainer> sheetExplainers = new List<SheetExplainer>();
                             List<Analyzer> analyzer = new List<Analyzer>();
-                            if (!GetSheetExplainersAndSnalyzers(rule.sheetExplainers, rule.analyzers, true, ref sheetExplainers, ref analyzer))
+                            if (!GetSheetExplainersAndAnalyzers(rule.sheetExplainers, rule.analyzers, true, ref sheetExplainers, ref analyzer))
                             {
                                 return;
                             }
@@ -2185,7 +2193,7 @@ namespace ExcelTool.ViewModel
             FileSystemWatcherInvokeThread.Start();
         }
 
-        private bool GetSheetExplainersAndSnalyzers(string sheetExplainersStr, string analyzersStr, bool isAuto, ref List<SheetExplainer> sheetExplainers, ref List<Analyzer> analyzers)
+        private bool GetSheetExplainersAndAnalyzers(string sheetExplainersStr, string analyzersStr, bool isAuto, ref List<SheetExplainer> sheetExplainers, ref List<Analyzer> analyzers)
         {
             List<String> sheetExplainersList = sheetExplainersStr.Split('\n').Where(str => str.Trim() != "").ToList();
             List<String> analyzersList = analyzersStr.Split('\n').Where(str => str.Trim() != "").ToList();
@@ -2196,46 +2204,25 @@ namespace ExcelTool.ViewModel
             foreach (string name in sheetExplainersList)
             {
                 SheetExplainer sheetExplainer = null;
-                try
+                sheetExplainer = JsonHelper.TryDeserializeObject<SheetExplainer>($".\\SheetExplainers\\{name}.json", isAuto);
+                if (sheetExplainer == null)
                 {
-                    sheetExplainer = JsonConvert.DeserializeObject<SheetExplainer>(File.ReadAllText($".\\SheetExplainers\\{name}.json"));
-                    if (sheetExplainer.pathes == null || sheetExplainer.pathes.Count == 0)
-                    {
-                        sheetExplainer.pathes = new List<string>();
-                        sheetExplainer.pathes.Add("");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (!isAuto)
-                    {
-                        CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        Logger.Error(ex.Message);
-                    }
                     return false;
+                }
+
+                if (sheetExplainer.pathes == null || sheetExplainer.pathes.Count == 0)
+                {
+                    sheetExplainer.pathes = new List<string>();
+                    sheetExplainer.pathes.Add("");
                 }
                 sheetExplainers.Add(sheetExplainer);
             }
             foreach (string name in analyzersList)
             {
                 Analyzer analyzer = null;
-                try
+                analyzer = JsonHelper.TryDeserializeObject<Analyzer>($".\\Analyzers\\{name}.json", isAuto);
+                if (analyzer == null)
                 {
-                    analyzer = JsonConvert.DeserializeObject<Analyzer>(File.ReadAllText($".\\Analyzers\\{name}.json"));
-                }
-                catch (Exception ex)
-                {
-                    if (!isAuto)
-                    {
-                        CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        Logger.Error(ex.Message);
-                    }
                     return false;
                 }
                 analyzers.Add(analyzer);
@@ -3235,7 +3222,11 @@ namespace ExcelTool.ViewModel
             List<String> rulesList = Directory.GetFiles(".\\Rules", "*.json").ToList();
             foreach (string path in rulesList)
             {
-                RunningRule rule = JsonConvert.DeserializeObject<RunningRule>(File.ReadAllText(path));
+                RunningRule rule = JsonHelper.TryDeserializeObject<RunningRule>(path);
+                if (rule == null)
+                {
+                    continue;
+                }
 
                 if (rule.watchPath != null && rule.watchPath != "")
                 {
