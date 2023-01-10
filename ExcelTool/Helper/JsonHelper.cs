@@ -28,11 +28,11 @@ namespace ExcelTool.Helper
             {
                 if (!useLog)
                 {
-                    CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, Application.Current.FindResource("ErrorWhileParsingJsonFile").ToString().Replace("{0}", $"\n{filePath}"), Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                    CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, Application.Current.FindResource("ErrorWhileParsingJsonFile").ToString().Replace("{0}", $"\n{Path.GetFullPath(filePath)}"), Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                 }
                 else
                 {
-                    Logger.Error(Application.Current.FindResource("ErrorWhileParsingJsonFile").ToString().Replace("{0}", $"\n{filePath}"));
+                    Logger.Error(Application.Current.FindResource("ErrorWhileParsingJsonFile").ToString().Replace("{0}", $"\n{Path.GetFullPath(filePath)}"));
                 }
             }
             return res;
