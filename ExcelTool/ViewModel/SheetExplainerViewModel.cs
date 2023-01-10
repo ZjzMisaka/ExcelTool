@@ -16,6 +16,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using static CustomizableMessageBox.MessageBox;
+using static System.Net.WebRequestMethods;
+using File = System.IO.File;
 
 namespace ExcelTool.ViewModel
 {
@@ -333,6 +335,14 @@ namespace ExcelTool.ViewModel
             if (result == MessageBoxResult.Cancel)
             {
                 return;
+            }
+
+            foreach (string deletePath in deleteList)
+            {
+                if (Path.GetFileNameWithoutExtension(deletePath) == SelectedSheetExplainersItem)
+                {
+                    SelectedSheetExplainersIndex = 0;
+                }
             }
 
             foreach (string deletePath in deleteList)
