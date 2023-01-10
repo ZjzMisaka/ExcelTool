@@ -1135,7 +1135,7 @@ namespace ExcelTool.ViewModel
                 }
 
                 string fileName = $"Temp_Sheet_Explainer_{DateTime.Now.Year}_{DateTime.Now.Month}_{DateTime.Now.Day}_{DateTime.Now.Hour}_{DateTime.Now.Minute}_{DateTime.Now.Second}_{DateTime.Now.Millisecond}";
-                FileHelper.SavaSheetExplainerJson(fileName, sheetExplainer);
+                fileName = FileHelper.SavaSheetExplainerJson(fileName, sheetExplainer);
 
                 addList.Add(fileName);
             }
@@ -1153,7 +1153,7 @@ namespace ExcelTool.ViewModel
                 sheetExplainer.sheetNames = new KeyValuePair<FindingMethod, List<string>>(FindingMethod.ALL, new List<string>());
 
                 string fileName = $"Temp_Sheet_Explainer_{DateTime.Now.Year}_{DateTime.Now.Month}_{DateTime.Now.Day}_{DateTime.Now.Hour}_{DateTime.Now.Minute}_{DateTime.Now.Second}_{DateTime.Now.Millisecond}";
-                FileHelper.SavaSheetExplainerJson(fileName, sheetExplainer);
+                fileName = FileHelper.SavaSheetExplainerJson(fileName, sheetExplainer);
 
                 addList.Add(fileName);
             }
