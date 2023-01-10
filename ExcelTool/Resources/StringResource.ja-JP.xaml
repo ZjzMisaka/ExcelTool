@@ -209,4 +209,5 @@ namespace AnalyzeCode
     <sys:String x:Key="BanSecurityCheckWithRestart">今後、セキュリティチェックは不要になって、プログラムを再起動する</sys:String>
     <sys:String x:Key="FileNameEmptyError">ファイル名を空にすることはできません</sys:String>
     <sys:String x:Key="ErrorWhileParsingJsonFile">Jsonファイルの解析中にエラーが発生しました: {0}</sys:String>
+    <sys:String x:Key="ReplaceFile">同じ名前のファイルが既に存在します。置き換えますか? {0}</sys:String>
 </ResourceDictionary>

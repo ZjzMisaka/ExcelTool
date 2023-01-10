@@ -34,6 +34,9 @@ using System.Globalization;
 using System.Windows.Data;
 using ModernWpf;
 using static CustomizableMessageBox.MessageBox;
+using Windows.Storage;
+using System.Runtime.InteropServices.ComTypes;
+using System.Diagnostics.Tracing;
 
 namespace ExcelTool.ViewModel
 {
@@ -460,6 +463,8 @@ namespace ExcelTool.ViewModel
         public ICommand CbSheetExplainersSelectionChangedCommand { get; set; }
         public ICommand CbAnalyzersPreviewMouseLeftButtonDownCommand { get; set; }
         public ICommand CbAnalyzersSelectionChangedCommand { get; set; }
+        public ICommand TeSheetexplainersDropCommand { get; set; }
+        public ICommand TeAnalyzersDropCommand { get; set; }
         public ICommand CbParamsPreviewMouseLeftButtonDownCommand { get; set; }
         public ICommand CbParamsSelectionChangedCommand { get; set; }
         public ICommand EditParamCommand { get; set; }
@@ -531,6 +536,8 @@ namespace ExcelTool.ViewModel
             CbSheetExplainersSelectionChangedCommand = new RelayCommand(CbSheetExplainersSelectionChanged);
             CbAnalyzersPreviewMouseLeftButtonDownCommand = new RelayCommand(CbAnalyzersPreviewMouseLeftButtonDown);
             CbAnalyzersSelectionChangedCommand = new RelayCommand(CbAnalyzersSelectionChanged);
+            TeSheetexplainersDropCommand = new RelayCommand<DragEventArgs>(TeSheetexplainersDrop);
+            TeAnalyzersDropCommand = new RelayCommand<DragEventArgs>(TeAnalyzersDrop);
             CbParamsPreviewMouseLeftButtonDownCommand = new RelayCommand(CbParamsPreviewMouseLeftButtonDown);
             CbParamsSelectionChangedCommand = new RelayCommand(CbParamsSelectionChanged);
             EditParamCommand = new RelayCommand(EditParam);
@@ -1046,6 +1053,176 @@ namespace ExcelTool.ViewModel
             }
             TeAnalyzersDocument = new TextDocument($"{TeAnalyzersDocument.Text}{SelectedAnalyzersItem}\n");
             SelectedAnalyzersIndex = 0;
+        }
+
+        private void TeSheetexplainersDrop(DragEventArgs obj)
+        {
+            if (!obj.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                return;
+            }
+
+            Array paths = (Array)obj.Data.GetData(DataFormats.FileDrop);
+
+            List<string> jsonList = new List<string>();
+            List<string> excelList = new List<string>();
+            List<string> folderList = new List<string>();
+
+            List<string> addList = new List<string>();
+
+            foreach (string path in paths)
+            {
+                if (Directory.Exists(path))
+                {
+                    folderList.Add(path);
+                }
+                else if (File.Exists(path))
+                {
+                    Regex rgx = new Regex("[\\s\\S]*.xls[xm]", RegexOptions.IgnoreCase);
+                    if (new FileInfo(path).Extension == ".json")
+                    {
+                        jsonList.Add(path);
+                    }
+                    else if (rgx.IsMatch(new FileInfo(path).Name))
+                    {
+                        excelList.Add(path);
+                    }
+                }
+            }
+
+            if (jsonList.Count > 0)
+            {
+                foreach (string file in jsonList)
+                {
+                    string toFileName = $".\\SheetExplainers\\{new FileInfo(file).Name}";
+
+                    string fromFull = Path.GetFullPath(file);
+                    string toFull = Path.GetFullPath(toFileName);
+
+                    addList.Add(Path.GetFileNameWithoutExtension(fromFull));
+
+                    if (Path.GetFullPath(file) == Path.GetFullPath(toFileName))
+                    {
+                        continue;
+                    }
+
+                    if (File.Exists(toFileName))
+                    {
+                        MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(Application.Current.FindResource("ReplaceFile").ToString().Replace("{0}", $"\n{fromFull}\n{toFull}"), Application.Current.FindResource("Warning").ToString(), MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            File.Copy(fromFull, toFull, true);
+                        }
+                    }
+                    else
+                    {
+                        File.Copy(fromFull, toFull);
+                    }
+                }
+            }
+
+            if (excelList.Count > 0)
+            {
+                SheetExplainer sheetExplainer = new SheetExplainer();
+
+                sheetExplainer.pathes = new List<string>();
+                sheetExplainer.fileNames = new KeyValuePair<FindingMethod, List<string>>(FindingMethod.SAME, new List<string>());
+                sheetExplainer.sheetNames = new KeyValuePair<FindingMethod, List<string>>(FindingMethod.ALL, new List<string>());
+
+                foreach (string excel in excelList)
+                {
+                    sheetExplainer.fileNames.Value.Add(excel);
+                }
+
+                string fileName = $"Temp_Sheet_Explainer_{DateTime.Now.Year}_{DateTime.Now.Month}_{DateTime.Now.Day}_{DateTime.Now.Hour}_{DateTime.Now.Minute}_{DateTime.Now.Second}_{DateTime.Now.Millisecond}";
+                FileHelper.SavaSheetExplainerJson(fileName, sheetExplainer);
+
+                addList.Add(fileName);
+            }
+
+            if (folderList.Count > 0)
+            {
+                SheetExplainer sheetExplainer = new SheetExplainer();
+
+                foreach (string folder in folderList)
+                {
+                    sheetExplainer.pathes.Add(folder);
+                }
+
+                sheetExplainer.fileNames = new KeyValuePair<FindingMethod, List<string>>(FindingMethod.ALL, new List<string>());
+                sheetExplainer.sheetNames = new KeyValuePair<FindingMethod, List<string>>(FindingMethod.ALL, new List<string>());
+
+                string fileName = $"Temp_Sheet_Explainer_{DateTime.Now.Year}_{DateTime.Now.Month}_{DateTime.Now.Day}_{DateTime.Now.Hour}_{DateTime.Now.Minute}_{DateTime.Now.Second}_{DateTime.Now.Millisecond}";
+                FileHelper.SavaSheetExplainerJson(fileName, sheetExplainer);
+
+                addList.Add(fileName);
+            }
+
+            foreach (string needAdd in addList)
+            {
+                TeSheetExplainersDocument = new TextDocument($"{TeSheetExplainersDocument.Text}{needAdd}\n");
+            }
+        }
+
+        private void TeAnalyzersDrop(DragEventArgs obj)
+        {
+            if (!obj.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                return;
+            }
+
+            Array paths = (Array)obj.Data.GetData(DataFormats.FileDrop);
+
+            List<string> jsonList = new List<string>();
+
+            List<string> addList = new List<string>();
+
+            foreach (string path in paths)
+            {
+                if (File.Exists(path))
+                {
+                    if (new FileInfo(path).Extension == ".json")
+                    {
+                        jsonList.Add(path);
+                    }
+                }
+            }
+
+            if (jsonList.Count > 0)
+            {
+                foreach (string file in jsonList)
+                {
+                    string toFileName = $".\\Analyzers\\{new FileInfo(file).Name}";
+
+                    string fromFull = Path.GetFullPath(file);
+                    string toFull = Path.GetFullPath(toFileName);
+
+                    addList.Add(Path.GetFileNameWithoutExtension(fromFull));
+
+                    if (Path.GetFullPath(file) == Path.GetFullPath(toFileName))
+                    {
+                        continue;
+                    }
+
+                    if (File.Exists(toFileName))
+                    {
+                        MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(Application.Current.FindResource("ReplaceFile").ToString().Replace("{0}", $"\n{fromFull}\n{toFull}"), Application.Current.FindResource("Warning").ToString(), MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            File.Copy(fromFull, toFull, true);
+                        }
+                    }
+                    else
+                    {
+                        File.Copy(fromFull, toFull);
+                    }
+                }
+            }
+
+            foreach (string needAdd in addList)
+            {
+                TeAnalyzersDocument = new TextDocument($"{TeAnalyzersDocument.Text}{needAdd}\n");
+            }
         }
 
         private void CbParamsPreviewMouseLeftButtonDown()
@@ -1801,23 +1978,8 @@ namespace ExcelTool.ViewModel
                 runningRule.basePath = TbBasePathText;
                 runningRule.outputPath = TbOutputPathText;
                 runningRule.outputName = TbOutputNameText;
-                string json = JsonConvert.SerializeObject(runningRule);
 
-                string fileName = $".\\Rules\\{tbName.Text}.json";
-                FileStream fs = null;
-                try
-                {
-                    fs = File.Create(fileName);
-                    fs.Close();
-                    StreamWriter sw = File.CreateText(fileName);
-                    sw.Write(json);
-                    sw.Flush();
-                    sw.Close();
-                }
-                catch (Exception ex)
-                {
-                    CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
-                }
+                FileHelper.SavaRunningRuleJson(tbName.Text, runningRule);
             }
         }
 
@@ -2331,7 +2493,7 @@ namespace ExcelTool.ViewModel
                         basePathTemp = Path.Combine(basePath.Trim(), str.Trim());
                     }
 
-                    if (!Directory.Exists(basePathTemp))
+                    if (basePathTemp.Trim() != "" && !Directory.Exists(basePathTemp))
                     {
                         if (!isAuto)
                         {
@@ -2347,6 +2509,16 @@ namespace ExcelTool.ViewModel
 
                     FileHelper.FileTraverse(isAuto, basePathTemp, sheetExplainer, filePathList);
                     allFilePathList.AddRange(filePathList);
+                }
+                if (sheetExplainer.fileNames.Key == FindingMethod.SAME)
+                {
+                    foreach (string filename in sheetExplainer.fileNames.Value)
+                    {
+                        if (File.Exists(filename) && !allFilePathList.Contains(filename))
+                        {
+                            allFilePathList.Add(filename);
+                        }
+                    }
                 }
                 filePathListDic.Add(sheetExplainer, allFilePathList);
 

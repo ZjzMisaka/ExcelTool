@@ -883,23 +883,8 @@ namespace ExcelTool.ViewModel
             analyzer.code = editor.Text;
             analyzer.name = newName;
             analyzer.paramDic = paramDicForChange;
-            string json = JsonConvert.SerializeObject(analyzer);
 
-            string fileName = $".\\Analyzers\\{newName}.json";
-            FileStream fs = null;
-            try
-            {
-                fs = File.Create(fileName);
-                fs.Close();
-                StreamWriter sw = File.CreateText(fileName);
-                sw.Write(json);
-                sw.Flush();
-                sw.Close();
-            }
-            catch (Exception ex)
-            {
-                CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
-            }
+            FileHelper.SavaAnalyzerJson(newName, analyzer);
 
             CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetterWithTimmer(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, Application.Current.FindResource("SuccessfullySaved").ToString(), Application.Current.FindResource("Save").ToString(), MessageBoxImage.Information);
 

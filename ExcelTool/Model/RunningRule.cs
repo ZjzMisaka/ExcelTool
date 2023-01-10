@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ExcelTool
 {
-    class RunningRule
+    public class RunningRule
     {
         public string analyzers;
         public string sheetExplainers;

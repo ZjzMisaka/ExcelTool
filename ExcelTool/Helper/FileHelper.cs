@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using CustomizableMessageBox;
 using GlobalObjects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -44,7 +45,10 @@ namespace ExcelTool.Helper
                                 if (fileInfo.Name.Equals(str))
                                 {
                                     string fileName = System.IO.Path.Combine(fileInfo.DirectoryName, fileInfo.Name);
-                                    filePathList.Add(fileName);
+                                    if (File.Exists(fileName))
+                                    {
+                                        filePathList.Add(fileName);
+                                    }
                                 }
                             }
                         }
@@ -55,7 +59,10 @@ namespace ExcelTool.Helper
                                 if (fileInfo.Name.Contains(str))
                                 {
                                     string fileName = System.IO.Path.Combine(fileInfo.DirectoryName, fileInfo.Name);
-                                    filePathList.Add(fileName);
+                                    if (File.Exists(fileName))
+                                    {
+                                        filePathList.Add(fileName);
+                                    }
                                 }
                             }
                         }
@@ -67,7 +74,10 @@ namespace ExcelTool.Helper
                                 if (rgx.IsMatch(fileInfo.Name))
                                 {
                                     string fileName = System.IO.Path.Combine(fileInfo.DirectoryName, fileInfo.Name);
-                                    filePathList.Add(fileName);
+                                    if (File.Exists(fileName))
+                                    {
+                                        filePathList.Add(fileName);
+                                    }
                                 }
                             }
                         }
@@ -77,7 +87,10 @@ namespace ExcelTool.Helper
                             if (rgx.IsMatch(fileInfo.Name))
                             {
                                 string fileName = System.IO.Path.Combine(fileInfo.DirectoryName, fileInfo.Name);
-                                filePathList.Add(fileName);
+                                if (File.Exists(fileName))
+                                {
+                                    filePathList.Add(fileName);
+                                }
                             }
                         }
                     }
@@ -311,6 +324,69 @@ namespace ExcelTool.Helper
             {
                 CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{Application.Current.FindResource("FailedToCreateANewFolder").ToString()}\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                 return;
+            }
+        }
+
+        public static void SavaSheetExplainerJson(string fileName, SheetExplainer sheetExplainer)
+        {
+            string json = JsonConvert.SerializeObject(sheetExplainer);
+
+            fileName = $".\\SheetExplainers\\{fileName}.json";
+            FileStream fs;
+            try
+            {
+                fs = File.Create(fileName);
+                fs.Close();
+                StreamWriter sw = File.CreateText(fileName);
+                sw.Write(json);
+                sw.Flush();
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+            }
+        }
+
+        public static void SavaAnalyzerJson(string fileName, Analyzer analyzer)
+        {
+            string json = JsonConvert.SerializeObject(analyzer);
+
+            fileName = $".\\Analyzers\\{fileName}.json";
+            FileStream fs;
+            try
+            {
+                fs = File.Create(fileName);
+                fs.Close();
+                StreamWriter sw = File.CreateText(fileName);
+                sw.Write(json);
+                sw.Flush();
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+            }
+        }
+
+        public static void SavaRunningRuleJson(string fileName, RunningRule runningRule)
+        {
+            string json = JsonConvert.SerializeObject(runningRule);
+
+            fileName = $".\\Rules\\{fileName}.json";
+            FileStream fs;
+            try
+            {
+                fs = File.Create(fileName);
+                fs.Close();
+                StreamWriter sw = File.CreateText(fileName);
+                sw.Write(json);
+                sw.Flush();
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
             }
         }
     }
