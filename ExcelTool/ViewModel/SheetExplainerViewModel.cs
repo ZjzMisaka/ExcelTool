@@ -440,7 +440,7 @@ namespace ExcelTool.ViewModel
             KeyValuePair<FindingMethod, List<string>> sheetNames = new KeyValuePair<FindingMethod, List<string>>(sheetNamesFindingMethod, StringListDeteleBlank(TbSheetNamesText.Split('\n').ToList()));
             sheetExplainer.sheetNames = sheetNames;
 
-            FileHelper.SavaSheetExplainerJson(newName, sheetExplainer);
+            FileHelper.SavaSheetExplainerJson(newName, sheetExplainer, true);
 
             CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetterWithTimmer(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, Application.Current.FindResource("SuccessfullySaved").ToString(), Application.Current.FindResource("Save").ToString(), MessageBoxImage.Information);
         }

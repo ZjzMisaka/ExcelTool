@@ -884,7 +884,7 @@ namespace ExcelTool.ViewModel
             analyzer.name = newName;
             analyzer.paramDic = paramDicForChange;
 
-            FileHelper.SavaAnalyzerJson(newName, analyzer);
+            FileHelper.SavaAnalyzerJson(newName, analyzer, true);
 
             CustomizableMessageBox.MessageBox.Show(GlobalObjects.GlobalObjects.GetPropertiesSetterWithTimmer(), new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, Application.Current.FindResource("SuccessfullySaved").ToString(), Application.Current.FindResource("Save").ToString(), MessageBoxImage.Information);
 

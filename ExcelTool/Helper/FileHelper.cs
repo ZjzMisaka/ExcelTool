@@ -327,19 +327,22 @@ namespace ExcelTool.Helper
             }
         }
 
-        public static string SavaSheetExplainerJson(string fileName, SheetExplainer sheetExplainer)
+        public static string SavaSheetExplainerJson(string fileName, SheetExplainer sheetExplainer, bool allowOverride)
         {
             string json = JsonConvert.SerializeObject(sheetExplainer);
 
             string fullFileName = $".\\SheetExplainers\\{fileName}.json";
             string tempFileName = fileName;
 
-            int i = 1;
-            while (File.Exists(fullFileName))
+            if (!allowOverride)
             {
-                tempFileName = $"{fileName}_{i}";
-                fullFileName = $".\\SheetExplainers\\{tempFileName}.json";
-                ++i;
+                int i = 1;
+                while (File.Exists(fullFileName))
+                {
+                    tempFileName = $"{fileName}_{i}";
+                    fullFileName = $".\\SheetExplainers\\{tempFileName}.json";
+                    ++i;
+                }
             }
 
             FileStream fs;
@@ -360,19 +363,22 @@ namespace ExcelTool.Helper
             return tempFileName;
         }
 
-        public static string SavaAnalyzerJson(string fileName, Analyzer analyzer)
+        public static string SavaAnalyzerJson(string fileName, Analyzer analyzer, bool allowOverride)
         {
             string json = JsonConvert.SerializeObject(analyzer);
 
             string fullFileName = $".\\Analyzers\\{fileName}.json";
             string tempFileName = fileName;
 
-            int i = 1;
-            while (File.Exists(fullFileName))
+            if (!allowOverride)
             {
-                tempFileName = $"{fileName}_{i}";
-                fullFileName = $".\\Analyzers\\{tempFileName}.json";
-                ++i;
+                int i = 1;
+                while (File.Exists(fullFileName))
+                {
+                    tempFileName = $"{fileName}_{i}";
+                    fullFileName = $".\\Analyzers\\{tempFileName}.json";
+                    ++i;
+                }
             }
 
             FileStream fs;
@@ -393,19 +399,22 @@ namespace ExcelTool.Helper
             return tempFileName;
         }
 
-        public static string SavaRunningRuleJson(string fileName, RunningRule runningRule)
+        public static string SavaRunningRuleJson(string fileName, RunningRule runningRule, bool allowOverride)
         {
             string json = JsonConvert.SerializeObject(runningRule);
 
             string fullFileName = $".\\Rules\\{fileName}.json";
             string tempFileName = fileName;
 
-            int i = 1;
-            while (File.Exists(fullFileName))
+            if (!allowOverride)
             {
-                tempFileName = $"{fileName}_{i}";
-                fullFileName = $".\\Rules\\{tempFileName}.json";
-                ++i;
+                int i = 1;
+                while (File.Exists(fullFileName))
+                {
+                    tempFileName = $"{fileName}_{i}";
+                    fullFileName = $".\\Rules\\{tempFileName}.json";
+                    ++i;
+                }
             }
 
             FileStream fs;
