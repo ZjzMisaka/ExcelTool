@@ -51,7 +51,7 @@ namespace ExcelTool.ViewModel
         private Thread runBeforeAnalyzeSheetThread;
         private Thread runBeforeSetResultThread;
         private Thread runEndThread;
-        private Thread FileSystemWatcherInvokeThread;
+        private Thread fileSystemWatcherInvokeThread;
         private ConcurrentDictionary<string, long> currentAnalizingDictionary;
         private ConcurrentDictionary<string, long> currentOutputtingDictionary;
         private ConcurrentDictionary<string, Analyzer> analyzerListForSetResult;
@@ -2269,7 +2269,7 @@ namespace ExcelTool.ViewModel
 
         private void FileSystemWatcherInvoke(object sender, FileSystemEventArgs e)
         {
-            FileSystemWatcherInvokeThread = new Thread(async () =>
+            fileSystemWatcherInvokeThread = new Thread(async () =>
             {
                 if (stopwatchBeforeFileSystemWatcherInvoke == null)
                 {
@@ -2352,7 +2352,7 @@ namespace ExcelTool.ViewModel
                     stopwatchBeforeFileSystemWatcherInvoke.Restart();
                 }
             });
-            FileSystemWatcherInvokeThread.Start();
+            fileSystemWatcherInvokeThread.Start();
         }
 
         private bool GetSheetExplainersAndAnalyzers(string sheetExplainersStr, string analyzersStr, bool isAuto, ref List<SheetExplainer> sheetExplainers, ref List<Analyzer> analyzers)
@@ -3450,9 +3450,9 @@ namespace ExcelTool.ViewModel
             }
             if (isCloseWindow)
             {
-                if (FileSystemWatcherInvokeThread != null && FileSystemWatcherInvokeThread.IsAlive)
+                if (fileSystemWatcherInvokeThread != null && fileSystemWatcherInvokeThread.IsAlive)
                 {
-                    FileSystemWatcherInvokeThread.Abort();
+                    fileSystemWatcherInvokeThread.Abort();
                 }
                 runningThread.Abort();
             }
