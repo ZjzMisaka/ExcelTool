@@ -65,6 +65,8 @@
     <sys:String x:Key="Save">Save</sys:String>
     <sys:String x:Key="Close">Close</sys:String>
     <sys:String x:Key="Delete">Delete</sys:String>
+    <sys:String x:Key="ToBeDeletedSoon">To be deleted soon: {0}</sys:String>
+    <sys:String x:Key="ClearTemp">Clear temporary config</sys:String>
     <sys:String x:Key="AutomaticallyOpening">Opens automatically when finished</sys:String>
     <sys:String x:Key="Stop">Stop</sys:String>
     <sys:String x:Key="Start">Start</sys:String>

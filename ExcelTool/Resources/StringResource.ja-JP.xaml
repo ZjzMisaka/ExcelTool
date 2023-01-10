@@ -65,6 +65,8 @@
     <sys:String x:Key="Save">保存</sys:String>
     <sys:String x:Key="Close">閉じる</sys:String>
     <sys:String x:Key="Delete">削除</sys:String>
+    <sys:String x:Key="ToBeDeletedSoon">まもなく削除されます: {0}</sys:String>
+    <sys:String x:Key="ClearTemp">一時的な構成をクリアする</sys:String>
     <sys:String x:Key="AutomaticallyOpening">終了すると自動的に開く</sys:String>
     <sys:String x:Key="Stop">停止</sys:String>
     <sys:String x:Key="Start">開始</sys:String>

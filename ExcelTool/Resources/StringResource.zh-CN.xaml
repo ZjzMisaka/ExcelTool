@@ -65,6 +65,8 @@
     <sys:String x:Key="Save">保存</sys:String>
     <sys:String x:Key="Close">关闭</sys:String>
     <sys:String x:Key="Delete">删除</sys:String>
+    <sys:String x:Key="ToBeDeletedSoon">即将删除: {0}</sys:String>
+    <sys:String x:Key="ClearTemp">清除临时配置</sys:String>
     <sys:String x:Key="AutomaticallyOpening">完成后自动打开</sys:String>
     <sys:String x:Key="Stop">停止</sys:String>
     <sys:String x:Key="Start">开始</sys:String>

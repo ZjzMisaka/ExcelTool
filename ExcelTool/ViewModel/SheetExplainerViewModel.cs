@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -147,6 +148,7 @@ namespace ExcelTool.ViewModel
         public ICommand CbSheetExplainersPreviewMouseLeftButtonDownCommand { get; set; }
         public ICommand CbSheetExplainersSelectionChangedCommand { get; set; }
         public ICommand BtnDeleteClickCommand { get; set; }
+        public ICommand BtnClearTempClickCommand { get; set; }
         public ICommand BtnSaveClickCommand { get; set; }
         public SheetExplainerViewModel()
         {
@@ -157,6 +159,7 @@ namespace ExcelTool.ViewModel
             CbSheetExplainersPreviewMouseLeftButtonDownCommand = new RelayCommand(CbSheetExplainersPreviewMouseLeftButtonDown);
             CbSheetExplainersSelectionChangedCommand = new RelayCommand(CbSheetExplainersSelectionChanged);
             BtnDeleteClickCommand = new RelayCommand(BtnDeleteClick);
+            BtnClearTempClickCommand = new RelayCommand(BtnClearTempClick);
             BtnSaveClickCommand = new RelayCommand(BtnSaveClick);
         }
 
@@ -303,6 +306,38 @@ namespace ExcelTool.ViewModel
             {
                 File.Delete(path);
                 SelectedSheetExplainersIndex = 0;
+            }
+        }
+
+        private void BtnClearTempClick()
+        {
+            String path = $"{System.Environment.CurrentDirectory}\\SheetExplainers";
+            string[] files = Directory.GetFiles(path, "*.json");
+            List<string> deleteList = new List<string>();
+            string deleteStr = "";
+            foreach (string file in files)
+            {
+                if (new FileInfo(file).Name.StartsWith("Temp_Sheet_Explainer_"))
+                {
+                    deleteList.Add(file);
+                    deleteStr = $"{deleteStr}\n{file}";
+                }
+            }
+
+            if (deleteList.Count == 0)
+            {
+                return;
+            }
+
+            MessageBoxResult result = CustomizableMessageBox.MessageBox.Show(Application.Current.FindResource("ToBeDeletedSoon").ToString().Replace("{0}", deleteStr), Application.Current.FindResource("Warning").ToString(), MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (result == MessageBoxResult.Cancel)
+            {
+                return;
+            }
+
+            foreach (string deletePath in deleteList)
+            {
+                File.Delete(deletePath);
             }
         }
 
