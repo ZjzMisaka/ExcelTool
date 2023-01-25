@@ -400,6 +400,9 @@ namespace GlobalObjects
         private static bool isSaveDefaultWorkBook = true;
 
         public static bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultWorkBook = value; }
+        private static string outputPath = "";
+
+        public static string OutputPath { get => outputPath; set => outputPath = value; }
 
         public static XLWorkbook CreateWorkbook(string name)
         {
