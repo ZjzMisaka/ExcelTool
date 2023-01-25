@@ -95,6 +95,8 @@ void ClearWorkbooks();
 
 // ---- 是否保存默认输出文件属性 ----
 bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultWorkBook = value; }
+// ---- 输出文件的位置 ----
+string OutputPath { get => outputPath; set => outputPath = value; }
 ```
 
 ##### Param (类)

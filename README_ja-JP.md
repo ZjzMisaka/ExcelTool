@@ -95,6 +95,8 @@ void ClearWorkbooks();
 
 // ---- デフォルトの出力ファイルを保存するかどうか ----
 bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultWorkBook = value; }
+// ---- 出力ファイルの位置 ----
+string OutputPath { get => outputPath; set => outputPath = value; }
 ```
 
 ##### Param (クラス)

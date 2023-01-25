@@ -95,6 +95,8 @@ void ClearWorkbooks();
 
 // ---- Whether to save the default output file ----
 bool IsSaveDefaultWorkBook { get => isSaveDefaultWorkBook; set => isSaveDefaultWorkBook = value; }
+// ---- The location of the output file ----
+string OutputPath { get => outputPath; set => outputPath = value; }
 ```
 
 ##### Param (class)
