@@ -2425,6 +2425,7 @@ namespace ExcelTool.ViewModel
             Scanner.ResetAll();
             Output.ClearWorkbooks();
             Output.IsSaveDefaultWorkBook = true;
+            Output.OutputPath = outputPath;
 
             runNotSuccessed = false;
 
