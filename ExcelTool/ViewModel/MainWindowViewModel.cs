@@ -2958,7 +2958,7 @@ namespace ExcelTool.ViewModel
             
             if (unLockedList.Count >= 5 && !paramsList.Contains(paramStr) && !isLocked)
             {
-                paramsList.RemoveAt(4);
+                unLockedList.RemoveAt(4);
             }
             if (unLockedList.Contains(paramStr))
             {
