@@ -772,7 +772,7 @@ namespace ExcelTool.ViewModel
                                 changedParamDic.Add(ParamHelper.EncodeFromEscaped(keyList[i]), new ParamInfo(ParamHelper.EncodeFromEscaped(describeList[i]), possibleValueListOr, ParamType.Single));
                             }
                         }
-                        else if (possibleValue.Contains('+'))
+                        else if (possibleValue.Length > 0)
                         {
                             List<string> valueList = possibleValue.Split('+').ToList();
                             List<PossibleValue> possibleValueListAnd = new List<PossibleValue>();
@@ -795,7 +795,7 @@ namespace ExcelTool.ViewModel
                             }
                             if (describeList[i].Trim() == "")
                             {
-                                changedParamDic.Add(ParamHelper.EncodeFromEscaped(keyList[i]), new ParamInfo(possibleValueListAnd, ParamType.Single));
+                                changedParamDic.Add(ParamHelper.EncodeFromEscaped(keyList[i]), new ParamInfo(possibleValueListAnd, ParamType.Multiple));
                             }
                             else
                             {

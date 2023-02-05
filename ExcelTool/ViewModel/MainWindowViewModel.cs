@@ -1412,40 +1412,6 @@ namespace ExcelTool.ViewModel
                         if (analyzer.paramDic[key].type == ParamType.Single)
                         {
                             ++groupIndex;
-                            RadioButton radioButtonForUncheck = new RadioButton();
-                            radioButtonForUncheck.Height = 30;
-                            radioButtonForUncheck.HorizontalAlignment = HorizontalAlignment.Stretch;
-                            radioButtonForUncheck.VerticalContentAlignment = VerticalAlignment.Top;
-                            radioButtonForUncheck.GroupName = $"{analyzerName}_{key}_{groupIndex}";
-                            radioButtonForUncheck.Content = ParamHelper.DecodeForDisplay("-");
-                            stackPanel.Children.Add(radioButtonForUncheck);
-
-                            radioButtonForUncheck.IsChecked = true;
-
-                            radioButtonForUncheck.MouseEnter += (s, ex) =>
-                            {
-                                radioButtonForUncheck.Content = "";
-                            };
-                            radioButtonForUncheck.TouchEnter += (s, ex) =>
-                            {
-                                radioButtonForUncheck.Content = "";
-                            };
-                            radioButtonForUncheck.MouseLeave += (s, ex) =>
-                            {
-                                radioButtonForUncheck.Content = "-";
-                            };
-                            radioButtonForUncheck.TouchLeave += (s, ex) =>
-                            {
-                                radioButtonForUncheck.Content = "-";
-                            };
-                            radioButtonForUncheck.Checked += (s, ex) =>
-                            {
-                                paramDicEachAnalyzer[analyzerName].Remove(key);
-                                if (paramDicEachAnalyzer[analyzerName].Keys.Count == 0)
-                                {
-                                    paramDicEachAnalyzer.Remove(analyzerName);
-                                }
-                            };
                             foreach (PossibleValue possibleValue in analyzer.paramDic[key].possibleValues)
                             {
                                 RadioButton radioButton = new RadioButton();
@@ -1482,6 +1448,18 @@ namespace ExcelTool.ViewModel
                                         radioButton.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
                                     };
                                 }
+                                bool justChecked = false;
+                                radioButton.Click += (s, ex) =>
+                                {
+                                    if (justChecked)
+                                    {
+                                        justChecked = false;
+                                        ex.Handled = true;
+                                        return;
+                                    }
+                                    if ((bool)radioButton.IsChecked)
+                                        radioButton.IsChecked = false;
+                                };
                                 radioButton.Checked += (s, ex) =>
                                 {
                                     if (!paramDicEachAnalyzer.ContainsKey(analyzerName))
@@ -1489,6 +1467,16 @@ namespace ExcelTool.ViewModel
                                         paramDicEachAnalyzer.Add(analyzerName, new Dictionary<string, string>());
                                     }
                                     paramDicEachAnalyzer[analyzerName][key] = possibleValue.value;
+
+                                    justChecked = true;
+                                };
+                                radioButton.Unchecked += (s, ex) =>
+                                {
+                                    paramDicEachAnalyzer[analyzerName].Remove(key);
+                                    if (paramDicEachAnalyzer[analyzerName].Keys.Count == 0)
+                                    {
+                                        paramDicEachAnalyzer.Remove(analyzerName);
+                                    }
                                 };
 
                                 if (paramDic != null && paramDic.ContainsKey(key))
@@ -1496,6 +1484,7 @@ namespace ExcelTool.ViewModel
                                     if (possibleValue.value == paramDic[key])
                                     {
                                         radioButton.IsChecked = true;
+                                        justChecked = false;
                                     }
                                 }
                                 else if (paramDicEachAnalyzer.ContainsKey("public") && paramDicEachAnalyzer["public"] != null && paramDicEachAnalyzer["public"].ContainsKey(key))
@@ -1503,6 +1492,7 @@ namespace ExcelTool.ViewModel
                                     if (possibleValue.value == paramDicEachAnalyzer["public"][key])
                                     {
                                         radioButton.IsChecked = true;
+                                        justChecked = false;
                                     }
                                 }
                             }
@@ -1609,14 +1599,7 @@ namespace ExcelTool.ViewModel
                                 }
                             }
                         }
-                        if (analyzer.paramDic[key].type == ParamType.Single)
-                        {
-                            rowDefinitionKv.Height = new GridLength(30 * (analyzer.paramDic[key].possibleValues.Count + 1) + 10);
-                        }
-                        else
-                        {
-                            rowDefinitionKv.Height = new GridLength(30 * analyzer.paramDic[key].possibleValues.Count + 10);
-                        }
+                        rowDefinitionKv.Height = new GridLength(30 * analyzer.paramDic[key].possibleValues.Count + 10);
                     }
                     else
                     {
