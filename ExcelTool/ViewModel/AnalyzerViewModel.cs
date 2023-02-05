@@ -334,27 +334,82 @@ namespace ExcelTool.ViewModel
             }
             if (((MenuItem)sender).Name == "menu_show_spaces")
             {
-                editor.Options.ShowSpaces = !editor.Options.ShowSpaces;
+                CheckBox checkBox = new CheckBox();
+                checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+                checkBox.Margin = new Thickness(5);
+                checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+                checkBox.IsChecked = editor.Options.ShowSpaces;
+                int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("ShowSpaces").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+
+                editor.Options.ShowSpaces = (bool)checkBox.IsChecked;
                 IniHelper.SetShowSpaces(editor.Options.ShowSpaces);
             }
             else if (((MenuItem)sender).Name == "menu_show_tabs")
             {
-                editor.Options.ShowTabs = !editor.Options.ShowTabs;
+                CheckBox checkBox = new CheckBox();
+                checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+                checkBox.Margin = new Thickness(5);
+                checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+                checkBox.IsChecked = editor.Options.ShowTabs;
+                int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("ShowTabs").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+
+                editor.Options.ShowTabs = (bool)checkBox.IsChecked;
                 IniHelper.SetShowTabs(editor.Options.ShowTabs);
             }
             else if (((MenuItem)sender).Name == "menu_show_end_of_line")
             {
-                editor.Options.ShowEndOfLine = !editor.Options.ShowEndOfLine;
+                CheckBox checkBox = new CheckBox();
+                checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+                checkBox.Margin = new Thickness(5);
+                checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+                checkBox.IsChecked = editor.Options.ShowEndOfLine;
+                int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("ShowEndOfLine").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+
+                editor.Options.ShowEndOfLine = (bool)checkBox.IsChecked;
                 IniHelper.SetShowEndOfLine(editor.Options.ShowEndOfLine);
             }
             else if (((MenuItem)sender).Name == "menu_show_box_for_control_characters")
             {
-                editor.Options.ShowBoxForControlCharacters = !editor.Options.ShowBoxForControlCharacters;
+                CheckBox checkBox = new CheckBox();
+                checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+                checkBox.Margin = new Thickness(5);
+                checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+                checkBox.IsChecked = editor.Options.ShowBoxForControlCharacters;
+                int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("ShowBoxForControlCharacters").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+
+                editor.Options.ShowBoxForControlCharacters = (bool)checkBox.IsChecked;
                 IniHelper.SetShowBoxForControlCharacters(editor.Options.ShowBoxForControlCharacters);
             }
             else if (((MenuItem)sender).Name == "menu_enable_hyperlinks")
             {
-                editor.Options.EnableHyperlinks = !editor.Options.EnableHyperlinks;
+                CheckBox checkBox = new CheckBox();
+                checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+                checkBox.Margin = new Thickness(5);
+                checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+                checkBox.IsChecked = editor.Options.EnableHyperlinks;
+                int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("EnableHyperlinks").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+
+                editor.Options.EnableHyperlinks = (bool)checkBox.IsChecked;
                 IniHelper.SetEnableHyperlinks(editor.Options.EnableHyperlinks);
             }
             else if (((MenuItem)sender).Name == "menu_indentation_size")
@@ -382,27 +437,82 @@ namespace ExcelTool.ViewModel
             }
             else if (((MenuItem)sender).Name == "menu_convert_tabs_to_spaces")
             {
-                editor.Options.ConvertTabsToSpaces = !editor.Options.ConvertTabsToSpaces;
+                CheckBox checkBox = new CheckBox();
+                checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+                checkBox.Margin = new Thickness(5);
+                checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+                checkBox.IsChecked = editor.Options.ConvertTabsToSpaces;
+                int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("ConvertTabsToSpaces").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+
+                editor.Options.ConvertTabsToSpaces = (bool)checkBox.IsChecked;
                 IniHelper.SetConvertTabsToSpaces(editor.Options.ConvertTabsToSpaces);
             }
             else if (((MenuItem)sender).Name == "menu_highlight_current_line")
             {
-                editor.Options.HighlightCurrentLine = !editor.Options.HighlightCurrentLine;
+                CheckBox checkBox = new CheckBox();
+                checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+                checkBox.Margin = new Thickness(5);
+                checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+                checkBox.IsChecked = editor.Options.HighlightCurrentLine;
+                int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("HighlightCurrentLine").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+
+                editor.Options.HighlightCurrentLine = (bool)checkBox.IsChecked;
                 IniHelper.SetHighlightCurrentLine(editor.Options.HighlightCurrentLine);
             }
             else if (((MenuItem)sender).Name == "menu_hide_cursor_while_typing")
             {
-                editor.Options.HideCursorWhileTyping = !editor.Options.HideCursorWhileTyping;
+                CheckBox checkBox = new CheckBox();
+                checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+                checkBox.Margin = new Thickness(5);
+                checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+                checkBox.IsChecked = editor.Options.HideCursorWhileTyping;
+                int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("HideCursorWhileTyping").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+
+                editor.Options.HideCursorWhileTyping = (bool)checkBox.IsChecked;
                 IniHelper.SetHideCursorWhileTyping(editor.Options.HideCursorWhileTyping);
             }
             else if (((MenuItem)sender).Name == "menu_word_wrap")
             {
-                editor.WordWrap = !editor.WordWrap;
+                CheckBox checkBox = new CheckBox();
+                checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+                checkBox.Margin = new Thickness(5);
+                checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+                checkBox.IsChecked = editor.WordWrap;
+                int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("WordWrap").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+
+                editor.WordWrap = (bool)checkBox.IsChecked;
                 IniHelper.SetWordWrap(editor.WordWrap);
             }
             else if (((MenuItem)sender).Name == "menu_show_line_numbers")
             {
-                editor.ShowLineNumbers = !editor.ShowLineNumbers;
+                CheckBox checkBox = new CheckBox();
+                checkBox.HorizontalAlignment = HorizontalAlignment.Left;
+                checkBox.Margin = new Thickness(5);
+                checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+                checkBox.IsChecked = editor.ShowLineNumbers;
+                int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("ShowLineNumbers").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+
+                editor.ShowLineNumbers = (bool)checkBox.IsChecked;
                 IniHelper.SetShowLineNumbers(editor.ShowLineNumbers);
             }
         }

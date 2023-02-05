@@ -43,12 +43,23 @@
     <sys:String x:Key="MenuShowBoxForControlCharacters">显示控制字符框 (_B)</sys:String>
     <sys:String x:Key="MenuEnableHyperlinks">启用超链接 (_H)</sys:String>
     <sys:String x:Key="MenuIndentationSize">缩进字符数 (_I)</sys:String>
-    <sys:String x:Key="IndentationSize">缩进字符数</sys:String>
     <sys:String x:Key="MenuConvertTabsToSpaces">将制表符转换为空格 (_C)</sys:String>
     <sys:String x:Key="MenuHighlightCurrentLine">高亮当前行 (_H)</sys:String>
     <sys:String x:Key="MenuHideCursorWhileTyping">输入时隐藏光标 (_C)</sys:String>
     <sys:String x:Key="MenuWordWrap">自动换行 (_W)</sys:String>
     <sys:String x:Key="MenuShowLineNumbers">显示行号 (_N)</sys:String>
+    <sys:String x:Key="ShowSpaces">显示空白</sys:String>
+    <sys:String x:Key="ShowTabs">显示制表符</sys:String>
+    <sys:String x:Key="ShowEndOfLine">显示行末</sys:String>
+    <sys:String x:Key="ShowBoxForControlCharacters">显示控制字符框</sys:String>
+    <sys:String x:Key="EnableHyperlinks">启用超链接</sys:String>
+    <sys:String x:Key="IndentationSize">缩进字符数</sys:String>
+    <sys:String x:Key="ConvertTabsToSpaces">将制表符转换为空格</sys:String>
+    <sys:String x:Key="HighlightCurrentLine">高亮当前行</sys:String>
+    <sys:String x:Key="HideCursorWhileTyping">输入时隐藏光标</sys:String>
+    <sys:String x:Key="WordWrap">自动换行</sys:String>
+    <sys:String x:Key="ShowLineNumbers">显示行号</sys:String>
+
 
     <sys:String x:Key="Analyzer">表格文件处理逻辑</sys:String>
     <sys:String x:Key="SheetExplainer">检索信息</sys:String>

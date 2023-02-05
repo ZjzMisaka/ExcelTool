@@ -43,12 +43,22 @@
     <sys:String x:Key="MenuShowBoxForControlCharacters">_Show box for control characters</sys:String>
     <sys:String x:Key="MenuEnableHyperlinks">_Enable hyperlinks</sys:String>
     <sys:String x:Key="MenuIndentationSize">_Indentation size</sys:String>
-    <sys:String x:Key="IndentationSize">Indentation size</sys:String>
     <sys:String x:Key="MenuConvertTabsToSpaces">_Convert tabs to spaces</sys:String>
     <sys:String x:Key="MenuHighlightCurrentLine">_Highlight current line</sys:String>
     <sys:String x:Key="MenuHideCursorWhileTyping">_Hide cursor while typing</sys:String>
     <sys:String x:Key="MenuWordWrap">_Word wrap</sys:String>
     <sys:String x:Key="MenuShowLineNumbers">_Show line numbers</sys:String>
+    <sys:String x:Key="ShowSpaces">Show spaces</sys:String>
+    <sys:String x:Key="ShowTabs">Show tabs</sys:String>
+    <sys:String x:Key="ShowEndOfLine">Show end of line</sys:String>
+    <sys:String x:Key="ShowBoxForControlCharacters">Show box for control characters</sys:String>
+    <sys:String x:Key="EnableHyperlinks">Enable hyperlinks</sys:String>
+    <sys:String x:Key="IndentationSize">Indentation size</sys:String>
+    <sys:String x:Key="ConvertTabsToSpaces">Convert tabs to spaces</sys:String>
+    <sys:String x:Key="HighlightCurrentLine">Highlight current line</sys:String>
+    <sys:String x:Key="HideCursorWhileTyping">Hide cursor while typing</sys:String>
+    <sys:String x:Key="WordWrap">Word wrap</sys:String>
+    <sys:String x:Key="ShowLineNumbers">Show line numbers</sys:String>
 
     <sys:String x:Key="Analyzer">Analyzer</sys:String>
     <sys:String x:Key="SheetExplainer">Sheet explainer</sys:String>

@@ -43,12 +43,22 @@
     <sys:String x:Key="MenuShowBoxForControlCharacters">制御文字ボックスの表示 (_B)</sys:String>
     <sys:String x:Key="MenuEnableHyperlinks">ハイパーリンクを有効にする (_H)</sys:String>
     <sys:String x:Key="MenuIndentationSize">インデント文字数 (_I)</sys:String>
-    <sys:String x:Key="IndentationSize">インデント文字数</sys:String>
     <sys:String x:Key="MenuConvertTabsToSpaces">タブをスペースに変換 (_C)</sys:String>
     <sys:String x:Key="MenuHighlightCurrentLine">現在の行をハイライト (_H)</sys:String>
     <sys:String x:Key="MenuHideCursorWhileTyping">入力時にカーソルを隠す (_C)</sys:String>
     <sys:String x:Key="MenuWordWrap">自動改行 (_W)</sys:String>
     <sys:String x:Key="MenuShowLineNumbers">行番号の表示 (_N)</sys:String>
+    <sys:String x:Key="ShowSpaces">空白の表示</sys:String>
+    <sys:String x:Key="ShowTabs">タブの表示</sys:String>
+    <sys:String x:Key="ShowEndOfLine">行末の表示</sys:String>
+    <sys:String x:Key="ShowBoxForControlCharacters">制御文字ボックスの表示</sys:String>
+    <sys:String x:Key="EnableHyperlinks">ハイパーリンクを有効にする</sys:String>
+    <sys:String x:Key="IndentationSize">インデント文字数</sys:String>
+    <sys:String x:Key="ConvertTabsToSpaces">タブをスペースに変換</sys:String>
+    <sys:String x:Key="HighlightCurrentLine">現在の行をハイライト</sys:String>
+    <sys:String x:Key="HideCursorWhileTyping">入力時にカーソルを隠す</sys:String>
+    <sys:String x:Key="WordWrap">自動改行</sys:String>
+    <sys:String x:Key="ShowLineNumbers">行番号の表示</sys:String>
 
     <sys:String x:Key="Analyzer">エクセルファイル処理のロジック</sys:String>
     <sys:String x:Key="SheetExplainer">検索情報</sys:String>
