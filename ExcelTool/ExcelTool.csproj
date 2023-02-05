@@ -16,6 +16,7 @@
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -28,7 +29,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -373,4 +373,7 @@
     <Resource Include="ExcelTool.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>rd /s /q "de", "en", "es", "fr", "it", "ja", "ko", "ru", "zh-Hans", "zh-Hant", "vi-VN", "uz-Latn-UZ", "uk-UA", "tr-TR", "tr", "th-TH", "te-IN", "ta-IN", "sw-KE", "sv-SE", "sr-Latn-RS", "sq-AL", "sl-SI", "sk-SK", "ru-RU", "ro-RO", "pt-PT", "pt-BR", "pl-PL", "pl", "nn-NO", "nl-NL", "nb-NO", "ms-MY", "ml-IN", "mk-MK", "lv-LV", "lt-LT", "lo-LA", "ko-KR", "kn-IN", "km-KH", "kk-KZ", "ka-GE", "ja-JP", "it-IT", "is-IS", "id-ID", "hu-HU", "hr-HR", "hi-IN", "he-IL", "gl-ES", "fr-FR", "fr-CA", "fi-FI", "fa-IR", "eu-ES", "et-EE", "es-MX", "es-ES", "en-GB", "el-GR", "de-DE", "da-DK", "cs-CZ", "cs", "ca-ES", "bs-Latn-BA", "bn-BD", "bg-BG", "be-BY", "az-Latn-AZ", "ar-SA", "am-ET", "af-ZA"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
