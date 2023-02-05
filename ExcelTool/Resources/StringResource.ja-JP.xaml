@@ -66,6 +66,8 @@
     <sys:String x:Key="SetAnalyzer">エクセルファイル処理のロジックの設定</sys:String>
     <sys:String x:Key="Parameter">パラメータ</sys:String>
     <sys:String x:Key="Edit">編集</sys:String>
+    <sys:String x:Key="Lock">ロック</sys:String>
+    <sys:String x:Key="Unlock">アンロック</sys:String>
     <sys:String x:Key="Workbase">ワークベース [検索情報に相対パスを入力したの場合]</sys:String>
     <sys:String x:Key="Select">選択</sys:String>
     <sys:String x:Key="OutputPath">出力ディレクトリ</sys:String>

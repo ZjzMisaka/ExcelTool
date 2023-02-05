@@ -163,7 +163,7 @@ namespace ExcelTool.Helper
             return rulesList;
         }
 
-        public static List<string> GetParamsList()
+        public static List<string> GetParamsList(bool includeLockMark = false)
         {
             if (!File.Exists(".\\Params.txt"))
             {
@@ -183,6 +183,10 @@ namespace ExcelTool.Helper
             List<string> newParamsList = new List<string>();
             foreach (string param in paramsList)
             {
+                if (!includeLockMark && param.Trim() == "[Lock]")
+                {
+                    continue;
+                }
                 if (param.Trim() != "")
                 {
                     newParamsList.Add(param.Trim());

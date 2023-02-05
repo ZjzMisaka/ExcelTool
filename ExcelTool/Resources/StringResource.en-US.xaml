@@ -66,6 +66,8 @@
     <sys:String x:Key="SetAnalyzer">Set analyzer</sys:String>
     <sys:String x:Key="Parameter">Parameter</sys:String>
     <sys:String x:Key="Edit">Edit</sys:String>
+    <sys:String x:Key="Lock">Lock</sys:String>
+    <sys:String x:Key="Unlock">Unlock</sys:String>
     <sys:String x:Key="Workbase">Workbase [If you enter relative pathes in the sheet explainer]</sys:String>
     <sys:String x:Key="Select">Select</sys:String>
     <sys:String x:Key="OutputPath">Output path</sys:String>

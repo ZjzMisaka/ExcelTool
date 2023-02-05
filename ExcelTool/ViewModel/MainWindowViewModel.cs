@@ -288,6 +288,26 @@ namespace ExcelTool.ViewModel
             }
         }
 
+        private Visibility btnLockVisibility = Visibility.Visible;
+        public Visibility BtnLockVisibility
+        {
+            get { return btnLockVisibility; }
+            set
+            {
+                SetProperty<Visibility>(ref btnLockVisibility, value);
+            }
+        }
+
+        private Visibility btnUnlockVisibility = Visibility.Hidden;
+        public Visibility BtnUnlockVisibility
+        {
+            get { return btnUnlockVisibility; }
+            set
+            {
+                SetProperty<Visibility>(ref btnUnlockVisibility, value);
+            }
+        }
+
         private string tbBasePathText = null;
         public string TbBasePathText
         {
@@ -468,6 +488,8 @@ namespace ExcelTool.ViewModel
         public ICommand CbParamsPreviewMouseLeftButtonDownCommand { get; set; }
         public ICommand CbParamsSelectionChangedCommand { get; set; }
         public ICommand EditParamCommand { get; set; }
+        public ICommand LockParamCommand { get; set; }
+        public ICommand UnlockParamCommand { get; set; }
         public ICommand TbParamsLostFocusCommand { get; set; }
         public ICommand SelectPathCommand { get; set; }
         public ICommand OpenPathCommand { get; set; }
@@ -541,6 +563,8 @@ namespace ExcelTool.ViewModel
             CbParamsPreviewMouseLeftButtonDownCommand = new RelayCommand(CbParamsPreviewMouseLeftButtonDown);
             CbParamsSelectionChangedCommand = new RelayCommand(CbParamsSelectionChanged);
             EditParamCommand = new RelayCommand(EditParam);
+            LockParamCommand = new RelayCommand(LockParam);
+            UnlockParamCommand = new RelayCommand(UnlockParam);
             TbParamsLostFocusCommand = new RelayCommand(TbParamsLostFocus);
             SelectPathCommand = new RelayCommand<object>(SelectPath);
             OpenPathCommand = new RelayCommand<object>(OpenPath);
@@ -1234,10 +1258,29 @@ namespace ExcelTool.ViewModel
         {
             if (CbParamsSelectionChangedCommand != null)
             {
+                List<string> paramsList = FileHelper.GetParamsList(true);
+                if (paramsList.IndexOf("[Lock]") == -1 || SelectedParamsIndex < paramsList.IndexOf("[Lock]"))
+                {
+                    BtnLockVisibility = Visibility.Visible;
+                    BtnUnlockVisibility = Visibility.Hidden;
+                }
+                else 
+                {
+                    BtnLockVisibility = Visibility.Hidden;
+                    BtnUnlockVisibility = Visibility.Visible;
+                }
+
                 TeParams.Dispatcher.Invoke(() =>
                 {
                     TeParams.TextChanged -= TeParamsTextChanged;
-                    TeParams.Document = new TextDocument(SelectedParamsItem);
+                    if (SelectedParamsItem == null)
+                    {
+                        TeParams.Document = new TextDocument("");
+                    }
+                    else 
+                    {
+                        TeParams.Document = new TextDocument(SelectedParamsItem);
+                    }
                     TeParams.TextChanged += TeParamsTextChanged;
                 });
             }
@@ -1674,8 +1717,58 @@ namespace ExcelTool.ViewModel
             paramEditor.ShowDialog();
         }
 
+        private void LockParam()
+        {
+            string paramStr = "";
+            TeParams.Dispatcher.Invoke(() =>
+            {
+                paramStr = TeParams.Text;
+            });
+            paramStr = $"{paramStr.Replace("\r\n", "").Replace("\n", "")}";
+            TeParams.Dispatcher.Invoke(() =>
+            {
+                TeParams.Text = paramStr;
+            });
+            paramStr = ParamHelper.EncodeFromEscaped(paramStr);
+            SaveParam(paramStr, false, true);
+
+            ParamsItems = FileHelper.GetParamsList();
+            SelectedParamsItem = TeParams.Text;
+        }
+
+        private void UnlockParam()
+        {
+            String paramStrFromFile = File.ReadAllText(".\\Params.txt");
+            List<string> paramsList = paramStrFromFile.Split('\n').ToList<string>();
+            for (int i = 0; i < paramsList.Count; ++i)
+            {
+                paramsList[i] = paramsList[i].Trim();
+            }
+            paramsList.Remove(ParamHelper.EncodeFromEscaped(SelectedParamsItem));
+            paramsList.RemoveAll(s => s == "");
+
+            ParamsItems.Remove(SelectedParamsItem);
+
+            try
+            {
+                File.WriteAllLines(".\\Params.txt", paramsList);
+            }
+            catch (Exception ex)
+            {
+                CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+            }
+
+            ParamsItems = FileHelper.GetParamsList();
+            CbParamsSelectionChangedCommand = null;
+            SelectedParamsIndex = 0;
+            CbParamsSelectionChangedCommand = new RelayCommand(CbParamsSelectionChanged);
+        }
+
         private void TeParamsTextChanged(object sender, EventArgs e)
         {
+            BtnLockVisibility = Visibility.Visible;
+            BtnUnlockVisibility = Visibility.Hidden;
+
             CbParamsSelectionChangedCommand = null;
             SelectedParamsIndex = 0;
             CbParamsSelectionChangedCommand = new RelayCommand(CbParamsSelectionChanged);
@@ -2845,44 +2938,49 @@ namespace ExcelTool.ViewModel
             return true;
         }
 
-        private void SaveParam(string paramStr, bool isAuto)
+        private void SaveParam(string paramStr, bool isAuto, bool isLocked = false)
         {
             String paramStrFromFile = File.ReadAllText(".\\Params.txt");
             List<string> paramsList = paramStrFromFile.Split('\n').ToList<string>();
-            List<string> newParamsList = new List<string>();
+            List<string> unLockedList = new List<string>();
+            List<string> lockedList = new List<string>();
+            List<string> addList = unLockedList;
             foreach (string param in paramsList)
             {
-                if (param.Trim() != "")
+                string trimedParam = param.Trim();
+                if (trimedParam == "[Lock]")
                 {
-                    newParamsList.Add(param.Trim());
+                    addList = lockedList;
+                    continue;
                 }
+                addList.Add(trimedParam);
             }
-            paramsList = newParamsList;
-            if (paramsList.Count >= 5 && !paramsList.Contains(paramStr))
+            
+            if (unLockedList.Count >= 5 && !paramsList.Contains(paramStr) && !isLocked)
             {
                 paramsList.RemoveAt(4);
             }
-            if (paramsList.Contains(paramStr))
+            if (unLockedList.Contains(paramStr))
             {
-                paramsList.Remove(paramStr);
+                unLockedList.Remove(paramStr);
             }
-            paramsList.Insert(0, paramStr);
+            if (!lockedList.Contains(paramStr) && !isLocked)
+            {
+                unLockedList.Insert(0, paramStr);
+            }
+            if (!lockedList.Contains(paramStr) && isLocked)
+            {
+                lockedList.Insert(0, paramStr);
+            }
+
+            List<string> newParamsList = new List<string>(unLockedList);
+            newParamsList.Add("[Lock]");
+            newParamsList.AddRange(lockedList);
+            newParamsList.RemoveAll(s => s == "");
 
             try
             {
-                if (!File.Exists(".\\Params.txt"))
-                {
-                    FileStream fs = null;
-                    fs = File.Create(".\\Params.txt");
-                    fs.Close();
-                }
-                StreamWriter sw = File.CreateText(".\\Params.txt");
-                foreach (string param in paramsList)
-                {
-                    sw.WriteLine(param);
-                }
-                sw.Flush();
-                sw.Close();
+                File.WriteAllLines(".\\Params.txt", newParamsList);
             }
             catch (Exception ex)
             {
