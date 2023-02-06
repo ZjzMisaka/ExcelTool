@@ -1834,7 +1834,11 @@ namespace ExcelTool.ViewModel
         {
             TeParams.Dispatcher.Invoke(() =>
             {
-                TeParams.Text = $"{TeParams.Text.Replace("\r\n", "").Replace("\n", "")}";
+                string newStr = $"{TeParams.Text.Replace("\r\n", "").Replace("\n", "")}";
+                if (newStr != TeParams.Text)
+                {
+                    TeParams.Text = newStr;
+                }
             });
         }
 
