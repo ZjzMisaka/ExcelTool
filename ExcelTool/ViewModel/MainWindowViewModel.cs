@@ -1290,12 +1290,7 @@ namespace ExcelTool.ViewModel
         {
             int groupIndex = 0;
 
-            string paramStr = "";
-            TeParams.Dispatcher.Invoke(() =>
-            {
-                paramStr = $"{TeParams.Text.Replace("\r\n", "").Replace("\n", "")}";
-                TeParams.Text = paramStr;
-            });
+            string paramStr = FormatTeParams();
             paramStr = ParamHelper.EncodeFromEscaped(paramStr);
 
             Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
@@ -1720,16 +1715,7 @@ namespace ExcelTool.ViewModel
 
         private void LockParam()
         {
-            string paramStr = "";
-            TeParams.Dispatcher.Invoke(() =>
-            {
-                paramStr = TeParams.Text;
-            });
-            paramStr = $"{paramStr.Replace("\r\n", "").Replace("\n", "")}";
-            TeParams.Dispatcher.Invoke(() =>
-            {
-                TeParams.Text = paramStr;
-            });
+            string paramStr = FormatTeParams();
             paramStr = ParamHelper.EncodeFromEscaped(paramStr);
             SaveParam(paramStr, false, true);
 
@@ -1833,14 +1819,7 @@ namespace ExcelTool.ViewModel
 
         private void TbParamsLostFocus()
         {
-            TeParams.Dispatcher.Invoke(() =>
-            {
-                string newStr = $"{TeParams.Text.Replace("\r\n", "").Replace("\n", "")}";
-                if (newStr != TeParams.Text)
-                {
-                    TeParams.Text = newStr;
-                }
-            });
+             FormatTeParams();
         }
 
         public void DragEnter(IDropInfo dropInfo)
@@ -2250,16 +2229,7 @@ namespace ExcelTool.ViewModel
 
         private async void Start()
         {
-            string paramStr = "";
-            TeParams.Dispatcher.Invoke(() =>
-            {
-                paramStr = TeParams.Text;
-            });
-            paramStr = $"{paramStr.Replace("\r\n", "").Replace("\n", "")}";
-            TeParams.Dispatcher.Invoke(() =>
-            {
-                TeParams.Text = paramStr;
-            });
+            string paramStr = FormatTeParams();
             paramStr = ParamHelper.EncodeFromEscaped(paramStr);
             Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
 
@@ -2300,6 +2270,21 @@ namespace ExcelTool.ViewModel
         }
 
         // ---------------------------------------------------- Common Logic
+
+        private string FormatTeParams()
+        {
+            string newStr = "";
+            TeParams.Dispatcher.Invoke(() =>
+            {
+                newStr = $"{TeParams.Text.Replace("\r\n", "").Replace("\n", "")}";
+                if (newStr != TeParams.Text)
+                {
+                    TeParams.Text = newStr;
+                }
+            });
+
+            return newStr;
+        }
 
         private bool CheckRule(RunningRule rule)
         {
