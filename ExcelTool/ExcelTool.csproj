@@ -102,6 +102,9 @@
     <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Helper\IniHelper.cs" />
     <Compile Include="Helper\ParamHelper.cs" />
+    <Compile Include="View\ParamSetter.xaml.cs">
+      <DependentUpon>ParamSetter.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ParamEditor.xaml.cs">
       <DependentUpon>ParamEditor.xaml</DependentUpon>
     </Compile>
@@ -127,6 +130,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\ParamSetter.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\ParamEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

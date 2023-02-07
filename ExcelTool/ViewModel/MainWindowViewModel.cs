@@ -1300,11 +1300,7 @@ namespace ExcelTool.ViewModel
 
             Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
 
-            int rowNum = -1;
-
             List<String> analyzersList = TeAnalyzersDocument.Text.Split('\n').Where(str => str.Trim() != "").ToList();
-
-            double maxTextlength = 0;
 
             List<string> addedAnalyzerNameList = new List<string>();
 
@@ -1318,17 +1314,36 @@ namespace ExcelTool.ViewModel
                 }
             }
 
-            ParamEditor paramEditor = new ParamEditor();
-            ColumnDefinition columnDefinitionL = new ColumnDefinition();
-            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
-            ColumnDefinition columnDefinitionM = new ColumnDefinition();
-            columnDefinitionM.Width = new GridLength(1, GridUnitType.Auto);
-            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionM);
-            ColumnDefinition columnDefinitionR = new ColumnDefinition();
-            paramEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
+            ParamSetter paramSetter = new ParamSetter();
 
+            TabControl tab = new TabControl();
+            paramSetter.g_main.Children.Add(tab);
             foreach (string analyzerName in analyzersList)
             {
+                int rowNum = -1;
+                double maxTextlength = 0;
+
+                TabItem tabItem = new TabItem();
+                tabItem.Header = analyzerName;
+                tab.Items.Add(tabItem);
+
+                ScrollViewer sv = new ScrollViewer();
+                sv.Padding = new Thickness(4, 0, 4, 0);
+                sv.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+                sv.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                tabItem.Content = sv;
+
+                Grid newGrid = new Grid();
+                newGrid.Margin = new Thickness(20, 10, 20, 10);
+                sv.Content = newGrid;
+
+                ColumnDefinition columnDefinitionL = new ColumnDefinition();
+                newGrid.ColumnDefinitions.Add(columnDefinitionL);
+                ColumnDefinition columnDefinitionM = new ColumnDefinition();
+                columnDefinitionM.Width = new GridLength(1, GridUnitType.Auto);
+                newGrid.ColumnDefinitions.Add(columnDefinitionM);
+                ColumnDefinition columnDefinitionR = new ColumnDefinition();
+                newGrid.ColumnDefinitions.Add(columnDefinitionR);
                 if (addedAnalyzerNameList.Contains(analyzerName))
                 {
                     continue;
@@ -1343,20 +1358,6 @@ namespace ExcelTool.ViewModel
                 {
                     return;
                 }
-
-                RowDefinition rowDefinition = new RowDefinition();
-                rowDefinition.Height = new GridLength(50);
-                paramEditor.g_main.RowDefinitions.Add(rowDefinition);
-                ++rowNum;
-                TextBlock textBlockAnalyzerName = new TextBlock();
-                textBlockAnalyzerName.Height = 45;
-                textBlockAnalyzerName.FontWeight = FontWeight.FromOpenTypeWeight(600);
-                textBlockAnalyzerName.FontSize = 24;
-                textBlockAnalyzerName.VerticalAlignment = VerticalAlignment.Bottom;
-                textBlockAnalyzerName.Text = analyzerName;
-                Grid.SetRow(textBlockAnalyzerName, rowNum);
-                Grid.SetColumnSpan(textBlockAnalyzerName, 2);
-                paramEditor.g_main.Children.Add(textBlockAnalyzerName);
 
                 Dictionary<string, string> paramDic = null;
                 if (paramDicEachAnalyzer.ContainsKey(analyzerName))
@@ -1393,12 +1394,12 @@ namespace ExcelTool.ViewModel
                 Grid.SetRow(gridSplitter, rowNum + 1);
                 Grid.SetRowSpan(gridSplitter, analyzer.paramDic.Keys.Count);
                 Grid.SetColumn(gridSplitter, 1);
-                paramEditor.g_main.Children.Add(gridSplitter);
+                newGrid.Children.Add(gridSplitter);
 
                 foreach (string key in analyzer.paramDic.Keys)
                 {
                     RowDefinition rowDefinitionKv = new RowDefinition();
-                    paramEditor.g_main.RowDefinitions.Add(rowDefinitionKv);
+                    newGrid.RowDefinitions.Add(rowDefinitionKv);
                     ++rowNum;
 
                     TextBlock textBlockKey = new TextBlock();
@@ -1414,7 +1415,7 @@ namespace ExcelTool.ViewModel
                     }
                     if (analyzer.paramDic[key].describe != null)
                     {
-                        FormattedText ft = new FormattedText(analyzer.paramDic[key].describe, CultureInfo.CurrentCulture, System.Windows.FlowDirection.LeftToRight, new Typeface(textBlockKey.FontFamily, textBlockKey.FontStyle, textBlockKey.FontWeight, textBlockKey.FontStretch), textBlockKey.FontSize, System.Windows.Media.Brushes.Black, VisualTreeHelper.GetDpi(textBlockKey).PixelsPerDip);
+                        FormattedText ft = new FormattedText(analyzer.paramDic[key].describe, CultureInfo.CurrentCulture, System.Windows.FlowDirection.LeftToRight, new Typeface(tabItem.FontFamily, tabItem.FontStyle, tabItem.FontWeight, tabItem.FontStretch), tabItem.FontSize, System.Windows.Media.Brushes.Black, VisualTreeHelper.GetDpi(tabItem).PixelsPerDip);
                         if (ft.Width > maxTextlength)
                         {
                             maxTextlength = ft.Width;
@@ -1443,7 +1444,7 @@ namespace ExcelTool.ViewModel
                             textBlockKey.Text = ParamHelper.DecodeForDisplay(analyzer.paramDic[key].describe);
                         };
                     }
-                    paramEditor.g_main.Children.Add(textBlockKey);
+                    newGrid.Children.Add(textBlockKey);
 
                     StackPanel stackPanel = new StackPanel();
                     stackPanel.Margin = new Thickness(5, 5, 0, 5);
@@ -1685,22 +1686,22 @@ namespace ExcelTool.ViewModel
                         rowDefinitionKv.Height = new GridLength(50);
                     }
 
-                    paramEditor.g_main.Children.Add(stackPanel);
+                    newGrid.Children.Add(stackPanel);
                 }
-            }
 
-            if (maxTextlength < 200)
-            {
-                columnDefinitionL.Width = new GridLength(maxTextlength + 10);
-            }
-            else
-            {
-                columnDefinitionL.Width = new GridLength(200);
+                if (maxTextlength + 10 < 200)
+                {
+                    columnDefinitionL.Width = new GridLength(maxTextlength + 10);
+                }
+                else
+                {
+                    columnDefinitionL.Width = new GridLength(200);
+                }
             }
 
             RowDefinition rowDefinitionOk = new RowDefinition();
             rowDefinitionOk.Height = new GridLength(35);
-            paramEditor.g_btn.RowDefinitions.Add(rowDefinitionOk);
+            paramSetter.g_btn.RowDefinitions.Add(rowDefinitionOk);
             Button btnOk = new Button();
             btnOk.VerticalAlignment = VerticalAlignment.Center;
             btnOk.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -1709,12 +1710,12 @@ namespace ExcelTool.ViewModel
             btnOk.Click += (s, ex) =>
             {
                 TeParams.Text = ParamHelper.GetParamStr(paramDicEachAnalyzer);
-                paramEditor.Close();
+                paramSetter.Close();
             };
             Grid.SetRow(btnOk, 0);
-            paramEditor.g_btn.Children.Add(btnOk);
+            paramSetter.g_btn.Children.Add(btnOk);
 
-            paramEditor.ShowDialog();
+            paramSetter.ShowDialog();
         }
 
         private void LockParam()
