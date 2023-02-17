@@ -3344,7 +3344,7 @@ namespace ExcelTool.ViewModel
             FileSystemInfo[] dllInfos = GetDllInfos();
             List<string> dlls = new List<string>();
             dlls.Add("System.dll");
-            dlls.Add("System.Runtime.dll");
+            //dlls.Add("System.Runtime.dll");
             dlls.Add("System.Data.dll");
             dlls.Add("System.Xml.dll");
             dlls.Add("ClosedXML.dll");
@@ -3365,14 +3365,9 @@ namespace ExcelTool.ViewModel
 
             SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(analyzer.code);
             string assemblyName = Path.GetRandomFileName();
-            MetadataReference[] references = new MetadataReference[]
+            MetadataReference[] references = new MetadataReference[] 
             {
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location.Replace("System.Private.CoreLib.dll", "System.Runtime.dll")),
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location.Replace("System.Private.CoreLib.dll", "netstandard.dll")),
-                MetadataReference.CreateFromFile(typeof(List<>).Assembly.Location.Replace("System.Private.CoreLib.dll", "System.Collections.dll")),
-                MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location)
             };
 
             // 循环遍历每个 DLL，并将其包含在编译中
@@ -3382,13 +3377,23 @@ namespace ExcelTool.ViewModel
                 {
                     references = references.Append(MetadataReference.CreateFromFile(dllName)).ToArray();
                 }
+                else
+                {
+                    references = references.Append(MetadataReference.CreateFromFile(typeof(object).Assembly.Location.Replace("System.Private.CoreLib.dll", dllName))).ToArray();
+                }
             }
 
+            var options = new CSharpCompilationOptions(
+                OutputKind.DynamicallyLinkedLibrary, 
+                platform: Platform.AnyCpu
+                //languageVersion: LanguageVersion.CSharp10,
+                //runtimeMetadataVersion: "6.0"
+                );
             CSharpCompilation compilation = CSharpCompilation.Create(
                 assemblyName,
                 syntaxTrees: new[] { syntaxTree },
                 references: references,
-                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                options: options);
 
             return compilation;
         }
