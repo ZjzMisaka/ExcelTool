@@ -3159,22 +3159,34 @@ namespace ExcelTool.ViewModel
         }
 
         [DllImport("kernel32.dll")]
-        public static extern IntPtr _lopen(string lpPathName, int iReadWrite);
-
-        [DllImport("kernel32.dll")]
         public static extern bool CloseHandle(IntPtr hObject);
 
-        public const int OF_READWRITE = 2;
-        public const int OF_SHARE_DENY_NONE = 0x40;
-        public readonly IntPtr HFILE_ERROR = new IntPtr(-1);
-        private bool isFileUsing(string filePath)
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern IntPtr CreateFile(
+            string lpFileName,
+            uint dwDesiredAccess,
+            uint dwShareMode,
+            IntPtr lpSecurityAttributes,
+            uint dwCreationDisposition,
+            uint dwFlagsAndAttributes,
+            IntPtr hTemplateFile
+        );
+
+        public static bool IsFileInUse(string fileName)
         {
-            IntPtr vHandle = _lopen(filePath, OF_READWRITE | OF_SHARE_DENY_NONE);
-            if (vHandle != HFILE_ERROR)
+            IntPtr handle = IntPtr.Zero;
+            try
             {
-                CloseHandle(vHandle);
+                handle = CreateFile(fileName, 0, 0, IntPtr.Zero, 3, 0x80, IntPtr.Zero);
+                return handle.ToInt32() == -1;
             }
-            return vHandle == HFILE_ERROR;
+            finally
+            {
+                if (handle != IntPtr.Zero)
+                {
+                    CloseHandle(handle);
+                }
+            }
         }
 
         private ConcurrentDictionary<ReadFileReturnType, object> ReadFile(List<object> readFileParams)
@@ -3190,7 +3202,7 @@ namespace ExcelTool.ViewModel
             ConcurrentDictionary<ReadFileReturnType, object> methodResult = new ConcurrentDictionary<ReadFileReturnType, object>();
             methodResult.AddOrUpdate(ReadFileReturnType.ANALYZER, analyzer, (key, oldValue) => null);
 
-            if (filePath.Contains("~$") || isFileUsing(filePath))
+            if (filePath.Contains("~$") || IsFileInUse(filePath))
             {
                 Logger.Error(Application.Current.FindResource("FileIsInUse").ToString().Replace("{0}", filePath));
                 return methodResult;
