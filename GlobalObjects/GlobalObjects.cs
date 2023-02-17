@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using CustomizableMessageBox;
+using Microsoft.CodeAnalysis.CSharp;
 using ModernWpf;
 using System;
 using System.CodeDom.Compiler;
@@ -176,25 +177,25 @@ namespace GlobalObjects
     {
         private static ProgramStatus programCurrentStatus;
 
-        private static ConcurrentDictionary<CompilerResults, Object> globalParamDic;
+        private static ConcurrentDictionary<CSharpCompilation, Object> globalParamDic;
         private static PropertiesSetter psWithTimmer = null;
         public static PropertiesSetter ps = null;
 
         public static ProgramStatus ProgramCurrentStatus { get => programCurrentStatus; set => programCurrentStatus = value; }
 
-        public static Object GetGlobalParam(CompilerResults compilerResults)
+        public static Object GetGlobalParam(CSharpCompilation compilerResults)
         {
             Object res;
             globalParamDic.TryGetValue(compilerResults, out res);
             return res;
         }
-        public static void SetGlobalParam(CompilerResults compilerResults, Object globalParam)
+        public static void SetGlobalParam(CSharpCompilation compilerResults, Object globalParam)
         {
             globalParamDic.AddOrUpdate(compilerResults, globalParam, (key, oldValue) => { return globalParam; });
         }
         public static void ClearGlobalParamDic()
         {
-            globalParamDic = new ConcurrentDictionary<CompilerResults, object>();
+            globalParamDic = new ConcurrentDictionary<CSharpCompilation, object>();
         }
 
         public static void ClearPropertiesSetter()

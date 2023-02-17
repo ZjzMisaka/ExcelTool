@@ -8,6 +8,7 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.CSharp.Scripting.Hosting;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.Scripting.Hosting;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
@@ -18,6 +19,7 @@ using RoslynPad.Editor;
 using RoslynPad.Roslyn;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -44,7 +46,7 @@ namespace ExcelTool.ViewModel
         private ItemsControl itemsControl;
         private bool loadFailed;
         private DocumentViewModel documentViewModel;
-        private DocumentId documentId;
+        private ValueTask<DocumentId> documentId;
 
         private double windowWidth;
         public double WindowWidth
@@ -313,7 +315,7 @@ namespace ExcelTool.ViewModel
                 }
             }
 
-            _host = new RoslynHost(additionalAssemblies: new[]
+            _host = new CustomRoslynHost(additionalAssemblies: new[]
             {
                 Assembly.Load("RoslynPad.Roslyn.Windows"),
                 Assembly.Load("RoslynPad.Editor.Windows")
@@ -1033,15 +1035,15 @@ namespace ExcelTool.ViewModel
             {
                 if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
                 {
-                    documentId = editor.Initialize(_host, new ClassificationHighlightColors(),
-                    Directory.GetCurrentDirectory(), string.Empty);
-                    documentViewModel.Initialize(documentId);
+                    documentId = editor.InitializeAsync(_host, new ClassificationHighlightColors(),
+                    Directory.GetCurrentDirectory(), string.Empty, SourceCodeKind.Regular);
+                    documentViewModel.Initialize(documentId.Result);
                 }
                 else if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
                 {
-                    documentId = editor.Initialize(_host, new DarkModeHighlightColors(),
-                        Directory.GetCurrentDirectory(), string.Empty);
-                    documentViewModel.Initialize(documentId);
+                    documentId = editor.InitializeAsync(_host, new DarkModeHighlightColors(),
+                        Directory.GetCurrentDirectory(), string.Empty, SourceCodeKind.Regular);
+                    documentViewModel.Initialize(documentId.Result);
                 }
             }
             else
@@ -1080,13 +1082,34 @@ namespace ExcelTool.ViewModel
             editor.TextArea.SelectionForeground = Theme.ThemeSelectionForeground;
         }
 
-        public class DocumentViewModel : INotifyPropertyChanged
+        private class CustomRoslynHost : RoslynHost
         {
-            private bool _isReadOnly;
-            private readonly RoslynHost _host;
-            private string _result;
+            private bool _addedAnalyzers;
 
-            public DocumentViewModel(RoslynHost host, DocumentViewModel previous)
+            public CustomRoslynHost(IEnumerable<Assembly>? additionalAssemblies = null, RoslynHostReferences? references = null, ImmutableArray<string>? disabledDiagnostics = null) : base(additionalAssemblies, references, disabledDiagnostics)
+            {
+            }
+
+            protected override IEnumerable<AnalyzerReference> GetSolutionAnalyzerReferences()
+            {
+                if (!_addedAnalyzers)
+                {
+                    _addedAnalyzers = true;
+                    return base.GetSolutionAnalyzerReferences();
+                }
+
+                return Enumerable.Empty<AnalyzerReference>();
+            }
+        }
+
+        internal class DocumentViewModel : INotifyPropertyChanged
+        {
+            private readonly RoslynHost _host;
+            private bool _isReadOnly;
+            private string? _result;
+            private DocumentId? _id;
+
+            public DocumentViewModel(RoslynHost host, DocumentViewModel? previous)
             {
                 _host = host;
                 Previous = previous;
@@ -1098,7 +1121,11 @@ namespace ExcelTool.ViewModel
             }
 
 
-            public DocumentId Id { get; private set; }
+            public DocumentId Id
+            {
+                get => _id ?? throw new InvalidOperationException("Document not initialized");
+                private set => _id = value;
+            }
 
             public bool IsReadOnly
             {
@@ -1106,9 +1133,9 @@ namespace ExcelTool.ViewModel
                 private set { SetProperty(ref _isReadOnly, value); }
             }
 
-            public DocumentViewModel Previous { get; }
+            public DocumentViewModel? Previous { get; }
 
-            public DocumentViewModel LastGoodPrevious
+            public DocumentViewModel? LastGoodPrevious
             {
                 get
                 {
@@ -1123,35 +1150,35 @@ namespace ExcelTool.ViewModel
                 }
             }
 
-            public Script<object> Script { get; private set; }
+            public Script<object>? Script { get; private set; }
 
-            public string Text { get; set; }
+            public string? Text { get; set; }
 
             public bool HasError { get; private set; }
 
-            public string Result
+            public string? Result
             {
                 get { return _result; }
                 private set { SetProperty(ref _result, value); }
             }
 
             private static MethodInfo HasSubmissionResult { get; } =
-                typeof(Compilation).GetMethod(nameof(HasSubmissionResult), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                typeof(Compilation).GetMethod(nameof(HasSubmissionResult), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new MissingMemberException(nameof(HasSubmissionResult));
 
             private static PrintOptions PrintOptions { get; } =
                 new PrintOptions { MemberDisplayFormat = MemberDisplayFormat.SeparateLines };
 
-            public async Task<bool> TrySubmit()
+            public async Task<bool> TrySubmitAsync()
             {
                 Result = null;
 
-                Script = LastGoodPrevious?.Script.ContinueWith(Text) ??
+                Script = LastGoodPrevious?.Script?.ContinueWith(Text) ??
                     CSharpScript.Create(Text, ScriptOptions.Default
                         .WithReferences(_host.DefaultReferences)
                         .WithImports(_host.DefaultImports));
 
                 var compilation = Script.GetCompilation();
-                var hasResult = (bool)HasSubmissionResult.Invoke(compilation, null);
+                var hasResult = HasSubmissionResult.Invoke(compilation, null) as bool? == true;
                 var diagnostics = Script.Compile();
                 if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
                 {
@@ -1161,16 +1188,22 @@ namespace ExcelTool.ViewModel
 
                 IsReadOnly = true;
 
-                await Execute(hasResult);
+                await ExecuteAsync(hasResult).ConfigureAwait(true);
 
                 return true;
             }
 
-            private async Task Execute(bool hasResult)
+            private async Task ExecuteAsync(bool hasResult)
             {
+                var script = Script;
+                if (script == null)
+                {
+                    return;
+                }
+
                 try
                 {
-                    var result = await Script.RunAsync();
+                    var result = await script.RunAsync().ConfigureAwait(true);
 
                     if (result.Exception != null)
                     {
@@ -1199,9 +1232,9 @@ namespace ExcelTool.ViewModel
                 return CSharpObjectFormatter.Instance.FormatObject(o, PrintOptions);
             }
 
-            public event PropertyChangedEventHandler PropertyChanged;
+            public event PropertyChangedEventHandler? PropertyChanged;
 
-            protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+            protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
             {
                 if (!EqualityComparer<T>.Default.Equals(field, value))
                 {
@@ -1212,7 +1245,7 @@ namespace ExcelTool.ViewModel
                 return false;
             }
 
-            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
