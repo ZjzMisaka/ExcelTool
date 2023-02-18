@@ -177,25 +177,25 @@ namespace GlobalObjects
     {
         private static ProgramStatus programCurrentStatus;
 
-        private static ConcurrentDictionary<CSharpCompilation, Object> globalParamDic;
+        private static ConcurrentDictionary<object, object> globalParamDic;
         private static PropertiesSetter psWithTimmer = null;
         public static PropertiesSetter ps = null;
 
         public static ProgramStatus ProgramCurrentStatus { get => programCurrentStatus; set => programCurrentStatus = value; }
 
-        public static Object GetGlobalParam(CSharpCompilation compilerResults)
+        public static Object GetGlobalParam(object instanceObj)
         {
             Object res;
-            globalParamDic.TryGetValue(compilerResults, out res);
+            globalParamDic.TryGetValue(instanceObj, out res);
             return res;
         }
-        public static void SetGlobalParam(CSharpCompilation compilerResults, Object globalParam)
+        public static void SetGlobalParam(object instanceObj, object globalParam)
         {
-            globalParamDic.AddOrUpdate(compilerResults, globalParam, (key, oldValue) => { return globalParam; });
+            globalParamDic.AddOrUpdate(instanceObj, globalParam, (key, oldValue) => { return globalParam; });
         }
         public static void ClearGlobalParamDic()
         {
-            globalParamDic = new ConcurrentDictionary<CSharpCompilation, object>();
+            globalParamDic = new ConcurrentDictionary<object, object>();
         }
 
         public static void ClearPropertiesSetter()
