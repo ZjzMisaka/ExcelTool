@@ -207,7 +207,9 @@ namespace ExcelTool.Helper
 
             if (arguments.Length > 0)
             {
-                Process.Start("ExcelToolAfterClosed.exe", arguments);
+                ProcessStartInfo processStartInfo = new ProcessStartInfo("ExcelToolAfterClosed.exe", arguments);
+                processStartInfo.UseShellExecute = true;
+                Process.Start(processStartInfo);
             }
         }
 
@@ -242,7 +244,9 @@ namespace ExcelTool.Helper
                 btnOpenFile.Content = Application.Current.FindResource("OpenFile").ToString();
                 btnOpenFile.Click += (s, ee) =>
                 {
-                    System.Diagnostics.Process.Start(filePath);
+                    ProcessStartInfo processStartInfo = new ProcessStartInfo(filePath);
+                    processStartInfo.UseShellExecute = true;
+                    System.Diagnostics.Process.Start(processStartInfo);
                     CustomizableMessageBox.MessageBox.CloseNow();
                 };
 
@@ -273,7 +277,9 @@ namespace ExcelTool.Helper
                 if (isAutoOpen == true)
                 {
                     Logger.Info(Application.Current.FindResource("AutoOpened").ToString());
-                    Process.Start(filePath);
+                    ProcessStartInfo processStartInfo = new ProcessStartInfo(filePath);
+                    processStartInfo.UseShellExecute = true;
+                    Process.Start(processStartInfo);
                 }
             }
         }

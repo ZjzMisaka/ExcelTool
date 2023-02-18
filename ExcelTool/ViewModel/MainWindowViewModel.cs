@@ -755,7 +755,9 @@ namespace ExcelTool.ViewModel
             FileHelper.DeleteCopiedDlls(copiedDllsList);
             if (GlobalObjects.GlobalObjects.ProgramCurrentStatus == ProgramStatus.Restart)
             {
-                Process.Start("ExcelTool.exe");
+                ProcessStartInfo processStartInfo = new ProcessStartInfo("ExcelTool.exe");
+                processStartInfo.UseShellExecute = true;
+                Process.Start(processStartInfo);
             }
         }
 
@@ -763,19 +765,19 @@ namespace ExcelTool.ViewModel
         {
             if (((MenuItem)sender).Name == "menu_sheet_explainer_folder")
             {
-                Process.Start(".\\SheetExplainers");
+                Process.Start("Explorer", ".\\SheetExplainers");
             }
             else if (((MenuItem)sender).Name == "menu_analyzer_folder")
             {
-                Process.Start(".\\Analyzers");
+                Process.Start("Explorer", ".\\Analyzers");
             }
             else if (((MenuItem)sender).Name == "menu_dll_folder")
             {
-                Process.Start(".\\Dlls");
+                Process.Start("Explorer", ".\\Dlls");
             }
             else if (((MenuItem)sender).Name == "menu_rule_folder")
             {
-                Process.Start(".\\Rules");
+                Process.Start("Explorer", ".\\Rules");
             }
             else if (((MenuItem)sender).Name == "menu_work_folder")
             {
@@ -1962,6 +1964,8 @@ namespace ExcelTool.ViewModel
             }
             if (File.Exists(filePath))
             {
+                ProcessStartInfo processStartInfo = new ProcessStartInfo(filePath);
+                processStartInfo.UseShellExecute = true;
                 Process.Start(filePath);
             }
             else
