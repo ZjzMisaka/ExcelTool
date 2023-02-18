@@ -3341,16 +3341,9 @@ namespace ExcelTool.ViewModel
 
         private CSharpCompilation GetCresult(Analyzer analyzer, List<string> needDelDll = null)
         {
-            // Dll文件夹中的dll
             List<string> dlls = new List<string>();
-            dlls.Add("System.dll");
-            dlls.Add("System.Runtime.dll");
-            dlls.Add("System.Collections.dll");
-            dlls.Add("System.Data.dll");
-            dlls.Add("System.Xml.dll");
-            dlls.Add("netstandard.dll");
-            dlls.Add("ClosedXML.dll");
-            dlls.Add("GlobalObjects.dll");
+
+            // Dll文件夹中的dll
             FileSystemInfo[] dllInfos = GetDllInfos(Path.Combine(Environment.CurrentDirectory, "Dlls"));
             if (dllInfos != null && dllInfos.Count() != 0)
             {
