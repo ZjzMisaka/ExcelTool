@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -37,6 +38,7 @@ using static CustomizableMessageBox.MessageBox;
 
 namespace ExcelTool.ViewModel
 {
+    [SupportedOSPlatform("windows7.0")]
     class AnalyzerViewModel : ObservableObject
     {
         private readonly ObservableCollection<DocumentViewModel> _documents;
@@ -1086,7 +1088,7 @@ namespace ExcelTool.ViewModel
         {
             private bool _addedAnalyzers;
 
-            public CustomRoslynHost(IEnumerable<Assembly>? additionalAssemblies = null, RoslynHostReferences? references = null, ImmutableArray<string>? disabledDiagnostics = null) : base(additionalAssemblies, references, disabledDiagnostics)
+            public CustomRoslynHost(IEnumerable<Assembly> additionalAssemblies = null, RoslynHostReferences references = null, ImmutableArray<string>? disabledDiagnostics = null) : base(additionalAssemblies, references, disabledDiagnostics)
             {
             }
 
@@ -1106,10 +1108,10 @@ namespace ExcelTool.ViewModel
         {
             private readonly RoslynHost _host;
             private bool _isReadOnly;
-            private string? _result;
-            private DocumentId? _id;
+            private string _result;
+            private DocumentId _id;
 
-            public DocumentViewModel(RoslynHost host, DocumentViewModel? previous)
+            public DocumentViewModel(RoslynHost host, DocumentViewModel previous)
             {
                 _host = host;
                 Previous = previous;
@@ -1133,9 +1135,9 @@ namespace ExcelTool.ViewModel
                 private set { SetProperty(ref _isReadOnly, value); }
             }
 
-            public DocumentViewModel? Previous { get; }
+            public DocumentViewModel Previous { get; }
 
-            public DocumentViewModel? LastGoodPrevious
+            public DocumentViewModel LastGoodPrevious
             {
                 get
                 {
@@ -1150,13 +1152,13 @@ namespace ExcelTool.ViewModel
                 }
             }
 
-            public Script<object>? Script { get; private set; }
+            public Script<object> Script { get; private set; }
 
-            public string? Text { get; set; }
+            public string Text { get; set; }
 
             public bool HasError { get; private set; }
 
-            public string? Result
+            public string Result
             {
                 get { return _result; }
                 private set { SetProperty(ref _result, value); }
@@ -1232,9 +1234,9 @@ namespace ExcelTool.ViewModel
                 return CSharpObjectFormatter.Instance.FormatObject(o, PrintOptions);
             }
 
-            public event PropertyChangedEventHandler? PropertyChanged;
+            public event PropertyChangedEventHandler PropertyChanged;
 
-            protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+            protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
             {
                 if (!EqualityComparer<T>.Default.Equals(field, value))
                 {
@@ -1245,7 +1247,7 @@ namespace ExcelTool.ViewModel
                 return false;
             }
 
-            protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }

@@ -43,9 +43,11 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using System.Collections;
 using ClosedXML;
+using System.Runtime.Versioning;
 
 namespace ExcelTool.ViewModel
 {
+    [SupportedOSPlatform("windows7.0")]
     class MainWindowViewModel : ObservableObject, IDropTarget
     {
         private enum ReadFileReturnType { ANALYZER, FILEPATH };
@@ -78,6 +80,7 @@ namespace ExcelTool.ViewModel
         private string language;
         private bool teParamsFocused;
         private Dictionary<object, Type> instanceObjAnalyzeCodeTypeDic;
+        private bool windowsClosing;
 
         private TextEditor teLog = new TextEditor();
         public TextEditor TeLog => teLog;
@@ -539,6 +542,7 @@ namespace ExcelTool.ViewModel
             TeLog.PreviewKeyDown += TeLogPreviewKeyDown;
             TeLog.TextChanged += TeLogTextChanged;
             teParamsFocused = false;
+            windowsClosing = false;
             TeParams.ShowLineNumbers = false;
             TeParams.WordWrap = false;
             TeParams.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
@@ -717,6 +721,7 @@ namespace ExcelTool.ViewModel
                 }
             }
 
+            windowsClosing = true;
             foreach (Window currentWindow in Application.Current.Windows)
             {
                 if (Application.Current.MainWindow != currentWindow)
@@ -3016,7 +3021,7 @@ namespace ExcelTool.ViewModel
 
         private void WhenRunning()
         {
-            while (true)
+            while (!windowsClosing)
             {
                 TeLog.Dispatcher.Invoke(() =>
                 {
@@ -3463,7 +3468,7 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private async void CheckAndCloseThreads(bool isCloseWindow)
+        private void CheckAndCloseThreads(bool isCloseWindow)
         {
             if (smartThreadPoolAnalyze != null && !smartThreadPoolAnalyze.IsShuttingdown)
             {
@@ -3551,7 +3556,7 @@ namespace ExcelTool.ViewModel
             teLog.Foreground = ThemeControlForeground;
         }
 
-        private async void WaitThreadStop(Thread thread)
+        private void WaitThreadStop(Thread thread)
         {
             int count = 0;
             while (thread.IsAlive)
@@ -3561,7 +3566,7 @@ namespace ExcelTool.ViewModel
                     throw new Exception("Thread can't stop");
                 }
                 // Wait until finish
-                await Task.Delay(freshInterval);
+                Thread.Sleep(freshInterval);
                 ++count;
             }
         }

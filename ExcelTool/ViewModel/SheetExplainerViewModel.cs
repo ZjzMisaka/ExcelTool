@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,6 +22,7 @@ using File = System.IO.File;
 
 namespace ExcelTool.ViewModel
 {
+    [SupportedOSPlatform("windows7.0")]
     class SheetExplainerViewModel : ObservableObject, IDropTarget
     {
         private double windowWidth;
