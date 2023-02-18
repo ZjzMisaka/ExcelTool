@@ -3325,9 +3325,9 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private FileSystemInfo[] GetDllInfos()
+        private FileSystemInfo[] GetDllInfos(string path)
         {
-            string folderPath = Path.Combine(Environment.CurrentDirectory, "Dlls");
+            string folderPath = path;
             DirectoryInfo dir = new DirectoryInfo(folderPath);
             FileSystemInfo[] dllInfos = null;
             if (dir.Exists)
@@ -3339,16 +3339,19 @@ namespace ExcelTool.ViewModel
             return dllInfos;
         }
 
-        private CSharpCompilation GetCresult(Analyzer analyzer)
+        private CSharpCompilation GetCresult(Analyzer analyzer, List<string> needDelDll = null)
         {
-            FileSystemInfo[] dllInfos = GetDllInfos();
+            // Dll文件夹中的dll
             List<string> dlls = new List<string>();
             dlls.Add("System.dll");
-            //dlls.Add("System.Runtime.dll");
+            dlls.Add("System.Runtime.dll");
+            dlls.Add("System.Collections.dll");
             dlls.Add("System.Data.dll");
             dlls.Add("System.Xml.dll");
+            dlls.Add("netstandard.dll");
             dlls.Add("ClosedXML.dll");
             dlls.Add("GlobalObjects.dll");
+            FileSystemInfo[] dllInfos = GetDllInfos(Path.Combine(Environment.CurrentDirectory, "Dlls"));
             if (dllInfos != null && dllInfos.Count() != 0)
             {
                 foreach (FileSystemInfo dllInfo in dllInfos)
@@ -3363,6 +3366,26 @@ namespace ExcelTool.ViewModel
                 }
             }
 
+            // 根目录的Dll
+            FileSystemInfo[] dllInfosBase = GetDllInfos(Environment.CurrentDirectory);
+            foreach (FileSystemInfo dllInfo in dllInfosBase)
+            {
+                if (dllInfo.Extension == ".dll" && !dlls.Contains(dllInfo.Name))
+                {
+                    dlls.Add(dllInfo.Name);
+                }
+            }
+
+            string assemblyLocation = typeof(object).Assembly.Location;
+            FileSystemInfo[] dllInfosAssembly = GetDllInfos(Path.GetDirectoryName(assemblyLocation));
+            foreach (FileSystemInfo dllInfo in dllInfosAssembly)
+            {
+                if (dllInfo.Extension == ".dll" && !dlls.Contains(dllInfo.Name) && !dllInfo.Name.StartsWith("api"))
+                {
+                    dlls.Add(dllInfo.Name);
+                }
+            }
+
             SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(analyzer.code);
             string assemblyName = Path.GetRandomFileName();
             MetadataReference[] references = new MetadataReference[] 
@@ -3370,6 +3393,14 @@ namespace ExcelTool.ViewModel
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
             };
 
+            if (needDelDll != null)
+            {
+                foreach (string errorDll in needDelDll)
+                {
+                    dlls.Remove(errorDll);
+                }
+            }
+            
             // 循环遍历每个 DLL，并将其包含在编译中
             foreach (string dllName in dlls)
             {
@@ -3379,7 +3410,7 @@ namespace ExcelTool.ViewModel
                 }
                 else
                 {
-                    references = references.Append(MetadataReference.CreateFromFile(typeof(object).Assembly.Location.Replace("System.Private.CoreLib.dll", dllName))).ToArray();
+                    references = references.Append(MetadataReference.CreateFromFile(assemblyLocation.Replace("System.Private.CoreLib.dll", dllName))).ToArray();
                 }
             }
 
@@ -3394,6 +3425,32 @@ namespace ExcelTool.ViewModel
                 syntaxTrees: new[] { syntaxTree },
                 references: references,
                 options: options);
+
+
+            List<string> errDll = new List<string>();
+            using (var ms = new System.IO.MemoryStream())
+            {
+                var result = compilation.Emit(ms);
+                if (!result.Success)
+                {
+                    Console.WriteLine("Compilation failed!");
+                    foreach (var diagnostic in result.Diagnostics)
+                    {
+                        if (diagnostic.Id == "CS0009")
+                        {
+                            string dll = diagnostic.GetMessage();
+                            dll = dll.Substring(dll.IndexOf("'") + 1);
+                            dll = dll.Substring(0, dll.IndexOf("'"));
+                            errDll.Add(Path.GetFileName(dll));
+                        }
+                    }
+
+                    if (errDll.Count > 0)
+                    {
+                        return GetCresult(analyzer, errDll);
+                    }
+                }
+            }
 
             return compilation;
         }
