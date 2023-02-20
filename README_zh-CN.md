@@ -5,6 +5,12 @@
 [查看示例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [执行时的gif图](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
 
+#### 正在开发[2.0版本](https://github.com/ZjzMisaka/ExcelTool/tree/net-framework-4.8-to-net-6.0)
+- 从.net framework 4.8框架更新到.net 6.0框架
+- 将roslynpad与ClosedXML更新到最新
+- 修复已知bug
+- 优化整理代码
+
 ### 多语言
 - [x] 简体中文
 - [x] 日本語
@@ -164,7 +170,7 @@ bool ContainsKey(string key);
 |[icsharpcode/AvalonEdit](https://github.com/icsharpcode/AvalonEdit)|MIT|
 |[JamesNK/Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)|MIT|
 |[ClosedXML/ClosedXML](https://github.com/ClosedXML/ClosedXML)|MIT|
-|[rickyah/ini-parser](https://github.com/rickyah/ini-parser)|MIT|
+|[~~rickyah/ini-parser~~ rickyah/ini-parser-netstandard](https://github.com/rickyah/ini-parser)|MIT|
 |[amibar/SmartThreadPool](https://github.com/amibar/SmartThreadPool)|MS-PL|
 |[punker76/gong-wpf-dragdrop](https://github.com/punker76/gong-wpf-dragdrop)|BSD-3-Clause|
 |[Kinnara/ModernWpf](https://github.com/Kinnara/ModernWpf)|MIT|

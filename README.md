@@ -5,6 +5,12 @@ Plug-in extension function, batch processing, and output of results to Excel fil
 [View example](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [Gif image when executing](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
 
+#### Under development [version 2.0](https://github.com/ZjzMisaka/ExcelTool/tree/net-framework-4.8-to-net-6.0)
+- Update from .net framework 4.8 framework to .net 6.0 framework
+- Update roslynpad and ClosedXML to latest
+- Fix known bugs
+- Optimize and organize code
+
 ### multi-language
 - [x] 简体中文
 - [x] 日本語
@@ -164,7 +170,7 @@ bool ContainsKey(string key);
 |[icsharpcode/AvalonEdit](https://github.com/icsharpcode/AvalonEdit)|MIT|
 |[JamesNK/Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)|MIT|
 |[ClosedXML/ClosedXML](https://github.com/ClosedXML/ClosedXML)|MIT|
-|[rickyah/ini-parser](https://github.com/rickyah/ini-parser)|MIT|
+|[~~rickyah/ini-parser~~ rickyah/ini-parser-netstandard](https://github.com/rickyah/ini-parser)|MIT|
 |[amibar/SmartThreadPool](https://github.com/amibar/SmartThreadPool)|MS-PL|
 |[punker76/gong-wpf-dragdrop](https://github.com/punker76/gong-wpf-dragdrop)|BSD-3-Clause|
 |[Kinnara/ModernWpf](https://github.com/Kinnara/ModernWpf)|MIT|
