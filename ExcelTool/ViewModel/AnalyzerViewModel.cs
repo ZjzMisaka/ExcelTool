@@ -6,6 +6,7 @@ using Highlighting;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.CSharp.Scripting.Hosting;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -231,97 +232,61 @@ namespace ExcelTool.ViewModel
                 });
             }
 
-            List<Assembly> assemblies = new List<Assembly>();
-            assemblies.Add(typeof(object).Assembly);
-            string folderPath = System.IO.Path.Combine(Environment.CurrentDirectory, "Dlls");
-            DirectoryInfo dir = new DirectoryInfo(folderPath);
-            FileSystemInfo[] dllInfos = null;
-            if (dir.Exists)
-            {
-                DirectoryInfo dirD = dir as DirectoryInfo;
-                dllInfos = dirD.GetFileSystemInfos();
-            }
             List<string> dlls = new List<string>();
-            dlls.Add("ClosedXML.dll");
-            dlls.Add("GlobalObjects.dll");
+
+            // Dll文件夹中的dll
+            FileSystemInfo[] dllInfos = FileHelper.GetDllInfos(Path.Combine(Environment.CurrentDirectory, "Dlls"));
             if (dllInfos != null && dllInfos.Count() != 0)
             {
                 foreach (FileSystemInfo dllInfo in dllInfos)
                 {
-                    dlls.Add(dllInfo.FullName);
+                    dlls.Add(dllInfo.Name);
                 }
             }
-            foreach (string dll in dlls)
+
+            // 根目录的Dll
+            FileSystemInfo[] dllInfosBase = FileHelper.GetDllInfos(Environment.CurrentDirectory);
+            foreach (FileSystemInfo dllInfo in dllInfosBase)
             {
-                Assembly dllFile = null;
-                if (IniHelper.GetSecurityCheck())
+                if (dllInfo.Extension == ".dll" && !dlls.Contains(dllInfo.Name))
                 {
-                    try
-                    {
-                        dllFile = Assembly.LoadFrom(dll);
-                    }
-                    catch (FileLoadException ex)
-                    {
-                        ComboBox comboBox = new ComboBox();
-                        comboBox.HorizontalAlignment = HorizontalAlignment.Stretch;
-                        comboBox.Margin = new Thickness(5);
-                        List<string> items = new List<string>();
-                        items.Add(Application.Current.FindResource("NoAction").ToString());
-                        items.Add(Application.Current.FindResource("CloseTheProgramOnly").ToString());
-                        items.Add(Application.Current.FindResource("BanSecurityCheckWithoutRestart").ToString());
-                        items.Add(Application.Current.FindResource("BanSecurityCheckWithRestart").ToString());
-                        comboBox.ItemsSource = items;
-                        comboBox.SelectedIndex = 0;
-                        CustomizableMessageBox.MessageBox.Show(new RefreshList { comboBox, Application.Current.FindResource("Ok").ToString() }, $"{Application.Current.FindResource("UnblockDllsCopiedFromTheWeb").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
-                        if (comboBox.SelectedIndex == 0)
-                        {
-                            // Do Nothing
-                        }
-                        else if (comboBox.SelectedIndex == 1)
-                        {
-                            GlobalObjects.GlobalObjects.ProgramCurrentStatus = GlobalObjects.ProgramStatus.Shutdown;
-                            Application.Current.Shutdown();
-                        }
-                        else if (comboBox.SelectedIndex == 2)
-                        {
-                            IniHelper.SetSecurityCheck(false);
-                        }
-                        else if (comboBox.SelectedIndex == 3)
-                        {
-                            IniHelper.SetSecurityCheck(false);
-                            GlobalObjects.GlobalObjects.ProgramCurrentStatus = GlobalObjects.ProgramStatus.Restart;
-                            Application.Current.Shutdown();
-                        }
-                        window.Close();
-                        loadFailed = true;
-                        return;
-                    }
+                    dlls.Add(dllInfo.Name);
+                }
+            }
+
+            string assemblyLocation = typeof(object).Assembly.Location;
+            FileSystemInfo[] dllInfosAssembly = FileHelper.GetDllInfos(Path.GetDirectoryName(assemblyLocation));
+            foreach (FileSystemInfo dllInfo in dllInfosAssembly)
+            {
+                if (dllInfo.Extension == ".dll" && !dlls.Contains(dllInfo.Name) && !dllInfo.Name.StartsWith("api"))
+                {
+                    dlls.Add(dllInfo.Name);
+                }
+            }
+
+            MetadataReference[] references = new MetadataReference[]
+            {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            };
+
+            // 循环遍历每个 DLL，并将其包含在编译中
+            foreach (string dllName in dlls)
+            {
+                if (File.Exists(dllName))
+                {
+                    references = references.Append(MetadataReference.CreateFromFile(dllName)).ToArray();
                 }
                 else
                 {
-                    try
-                    {
-                        dllFile = Assembly.UnsafeLoadFrom(dll);
-                    }
-                    catch (FileLoadException ex)
-                    {
-                        CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{Application.Current.FindResource("FileNotSupported").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
-                        window.Close();
-                        loadFailed = true;
-                        return;
-                    }
-                }
-                foreach (Type type in dllFile.GetExportedTypes())
-                {
-                    assemblies.Add(type.Assembly);
+                    references = references.Append(MetadataReference.CreateFromFile(assemblyLocation.Replace("System.Private.CoreLib.dll", dllName))).ToArray();
                 }
             }
 
             _host = new CustomRoslynHost(additionalAssemblies: new[]
             {
                 Assembly.Load("RoslynPad.Roslyn.Windows"),
-                Assembly.Load("RoslynPad.Editor.Windows")
-            }, RoslynHostReferences.NamespaceDefault.With(assemblyReferences: assemblies));
+                Assembly.Load("RoslynPad.Editor.Windows"),
+            }, RoslynHostReferences.NamespaceDefault.With(references: references));
             AddNewDocument();
         }
 

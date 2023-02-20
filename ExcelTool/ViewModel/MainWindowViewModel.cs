@@ -3315,26 +3315,12 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private FileSystemInfo[] GetDllInfos(string path)
-        {
-            string folderPath = path;
-            DirectoryInfo dir = new DirectoryInfo(folderPath);
-            FileSystemInfo[] dllInfos = null;
-            if (dir.Exists)
-            {
-                DirectoryInfo dirD = dir as DirectoryInfo;
-                dllInfos = dirD.GetFileSystemInfos();
-            }
-
-            return dllInfos;
-        }
-
         private object GetCresult(Analyzer analyzer, List<string> needDelDll = null)
         {
             List<string> dlls = new List<string>();
 
             // Dll文件夹中的dll
-            FileSystemInfo[] dllInfos = GetDllInfos(Path.Combine(Environment.CurrentDirectory, "Dlls"));
+            FileSystemInfo[] dllInfos = FileHelper.GetDllInfos(Path.Combine(Environment.CurrentDirectory, "Dlls"));
             if (dllInfos != null && dllInfos.Count() != 0)
             {
                 foreach (FileSystemInfo dllInfo in dllInfos)
@@ -3350,7 +3336,7 @@ namespace ExcelTool.ViewModel
             }
 
             // 根目录的Dll
-            FileSystemInfo[] dllInfosBase = GetDllInfos(Environment.CurrentDirectory);
+            FileSystemInfo[] dllInfosBase = FileHelper.GetDllInfos(Environment.CurrentDirectory);
             foreach (FileSystemInfo dllInfo in dllInfosBase)
             {
                 if (dllInfo.Extension == ".dll" && !dlls.Contains(dllInfo.Name))
@@ -3360,7 +3346,7 @@ namespace ExcelTool.ViewModel
             }
 
             string assemblyLocation = typeof(object).Assembly.Location;
-            FileSystemInfo[] dllInfosAssembly = GetDllInfos(Path.GetDirectoryName(assemblyLocation));
+            FileSystemInfo[] dllInfosAssembly = FileHelper.GetDllInfos(Path.GetDirectoryName(assemblyLocation));
             foreach (FileSystemInfo dllInfo in dllInfosAssembly)
             {
                 if (dllInfo.Extension == ".dll" && !dlls.Contains(dllInfo.Name) && !dllInfo.Name.StartsWith("api"))
