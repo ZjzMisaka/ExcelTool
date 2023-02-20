@@ -240,7 +240,7 @@ namespace ExcelTool.ViewModel
             {
                 foreach (FileSystemInfo dllInfo in dllInfos)
                 {
-                    dlls.Add(dllInfo.Name);
+                    dlls.Add(dllInfo.FullName);
                 }
             }
 
