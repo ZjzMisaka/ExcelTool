@@ -1971,7 +1971,7 @@ namespace ExcelTool.ViewModel
             {
                 ProcessStartInfo processStartInfo = new ProcessStartInfo(filePath);
                 processStartInfo.UseShellExecute = true;
-                Process.Start(filePath);
+                Process.Start(processStartInfo);
             }
             else
             {
