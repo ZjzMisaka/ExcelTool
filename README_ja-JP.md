@@ -5,12 +5,6 @@
 [例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [実行中のgif画像](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
 
-#### 開発中 [バージョン 2.0](https://github.com/ZjzMisaka/ExcelTool/tree/net-framework-4.8-to-net-6.0)
-- .net Framework 4.8 フレームワークから .net 6.0 フレームワークへの更新
-- roslynpad と ClosedXML を最新のものに更新
-- 既知のバグを修正
-- コードの最適化と整理
-
 ### 多言語
 - [x] 简体中文
 - [x] 日本語

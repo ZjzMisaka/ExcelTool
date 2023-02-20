@@ -5,12 +5,6 @@ Plug-in extension function, batch processing, and output of results to Excel fil
 [View example](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [Gif image when executing](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
 
-#### Under development [version 2.0](https://github.com/ZjzMisaka/ExcelTool/tree/net-framework-4.8-to-net-6.0)
-- Update from .net framework 4.8 framework to .net 6.0 framework
-- Update roslynpad and ClosedXML to latest
-- Fix known bugs
-- Optimize and organize code
-
 ### multi-language
 - [x] 简体中文
 - [x] 日本語
