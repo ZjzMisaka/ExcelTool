@@ -3348,6 +3348,24 @@ namespace ExcelTool.ViewModel
             }
 
             SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(analyzer.code);
+
+            IEnumerable<Diagnostic> diagnostics = syntaxTree.GetDiagnostics();
+
+            bool breakError = false;
+            string errorStr = "";
+            foreach (Diagnostic diagnostic in diagnostics)
+            {
+                breakError = true;
+                errorStr = $"{errorStr}\n    {diagnostic.ToString()}";
+            }
+            if (breakError)
+            {
+                Logger.Error(errorStr);
+                runNotSuccessed = true;
+                Stop();
+                return null;
+            }
+
             string assemblyName = Path.GetRandomFileName();
             MetadataReference[] references = new MetadataReference[] 
             {
@@ -3393,8 +3411,9 @@ namespace ExcelTool.ViewModel
             var result = compilation.Emit(ms);
             if (!result.Success)
             {
-                Console.WriteLine("Compilation failed!");
-                foreach (var diagnostic in result.Diagnostics)
+                errorStr = "";
+                
+                foreach (Diagnostic diagnostic in result.Diagnostics)
                 {
                     if (diagnostic.Id == "CS0009")
                     {
@@ -3403,6 +3422,19 @@ namespace ExcelTool.ViewModel
                         dll = dll.Substring(0, dll.IndexOf("'"));
                         errDll.Add(Path.GetFileName(dll));
                     }
+                    else
+                    {
+                        breakError = true;
+                        errorStr = $"{errorStr}\n    {diagnostic.Id}: {diagnostic.GetMessage()}";
+                    }
+                }
+
+                if (breakError)
+                {
+                    Logger.Error(errorStr);
+                    runNotSuccessed = true;
+                    Stop();
+                    return null;
                 }
 
                 if (errDll.Count > 0)
