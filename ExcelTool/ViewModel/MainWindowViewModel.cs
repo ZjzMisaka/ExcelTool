@@ -37,9 +37,17 @@ using static CustomizableMessageBox.MessageBox;
 using Windows.Storage;
 using System.Runtime.InteropServices.ComTypes;
 using System.Diagnostics.Tracing;
+using DocumentFormat.OpenXml.EMMA;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Emit;
+using System.Collections;
+using ClosedXML;
+using System.Runtime.Versioning;
 
 namespace ExcelTool.ViewModel
 {
+    [SupportedOSPlatform("windows7.0")]
     class MainWindowViewModel : ObservableObject, IDropTarget
     {
         private enum ReadFileReturnType { ANALYZER, FILEPATH };
@@ -57,7 +65,6 @@ namespace ExcelTool.ViewModel
         private ConcurrentDictionary<string, Analyzer> analyzerListForSetResult;
         private Dictionary<FileSystemWatcher, string> fileSystemWatcherDic;
         private Stopwatch stopwatchBeforeFileSystemWatcherInvoke;
-        private List<string> copiedDllsList;
         private int analyzeSheetInvokeCount;
         private int setResultInvokeCount;
         private int maxThreadCount;
@@ -71,6 +78,8 @@ namespace ExcelTool.ViewModel
         private int freshInterval;
         private string language;
         private bool teParamsFocused;
+        private Dictionary<object, Type> instanceObjAnalyzeCodeTypeDic;
+        private bool windowsClosing;
 
         private TextEditor teLog = new TextEditor();
         public TextEditor TeLog => teLog;
@@ -228,23 +237,23 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private TextDocument teSheetExplainersDocument = new TextDocument();
-        public TextDocument TeSheetExplainersDocument
+        private ICSharpCode.AvalonEdit.Document.TextDocument teSheetExplainersDocument = new ICSharpCode.AvalonEdit.Document.TextDocument();
+        public ICSharpCode.AvalonEdit.Document.TextDocument TeSheetExplainersDocument
         {
             get => teSheetExplainersDocument;
             set
             {
-                SetProperty<TextDocument>(ref teSheetExplainersDocument, value);
+                SetProperty<ICSharpCode.AvalonEdit.Document.TextDocument>(ref teSheetExplainersDocument, value);
             }
         }
 
-        private TextDocument teAnalyzersDocument = new TextDocument();
-        public TextDocument TeAnalyzersDocument
+        private ICSharpCode.AvalonEdit.Document.TextDocument teAnalyzersDocument = new ICSharpCode.AvalonEdit.Document.TextDocument();
+        public ICSharpCode.AvalonEdit.Document.TextDocument TeAnalyzersDocument
         {
             get => teAnalyzersDocument;
             set
             {
-                SetProperty<TextDocument>(ref teAnalyzersDocument, value);
+                SetProperty<ICSharpCode.AvalonEdit.Document.TextDocument>(ref teAnalyzersDocument, value);
             }
         }
 
@@ -512,7 +521,6 @@ namespace ExcelTool.ViewModel
             currentAnalizingDictionary = new ConcurrentDictionary<string, long>();
             currentOutputtingDictionary = new ConcurrentDictionary<string, long>();
             fileSystemWatcherDic = new Dictionary<FileSystemWatcher, string>();
-            copiedDllsList = new List<string>();
             scanner = new Scanner();
 
             analyzeSheetInvokeCount = 0;
@@ -532,6 +540,7 @@ namespace ExcelTool.ViewModel
             TeLog.PreviewKeyDown += TeLogPreviewKeyDown;
             TeLog.TextChanged += TeLogTextChanged;
             teParamsFocused = false;
+            windowsClosing = false;
             TeParams.ShowLineNumbers = false;
             TeParams.WordWrap = false;
             TeParams.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
@@ -644,6 +653,8 @@ namespace ExcelTool.ViewModel
             fileSystemWatcherInvokeDalay = IniHelper.GetFileSystemWatcherInvokeDalay();
             freshInterval = IniHelper.GetFreshInterval();
 
+            instanceObjAnalyzeCodeTypeDic = new Dictionary<object, Type>();
+
             FileHelper.CheckAndCreateFolders();
             LoadFiles();
 
@@ -683,7 +694,17 @@ namespace ExcelTool.ViewModel
             HighlightingManager.Instance.RegisterHighlighting("log", new string[] { }, chLog);
             TeLog.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("log");
 
-            runningThread = new Thread(() => WhenRunning());
+            runningThread = new Thread(() =>
+            {
+                try 
+                {
+                    WhenRunning();
+                }
+                catch
+                {
+                    // DO NOTHING
+                }
+            });
             runningThread.Start();
         }
         private void WindowClosing(CancelEventArgs eventArgs)
@@ -698,6 +719,7 @@ namespace ExcelTool.ViewModel
                 }
             }
 
+            windowsClosing = true;
             foreach (Window currentWindow in Application.Current.Windows)
             {
                 if (Application.Current.MainWindow != currentWindow)
@@ -733,10 +755,11 @@ namespace ExcelTool.ViewModel
         private void WindowClosed()
         {
             CheckAndCloseThreads(true);
-            FileHelper.DeleteCopiedDlls(copiedDllsList);
             if (GlobalObjects.GlobalObjects.ProgramCurrentStatus == ProgramStatus.Restart)
             {
-                Process.Start("ExcelTool.exe");
+                ProcessStartInfo processStartInfo = new ProcessStartInfo("ExcelTool.exe");
+                processStartInfo.UseShellExecute = true;
+                Process.Start(processStartInfo);
             }
         }
 
@@ -744,19 +767,19 @@ namespace ExcelTool.ViewModel
         {
             if (((MenuItem)sender).Name == "menu_sheet_explainer_folder")
             {
-                Process.Start(".\\SheetExplainers");
+                Process.Start("Explorer", ".\\SheetExplainers");
             }
             else if (((MenuItem)sender).Name == "menu_analyzer_folder")
             {
-                Process.Start(".\\Analyzers");
+                Process.Start("Explorer", ".\\Analyzers");
             }
             else if (((MenuItem)sender).Name == "menu_dll_folder")
             {
-                Process.Start(".\\Dlls");
+                Process.Start("Explorer", ".\\Dlls");
             }
             else if (((MenuItem)sender).Name == "menu_rule_folder")
             {
-                Process.Start(".\\Rules");
+                Process.Start("Explorer", ".\\Rules");
             }
             else if (((MenuItem)sender).Name == "menu_work_folder")
             {
@@ -1060,7 +1083,7 @@ namespace ExcelTool.ViewModel
             {
                 return;
             }
-            TeSheetExplainersDocument = new TextDocument($"{TeSheetExplainersDocument.Text}{SelectedSheetExplainersItem}\n");
+            TeSheetExplainersDocument = new ICSharpCode.AvalonEdit.Document.TextDocument($"{TeSheetExplainersDocument.Text}{SelectedSheetExplainersItem}\n");
             SelectedSheetExplainersIndex = 0;
         }
 
@@ -1075,7 +1098,7 @@ namespace ExcelTool.ViewModel
             {
                 return;
             }
-            TeAnalyzersDocument = new TextDocument($"{TeAnalyzersDocument.Text}{SelectedAnalyzersItem}\n");
+            TeAnalyzersDocument = new ICSharpCode.AvalonEdit.Document.TextDocument($"{TeAnalyzersDocument.Text}{SelectedAnalyzersItem}\n");
             SelectedAnalyzersIndex = 0;
         }
 
@@ -1184,7 +1207,7 @@ namespace ExcelTool.ViewModel
 
             foreach (string needAdd in addList)
             {
-                TeSheetExplainersDocument = new TextDocument($"{TeSheetExplainersDocument.Text}{needAdd}\n");
+                TeSheetExplainersDocument = new ICSharpCode.AvalonEdit.Document.TextDocument($"{TeSheetExplainersDocument.Text}{needAdd}\n");
             }
         }
 
@@ -1245,7 +1268,7 @@ namespace ExcelTool.ViewModel
 
             foreach (string needAdd in addList)
             {
-                TeAnalyzersDocument = new TextDocument($"{TeAnalyzersDocument.Text}{needAdd}\n");
+                TeAnalyzersDocument = new ICSharpCode.AvalonEdit.Document.TextDocument($"{TeAnalyzersDocument.Text}{needAdd}\n");
             }
         }
 
@@ -1275,11 +1298,11 @@ namespace ExcelTool.ViewModel
                     TeParams.TextChanged -= TeParamsTextChanged;
                     if (SelectedParamsItem == null)
                     {
-                        TeParams.Document = new TextDocument("");
+                        TeParams.Document = new ICSharpCode.AvalonEdit.Document.TextDocument("");
                     }
                     else 
                     {
-                        TeParams.Document = new TextDocument(SelectedParamsItem);
+                        TeParams.Document = new ICSharpCode.AvalonEdit.Document.TextDocument(SelectedParamsItem);
                     }
                     TeParams.TextChanged += TeParamsTextChanged;
                 });
@@ -1943,7 +1966,9 @@ namespace ExcelTool.ViewModel
             }
             if (File.Exists(filePath))
             {
-                Process.Start(filePath);
+                ProcessStartInfo processStartInfo = new ProcessStartInfo(filePath);
+                processStartInfo.UseShellExecute = true;
+                Process.Start(processStartInfo);
             }
             else
             {
@@ -1982,8 +2007,8 @@ namespace ExcelTool.ViewModel
                     BtnDeleteRuleIsEnabled = true;
                 }
 
-                TeAnalyzersDocument = new TextDocument(rule.analyzers);
-                TeSheetExplainersDocument = new TextDocument(rule.sheetExplainers);
+                TeAnalyzersDocument = new ICSharpCode.AvalonEdit.Document.TextDocument(rule.analyzers);
+                TeSheetExplainersDocument = new ICSharpCode.AvalonEdit.Document.TextDocument(rule.sheetExplainers);
                 CbExecuteInSequenceIsChecked = rule.executeInSequence;
                 TeParams.Dispatcher.Invoke(() =>
                 {
@@ -2537,7 +2562,7 @@ namespace ExcelTool.ViewModel
             };
             RenewSmartThreadPoolOutput(stpOutput);
 
-            Dictionary<Analyzer, Tuple<CompilerResults, SheetExplainer>> compilerDic = new Dictionary<Analyzer, Tuple<CompilerResults, SheetExplainer>>();
+            Dictionary<Analyzer, Tuple<object, SheetExplainer>> compilerDic = new Dictionary<Analyzer, Tuple<object, SheetExplainer>>();
             int totalCount = 0;
             for (int i = 0; i < sheetExplainers.Count; ++i)
             {
@@ -2589,40 +2614,48 @@ namespace ExcelTool.ViewModel
                 }
                 filePathListDic.Add(sheetExplainer, allFilePathList);
 
-                CompilerResults cresult = GetCresult(analyzer);
-                GlobalObjects.GlobalObjects.SetGlobalParam(cresult, new Object());
-                Tuple<CompilerResults, SheetExplainer> cresultTuple = new Tuple<CompilerResults, SheetExplainer>(cresult, sheetExplainer);
+                object instanceObj = GetInstanceObject(analyzer);
+                if (instanceObj == null)
+                {
+                    FinishRunning(true);
+                    return false;
+                }
+
+                GlobalObjects.GlobalObjects.SetGlobalParam(instanceObj, new Object());
+                Tuple<object, SheetExplainer> cresultTuple = new Tuple<object, SheetExplainer>(instanceObj, sheetExplainer);
                 compilerDic.Add(analyzer, cresultTuple);
 
-                runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(cresult, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, allFilePathList, isExecuteInSequence));
+                runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(instanceObj, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, allFilePathList, isExecuteInSequence));
                 runBeforeAnalyzeSheetThread.Start();
 
                 while (runBeforeAnalyzeSheetThread.IsAlive)
                 {
                     if (isStopByUser)
                     {
-                        try
-                        {
-                            runBeforeAnalyzeSheetThread.Abort();
-                        }
-                        catch (Exception)
-                        {
-                            // DO NOTHING
-                        }
+                        WaitThreadStop(runBeforeAnalyzeSheetThread);
+                        // try
+                        // {
+                        //     runBeforeAnalyzeSheetThread.Abort();
+                        // }
+                        // catch (Exception)
+                        // {
+                        //     // DO NOTHING
+                        // }
                         FinishRunning(true);
                         return false;
                     }
                     long timeCostSs = GetNowSs() - startTime;
                     if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                     {
-                        try
-                        {
-                            runBeforeAnalyzeSheetThread.Abort();
-                        }
-                        catch (Exception)
-                        {
-                            // DO NOTHING
-                        }
+                        WaitThreadStop(runBeforeAnalyzeSheetThread);
+                        // try
+                        // {
+                        //     runBeforeAnalyzeSheetThread.Abort();
+                        // }
+                        // catch (Exception)
+                        // {
+                        //     // DO NOTHING
+                        // }
                         if (!isAuto)
                         {
                             CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
@@ -2653,7 +2686,7 @@ namespace ExcelTool.ViewModel
                     readFileParams.Add(analyzer);
                     readFileParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name));
                     readFileParams.Add(isExecuteInSequence);
-                    readFileParams.Add(cresult);
+                    readFileParams.Add(instanceObj);
                     smartThreadPoolAnalyze.QueueWorkItem(new Func<List<object>, object>(ReadFile), readFileParams);
                 }
             }
@@ -2736,22 +2769,24 @@ namespace ExcelTool.ViewModel
                 {
                     long startTime = GetNowSs();
 
-                    CompilerResults cresult = compilerDic[analyzer].Item1;
+                    object instanceObj = compilerDic[analyzer].Item1;
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
-                    runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(cresult, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer], isExecuteInSequence));
+                    runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(instanceObj, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer], isExecuteInSequence));
                     runBeforeSetResultThread.Start();
                     while (runBeforeSetResultThread.IsAlive)
                     {
                         if (isStopByUser)
                         {
-                            runBeforeSetResultThread.Abort();
+                            WaitThreadStop(runBeforeSetResultThread);
+                            // runBeforeSetResultThread.Abort();
                             FinishRunning(true);
                             return false;
                         }
                         long timeCostSs = GetNowSs() - startTime;
                         if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                         {
-                            runBeforeSetResultThread.Abort();
+                            WaitThreadStop(runBeforeSetResultThread);
+                            // runBeforeSetResultThread.Abort();
                             if (!isAuto)
                             {
                                 CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
@@ -2851,22 +2886,24 @@ namespace ExcelTool.ViewModel
                 {
                     long startTime = GetNowSs();
 
-                    CompilerResults cresult = compilerDic[analyzer].Item1;
+                    object instanceObj = compilerDic[analyzer].Item1;
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
-                    runEndThread = new Thread(() => RunEnd(cresult, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer], isExecuteInSequence));
+                    runEndThread = new Thread(() => RunEnd(instanceObj, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer], isExecuteInSequence));
                     runEndThread.Start();
                     while (runEndThread.IsAlive)
                     {
                         if (isStopByUser)
                         {
-                            runEndThread.Abort();
+                            WaitThreadStop(runEndThread);
+                            // runEndThread.Abort();
                             FinishRunning(true);
                             return false;
                         }
                         long timeCostSs = GetNowSs() - startTime;
                         if (perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
                         {
-                            runEndThread.Abort();
+                            WaitThreadStop(runEndThread);
+                            // runEndThread.Abort();
 
                             if (!isAuto)
                             {
@@ -2987,7 +3024,7 @@ namespace ExcelTool.ViewModel
 
         private void WhenRunning()
         {
-            while (true)
+            while (!windowsClosing)
             {
                 TeLog.Dispatcher.Invoke(() =>
                 {
@@ -3065,153 +3102,84 @@ namespace ExcelTool.ViewModel
             BtnStopIsEnabled = false;
         }
 
-        private void RunBeforeAnalyzeSheet(CompilerResults cresult, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
+        private void RunFunction(object instanceObj, string analyzerName, string className, string functionName, object[] objList, int globalParamIndex)
         {
-            if (cresult.Errors.HasErrors)
+            try
             {
-
-                String str = "";
-                foreach (CompilerError err in cresult.Errors)
+                MethodInfo objMI = instanceObjAnalyzeCodeTypeDic[instanceObj].GetMethod(functionName);
+                if (objMI == null)
                 {
-                    str = $"{str}\n    {err.ErrorText} in line {err.Line}";
+                    if (Logger.IsOutputMethodNotFoundWarning)
+                    {
+                        Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", functionName));
+                    }
+                    return;
                 }
-
-                Logger.Error(str);
+                objMI.Invoke(instanceObj, objList);
+                GlobalObjects.GlobalObjects.SetGlobalParam(instanceObj, objList[globalParamIndex]);
+            }
+            catch (Exception e)
+            {
+                if (e.InnerException != null)
+                {
+                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzerName}.{functionName}(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                }
+                else
+                {
+                    Logger.Error($"\n    {e.Message}\n    {analyzerName}.{functionName}(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
+                }
                 runNotSuccessed = true;
                 Stop();
             }
-            else
-            {
-                // 通过反射执行代码
-                try
-                {
-                    Assembly objAssembly = cresult.CompiledAssembly;
-                    object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
-                    MethodInfo objMI = obj.GetType().GetMethod("RunBeforeAnalyzeSheet");
-                    if (objMI == null)
-                    {
-                        if (Logger.IsOutputMethodNotFoundWarning)
-                        {
-                            Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", "RunBeforeAnalyzeSheet"));
-                        }
-                        return;
-                    }
-                    object[] objList = new object[] { param, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), allFilePathList, isExecuteInSequence };
-                    objMI.Invoke(obj, objList);
-                    GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[1]);
-                }
-                catch (Exception e)
-                {
-                    if (!(e is ThreadAbortException))
-                    {
-                        if (e.InnerException != null)
-                        {
-                            Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunBeforeAnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
-                        }
-                        else
-                        {
-                            Logger.Error($"\n    {e.Message}\n    {analyzer.name}.RunBeforeAnalyzeSheet(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
-                        }
-                        runNotSuccessed = true;
-                        Stop();
-                    }
-                }
-            }
         }
 
-        private void RunBeforeSetResult(CompilerResults cresult, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
+        private void RunBeforeAnalyzeSheet(Object instanceObj, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
         {
-            // 通过反射执行代码
-            try
-            {
-                Assembly objAssembly = cresult.CompiledAssembly;
-                object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
-                MethodInfo objMI = obj.GetType().GetMethod("RunBeforeSetResult");
-                if (objMI == null)
-                {
-                    if (Logger.IsOutputMethodNotFoundWarning)
-                    {
-                        Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", "RunBeforeSetResult"));
-                    }
-                    return;
-                }
-                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), allFilePathList, isExecuteInSequence };
-                objMI.Invoke(obj, objList);
-                GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[2]);
-            }
-            catch (Exception e)
-            {
-                if (!(e is ThreadAbortException))
-                {
-                    if (e.InnerException != null)
-                    {
-                        Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunBeforeSetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
-                    }
-                    else
-                    {
-                        Logger.Error($"\n    {e.Message}\n    {analyzer.name}.RunBeforeSetResult(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
-                    }
-                    runNotSuccessed = true;
-                    Stop();
-                }
-            }
+            object[] objList = new object[] { param, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), allFilePathList, isExecuteInSequence };
+            RunFunction(instanceObj, analyzer.name, "AnalyzeCode.Analyze", "RunBeforeAnalyzeSheet", objList, 1);
         }
 
-        private void RunEnd(CompilerResults cresult, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
+        private void RunBeforeSetResult(Object instanceObj, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
         {
-            // 通过反射执行代码
-            try
-            {
-                Assembly objAssembly = cresult.CompiledAssembly;
-                object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
-                MethodInfo objMI = obj.GetType().GetMethod("RunEnd");
-                if (objMI == null)
-                {
-                    if (Logger.IsOutputMethodNotFoundWarning)
-                    {
-                        Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", "RunEnd"));
-                    }
-                    return;
-                }
-                object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), allFilePathList, isExecuteInSequence };
-                objMI.Invoke(obj, objList);
-                GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[2]);
-            }
-            catch (Exception e)
-            {
-                if (!(e is ThreadAbortException))
-                {
-                    if (e.InnerException != null)
-                    {
-                        Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.RunEnd(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
-                    }
-                    else 
-                    {
-                        Logger.Error($"\n    {e.Message}\n    {analyzer.name}.RunEnd(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
-                    }
-                    runNotSuccessed = true;
-                    Stop();
-                }
-            }
+            object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), allFilePathList, isExecuteInSequence };
+            RunFunction(instanceObj, analyzer.name, "AnalyzeCode.Analyze", "RunBeforeSetResult", objList, 2);
         }
 
-        [DllImport("kernel32.dll")]
-        public static extern IntPtr _lopen(string lpPathName, int iReadWrite);
+        private void RunEnd(Object instanceObj, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
+        {
+            object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), allFilePathList, isExecuteInSequence };
+            RunFunction(instanceObj, analyzer.name, "AnalyzeCode.Analyze", "RunEnd", objList, 2);
+        }
 
         [DllImport("kernel32.dll")]
         public static extern bool CloseHandle(IntPtr hObject);
 
-        public const int OF_READWRITE = 2;
-        public const int OF_SHARE_DENY_NONE = 0x40;
-        public readonly IntPtr HFILE_ERROR = new IntPtr(-1);
-        private bool isFileUsing(string filePath)
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern IntPtr CreateFile(
+            string lpFileName,
+            uint dwDesiredAccess,
+            uint dwShareMode,
+            IntPtr lpSecurityAttributes,
+            uint dwCreationDisposition,
+            uint dwFlagsAndAttributes,
+            IntPtr hTemplateFile
+        );
+
+        public static bool IsFileInUse(string fileName)
         {
-            IntPtr vHandle = _lopen(filePath, OF_READWRITE | OF_SHARE_DENY_NONE);
-            if (vHandle != HFILE_ERROR)
+            IntPtr handle = IntPtr.Zero;
+            try
             {
-                CloseHandle(vHandle);
+                handle = CreateFile(fileName, 0, 0, IntPtr.Zero, 3, 0x80, IntPtr.Zero);
+                return handle.ToInt32() == -1;
             }
-            return vHandle == HFILE_ERROR;
+            finally
+            {
+                if (handle != IntPtr.Zero)
+                {
+                    CloseHandle(handle);
+                }
+            }
         }
 
         private ConcurrentDictionary<ReadFileReturnType, object> ReadFile(List<object> readFileParams)
@@ -3222,12 +3190,12 @@ namespace ExcelTool.ViewModel
             Analyzer analyzer = (Analyzer)readFileParams[3];
             Param param = (Param)readFileParams[4];
             bool isExecuteInSequence = (bool)readFileParams[5];
-            CompilerResults cresult = (CompilerResults)readFileParams[6];
+            object instanceObj  = readFileParams[6];
 
             ConcurrentDictionary<ReadFileReturnType, object> methodResult = new ConcurrentDictionary<ReadFileReturnType, object>();
             methodResult.AddOrUpdate(ReadFileReturnType.ANALYZER, analyzer, (key, oldValue) => null);
 
-            if (filePath.Contains("~$") || isFileUsing(filePath))
+            if (filePath.Contains("~$") || IsFileInUse(filePath))
             {
                 Logger.Error(Application.Current.FindResource("FileIsInUse").ToString().Replace("{0}", filePath));
                 return methodResult;
@@ -3256,7 +3224,7 @@ namespace ExcelTool.ViewModel
                     {
                         if (sheet.Name.Equals(str))
                         {
-                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, cresult);
+                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
                         }
                     }
                 }
@@ -3266,7 +3234,7 @@ namespace ExcelTool.ViewModel
                     {
                         if (sheet.Name.Contains(str))
                         {
-                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, cresult);
+                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
                         }
                     }
                 }
@@ -3277,7 +3245,7 @@ namespace ExcelTool.ViewModel
                         Regex rgx = new Regex(str);
                         if (rgx.IsMatch(sheet.Name))
                         {
-                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, cresult);
+                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
                         }
                     }
                 }
@@ -3286,7 +3254,7 @@ namespace ExcelTool.ViewModel
                     Regex rgx = new Regex("[\\s\\S]*");
                     if (rgx.IsMatch(sheet.Name))
                     {
-                        Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, cresult);
+                        Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
                     }
                 }
             }
@@ -3307,41 +3275,11 @@ namespace ExcelTool.ViewModel
             return (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
         }
 
-        private void Analyze(IXLWorksheet sheet, string filePath, Analyzer analyzer, Param param, bool isExecuteInSequence, CompilerResults cresult)
+        private void Analyze(IXLWorksheet sheet, string filePath, Analyzer analyzer, Param param, bool isExecuteInSequence, object instanceObj)
         {
-            // 通过反射执行代码
-            try
-            {
-                Assembly objAssembly = cresult.CompiledAssembly;
-                object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
-                MethodInfo objMI = obj.GetType().GetMethod("AnalyzeSheet");
-                if (objMI == null)
-                {
-                    if (Logger.IsOutputMethodNotFoundWarning)
-                    {
-                        Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", "AnalyzeSheet"));
-                    }
-                    return;
-                }
-                ++analyzeSheetInvokeCount;
-                object[] objList = new object[] { param, sheet, filePath, GlobalObjects.GlobalObjects.GetGlobalParam(cresult), isExecuteInSequence, analyzeSheetInvokeCount };
-                objMI.Invoke(obj, objList);
-                GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[3]);
-            }
-            catch (Exception e)
-            {
-                if (e.InnerException != null)
-                {
-                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
-                }
-                else
-                {
-                    Logger.Error($"\n    {e.Message}\n    {analyzer.name}.AnalyzeSheet(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
-                }
-                runNotSuccessed = true;
-                Stop();
-            }
-
+            ++analyzeSheetInvokeCount;
+            object[] objList = new object[] { param, sheet, filePath, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), isExecuteInSequence, analyzeSheetInvokeCount };
+            RunFunction(instanceObj, analyzer.name, "AnalyzeCode.Analyze", "AnalyzeSheet", objList, 3);
         }
 
         private string SetResult(List<object> setResultParams)
@@ -3352,42 +3290,13 @@ namespace ExcelTool.ViewModel
             int totalCount = (int)setResultParams[3];
             Param param = (Param)setResultParams[4];
             bool isExecuteInSequence = (bool)setResultParams[5];
-            CompilerResults cresult = (CompilerResults)setResultParams[6];
+            object instanceObj = setResultParams[6];
 
             currentOutputtingDictionary.AddOrUpdate(filePath, GetNowSs(), (key, oldValue) => GetNowSs());
 
-            // 通过反射执行代码
-            try
-            {
-                Assembly objAssembly = cresult.CompiledAssembly;
-                object obj = objAssembly.CreateInstance("AnalyzeCode.Analyze");
-                MethodInfo objMI = obj.GetType().GetMethod("SetResult");
-                if (objMI == null)
-                {
-                    if (Logger.IsOutputMethodNotFoundWarning)
-                    {
-                        Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", "SetResult"));
-                    }
-                    return filePath;
-                }
-                ++setResultInvokeCount;
-                object[] objList = new object[] { param, workbook, filePath.Split('|')[1], GlobalObjects.GlobalObjects.GetGlobalParam(cresult), isExecuteInSequence, setResultInvokeCount, totalCount };
-                objMI.Invoke(obj, objList);
-                GlobalObjects.GlobalObjects.SetGlobalParam(cresult, objList[3]);
-            }
-            catch (Exception e)
-            {
-                if (e.InnerException != null)
-                {
-                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzerName}.SetResult(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
-                }
-                else 
-                {
-                    Logger.Error($"\n    {e.Message}\n    {analyzerName}.SetResult(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
-                }
-                runNotSuccessed = true;
-                Stop();
-            }
+            ++setResultInvokeCount;
+            object[] objList = new object[] { param, workbook, filePath.Split('|')[1], GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), isExecuteInSequence, setResultInvokeCount, totalCount };
+            RunFunction(instanceObj, analyzerName, "AnalyzeCode.Analyze", "SetResult", objList, 3);
             return filePath;
         }
 
@@ -3409,56 +3318,147 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private FileSystemInfo[] GetyDllInfos()
+        private object GetInstanceObject(Analyzer analyzer, List<string> needDelDll = null)
         {
-            string folderPath = Path.Combine(Environment.CurrentDirectory, "Dlls");
-            DirectoryInfo dir = new DirectoryInfo(folderPath);
-            FileSystemInfo[] dllInfos = null;
-            if (dir.Exists)
-            {
-                DirectoryInfo dirD = dir as DirectoryInfo;
-                dllInfos = dirD.GetFileSystemInfos();
-            }
-
-            return dllInfos;
-        }
-
-        private CompilerResults GetCresult(Analyzer analyzer)
-        {
-            CSharpCodeProvider objCSharpCodePrivoder = new CSharpCodeProvider();
-
-            CompilerParameters objCompilerParameters = new CompilerParameters();
-
-            FileSystemInfo[] dllInfos = GetyDllInfos();
             List<string> dlls = new List<string>();
-            dlls.Add("System.dll");
-            dlls.Add("System.Data.dll");
-            dlls.Add("System.Xml.dll");
-            dlls.Add("ClosedXML.dll");
-            dlls.Add("GlobalObjects.dll");
+
+            // Dll文件夹中的dll
+            FileSystemInfo[] dllInfos = FileHelper.GetDllInfos(Path.Combine(Environment.CurrentDirectory, "Dlls"));
             if (dllInfos != null && dllInfos.Count() != 0)
             {
                 foreach (FileSystemInfo dllInfo in dllInfos)
                 {
-                    dlls.Add(dllInfo.Name);
-                    string destFileName = Path.Combine(Environment.CurrentDirectory, dllInfo.Name);
-                    if (!copiedDllsList.Contains(destFileName))
-                    {
-                        File.Copy(dllInfo.FullName, destFileName, true);
-                        copiedDllsList.Add(destFileName);
-                    }
+                    dlls.Add(dllInfo.FullName);
+                    _ = Assembly.LoadFrom(dllInfo.FullName);
                 }
             }
-            foreach (string dll in dlls)
+
+            // 根目录的Dll
+            FileSystemInfo[] dllInfosBase = FileHelper.GetDllInfos(Environment.CurrentDirectory);
+            foreach (FileSystemInfo dllInfo in dllInfosBase)
             {
-                objCompilerParameters.ReferencedAssemblies.Add(dll);
+                if (dllInfo.Extension == ".dll" && !dlls.Contains(dllInfo.Name))
+                {
+                    dlls.Add(dllInfo.Name);
+                }
             }
 
-            objCompilerParameters.GenerateExecutable = false;
-            objCompilerParameters.GenerateInMemory = true;
-            objCompilerParameters.IncludeDebugInformation = true;
+            string assemblyLocation = typeof(object).Assembly.Location;
+            FileSystemInfo[] dllInfosAssembly = FileHelper.GetDllInfos(Path.GetDirectoryName(assemblyLocation));
+            foreach (FileSystemInfo dllInfo in dllInfosAssembly)
+            {
+                if (dllInfo.Extension == ".dll" && !dlls.Contains(dllInfo.Name) && !dllInfo.Name.StartsWith("api"))
+                {
+                    dlls.Add(dllInfo.Name);
+                }
+            }
 
-            return objCSharpCodePrivoder.CompileAssemblyFromSource(objCompilerParameters, analyzer.code);
+            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(analyzer.code);
+
+            IEnumerable<Diagnostic> diagnostics = syntaxTree.GetDiagnostics();
+
+            bool breakError = false;
+            string errorStr = "";
+            foreach (Diagnostic diagnostic in diagnostics)
+            {
+                breakError = true;
+                errorStr = $"{errorStr}\n    {diagnostic.ToString()}";
+            }
+            if (breakError)
+            {
+                Logger.Error(errorStr);
+                runNotSuccessed = true;
+                Stop();
+                return null;
+            }
+
+            string assemblyName = Path.GetRandomFileName();
+            MetadataReference[] references = new MetadataReference[] 
+            {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            };
+
+            if (needDelDll != null)
+            {
+                foreach (string errorDll in needDelDll)
+                {
+                    dlls.Remove(errorDll);
+                }
+            }
+            
+            // 循环遍历每个 DLL，并将其包含在编译中
+            foreach (string dllName in dlls)
+            {
+                if (File.Exists(dllName))
+                {
+                    references = references.Append(MetadataReference.CreateFromFile(dllName)).ToArray();
+                }
+                else
+                {
+                    references = references.Append(MetadataReference.CreateFromFile(assemblyLocation.Replace("System.Private.CoreLib.dll", dllName))).ToArray();
+                }
+            }
+
+            var options = new CSharpCompilationOptions(
+                OutputKind.DynamicallyLinkedLibrary, 
+                platform: Platform.AnyCpu
+                //languageVersion: LanguageVersion.CSharp10,
+                //runtimeMetadataVersion: "6.0"
+                );
+            CSharpCompilation compilation = CSharpCompilation.Create(
+                assemblyName,
+                syntaxTrees: new[] { syntaxTree },
+                references: references,
+                options: options);
+
+
+            List<string> errDll = new List<string>();
+            MemoryStream ms = new MemoryStream();
+            var result = compilation.Emit(ms);
+            if (!result.Success)
+            {
+                errorStr = "";
+                
+                foreach (Diagnostic diagnostic in result.Diagnostics)
+                {
+                    if (diagnostic.Id == "CS0009")
+                    {
+                        string dll = diagnostic.GetMessage();
+                        dll = dll.Substring(dll.IndexOf("'") + 1);
+                        dll = dll.Substring(0, dll.IndexOf("'"));
+                        errDll.Add(Path.GetFileName(dll));
+                    }
+                    else
+                    {
+                        breakError = true;
+                        errorStr = $"{errorStr}\n    {diagnostic.Id}: {diagnostic.GetMessage()}";
+                    }
+                }
+
+                if (breakError)
+                {
+                    Logger.Error(errorStr);
+                    runNotSuccessed = true;
+                    Stop();
+                    return null;
+                }
+
+                if (errDll.Count > 0)
+                {
+                    return GetInstanceObject(analyzer, errDll);
+                }
+            }
+            else
+            {
+                ms.Seek(0, SeekOrigin.Begin);
+                Assembly assembly = Assembly.Load(ms.ToArray());
+                Type analyzeCodeType = assembly.GetType("AnalyzeCode.Analyze");
+                object obj = Activator.CreateInstance(analyzeCodeType);
+                instanceObjAnalyzeCodeTypeDic[obj] = analyzeCodeType;
+                return obj;
+            }
+
+            return null;
         }
 
         private void SetAutoStatusAll()
@@ -3490,7 +3490,7 @@ namespace ExcelTool.ViewModel
             {
                 try
                 {
-                    smartThreadPoolAnalyze.Shutdown(true);
+                    smartThreadPoolAnalyze.Shutdown();
                 }
                 catch
                 {
@@ -3501,7 +3501,7 @@ namespace ExcelTool.ViewModel
             {
                 try
                 {
-                    smartThreadPoolOutput.Shutdown(true);
+                    smartThreadPoolOutput.Shutdown();
                 }
                 catch
                 {
@@ -3510,23 +3510,28 @@ namespace ExcelTool.ViewModel
             }
             if (runBeforeAnalyzeSheetThread != null && runBeforeAnalyzeSheetThread.IsAlive)
             {
-                runBeforeAnalyzeSheetThread.Abort();
+                WaitThreadStop(runBeforeAnalyzeSheetThread);
+                // runBeforeAnalyzeSheetThread.Abort();
             }
             if (runBeforeSetResultThread != null && runBeforeSetResultThread.IsAlive)
             {
-                runBeforeSetResultThread.Abort();
+                WaitThreadStop(runBeforeSetResultThread);
+                // runBeforeSetResultThread.Abort();
             }
             if (runEndThread != null && runEndThread.IsAlive)
             {
-                runEndThread.Abort();
+                WaitThreadStop(runEndThread);
+                // runEndThread.Abort();
             }
             if (isCloseWindow)
             {
                 if (fileSystemWatcherInvokeThread != null && fileSystemWatcherInvokeThread.IsAlive)
                 {
-                    fileSystemWatcherInvokeThread.Abort();
+                    WaitThreadStop(fileSystemWatcherInvokeThread);
+                    // fileSystemWatcherInvokeThread.Abort();
                 }
-                runningThread.Abort();
+                WaitThreadStop(runningThread);
+                // runningThread.Abort();
             }
         }
 
@@ -3565,6 +3570,21 @@ namespace ExcelTool.ViewModel
 
             teLog.Background = ThemeBackground;
             teLog.Foreground = ThemeControlForeground;
+        }
+
+        private void WaitThreadStop(Thread thread)
+        {
+            int count = 0;
+            while (thread.IsAlive)
+            {
+                if (freshInterval * count > 10000)
+                {
+                    throw new Exception("Thread can't stop");
+                }
+                // Wait until finish
+                Thread.Sleep(freshInterval);
+                ++count;
+            }
         }
     }
 

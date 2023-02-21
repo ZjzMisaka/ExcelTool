@@ -1,21 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C0C0913D-CF88-4D67-BE93-B6576B278C97}</ProjectGuid>
+    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>ExcelTool</RootNamespace>
-    <AssemblyName>ExcelTool</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -31,173 +17,44 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>ExcelTool.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="netstandard" />
-    <Reference Include="System">
+    <Compile Remove="Roslyn\**" />
+    <EmbeddedResource Remove="Roslyn\**" />
+    <None Remove="Roslyn\**" />
+    <Page Remove="Roslyn\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System">
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Data">
+    <Reference Update="System.Data">
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Design" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Windows" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml">
+    <Reference Update="System.Xml">
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="Helper\JsonHelper.cs" />
-    <Compile Include="Highlighting\DarkModeHighlightColors.cs" />
-    <Compile Include="Model\Analyzer.cs" />
-    <Compile Include="MvvmTool\EventCommandAction.cs" />
-    <Compile Include="MvvmTool\SizeBindingHelper.cs" />
-    <Compile Include="ViewModel\AnalyzerViewModel.cs" />
-    <Compile Include="ViewModel\SheetExplainerViewModel.cs" />
-    <Compile Include="View\AnalyzerEditor.xaml.cs">
-      <DependentUpon>AnalyzerEditor.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="MvvmTool\Events.cs" />
-    <Compile Include="Helper\FileHelper.cs" />
-    <Compile Include="Helper\IniHelper.cs" />
-    <Compile Include="Helper\ParamHelper.cs" />
-    <Compile Include="View\ParamSetter.xaml.cs">
-      <DependentUpon>ParamSetter.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ParamEditor.xaml.cs">
-      <DependentUpon>ParamEditor.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Model\RunningRule.cs" />
-    <Compile Include="Model\SheetExplainer.cs" />
-    <Compile Include="View\SheetExplainerEditor.xaml.cs">
-      <DependentUpon>SheetExplainerEditor.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewModel\MainWindowViewModel.cs" />
-    <Page Include="View\AnalyzerEditor.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="View\MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Page Include="View\ParamSetter.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ParamEditor.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Resources\StringResource.ja-JP.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Page>
-    <Page Include="Resources\StringResource.en-US.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Page>
-    <Page Include="View\SheetExplainerEditor.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Resources\StringResource.zh-CN.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <None Include="Highlighting\LogHighlighting.xshd">
+    <None Update="Highlighting\LogHighlighting.xshd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="Highlighting\ParamHighlighting.xshd">
+    <None Update="Highlighting\ParamHighlighting.xshd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Setting.ini">
+    <None Update="Setting.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GlobalObjects\GlobalObjects.csproj">
-      <Project>{be1fc276-dd3c-4e11-9dc1-8a37a992603a}</Project>
-      <Name>GlobalObjects</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\GlobalObjects\GlobalObjects.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Params.txt">
@@ -217,64 +74,14 @@
     <PackageReference Include="DocumentFormat.OpenXml">
       <Version>2.18.0</Version>
     </PackageReference>
-    <PackageReference Include="ExcelNumberFormat">
-      <Version>1.1.0</Version>
-    </PackageReference>
     <PackageReference Include="gong-wpf-dragdrop">
       <Version>3.2.0</Version>
     </PackageReference>
-    <PackageReference Include="Humanizer.Core">
-      <Version>2.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="ini-parser">
-      <Version>2.5.2</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces">
-      <Version>5.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
-      <Version>3.0.0</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.AnalyzerUtilities">
-      <Version>3.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.Common">
-      <Version>3.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
-      <Version>3.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features">
-      <Version>3.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting">
-      <Version>3.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces">
-      <Version>3.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.Features">
-      <Version>3.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common">
-      <Version>3.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common">
-      <Version>3.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CSharp">
-      <Version>4.7.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.DiaSymReader">
-      <Version>1.3.0</Version>
-    </PackageReference>
+    <PackageReference Include="ini-parser-netstandard" Version="2.5.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
     <PackageReference Include="Microsoft.Toolkit.Mvvm">
       <Version>7.1.2</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts">
-      <Version>10.0.18362.2005</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf">
       <Version>1.1.39</Version>
@@ -285,83 +92,13 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
     </PackageReference>
-    <PackageReference Include="RoslynPad.Editor.Windows">
-      <Version>1.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="RoslynPad.Roslyn">
-      <Version>3.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="RoslynPad.Roslyn.Windows">
-      <Version>3.6.0</Version>
-    </PackageReference>
+    <PackageReference Include="RoslynPad.Editor.Windows" Version="4.4.0" />
     <PackageReference Include="SmartThreadPool.dll">
       <Version>2.3.0</Version>
     </PackageReference>
-    <PackageReference Include="System.Buffers">
-      <Version>4.5.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Immutable">
-      <Version>1.5.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.ComponentModel.Annotations">
-      <Version>5.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Composition">
-      <Version>1.0.31</Version>
-    </PackageReference>
-    <PackageReference Include="System.Composition.AttributedModel">
-      <Version>1.0.31</Version>
-    </PackageReference>
-    <PackageReference Include="System.Composition.Convention">
-      <Version>1.0.31</Version>
-    </PackageReference>
-    <PackageReference Include="System.Composition.Hosting">
-      <Version>1.0.31</Version>
-    </PackageReference>
-    <PackageReference Include="System.Composition.Runtime">
-      <Version>1.0.31</Version>
-    </PackageReference>
-    <PackageReference Include="System.Composition.TypedParts">
-      <Version>1.0.31</Version>
-    </PackageReference>
-    <PackageReference Include="System.IO.FileSystem.Primitives">
-      <Version>4.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.IO.Packaging">
-      <Version>4.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Memory">
-      <Version>4.5.4</Version>
-    </PackageReference>
-    <PackageReference Include="System.Numerics.Vectors">
-      <Version>4.5.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reactive">
-      <Version>4.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reactive.Linq">
-      <Version>4.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Metadata">
-      <Version>1.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
-      <Version>4.7.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.WindowsRuntime">
-      <Version>4.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.WindowsRuntime.UI.Xaml">
-      <Version>4.6.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Text.Encoding.CodePages">
-      <Version>4.5.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading.Tasks.Extensions">
-      <Version>4.5.4</Version>
-    </PackageReference>
-    <PackageReference Include="System.ValueTuple">
-      <Version>4.5.0</Version>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.410601">
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -379,8 +116,16 @@
   <ItemGroup>
     <Resource Include="ExcelTool.ico" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>rd /s /q "de", "en", "es", "fr", "it", "ja", "ko", "ru", "zh-Hans", "zh-Hant", "vi-VN", "uz-Latn-UZ", "uk-UA", "tr-TR", "tr", "th-TH", "te-IN", "ta-IN", "sw-KE", "sv-SE", "sr-Latn-RS", "sq-AL", "sl-SI", "sk-SK", "ru-RU", "ro-RO", "pt-PT", "pt-BR", "pl-PL", "pl", "nn-NO", "nl-NL", "nb-NO", "ms-MY", "ml-IN", "mk-MK", "lv-LV", "lt-LT", "lo-LA", "ko-KR", "kn-IN", "km-KH", "kk-KZ", "ka-GE", "ja-JP", "it-IT", "is-IS", "id-ID", "hu-HU", "hr-HR", "hi-IN", "he-IL", "gl-ES", "fr-FR", "fr-CA", "fi-FI", "fa-IR", "eu-ES", "et-EE", "es-MX", "es-ES", "en-GB", "el-GR", "de-DE", "da-DK", "cs-CZ", "cs", "ca-ES", "bs-Latn-BA", "bn-BD", "bg-BG", "be-BY", "az-Latn-AZ", "ar-SA", "am-ET", "af-ZA"</PostBuildEvent>
+    <PostBuildEvent>rd /s /q "de", "en", "es", "fr", "it", "ja", "ko", "ru", "zh-Hans", "zh-Hant", "vi-VN", "uz-Latn-UZ", "uk-UA", "tr-TR", "tr", "th-TH", "te-IN", "ta-IN", "sw-KE", "sv-SE", "sr-Latn-RS", "sq-AL", "sl-SI", "sk-SK", "ru-RU", "ro-RO", "pt-PT", "pt-BR", "pl-PL", "pl", "nn-NO", "nl-NL", "nb-NO", "ms-MY", "ml-IN", "mk-MK", "lv-LV", "lt-LT", "lo-LA", "ko-KR", "kn-IN", "km-KH", "kk-KZ", "ka-GE", "ja-JP", "it-IT", "is-IS", "id-ID", "hu-HU", "hr-HR", "hi-IN", "he-IL", "gl-ES", "fr-FR", "fr-CA", "fi-FI", "fa-IR", "eu-ES", "et-EE", "es-MX", "es-ES", "en-GB", "el-GR", "de-DE", "da-DK", "cs-CZ", "cs", "ca-ES", "bs-Latn-BA", "bn-BD", "bg-BG", "be-BY", "az-Latn-AZ", "ar-SA", "am-ET", "af-ZA", "runtimes\freebsd", "runtimes\linux", "runtimes\linux-arm", "runtimes\linux-arm64", "runtimes\linux-x64", "runtimes\osx", "runtimes\osx-arm64", "runtimes\osx-x64", "runtimes\unix"</PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 </Project>

@@ -6,8 +6,10 @@ using Highlighting;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.CSharp.Scripting.Hosting;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.Scripting.Hosting;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
@@ -18,6 +20,7 @@ using RoslynPad.Editor;
 using RoslynPad.Roslyn;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -25,6 +28,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -35,6 +39,7 @@ using static CustomizableMessageBox.MessageBox;
 
 namespace ExcelTool.ViewModel
 {
+    [SupportedOSPlatform("windows7.0")]
     class AnalyzerViewModel : ObservableObject
     {
         private readonly ObservableCollection<DocumentViewModel> _documents;
@@ -44,7 +49,7 @@ namespace ExcelTool.ViewModel
         private ItemsControl itemsControl;
         private bool loadFailed;
         private DocumentViewModel documentViewModel;
-        private DocumentId documentId;
+        private ValueTask<DocumentId> documentId;
 
         private double windowWidth;
         public double WindowWidth
@@ -227,19 +232,10 @@ namespace ExcelTool.ViewModel
                 });
             }
 
-            List<Assembly> assemblies = new List<Assembly>();
-            assemblies.Add(typeof(object).Assembly);
-            string folderPath = System.IO.Path.Combine(Environment.CurrentDirectory, "Dlls");
-            DirectoryInfo dir = new DirectoryInfo(folderPath);
-            FileSystemInfo[] dllInfos = null;
-            if (dir.Exists)
-            {
-                DirectoryInfo dirD = dir as DirectoryInfo;
-                dllInfos = dirD.GetFileSystemInfos();
-            }
             List<string> dlls = new List<string>();
-            dlls.Add("ClosedXML.dll");
-            dlls.Add("GlobalObjects.dll");
+
+            // Dll文件夹中的dll
+            FileSystemInfo[] dllInfos = FileHelper.GetDllInfos(Path.Combine(Environment.CurrentDirectory, "Dlls"));
             if (dllInfos != null && dllInfos.Count() != 0)
             {
                 foreach (FileSystemInfo dllInfo in dllInfos)
@@ -247,77 +243,50 @@ namespace ExcelTool.ViewModel
                     dlls.Add(dllInfo.FullName);
                 }
             }
-            foreach (string dll in dlls)
+
+            // 根目录的Dll
+            FileSystemInfo[] dllInfosBase = FileHelper.GetDllInfos(Environment.CurrentDirectory);
+            foreach (FileSystemInfo dllInfo in dllInfosBase)
             {
-                Assembly dllFile = null;
-                if (IniHelper.GetSecurityCheck())
+                if (dllInfo.Extension == ".dll" && !dlls.Contains(dllInfo.Name))
                 {
-                    try
-                    {
-                        dllFile = Assembly.LoadFrom(dll);
-                    }
-                    catch (FileLoadException ex)
-                    {
-                        ComboBox comboBox = new ComboBox();
-                        comboBox.HorizontalAlignment = HorizontalAlignment.Stretch;
-                        comboBox.Margin = new Thickness(5);
-                        List<string> items = new List<string>();
-                        items.Add(Application.Current.FindResource("NoAction").ToString());
-                        items.Add(Application.Current.FindResource("CloseTheProgramOnly").ToString());
-                        items.Add(Application.Current.FindResource("BanSecurityCheckWithoutRestart").ToString());
-                        items.Add(Application.Current.FindResource("BanSecurityCheckWithRestart").ToString());
-                        comboBox.ItemsSource = items;
-                        comboBox.SelectedIndex = 0;
-                        CustomizableMessageBox.MessageBox.Show(new RefreshList { comboBox, Application.Current.FindResource("Ok").ToString() }, $"{Application.Current.FindResource("UnblockDllsCopiedFromTheWeb").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
-                        if (comboBox.SelectedIndex == 0)
-                        {
-                            // Do Nothing
-                        }
-                        else if (comboBox.SelectedIndex == 1)
-                        {
-                            GlobalObjects.GlobalObjects.ProgramCurrentStatus = GlobalObjects.ProgramStatus.Shutdown;
-                            Application.Current.Shutdown();
-                        }
-                        else if (comboBox.SelectedIndex == 2)
-                        {
-                            IniHelper.SetSecurityCheck(false);
-                        }
-                        else if (comboBox.SelectedIndex == 3)
-                        {
-                            IniHelper.SetSecurityCheck(false);
-                            GlobalObjects.GlobalObjects.ProgramCurrentStatus = GlobalObjects.ProgramStatus.Restart;
-                            Application.Current.Shutdown();
-                        }
-                        window.Close();
-                        loadFailed = true;
-                        return;
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        dllFile = Assembly.UnsafeLoadFrom(dll);
-                    }
-                    catch (FileLoadException ex)
-                    {
-                        CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{Application.Current.FindResource("FileNotSupported").ToString().Replace("{0}", dll)}\n\n{ex.Message}", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
-                        window.Close();
-                        loadFailed = true;
-                        return;
-                    }
-                }
-                foreach (Type type in dllFile.GetExportedTypes())
-                {
-                    assemblies.Add(type.Assembly);
+                    dlls.Add(dllInfo.Name);
                 }
             }
 
-            _host = new RoslynHost(additionalAssemblies: new[]
+            string assemblyLocation = typeof(object).Assembly.Location;
+            FileSystemInfo[] dllInfosAssembly = FileHelper.GetDllInfos(Path.GetDirectoryName(assemblyLocation));
+            foreach (FileSystemInfo dllInfo in dllInfosAssembly)
+            {
+                if (dllInfo.Extension == ".dll" && !dlls.Contains(dllInfo.Name) && !dllInfo.Name.StartsWith("api"))
+                {
+                    dlls.Add(dllInfo.Name);
+                }
+            }
+
+            MetadataReference[] references = new MetadataReference[]
+            {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            };
+
+            // 循环遍历每个 DLL，并将其包含在编译中
+            foreach (string dllName in dlls)
+            {
+                if (File.Exists(dllName))
+                {
+                    references = references.Append(MetadataReference.CreateFromFile(dllName)).ToArray();
+                }
+                else
+                {
+                    references = references.Append(MetadataReference.CreateFromFile(assemblyLocation.Replace("System.Private.CoreLib.dll", dllName))).ToArray();
+                }
+            }
+
+            _host = new CustomRoslynHost(additionalAssemblies: new[]
             {
                 Assembly.Load("RoslynPad.Roslyn.Windows"),
-                Assembly.Load("RoslynPad.Editor.Windows")
-            }, RoslynHostReferences.NamespaceDefault.With(assemblyReferences: assemblies));
+                Assembly.Load("RoslynPad.Editor.Windows"),
+            }, RoslynHostReferences.NamespaceDefault.With(references: references));
             AddNewDocument();
         }
 
@@ -1033,15 +1002,15 @@ namespace ExcelTool.ViewModel
             {
                 if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Light)
                 {
-                    documentId = editor.Initialize(_host, new ClassificationHighlightColors(),
-                    Directory.GetCurrentDirectory(), string.Empty);
-                    documentViewModel.Initialize(documentId);
+                    documentId = editor.InitializeAsync(_host, new ClassificationHighlightColors(),
+                    Directory.GetCurrentDirectory(), string.Empty, SourceCodeKind.Regular);
+                    documentViewModel.Initialize(documentId.Result);
                 }
                 else if (ThemeManager.Current.ActualApplicationTheme == ApplicationTheme.Dark)
                 {
-                    documentId = editor.Initialize(_host, new DarkModeHighlightColors(),
-                        Directory.GetCurrentDirectory(), string.Empty);
-                    documentViewModel.Initialize(documentId);
+                    documentId = editor.InitializeAsync(_host, new DarkModeHighlightColors(),
+                        Directory.GetCurrentDirectory(), string.Empty, SourceCodeKind.Regular);
+                    documentViewModel.Initialize(documentId.Result);
                 }
             }
             else
@@ -1080,11 +1049,32 @@ namespace ExcelTool.ViewModel
             editor.TextArea.SelectionForeground = Theme.ThemeSelectionForeground;
         }
 
-        public class DocumentViewModel : INotifyPropertyChanged
+        private class CustomRoslynHost : RoslynHost
         {
-            private bool _isReadOnly;
+            private bool _addedAnalyzers;
+
+            public CustomRoslynHost(IEnumerable<Assembly> additionalAssemblies = null, RoslynHostReferences references = null, ImmutableArray<string>? disabledDiagnostics = null) : base(additionalAssemblies, references, disabledDiagnostics)
+            {
+            }
+
+            protected override IEnumerable<AnalyzerReference> GetSolutionAnalyzerReferences()
+            {
+                if (!_addedAnalyzers)
+                {
+                    _addedAnalyzers = true;
+                    return base.GetSolutionAnalyzerReferences();
+                }
+
+                return Enumerable.Empty<AnalyzerReference>();
+            }
+        }
+
+        internal class DocumentViewModel : INotifyPropertyChanged
+        {
             private readonly RoslynHost _host;
+            private bool _isReadOnly;
             private string _result;
+            private DocumentId _id;
 
             public DocumentViewModel(RoslynHost host, DocumentViewModel previous)
             {
@@ -1098,7 +1088,11 @@ namespace ExcelTool.ViewModel
             }
 
 
-            public DocumentId Id { get; private set; }
+            public DocumentId Id
+            {
+                get => _id ?? throw new InvalidOperationException("Document not initialized");
+                private set => _id = value;
+            }
 
             public bool IsReadOnly
             {
@@ -1136,22 +1130,22 @@ namespace ExcelTool.ViewModel
             }
 
             private static MethodInfo HasSubmissionResult { get; } =
-                typeof(Compilation).GetMethod(nameof(HasSubmissionResult), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                typeof(Compilation).GetMethod(nameof(HasSubmissionResult), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new MissingMemberException(nameof(HasSubmissionResult));
 
             private static PrintOptions PrintOptions { get; } =
                 new PrintOptions { MemberDisplayFormat = MemberDisplayFormat.SeparateLines };
 
-            public async Task<bool> TrySubmit()
+            public async Task<bool> TrySubmitAsync()
             {
                 Result = null;
 
-                Script = LastGoodPrevious?.Script.ContinueWith(Text) ??
+                Script = LastGoodPrevious?.Script?.ContinueWith(Text) ??
                     CSharpScript.Create(Text, ScriptOptions.Default
                         .WithReferences(_host.DefaultReferences)
                         .WithImports(_host.DefaultImports));
 
                 var compilation = Script.GetCompilation();
-                var hasResult = (bool)HasSubmissionResult.Invoke(compilation, null);
+                var hasResult = HasSubmissionResult.Invoke(compilation, null) as bool? == true;
                 var diagnostics = Script.Compile();
                 if (diagnostics.Any(t => t.Severity == DiagnosticSeverity.Error))
                 {
@@ -1161,16 +1155,22 @@ namespace ExcelTool.ViewModel
 
                 IsReadOnly = true;
 
-                await Execute(hasResult);
+                await ExecuteAsync(hasResult).ConfigureAwait(true);
 
                 return true;
             }
 
-            private async Task Execute(bool hasResult)
+            private async Task ExecuteAsync(bool hasResult)
             {
+                var script = Script;
+                if (script == null)
+                {
+                    return;
+                }
+
                 try
                 {
-                    var result = await Script.RunAsync();
+                    var result = await script.RunAsync().ConfigureAwait(true);
 
                     if (result.Exception != null)
                     {

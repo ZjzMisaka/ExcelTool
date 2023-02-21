@@ -197,20 +197,6 @@ namespace ExcelTool.Helper
             return newParamsList;
         }
 
-        public static void DeleteCopiedDlls(List<string> copiedDllsList)
-        {
-            string arguments = "";
-            foreach (string path in copiedDllsList)
-            {
-                arguments += path.Replace(" ", "|SPACE|") + " ";
-            }
-
-            if (arguments.Length > 0)
-            {
-                Process.Start("ExcelToolAfterClosed.exe", arguments);
-            }
-        }
-
         public static void SaveWorkbook(bool isAuto, string filePath, XLWorkbook workbook, bool isAutoOpen, bool isExecuteInSequence)
         {
             bool saveResult = false;
@@ -221,7 +207,7 @@ namespace ExcelTool.Helper
                 if (!isAuto && !isExecuteInSequence)
                 {
                     Logger.Error(fileNotSavedStr);
-                    CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource(Application.Current.FindResource("Ok").ToString()).ToString() }, fileNotSavedStr, Application.Current.FindResource("Info").ToString());
+                    CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString().ToString() }, fileNotSavedStr, Application.Current.FindResource("Info").ToString());
                 }
                 else
                 {
@@ -242,7 +228,9 @@ namespace ExcelTool.Helper
                 btnOpenFile.Content = Application.Current.FindResource("OpenFile").ToString();
                 btnOpenFile.Click += (s, ee) =>
                 {
-                    System.Diagnostics.Process.Start(filePath);
+                    ProcessStartInfo processStartInfo = new ProcessStartInfo(filePath);
+                    processStartInfo.UseShellExecute = true;
+                    System.Diagnostics.Process.Start(processStartInfo);
                     CustomizableMessageBox.MessageBox.CloseNow();
                 };
 
@@ -273,7 +261,9 @@ namespace ExcelTool.Helper
                 if (isAutoOpen == true)
                 {
                     Logger.Info(Application.Current.FindResource("AutoOpened").ToString());
-                    Process.Start(filePath);
+                    ProcessStartInfo processStartInfo = new ProcessStartInfo(filePath);
+                    processStartInfo.UseShellExecute = true;
+                    Process.Start(processStartInfo);
                 }
             }
         }
@@ -437,6 +427,20 @@ namespace ExcelTool.Helper
             }
 
             return tempFileName;
+        }
+
+        public static FileSystemInfo[] GetDllInfos(string path)
+        {
+            string folderPath = path;
+            DirectoryInfo dir = new DirectoryInfo(folderPath);
+            FileSystemInfo[] dllInfos = null;
+            if (dir.Exists)
+            {
+                DirectoryInfo dirD = dir as DirectoryInfo;
+                dllInfos = dirD.GetFileSystemInfos();
+            }
+
+            return dllInfos;
         }
     }
 }
