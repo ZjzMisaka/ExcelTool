@@ -197,22 +197,6 @@ namespace ExcelTool.Helper
             return newParamsList;
         }
 
-        public static void DeleteCopiedDlls(List<string> copiedDllsList)
-        {
-            string arguments = "";
-            foreach (string path in copiedDllsList)
-            {
-                arguments += path.Replace(" ", "|SPACE|") + " ";
-            }
-
-            if (arguments.Length > 0)
-            {
-                ProcessStartInfo processStartInfo = new ProcessStartInfo("ExcelToolAfterClosed.exe", arguments);
-                processStartInfo.UseShellExecute = true;
-                Process.Start(processStartInfo);
-            }
-        }
-
         public static void SaveWorkbook(bool isAuto, string filePath, XLWorkbook workbook, bool isAutoOpen, bool isExecuteInSequence)
         {
             bool saveResult = false;

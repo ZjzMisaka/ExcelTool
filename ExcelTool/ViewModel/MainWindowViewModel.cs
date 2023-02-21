@@ -65,7 +65,6 @@ namespace ExcelTool.ViewModel
         private ConcurrentDictionary<string, Analyzer> analyzerListForSetResult;
         private Dictionary<FileSystemWatcher, string> fileSystemWatcherDic;
         private Stopwatch stopwatchBeforeFileSystemWatcherInvoke;
-        private List<string> copiedDllsList;
         private int analyzeSheetInvokeCount;
         private int setResultInvokeCount;
         private int maxThreadCount;
@@ -522,7 +521,6 @@ namespace ExcelTool.ViewModel
             currentAnalizingDictionary = new ConcurrentDictionary<string, long>();
             currentOutputtingDictionary = new ConcurrentDictionary<string, long>();
             fileSystemWatcherDic = new Dictionary<FileSystemWatcher, string>();
-            copiedDllsList = new List<string>();
             scanner = new Scanner();
 
             analyzeSheetInvokeCount = 0;
@@ -757,7 +755,6 @@ namespace ExcelTool.ViewModel
         private void WindowClosed()
         {
             CheckAndCloseThreads(true);
-            FileHelper.DeleteCopiedDlls(copiedDllsList);
             if (GlobalObjects.GlobalObjects.ProgramCurrentStatus == ProgramStatus.Restart)
             {
                 ProcessStartInfo processStartInfo = new ProcessStartInfo("ExcelTool.exe");
@@ -3325,13 +3322,8 @@ namespace ExcelTool.ViewModel
             {
                 foreach (FileSystemInfo dllInfo in dllInfos)
                 {
-                    dlls.Add(dllInfo.Name);
-                    string destFileName = Path.Combine(Environment.CurrentDirectory, dllInfo.Name);
-                    if (!copiedDllsList.Contains(destFileName))
-                    {
-                        File.Copy(dllInfo.FullName, destFileName, true);
-                        copiedDllsList.Add(destFileName);
-                    }
+                    dlls.Add(dllInfo.FullName);
+                    _ = Assembly.LoadFrom(dllInfo.FullName);
                 }
             }
 
