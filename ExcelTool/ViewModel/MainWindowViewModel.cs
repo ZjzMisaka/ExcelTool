@@ -2614,7 +2614,13 @@ namespace ExcelTool.ViewModel
                 }
                 filePathListDic.Add(sheetExplainer, allFilePathList);
 
-                object instanceObj = GetCresult(analyzer);
+                object instanceObj = GetInstanceObject(analyzer);
+                if (instanceObj == null)
+                {
+                    FinishRunning(true);
+                    return false;
+                }
+
                 GlobalObjects.GlobalObjects.SetGlobalParam(instanceObj, new Object());
                 Tuple<object, SheetExplainer> cresultTuple = new Tuple<object, SheetExplainer>(instanceObj, sheetExplainer);
                 compilerDic.Add(analyzer, cresultTuple);
@@ -3312,7 +3318,7 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private object GetCresult(Analyzer analyzer, List<string> needDelDll = null)
+        private object GetInstanceObject(Analyzer analyzer, List<string> needDelDll = null)
         {
             List<string> dlls = new List<string>();
 
@@ -3439,7 +3445,7 @@ namespace ExcelTool.ViewModel
 
                 if (errDll.Count > 0)
                 {
-                    return GetCresult(analyzer, errDll);
+                    return GetInstanceObject(analyzer, errDll);
                 }
             }
             else
