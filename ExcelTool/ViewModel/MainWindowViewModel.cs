@@ -3122,11 +3122,11 @@ namespace ExcelTool.ViewModel
             {
                 if (e.InnerException != null)
                 {
-                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzerName}.{functionName}(): {e.InnerException.StackTrace.Substring(e.InnerException.StackTrace.LastIndexOf(':') + 1)}");
+                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzerName}.{functionName}(): \n{e.InnerException.StackTrace}");
                 }
                 else
                 {
-                    Logger.Error($"\n    {e.Message}\n    {analyzerName}.{functionName}(): {e.StackTrace.Substring(e.StackTrace.LastIndexOf(':') + 1)}");
+                    Logger.Error($"\n    {e.Message}\n    {analyzerName}.{functionName}(): \n{e.StackTrace}");
                 }
                 runNotSuccessed = true;
                 Stop();
