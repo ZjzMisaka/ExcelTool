@@ -2225,7 +2225,7 @@ namespace ExcelTool.ViewModel
                 TeLog.IsReadOnly = true;
             }
 
-            if (e.Key == Key.Left && !TeLog.IsReadOnly)
+            if ((e.Key == Key.Back || e.Key == Key.Left) && !TeLog.IsReadOnly)
             {
                 if (TeLog.SelectionStart == TeLog.Text.LastIndexOf('\n') + Scanner.CurrentInputMessage.Length + 1)
                 {
