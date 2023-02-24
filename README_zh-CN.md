@@ -110,6 +110,15 @@ IEnumerable<String> GetKeys();
 bool ContainsKey(string key);
 ```
 
+##### Running (静态类)
+```c#
+// ---- 运行状况 ----
+// 在执行耗时逻辑时可以判断用户有没有停止运行, 以便及时退出逻辑. 
+bool UserStop { get => userStop; set => userStop = value; }
+// 判断当前逻辑是不是正在执行. 应当永远是true.
+bool NowRunning { get => nowRunning; set => nowRunning = value; }
+```
+
 ##### RunBeforeAnalyze函数
 |参数|类型|描述|备注|
 |----|----|----|----|

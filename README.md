@@ -110,6 +110,15 @@ IEnumerable<String> GetKeys();
 bool ContainsKey(string key);
 ```
 
+##### Running (static class)
+```c#
+// ---- operating status ----
+// When executing time-consuming logic, it can be judged whether the user has stopped running, so as to exit the logic in time.
+bool UserStop { get => userStop; set => userStop = value; }
+// Determine whether the current logic is being executed. It should always be true.
+bool NowRunning { get => nowRunning; set => nowRunning = value; }
+```
+
 ##### RunBeforeAnalyze Function
 |Parameter|Type|Description|Remarks|
 |----|----|----|----|

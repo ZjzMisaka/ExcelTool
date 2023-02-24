@@ -51,8 +51,6 @@ namespace ExcelTool.ViewModel
     class MainWindowViewModel : ObservableObject, IDropTarget
     {
         private enum ReadFileReturnType { ANALYZER, FILEPATH };
-        private Boolean isRunning;
-        private Boolean isStopByUser;
         private SmartThreadPool smartThreadPoolAnalyze = null;
         private SmartThreadPool smartThreadPoolOutput = null;
         private Thread runningThread;
@@ -526,8 +524,8 @@ namespace ExcelTool.ViewModel
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
 
-            isRunning = false;
-            isStopByUser = false;
+            Running.NowRunning = false;
+            Running.UserStop = false;
             runNotSuccessed = false;
 
             scanner.Input += Scanner.UserInput;
@@ -2245,7 +2243,7 @@ namespace ExcelTool.ViewModel
 
         private void Stop()
         {
-            isStopByUser = true;
+            Running.UserStop = true;
             TeLog.Dispatcher.Invoke(() =>
             {
                 TeLog.Text += Logger.Get();
@@ -2271,7 +2269,7 @@ namespace ExcelTool.ViewModel
             if (!CbExecuteInSequenceIsChecked)
             {
                 _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked);
-                while (isRunning)
+                while (Running.NowRunning)
                 {
                     await Task.Delay(freshInterval);
                 }
@@ -2284,7 +2282,7 @@ namespace ExcelTool.ViewModel
                     {
                         break;
                     }
-                    while (isRunning)
+                    while (Running.NowRunning)
                     {
                         await Task.Delay(freshInterval);
                     }
@@ -2405,7 +2403,7 @@ namespace ExcelTool.ViewModel
                             if (!rule.executeInSequence)
                             {
                                 _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence);
-                                while (isRunning)
+                                while (Running.NowRunning)
                                 {
                                     Thread.Sleep(freshInterval);
                                 }
@@ -2418,7 +2416,7 @@ namespace ExcelTool.ViewModel
                                     {
                                         break;
                                     }
-                                    while (isRunning)
+                                    while (Running.NowRunning)
                                     {
                                         Thread.Sleep(freshInterval);
                                     }
@@ -2428,7 +2426,7 @@ namespace ExcelTool.ViewModel
                         }
                         finally
                         {
-                            while (isRunning)
+                            while (Running.NowRunning)
                             {
                                 Thread.Sleep(freshInterval);
                             }
@@ -2503,8 +2501,8 @@ namespace ExcelTool.ViewModel
         {
             Dictionary<SheetExplainer, List<string>> filePathListDic = new Dictionary<SheetExplainer, List<string>>();
 
-            isRunning = true;
-            isStopByUser = false;
+            Running.NowRunning = true;
+            Running.UserStop = false;
 
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
@@ -2630,7 +2628,7 @@ namespace ExcelTool.ViewModel
 
                 while (runBeforeAnalyzeSheetThread.IsAlive)
                 {
-                    if (isStopByUser)
+                    if (Running.UserStop)
                     {
                         WaitThreadStop(runBeforeAnalyzeSheetThread);
                         // try
@@ -2699,7 +2697,7 @@ namespace ExcelTool.ViewModel
                 {
                     long nowSs = GetNowSs();
                     long totalTimeCostSs = nowSs - startSs;
-                    if (isStopByUser || (totalTimeoutLimitAnalyze > 0 && totalTimeCostSs >= totalTimeoutLimitAnalyze))
+                    if (Running.UserStop || (totalTimeoutLimitAnalyze > 0 && totalTimeCostSs >= totalTimeoutLimitAnalyze))
                     {
                         smartThreadPoolAnalyze.Dispose();
                         if (totalTimeoutLimitAnalyze > 0 && totalTimeCostSs >= totalTimeoutLimitAnalyze)
@@ -2775,7 +2773,7 @@ namespace ExcelTool.ViewModel
                     runBeforeSetResultThread.Start();
                     while (runBeforeSetResultThread.IsAlive)
                     {
-                        if (isStopByUser)
+                        if (Running.UserStop)
                         {
                             WaitThreadStop(runBeforeSetResultThread);
                             // runBeforeSetResultThread.Abort();
@@ -2822,7 +2820,7 @@ namespace ExcelTool.ViewModel
                     {
                         long nowSs = GetNowSs();
                         long totalTimeCostSs = nowSs - startSs;
-                        if (isStopByUser || (totalTimeoutLimitOutput > 0 && totalTimeCostSs >= totalTimeoutLimitOutput))
+                        if (Running.UserStop || (totalTimeoutLimitOutput > 0 && totalTimeCostSs >= totalTimeoutLimitOutput))
                         {
                             smartThreadPoolOutput.Dispose();
                             if (totalTimeoutLimitOutput > 0 && totalTimeCostSs >= totalTimeoutLimitOutput)
@@ -2892,7 +2890,7 @@ namespace ExcelTool.ViewModel
                     runEndThread.Start();
                     while (runEndThread.IsAlive)
                     {
-                        if (isStopByUser)
+                        if (Running.UserStop)
                         {
                             WaitThreadStop(runEndThread);
                             // runEndThread.Abort();
@@ -3041,7 +3039,7 @@ namespace ExcelTool.ViewModel
                         }
                     }
 
-                    if (isRunning && Scanner.InputLock)
+                    if (Running.NowRunning && Scanner.InputLock)
                     {
                         string message = Scanner.CurrentInputMessage;
                         if (message != "")
@@ -3080,7 +3078,7 @@ namespace ExcelTool.ViewModel
         private void FinishRunning(bool isInterrupted)
         {
             CheckAndCloseThreads(false);
-            isRunning = false;
+            Running.NowRunning = false;
             if (isInterrupted)
             {
                 Logger.Error(Application.Current.FindResource("RunFailed").ToString());

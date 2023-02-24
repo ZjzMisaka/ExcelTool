@@ -470,4 +470,12 @@ namespace GlobalObjects
             workbookDic = new ConcurrentDictionary<string, XLWorkbook>();
         }
     }
+
+    public static class Running {
+        private static bool userStop = false;
+        public static bool UserStop { get => userStop; set => userStop = value; }
+        
+        private static bool nowRunning = false;
+        public static bool NowRunning { get => nowRunning; set => nowRunning = value; }
+    }
 }
