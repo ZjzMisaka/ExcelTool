@@ -1,5 +1,7 @@
 ﻿using ClosedXML.Excel;
 using CustomizableMessageBox;
+using DocumentFormat.OpenXml.EMMA;
+using ExcelTool.Model;
 using Microsoft.CodeAnalysis.CSharp;
 using ModernWpf;
 using System;
@@ -266,24 +268,43 @@ namespace GlobalObjects
         private static bool isOutputMethodNotFoundWarning = true;
 
         public static bool IsOutputMethodNotFoundWarning { get => isOutputMethodNotFoundWarning; set => isOutputMethodNotFoundWarning = value; }
+        
+        private static LoggerGlobalizationSetter loggerGlobalizationSetter = new();
+        public static LoggerGlobalizationSetter LoggerGlobalizationSetter { get => loggerGlobalizationSetter; set => loggerGlobalizationSetter = value; }
 
-        public static void Info(string info)
+        public static void Info(string info, bool isCode = false)
         {
+            if (isCode) 
+            {
+                info = loggerGlobalizationSetter.Find(Logger.loggerGlobalizationSetter.currentLanguageName, info);
+            }
             log = $"{log}[Info] {info}\n";
         }
 
-        public static void Error(string error)
+        public static void Error(string error, bool isCode = false)
         {
+            if (isCode)
+            {
+                error = loggerGlobalizationSetter.Find(Logger.loggerGlobalizationSetter.currentLanguageName, error);
+            }
             log = $"{log}[Error] {error}\n";
         }
 
-        public static void Warn(string warn)
+        public static void Warn(string warn, bool isCode = false)
         {
+            if (isCode)
+            {
+                warn = loggerGlobalizationSetter.Find(Logger.loggerGlobalizationSetter.currentLanguageName, warn);
+            }
             log = $"{log}[Warn] {warn}\n";
         }
 
-        public static void Print(string str)
+        public static void Print(string str, bool isCode = false)
         {
+            if (isCode)
+            {
+                str = loggerGlobalizationSetter.Find(Logger.loggerGlobalizationSetter.currentLanguageName, str);
+            }
             log = $"{log}{str}\n";
         }
 

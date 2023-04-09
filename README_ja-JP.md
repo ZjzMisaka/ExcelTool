@@ -50,12 +50,19 @@ void Reset()
 
 ##### Logger (静的クラス)
 ```c#
+// Logの多言語国際化出力を設定するために使用する。
+// 現在の言語で入力されたCode対応文字列をデフォルトで出力する.
+// 文字列が見つからない場合は、デフォルト言語の設定に従って出力.
+// 文字列が見つからない場合はエラーメッセージを出力.
+static LoggerGlobalizationSetter LoggerGlobalizationSetter
+
 // ---- 出力ログ機能 ----
 // 出力ログの種類に応じて、色の違いが異なります. 
-void Info(string info);
-void Warn(string warn);
-void Error(string error);
-void Print(string str);
+// isCodeがtrueであれば、LoggerGlobalizationSetterの設定に応じて対応するLog内容が得られる. 
+void Info(string info, bool isCode = false);
+void Warn(string warn, bool isCode = false);
+void Error(string error, bool isCode = false);
+void Print(string str, bool isCode = false);
 
 // ---- 関数が見つからない場合に警告するかどうか ----
 bool IsOutputMethodNotFoundWarning { get => isOutputMethodNotFoundWarning; set => isOutputMethodNotFoundWarning = value; }

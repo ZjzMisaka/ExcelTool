@@ -2483,6 +2483,13 @@ namespace ExcelTool.ViewModel
 
         private void ResetLog(bool isAuto)
         {
+            Logger.LoggerGlobalizationSetter.Clear();
+            string language = IniHelper.GetLanguage();
+            if (String.IsNullOrWhiteSpace(language))
+            {
+                language = Thread.CurrentThread.CurrentUICulture.Name;
+            }
+            Logger.LoggerGlobalizationSetter.currentLanguageName = language;
             if (!isAuto)
             {
                 TeLog.Dispatcher.Invoke(() =>

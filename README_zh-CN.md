@@ -50,12 +50,19 @@ void Reset()
 
 ##### Logger (静态类)
 ```c#
+// 用以设定Log的多语言国际化输出. 
+// 默认输出当前语言下输入的Code对应的字符串. 
+// 如果找不到字符串, 则根据默认语言的设定输出. 
+// 如果还是找不到字符串, 则输出错误信息. 
+static LoggerGlobalizationSetter LoggerGlobalizationSetter
+
 // ---- 输出Log函数 ----
 // 根据输出log类型不同, 会有不同的着色区分. 
-void Info(string info);
-void Warn(string warn);
-void Error(string error);
-void Print(string str);
+// 若isCode为true, 则根据LoggerGlobalizationSetter的设定得到对应的Log内容. 
+void Info(string info, bool isCode = false);
+void Warn(string warn, bool isCode = false);
+void Error(string error, bool isCode = false);
+void Print(string str, bool isCode = false);
 
 // ---- 当找不到函数时是否报出警告属性 ----
 bool IsOutputMethodNotFoundWarning { get => isOutputMethodNotFoundWarning; set => isOutputMethodNotFoundWarning = value; }

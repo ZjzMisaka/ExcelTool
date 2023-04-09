@@ -5,7 +5,7 @@ Plug-in extension function, batch processing, and output of results to Excel fil
 [View example](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [Gif image when executing](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
 
-### multi-language
+### Multi-language
 - [x] 简体中文
 - [x] 日本語
 - [x] English
@@ -50,12 +50,19 @@ void Reset()
 
 ##### Logger (static class)
 ```c#
+// Used to set the multilingual internationalization output of Log. 
+// The default output is the string corresponding to the input Code in the current language. 
+// If the string cannot be found, it will be output according to the default language settings. 
+// If the string is still not found, an error message will be output. 
+static LoggerGlobalizationSetter LoggerGlobalizationSetter
+
 // ---- Output Log function ----
 // Depending on the output log type, there will be different coloring distinctions.
-void Info(string info);
-void Warn(string warn);
-void Error(string error);
-void Print(string str);
+// If isCode is true, the corresponding Log content is obtained based on the settings of LoggerGlobalizationSetter. 
+void Info(string info, bool isCode = false);
+void Warn(string warn, bool isCode = false);
+void Error(string error, bool isCode = false);
+void Print(string str, bool isCode = false);
 
 // ---- Whether to warn when a function is not found ----
 bool IsOutputMethodNotFoundWarning { get => isOutputMethodNotFoundWarning; set => isOutputMethodNotFoundWarning = value; }
