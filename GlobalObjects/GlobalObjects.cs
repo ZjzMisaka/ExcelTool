@@ -7,6 +7,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -32,8 +33,7 @@ namespace GlobalObjects
 
         public static object GetObj(string key)
         {
-            object value = null;
-            globalDic.TryGetValue(key, out value);
+            globalDic.TryGetValue(key, out object value);
             return value;
         }
 
@@ -43,6 +43,7 @@ namespace GlobalObjects
         }
     }
 
+    [SupportedOSPlatform("windows7.0")]
     public static class Theme
     {
         private static Brush themeBackground;
@@ -144,30 +145,32 @@ namespace GlobalObjects
                 ThemeSelectionForeground = new SolidColorBrush(Colors.White);
             }
 
-            GlobalObjects.ps = new PropertiesSetter();
-            GlobalObjects.ps.WndBorderThickness = new Thickness(1);
-            GlobalObjects.ps.WndBorderColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBackgroundBrush).Color);
-            GlobalObjects.ps.ButtonPanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeBackground).Color);
-            GlobalObjects.ps.MessagePanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeBackground).Color);
-            GlobalObjects.ps.ButtonFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
-            GlobalObjects.ps.TitlePanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBackgroundBrush).Color);
-            GlobalObjects.ps.TitlePanelBorderThickness = new Thickness(0, 0, 0, 2);
-            GlobalObjects.ps.TitlePanelBorderColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBorderBrush).Color);
-            GlobalObjects.ps.MessagePanelBorderThickness = new Thickness(0);
-            GlobalObjects.ps.ButtonPanelBorderThickness = new Thickness(0);
-            GlobalObjects.ps.TitleFontSize = 14;
-            GlobalObjects.ps.TitleFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
-            GlobalObjects.ps.MessageFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color);
-            GlobalObjects.ps.MessageFontSize = 14;
-            GlobalObjects.ps.ButtonFontSize = 16;
-            GlobalObjects.ps.ButtonBorderBrushList = new List<Brush>() { Theme.ThemeBackground };
-            GlobalObjects.ps.ButtonBorderThicknessList = new List<Thickness>() { new Thickness(0) };
-            GlobalObjects.ps.WindowMinHeight = 200;
-            GlobalObjects.ps.LockHeight = false;
-            GlobalObjects.ps.WindowWidth = 450;
-            GlobalObjects.ps.WindowShowDuration = new Duration(new TimeSpan(0, 0, 0, 0, 300));
-            GlobalObjects.ps.ButtonMarginList = new List<Thickness>() { new Thickness(5) };
-            GlobalObjects.ps.ButtonHeightList = new List<double>() { 30 };
+            GlobalObjects.ps = new PropertiesSetter
+            {
+                WndBorderThickness = new Thickness(1),
+                WndBorderColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBackgroundBrush).Color),
+                ButtonPanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeBackground).Color),
+                MessagePanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeBackground).Color),
+                ButtonFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color),
+                TitlePanelColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBackgroundBrush).Color),
+                TitlePanelBorderThickness = new Thickness(0, 0, 0, 2),
+                TitlePanelBorderColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeMessageBoxTitlePanelBorderBrush).Color),
+                MessagePanelBorderThickness = new Thickness(0),
+                ButtonPanelBorderThickness = new Thickness(0),
+                TitleFontSize = 14,
+                TitleFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color),
+                MessageFontColor = new MessageBoxColor(((SolidColorBrush)Theme.ThemeControlForeground).Color),
+                MessageFontSize = 14,
+                ButtonFontSize = 16,
+                ButtonBorderBrushList = new List<Brush>() { Theme.ThemeBackground },
+                ButtonBorderThicknessList = new List<Thickness>() { new Thickness(0) },
+                WindowMinHeight = 200,
+                LockHeight = false,
+                WindowWidth = 450,
+                WindowShowDuration = new Duration(new TimeSpan(0, 0, 0, 0, 300)),
+                ButtonMarginList = new List<Thickness>() { new Thickness(5) },
+                ButtonHeightList = new List<double>() { 30 }
+            };
 
             CustomizableMessageBox.MessageBox.DefaultProperties = GlobalObjects.ps;
         }
@@ -185,8 +188,7 @@ namespace GlobalObjects
 
         public static Object GetGlobalParam(object instanceObj)
         {
-            Object res;
-            globalParamDic.TryGetValue(instanceObj, out res);
+            globalParamDic.TryGetValue(instanceObj, out object res);
             return res;
         }
         public static void SetGlobalParam(object instanceObj, object globalParam)
@@ -206,11 +208,10 @@ namespace GlobalObjects
 
         public static PropertiesSetter GetPropertiesSetterWithTimmer()
         {
-            if (psWithTimmer == null)
+            psWithTimmer ??= new PropertiesSetter(ps)
             {
-                psWithTimmer = new PropertiesSetter(ps);
-                psWithTimmer.CloseTimer = new MessageBoxCloseTimer(1, 0);
-            }
+                CloseTimer = new MessageBoxCloseTimer(1, 0)
+            };
 
             return psWithTimmer;
         }
@@ -222,7 +223,7 @@ namespace GlobalObjects
 
     public class Param
     {
-        private Dictionary<string, List<string>> paramDic;
+        private readonly Dictionary<string, List<string>> paramDic;
 
         public Param(Dictionary<string, List<string>> paramDic)
         {
@@ -327,15 +328,12 @@ namespace GlobalObjects
         }
         protected virtual void OnInput(InputEventArgs e)
         {
-            if (Input != null)
-            {
-                Input(this, e); // 调用所有注册对象的方法
-            }
+            Input?.Invoke(this, e); // 调用所有注册对象的方法
         }
 
         public void UpdateInput(string value)
         {
-            InputEventArgs e = new InputEventArgs(value);
+            InputEventArgs e = new(value);
             OnInput(e);
         }
 
@@ -411,7 +409,7 @@ namespace GlobalObjects
                 throw new Exception("The excel name is repeated multiple times. ");
             }
 
-            XLWorkbook workbook = new XLWorkbook();
+            XLWorkbook workbook = new();
 
             if (!workbookDic.TryAdd(name, workbook))
             {
@@ -428,8 +426,7 @@ namespace GlobalObjects
                 throw new Exception("Can't find the book. ");
             }
 
-            XLWorkbook workbook = null;
-            workbookDic.TryGetValue(name, out workbook);
+            workbookDic.TryGetValue(name, out XLWorkbook workbook);
             return workbook;
         }
 
@@ -440,8 +437,7 @@ namespace GlobalObjects
                 throw new Exception("Can't find the workbook. ");
             }
 
-            XLWorkbook workbook = null;
-            workbookDic.TryGetValue(workbookName, out workbook);
+            workbookDic.TryGetValue(workbookName, out XLWorkbook workbook);
             if (workbook == null)
             {
                 throw new Exception("Can't get the worksheet. get workbook failed. ");
