@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GlobalObjects.Model;
+using System;
 using System.Collections.Generic;
 
 namespace ExcelTool
@@ -9,13 +10,14 @@ namespace ExcelTool
         public String name;
         public String code;
         public Dictionary<string, ParamInfo> paramDic;
+        public GlobalizationSetter globalizationSetter = new();
     }
 
     public class ParamInfo
     {
         public ParamInfo()
         {
-
+            
         }
         public ParamInfo(List<PossibleValue> possibleValues, ParamType type)
         {
