@@ -50,19 +50,12 @@ void Reset()
 
 ##### Logger (静的クラス)
 ```c#
-// Logの多言語国際化出力を設定するために使用する。
-// 現在の言語で入力されたCode対応文字列をデフォルトで出力する.
-// 文字列が見つからない場合は、デフォルト言語の設定に従って出力.
-// 文字列が見つからない場合はエラーメッセージを出力.
-static LoggerGlobalizationSetter LoggerGlobalizationSetter
-
 // ---- 出力ログ機能 ----
 // 出力ログの種類に応じて、色の違いが異なります. 
-// isCodeがtrueであれば、LoggerGlobalizationSetterの設定に応じて対応するLog内容が得られる. 
-void Info(string info, bool isCode = false);
-void Warn(string warn, bool isCode = false);
-void Error(string error, bool isCode = false);
-void Print(string str, bool isCode = false);
+void Info(string info);
+void Warn(string warn);
+void Error(string error);
+void Print(string str);
 
 // ---- 関数が見つからない場合に警告するかどうか ----
 bool IsOutputMethodNotFoundWarning { get => isOutputMethodNotFoundWarning; set => isOutputMethodNotFoundWarning = value; }
@@ -131,7 +124,8 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |----|----|----|----|
 |param|Param|着信パラメータ||
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
-|allFilePathList|List<string>|分析されるすべてのファイルパスのリスト||
+|allFilePathList|List\<string>|分析されるすべてのファイルパスのリスト||
+|globalizationSetter|GlobalizationSetter|国際化文字列の取得|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|順番実行するかどうか||
 
 ##### AnalyzeSheet関数
@@ -141,6 +135,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |sheet|IXLWorksheet|分析するシート||
 |filePath|string|ファイルパス||
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
+|globalizationSetter|GlobalizationSetter|国際化文字列の取得|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|順番実行するかどうか||
 |invokeCount|int|この分析関数が呼び出された回数|最初の呼び出しでの値は1です|
 
@@ -150,7 +145,8 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |param|Param|着信パラメータ||
 |workbook|XLWorkbook|出力用のExcelファイル||
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
-|allFilePathList|List<string>|分析されたすべてのファイルパスのリスト||
+|allFilePathList|List\<string>|分析されたすべてのファイルパスのリスト||
+|globalizationSetter|GlobalizationSetter|国際化文字列の取得|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|順番実行するかどうか||
 
 ##### SetResult関数
@@ -160,6 +156,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |workbook|XLWorkbook|出力用のExcelファイル||
 |filePath|string|ファイルパス||
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
+|globalizationSetter|GlobalizationSetter|国際化文字列の取得|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|順番実行するかどうか||
 |invokeCount|int|この出力関数が呼び出された回数|最初の呼び出しでの値は1です|
 |totalCount|int|出力関数を呼び出す必要がある合計回数|最後の呼び出しは、invokeCountがtotalCountと同じ場合です|
@@ -170,7 +167,8 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |param|Param|着信パラメータ||
 |workbook|XLWorkbook|出力用のExcelファイル||
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
-|allFilePathList|List<string>|分析されたすべてのファイルパスのリスト||
+|allFilePathList|List\<string>|分析されたすべてのファイルパスのリスト||
+|globalizationSetter|GlobalizationSetter|国際化文字列の取得|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|順番実行するかどうか||
 
 # 使用されるオープンソースライブラリ

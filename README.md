@@ -50,19 +50,12 @@ void Reset()
 
 ##### Logger (static class)
 ```c#
-// Used to set the multilingual internationalization output of Log. 
-// The default output is the string corresponding to the input Code in the current language. 
-// If the string cannot be found, it will be output according to the default language settings. 
-// If the string is still not found, an error message will be output. 
-static LoggerGlobalizationSetter LoggerGlobalizationSetter
-
 // ---- Output Log function ----
 // Depending on the output log type, there will be different coloring distinctions.
-// If isCode is true, the corresponding Log content is obtained based on the settings of LoggerGlobalizationSetter. 
-void Info(string info, bool isCode = false);
-void Warn(string warn, bool isCode = false);
-void Error(string error, bool isCode = false);
-void Print(string str, bool isCode = false);
+void Info(string info);
+void Warn(string warn);
+void Error(string error);
+void Print(string str);
 
 // ---- Whether to warn when a function is not found ----
 bool IsOutputMethodNotFoundWarning { get => isOutputMethodNotFoundWarning; set => isOutputMethodNotFoundWarning = value; }
@@ -131,7 +124,8 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |----|----|----|----|
 |param|Param|Parameters passed in||
 |globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
-|allFilePathList|List<string>|A list of all file paths that will be analyzed||
+|allFilePathList|List\<string>|A list of all file paths that will be analyzed||
+|globalizationSetter|GlobalizationSetter|Get internationalization string|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|Whether to execute sequentially||
 
 ##### AnalyzeSheet Function
@@ -141,6 +135,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |sheet|IXLWorksheet|Sheet to be analyzed||
 |filePath|string|File path||
 |globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
+|globalizationSetter|GlobalizationSetter|Get internationalization string|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|Whether to execute sequentially||
 |invokeCount|int|The number of times this analysis function was called|The value is 1 on the first call|
 
@@ -150,7 +145,8 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |param|Param|Parameters passed in||
 |workbook|XLWorkbook|Excel file for output||
 |globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
-|allFilePathList|List<string>|List of all file paths analyzed||
+|allFilePathList|List\<string>|List of all file paths analyzed||
+|globalizationSetter|GlobalizationSetter|Get internationalization string|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|Whether to execute sequentially||
 
 ##### SetResult Function
@@ -160,6 +156,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |workbook|XLWorkbook|Excel file for output||
 |filePath|string|File path||
 |globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
+|globalizationSetter|GlobalizationSetter|Get internationalization string|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|Whether to execute sequentially||
 |invokeCount|int|The number of times this output function was called|The value is 1 on the first call|
 |totalCount|int|The total number of times the output function needs to be called|The last call is when invokeCount is the same as totalCount|
@@ -170,7 +167,8 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |param|Param|Parameters passed in||
 |workbook|XLWorkbook|Excel file for output||
 |globalObjects|Object|Global existence, can save data that needs to be used in other calls, such as the current line number, etc.||
-|allFilePathList|List<string>|List of all file paths analyzed||
+|allFilePathList|List\<string>|List of all file paths analyzed||
+|globalizationSetter|GlobalizationSetter|Get internationalization string|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|Whether to execute sequentially||
 
 # Open Source Libraries Used

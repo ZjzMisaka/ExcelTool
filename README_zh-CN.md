@@ -50,19 +50,12 @@ void Reset()
 
 ##### Logger (静态类)
 ```c#
-// 用以设定Log的多语言国际化输出. 
-// 默认输出当前语言下输入的Code对应的字符串. 
-// 如果找不到字符串, 则根据默认语言的设定输出. 
-// 如果还是找不到字符串, 则输出错误信息. 
-static LoggerGlobalizationSetter LoggerGlobalizationSetter
-
 // ---- 输出Log函数 ----
 // 根据输出log类型不同, 会有不同的着色区分. 
-// 若isCode为true, 则根据LoggerGlobalizationSetter的设定得到对应的Log内容. 
-void Info(string info, bool isCode = false);
-void Warn(string warn, bool isCode = false);
-void Error(string error, bool isCode = false);
-void Print(string str, bool isCode = false);
+void Info(string info);
+void Warn(string warn);
+void Error(string error);
+void Print(string str);
 
 // ---- 当找不到函数时是否报出警告属性 ----
 bool IsOutputMethodNotFoundWarning { get => isOutputMethodNotFoundWarning; set => isOutputMethodNotFoundWarning = value; }
@@ -131,7 +124,8 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |----|----|----|----|
 |param|Param|传入的参数||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
-|allFilePathList|List<string>|将会处理的所有文件路径列表||
+|allFilePathList|List\<string>|将会处理的所有文件路径列表||
+|globalizationSetter|GlobalizationSetter|获取国际化字符串|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|是否顺序执行||
 
 ##### AnalyzeSheet函数
@@ -141,6 +135,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |sheet|IXLWorksheet|当前被处理的sheet||
 |filePath|string|文件路径||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
+|globalizationSetter|GlobalizationSetter|获取国际化字符串|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|是否顺序执行||
 |invokeCount|int|此处理函数被调用的次数|第一次调用时值为1|
 
@@ -150,7 +145,8 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |param|Param|传入的参数||
 |workbook|XLWorkbook|用于输出的Excel文件||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
-|allFilePathList|List<string>|处理的所有文件路径列表||
+|allFilePathList|List\<string>|处理的所有文件路径列表||
+|globalizationSetter|GlobalizationSetter|获取国际化字符串|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|是否顺序执行||
 
 ##### SetResult函数
@@ -160,6 +156,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |workbook|XLWorkbook|用于输出的Excel文件||
 |filePath|string|文件路径||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
+|globalizationSetter|GlobalizationSetter|获取国际化字符串|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|是否顺序执行||
 |invokeCount|int|此输出函数被调用的次数|第一次调用时值为1|
 |totalCount|int|总共需要调用的输出函数的次数|当invokeCount与totalCount值相同时即为最后一次调用|
@@ -170,7 +167,8 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |param|Param|传入的参数||
 |workbook|XLWorkbook|用于输出的Excel文件||
 |globalObjects|Object|全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等||
-|allFilePathList|List<string>|处理的所有文件路径列表||
+|allFilePathList|List\<string>|处理的所有文件路径列表||
+|globalizationSetter|GlobalizationSetter|获取国际化字符串|globalizationSetter.Find("Code");|
 |isExecuteInSequence|bool|是否顺序执行||
 
 # 使用的开源库
