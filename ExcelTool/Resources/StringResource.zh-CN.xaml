@@ -85,6 +85,7 @@
     <sys:String x:Key="Start">开始</sys:String>
     <sys:String x:Key="AnalyzerEditor">逻辑编辑器</sys:String>
     <sys:String x:Key="EditParameter">编辑参数</sys:String>
+    <sys:String x:Key="Internationalization">多语言</sys:String>
     <sys:String x:Key="SheetExplainerEditor">检索信息编辑器</sys:String>
     <sys:String x:Key="PathList">路径列表</sys:String>
     <sys:String x:Key="FileNameList">文件名列表</sys:String>
@@ -132,6 +133,11 @@
     <sys:String x:Key="ParamKey">参数键</sys:String>
     <sys:String x:Key="ParamDescription">参数描述</sys:String>
     <sys:String x:Key="ParamPossibleValues">参数可能值</sys:String>
+    <sys:String x:Key="DefaultLanguageName">默认语言</sys:String>
+    <sys:String x:Key="EnableGlobalizationForParamSetter">使参数描述应用多语言化</sys:String>
+    <sys:String x:Key="LanguageName">语言</sys:String>
+    <sys:String x:Key="StrID">字符串ID</sys:String>
+    <sys:String x:Key="Str">字符串</sys:String>
     <sys:String x:Key="ExecuteInSequence">顺序执行</sys:String>
     <sys:String x:Key="RunFailed">运行失败</sys:String>
     <sys:String x:Key="FileIsInUse">文件{0}正在被使用中</sys:String>
@@ -156,8 +162,9 @@ namespace AnalyzeCode
         /// &lt;param name="param">传入的参数&lt;/param>
         /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
         /// &lt;param name="allFilePathList">将会分析的所有文件路径列表&lt;/param>
+        /// &lt;param name="globalizationSetter">获取国际化字符串&lt;/param>
         /// &lt;param name="isExecuteInSequence">是否顺序执行&lt;/param>
-        public void RunBeforeAnalyzeSheet(Param param, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunBeforeAnalyzeSheet(Param param, ref Object globalObject, List&lt;string> allFilePathList, GlobalizationSetter globalizationSetter, bool isExecuteInSequence)
         {
             
         }
@@ -169,9 +176,10 @@ namespace AnalyzeCode
         /// &lt;param name="sheet">被分析的sheet&lt;/param>
         /// &lt;param name="filePath">文件路径&lt;/param>
         /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
+        /// &lt;param name="globalizationSetter">获取国际化字符串&lt;/param>
         /// &lt;param name="isExecuteInSequence">是否顺序执行&lt;/param>
         /// &lt;param name="invokeCount">此分析函数被调用的次数&lt;/param>
-        public void AnalyzeSheet(Param param, IXLWorksheet sheet, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount)
+        public void AnalyzeSheet(Param param, IXLWorksheet sheet, string filePath, ref Object globalObject, GlobalizationSetter globalizationSetter, bool isExecuteInSequence, int invokeCount)
         {
             
         }
@@ -183,8 +191,9 @@ namespace AnalyzeCode
         /// &lt;param name="workbook">用于输出的excel文件&lt;/param>
         /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
         /// &lt;param name="allFilePathList">分析的所有文件路径列表&lt;/param>
+        /// &lt;param name="globalizationSetter">获取国际化字符串&lt;/param>
         /// &lt;param name="isExecuteInSequence">是否顺序执行&lt;/param>
-        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, GlobalizationSetter globalizationSetter, bool isExecuteInSequence)
         {
             
         }
@@ -196,10 +205,11 @@ namespace AnalyzeCode
         /// &lt;param name="workbook">用于输出的excel文件&lt;/param>
         /// &lt;param name="filePath">文件路径&lt;/param>
         /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
+        /// &lt;param name="globalizationSetter">获取国际化字符串&lt;/param>
         /// &lt;param name="isExecuteInSequence">是否顺序执行&lt;/param>
         /// &lt;param name="invokeCount">此输出函数被调用的次数&lt;/param>
         /// &lt;param name="totalCount">总共需要调用的输出函数的次数&lt;/param>
-        public void SetResult(Param param, XLWorkbook workbook, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount, int totalCount)
+        public void SetResult(Param param, XLWorkbook workbook, string filePath, ref Object globalObject, GlobalizationSetter globalizationSetter, bool isExecuteInSequence, int invokeCount, int totalCount)
         {
             
         }
@@ -211,8 +221,9 @@ namespace AnalyzeCode
         /// &lt;param name="workbook">用于输出的excel文件&lt;/param>
         /// &lt;param name="globalObject">全局存在, 可以保存需要在其他调用时使用的数据, 如当前行号等&lt;/param>
         /// &lt;param name="allFilePathList">分析的所有文件路径列表&lt;/param>
+        /// &lt;param name="globalizationSetter">获取国际化字符串&lt;/param>
         /// &lt;param name="isExecuteInSequence">是否顺序执行&lt;/param>
-        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, GlobalizationSetter globalizationSetter, bool isExecuteInSequence)
         {
             
         }

@@ -84,6 +84,7 @@
     <sys:String x:Key="Start">開始</sys:String>
     <sys:String x:Key="AnalyzerEditor">ロジックエディタ</sys:String>
     <sys:String x:Key="EditParameter">パラメータ編集</sys:String>
+    <sys:String x:Key="Internationalization">多言語化</sys:String>
     <sys:String x:Key="SheetExplainerEditor">検索情報エディタ</sys:String>
     <sys:String x:Key="PathList">パス一覧</sys:String>
     <sys:String x:Key="FileNameList">ファイル名一覧</sys:String>
@@ -131,6 +132,11 @@
     <sys:String x:Key="ParamKey">パラメータキー</sys:String>
     <sys:String x:Key="ParamDescription">パラメータ説明</sys:String>
     <sys:String x:Key="ParamPossibleValues">可能な値</sys:String>
+    <sys:String x:Key="DefaultLanguageName">デフォルト言語</sys:String>
+    <sys:String x:Key="EnableGlobalizationForParamSetter">パラメータ記述に多言語化を適用する</sys:String>
+    <sys:String x:Key="LanguageName">言語</sys:String>
+    <sys:String x:Key="StrID">文字列ID</sys:String>
+    <sys:String x:Key="Str">文字列</sys:String>
     <sys:String x:Key="ExecuteInSequence">順番に実行する</sys:String>
     <sys:String x:Key="RunFailed">実行に失敗しました</sys:String>
     <sys:String x:Key="FileIsInUse">ファイル{0}が使用中</sys:String>
@@ -155,8 +161,9 @@ namespace AnalyzeCode
         /// &lt;param name="param">着信パラメータ&lt;/param>
         /// &lt;param name="globalObject">グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。&lt;/param>
         /// &lt;param name="allFilePathList">分析されるすべてのファイルパスのリスト&lt;/param>
+        /// &lt;param name="globalizationSetter">国際化文字列の取得&lt;/param>
         /// &lt;param name="isExecuteInSequence">順番実行するかどうか&lt;/param>
-        public void RunBeforeAnalyzeSheet(Param param, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunBeforeAnalyzeSheet(Param param, ref Object globalObject, List&lt;string> allFilePathList, GlobalizationSetter globalizationSetter, bool isExecuteInSequence)
         {
             
         }
@@ -168,9 +175,10 @@ namespace AnalyzeCode
         /// &lt;param name="sheet">分析するシート&lt;/param>
         /// &lt;param name="filePath">ファイルパス&lt;/param>
         /// &lt;param name="globalObject">グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。&lt;/param>
+        /// &lt;param name="globalizationSetter">国際化文字列の取得&lt;/param>
         /// &lt;param name="isExecuteInSequence">順番実行するかどうか&lt;/param>
         /// &lt;param name="invokeCount">この分析関数が呼び出された回数&lt;/param>
-        public void AnalyzeSheet(Param param, IXLWorksheet sheet, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount)
+        public void AnalyzeSheet(Param param, IXLWorksheet sheet, string filePath, ref Object globalObject, GlobalizationSetter globalizationSetter, bool isExecuteInSequence, int invokeCount)
         {
             
         }
@@ -182,8 +190,9 @@ namespace AnalyzeCode
         /// &lt;param name="workbook">出力用のExcelファイル&lt;/param>
         /// &lt;param name="globalObject">グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。&lt;/param>
         /// &lt;param name="allFilePathList">分析されたすべてのファイルパスのリスト&lt;/param>
+        /// &lt;param name="globalizationSetter">国際化文字列の取得&lt;/param>
         /// &lt;param name="isExecuteInSequence">順番実行するかどうか&lt;/param>
-        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, GlobalizationSetter globalizationSetter, bool isExecuteInSequence)
         {
             
         }
@@ -195,10 +204,11 @@ namespace AnalyzeCode
         /// &lt;param name="workbook">出力用のExcelファイル&lt;/param>
         /// &lt;param name="filePath">ファイルパス&lt;/param>
         /// &lt;param name="globalObject">グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。&lt;/param>
+        /// &lt;param name="globalizationSetter">国際化文字列の取得&lt;/param>
         /// &lt;param name="isExecuteInSequence">順番実行するかどうか&lt;/param>
         /// &lt;param name="invokeCount">この出力関数が呼び出された回数&lt;/param>
         /// &lt;param name="totalCount">出力関数を呼び出す必要がある合計回数&lt;/param>
-        public void SetResult(Param param, XLWorkbook workbook, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount, int totalCount)
+        public void SetResult(Param param, XLWorkbook workbook, string filePath, ref Object globalObject, GlobalizationSetter globalizationSetter, bool isExecuteInSequence, int invokeCount, int totalCount)
         {
             
         }
@@ -210,8 +220,9 @@ namespace AnalyzeCode
         /// &lt;param name="workbook">出力用のExcelファイル&lt;/param>
         /// &lt;param name="globalObject">グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。&lt;/param>
         /// &lt;param name="allFilePathList">分析されたすべてのファイルパスのリスト&lt;/param>
+        /// &lt;param name="globalizationSetter">国際化文字列の取得&lt;/param>
         /// &lt;param name="isExecuteInSequence">順番実行するかどうか&lt;/param>
-        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, GlobalizationSetter globalizationSetter, bool isExecuteInSequence)
         {
             
         }

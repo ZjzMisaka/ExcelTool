@@ -84,6 +84,7 @@
     <sys:String x:Key="Start">Start</sys:String>
     <sys:String x:Key="AnalyzerEditor">Analyzere ditor</sys:String>
     <sys:String x:Key="EditParameter">Edit parameter</sys:String>
+    <sys:String x:Key="Internationalization">Internationalization</sys:String>
     <sys:String x:Key="SheetExplainerEditor">Sheet explainer editor</sys:String>
     <sys:String x:Key="PathList">Path list</sys:String>
     <sys:String x:Key="FileNameList">File name list</sys:String>
@@ -131,6 +132,11 @@
     <sys:String x:Key="ParamKey">Param key</sys:String>
     <sys:String x:Key="ParamDescription">Param description</sys:String>
     <sys:String x:Key="ParamPossibleValues">Possible values</sys:String>
+    <sys:String x:Key="DefaultLanguageName">Default language name</sys:String>
+    <sys:String x:Key="EnableGlobalizationForParamSetter">Enable globalization of parameter descriptions</sys:String>
+    <sys:String x:Key="LanguageName">Language name</sys:String>
+    <sys:String x:Key="StrID">String ID</sys:String>
+    <sys:String x:Key="Str">String</sys:String>
     <sys:String x:Key="ExecuteInSequence">Execute in sequence</sys:String>
     <sys:String x:Key="RunFailed">Run failed</sys:String>
     <sys:String x:Key="FileIsInUse">File {0} is in use</sys:String>
@@ -155,8 +161,9 @@ namespace AnalyzeCode
         /// &lt;param name="param">Parameters passed in&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
         /// &lt;param name="allFilePathList">A list of all file paths that will be analyzed&lt;/param>
+        /// &lt;param name="globalizationSetter">Get internationalization string&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
-        public void RunBeforeAnalyzeSheet(Param param, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunBeforeAnalyzeSheet(Param param, ref Object globalObject, List&lt;string> allFilePathList, GlobalizationSetter globalizationSetter, bool isExecuteInSequence)
         {
             
         }
@@ -168,9 +175,10 @@ namespace AnalyzeCode
         /// &lt;param name="sheet">Sheet to be analyzed&lt;/param>
         /// &lt;param name="filePath">File path&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
+        /// &lt;param name="globalizationSetter">Get internationalization string&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
         /// &lt;param name="invokeCount">The number of times this analysis function was called&lt;/param>
-        public void AnalyzeSheet(Param param, IXLWorksheet sheet, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount)
+        public void AnalyzeSheet(Param param, IXLWorksheet sheet, string filePath, ref Object globalObject, GlobalizationSetter globalizationSetter, bool isExecuteInSequence, int invokeCount)
         {
             
         }
@@ -182,8 +190,9 @@ namespace AnalyzeCode
         /// &lt;param name="workbook">Excel file for output&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
         /// &lt;param name="allFilePathList">List of all file paths analyzed&lt;/param>
+        /// &lt;param name="globalizationSetter">Get internationalization string&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
-        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunBeforeSetResult(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, GlobalizationSetter globalizationSetter, bool isExecuteInSequence)
         {
             
         }
@@ -195,10 +204,11 @@ namespace AnalyzeCode
         /// &lt;param name="workbook">Excel file for output&lt;/param>
         /// &lt;param name="filePath">File path&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
+        /// &lt;param name="globalizationSetter">Get internationalization string&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
         /// &lt;param name="invokeCount">The number of times this output function was called&lt;/param>
         /// &lt;param name="totalCount">The total number of times the output function needs to be called&lt;/param>
-        public void SetResult(Param param, XLWorkbook workbook, string filePath, ref Object globalObject, bool isExecuteInSequence, int invokeCount, int totalCount)
+        public void SetResult(Param param, XLWorkbook workbook, string filePath, ref Object globalObject, GlobalizationSetter globalizationSetter, bool isExecuteInSequence, int invokeCount, int totalCount)
         {
             
         }
@@ -210,8 +220,9 @@ namespace AnalyzeCode
         /// &lt;param name="workbook">Excel file for output&lt;/param>
         /// &lt;param name="globalObject">Global existence, can save data that needs to be used in other calls, such as the current line number, etc.&lt;/param>
         /// &lt;param name="allFilePathList">List of all file paths analyzed&lt;/param>
+        /// &lt;param name="globalizationSetter">Get internationalization string&lt;/param>
         /// &lt;param name="isExecuteInSequence">Whether to execute sequentially&lt;/param>
-        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, bool isExecuteInSequence)
+        public void RunEnd(Param param, XLWorkbook workbook, ref Object globalObject, List&lt;string> allFilePathList, GlobalizationSetter globalizationSetter, bool isExecuteInSequence)
         {
             
         }

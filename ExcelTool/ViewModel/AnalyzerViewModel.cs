@@ -944,8 +944,9 @@ namespace ExcelTool.ViewModel
             globalizationEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
 
             CheckBox enableGlobalizationCheckBox = new CheckBox();
-            enableGlobalizationCheckBox.Content = Application.Current.FindResource("Ok").ToString();
+            enableGlobalizationCheckBox.Content = Application.Current.FindResource("EnableGlobalizationForParamSetter").ToString();
             enableGlobalizationCheckBox.HorizontalAlignment = HorizontalAlignment.Right;
+            enableGlobalizationCheckBox.Margin = new Thickness(0, 0, 10, 0);
             if (globalizationSetterForChange != null && globalizationSetterForChange.globalizationList != null && globalizationSetterForChange.globalizationList.Count > 0)
             {
                 enableGlobalizationCheckBox.IsChecked = globalizationSetterForChange.enableGlobalizationForParamSetter;
@@ -962,12 +963,14 @@ namespace ExcelTool.ViewModel
             Label defaultLanguageNameLabel = new Label();
             defaultLanguageNameLabel.VerticalContentAlignment = VerticalAlignment.Center;
             defaultLanguageNameLabel.HorizontalAlignment = HorizontalAlignment.Left;
-            defaultLanguageNameLabel.Content = Application.Current.FindResource("Ok").ToString();
+            defaultLanguageNameLabel.Content = Application.Current.FindResource("DefaultLanguageName").ToString();
+            defaultLanguageNameLabel.Margin = new Thickness(10, 0, 0, 0);
             sp.Children.Add(defaultLanguageNameLabel);
 
             TextBox defaultLanguageNameTextBox = new TextBox();
             defaultLanguageNameTextBox.Height = 25;
             defaultLanguageNameTextBox.HorizontalAlignment = HorizontalAlignment.Left;
+            defaultLanguageNameTextBox.Margin = new Thickness(10, 0, 0, 0);
             if (globalizationSetterForChange != null && globalizationSetterForChange.globalizationList != null && globalizationSetterForChange.globalizationList.Count > 0)
             {
                 defaultLanguageNameTextBox.Text = globalizationSetterForChange.defaultLanguageName;
@@ -975,7 +978,7 @@ namespace ExcelTool.ViewModel
             sp.Children.Add(defaultLanguageNameTextBox);
 
             TextBlock textBlockTitleL = new TextBlock();
-            textBlockTitleL.Text = Application.Current.FindResource("ParamKey").ToString();
+            textBlockTitleL.Text = Application.Current.FindResource("LanguageName").ToString();
             textBlockTitleL.Margin = new Thickness(15, 0, 0, 0);
             textBlockTitleL.Height = 25;
             textBlockTitleL.HorizontalAlignment = HorizontalAlignment.Left;
@@ -985,7 +988,7 @@ namespace ExcelTool.ViewModel
             globalizationEditor.g_main.Children.Add(textBlockTitleL);
 
             TextBlock textBlockTitleM = new TextBlock();
-            textBlockTitleM.Text = Application.Current.FindResource("ParamDescription").ToString();
+            textBlockTitleM.Text = Application.Current.FindResource("StrID").ToString();
             textBlockTitleM.Margin = new Thickness(15, 0, 0, 0);
             textBlockTitleM.Height = 25;
             textBlockTitleM.HorizontalAlignment = HorizontalAlignment.Left;
@@ -995,7 +998,7 @@ namespace ExcelTool.ViewModel
             globalizationEditor.g_main.Children.Add(textBlockTitleM);
 
             TextBlock textBlockTitleR = new TextBlock();
-            textBlockTitleR.Text = Application.Current.FindResource("ParamPossibleValues").ToString();
+            textBlockTitleR.Text = Application.Current.FindResource("Str").ToString();
             textBlockTitleR.Margin = new Thickness(15, 0, 0, 0);
             textBlockTitleR.Height = 25;
             textBlockTitleR.HorizontalAlignment = HorizontalAlignment.Left;
