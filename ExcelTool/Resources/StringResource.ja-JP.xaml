@@ -147,6 +147,7 @@
     <sys:String x:Key="FileNotSupported">.Dllファイル{0}はサポートされていません</sys:String>
     <sys:String x:Key="Code" xml:space="preserve">using ClosedXML.Excel;
 using GlobalObjects;
+using GlobalObjects.Model;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
