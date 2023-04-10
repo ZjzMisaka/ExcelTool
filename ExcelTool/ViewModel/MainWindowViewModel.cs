@@ -44,6 +44,7 @@ using Microsoft.CodeAnalysis.Emit;
 using System.Collections;
 using ClosedXML;
 using System.Runtime.Versioning;
+using GlobalObjects.Model;
 
 namespace ExcelTool.ViewModel
 {
@@ -1421,17 +1422,22 @@ namespace ExcelTool.ViewModel
                     TextBlock textBlockKey = new TextBlock();
                     textBlockKey.Margin = new Thickness(0, 5, 0, 0);
                     textBlockKey.Height = 25;
-                    if (String.IsNullOrWhiteSpace(analyzer.paramDic[key].describe))
+                    string desCribeText = analyzer.paramDic[key].describe;
+                    if (analyzer.globalizationSetter.enableGlobalizationForParamSetter)
+                    {
+                        desCribeText = analyzer.globalizationSetter.Find(language, analyzer.paramDic[key].describe);
+                    }
+                    if (String.IsNullOrWhiteSpace(desCribeText))
                     {
                         textBlockKey.Text = ParamHelper.DecodeForDisplay(key);
                     }
                     else
                     {
-                        textBlockKey.Text = ParamHelper.DecodeForDisplay(analyzer.paramDic[key].describe);
+                        textBlockKey.Text = ParamHelper.DecodeForDisplay(desCribeText);
                     }
                     if (analyzer.paramDic[key].describe != null)
                     {
-                        FormattedText ft = new FormattedText(analyzer.paramDic[key].describe, CultureInfo.CurrentCulture, System.Windows.FlowDirection.LeftToRight, new Typeface(tabItem.FontFamily, tabItem.FontStyle, tabItem.FontWeight, tabItem.FontStretch), tabItem.FontSize, System.Windows.Media.Brushes.Black, VisualTreeHelper.GetDpi(tabItem).PixelsPerDip);
+                        FormattedText ft = new FormattedText(desCribeText, CultureInfo.CurrentCulture, System.Windows.FlowDirection.LeftToRight, new Typeface(tabItem.FontFamily, tabItem.FontStyle, tabItem.FontWeight, tabItem.FontStretch), tabItem.FontSize, System.Windows.Media.Brushes.Black, VisualTreeHelper.GetDpi(tabItem).PixelsPerDip);
                         if (ft.Width > maxTextlength)
                         {
                             maxTextlength = ft.Width;
@@ -1453,11 +1459,11 @@ namespace ExcelTool.ViewModel
                         };
                         textBlockKey.MouseLeave += (s, ex) =>
                         {
-                            textBlockKey.Text = ParamHelper.DecodeForDisplay(analyzer.paramDic[key].describe);
+                            textBlockKey.Text = ParamHelper.DecodeForDisplay(desCribeText);
                         };
                         textBlockKey.TouchLeave += (s, ex) =>
                         {
-                            textBlockKey.Text = ParamHelper.DecodeForDisplay(analyzer.paramDic[key].describe);
+                            textBlockKey.Text = ParamHelper.DecodeForDisplay(desCribeText);
                         };
                     }
                     newGrid.Children.Add(textBlockKey);
@@ -1479,13 +1485,18 @@ namespace ExcelTool.ViewModel
                                 radioButton.HorizontalAlignment = HorizontalAlignment.Stretch;
                                 radioButton.VerticalContentAlignment = VerticalAlignment.Top;
                                 radioButton.GroupName = $"{analyzerName}_{key}_{groupIndex}";
-                                if (String.IsNullOrWhiteSpace(possibleValue.describe))
+                                string desCribeTextRb = possibleValue.describe;
+                                if (analyzer.globalizationSetter.enableGlobalizationForParamSetter)
+                                {
+                                    desCribeTextRb = analyzer.globalizationSetter.Find(language, possibleValue.value);
+                                }
+                                if (String.IsNullOrWhiteSpace(desCribeTextRb))
                                 {
                                     radioButton.Content = ParamHelper.DecodeForDisplay(possibleValue.value);
                                 }
                                 else
                                 {
-                                    radioButton.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                    radioButton.Content = ParamHelper.DecodeForDisplay(desCribeTextRb);
                                 }
                                 stackPanel.Children.Add(radioButton);
 
@@ -1501,11 +1512,11 @@ namespace ExcelTool.ViewModel
                                     };
                                     radioButton.MouseLeave += (s, ex) =>
                                     {
-                                        radioButton.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                        radioButton.Content = ParamHelper.DecodeForDisplay(desCribeTextRb);
                                     };
                                     radioButton.TouchLeave += (s, ex) =>
                                     {
-                                        radioButton.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                        radioButton.Content = ParamHelper.DecodeForDisplay(desCribeTextRb);
                                     };
                                 }
                                 bool justChecked = false;
@@ -1565,14 +1576,19 @@ namespace ExcelTool.ViewModel
                                 checkBox.Height = 30;
                                 checkBox.HorizontalAlignment = HorizontalAlignment.Stretch;
                                 checkBox.VerticalContentAlignment = VerticalAlignment.Top;
-                                checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
-                                if (String.IsNullOrWhiteSpace(possibleValue.describe))
+                                string desCribeTextCb = possibleValue.describe;
+                                if (analyzer.globalizationSetter.enableGlobalizationForParamSetter)
+                                {
+                                    desCribeTextCb = analyzer.globalizationSetter.Find(language, possibleValue.value);
+                                }
+                                checkBox.Content = ParamHelper.DecodeForDisplay(desCribeTextCb);
+                                if (String.IsNullOrWhiteSpace(desCribeTextCb))
                                 {
                                     checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.value);
                                 }
                                 else
                                 {
-                                    checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                    checkBox.Content = ParamHelper.DecodeForDisplay(desCribeTextCb);
                                 }
                                 stackPanel.Children.Add(checkBox);
 
@@ -1588,11 +1604,11 @@ namespace ExcelTool.ViewModel
                                     };
                                     checkBox.MouseLeave += (s, ex) =>
                                     {
-                                        checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                        checkBox.Content = ParamHelper.DecodeForDisplay(desCribeTextCb);
                                     };
                                     checkBox.TouchLeave += (s, ex) =>
                                     {
-                                        checkBox.Content = ParamHelper.DecodeForDisplay(possibleValue.describe);
+                                        checkBox.Content = ParamHelper.DecodeForDisplay(desCribeTextCb);
                                     };
                                 }
                                 checkBox.Checked += (s, ex) =>
@@ -2483,13 +2499,6 @@ namespace ExcelTool.ViewModel
 
         private void ResetLog(bool isAuto)
         {
-            Logger.LoggerGlobalizationSetter.Clear();
-            string language = IniHelper.GetLanguage();
-            if (String.IsNullOrWhiteSpace(language))
-            {
-                language = Thread.CurrentThread.CurrentUICulture.Name;
-            }
-            Logger.LoggerGlobalizationSetter.currentLanguageName = language;
             if (!isAuto)
             {
                 TeLog.Dispatcher.Invoke(() =>
@@ -2575,6 +2584,8 @@ namespace ExcelTool.ViewModel
 
                 SheetExplainer sheetExplainer = sheetExplainers[i];
                 Analyzer analyzer = analyzers[i];
+
+                analyzer.globalizationSetter.currentLanguageName = language;
 
                 List<string> allFilePathList = new List<string>();
                 foreach (string str in sheetExplainer.pathes)
@@ -2812,7 +2823,7 @@ namespace ExcelTool.ViewModel
                     List<object> setResultParams = new List<object>();
                     setResultParams.Add(workbook);
                     setResultParams.Add(filePath);
-                    setResultParams.Add(analyzerListForSetResult[filePath].name);
+                    setResultParams.Add(analyzerListForSetResult[filePath]);
                     setResultParams.Add(compilerDic.Count);
                     setResultParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzerListForSetResult[filePath].name));
                     setResultParams.Add(isExecuteInSequence);
@@ -3140,19 +3151,19 @@ namespace ExcelTool.ViewModel
 
         private void RunBeforeAnalyzeSheet(Object instanceObj, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
         {
-            object[] objList = new object[] { param, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), allFilePathList, isExecuteInSequence };
+            object[] objList = new object[] { param, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), allFilePathList, analyzer.globalizationSetter, isExecuteInSequence };
             RunFunction(instanceObj, analyzer.name, "AnalyzeCode.Analyze", "RunBeforeAnalyzeSheet", objList, 1);
         }
 
         private void RunBeforeSetResult(Object instanceObj, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
         {
-            object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), allFilePathList, isExecuteInSequence };
+            object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), allFilePathList, analyzer.globalizationSetter, isExecuteInSequence };
             RunFunction(instanceObj, analyzer.name, "AnalyzeCode.Analyze", "RunBeforeSetResult", objList, 2);
         }
 
         private void RunEnd(Object instanceObj, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
         {
-            object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), allFilePathList, isExecuteInSequence };
+            object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), allFilePathList, analyzer.globalizationSetter, isExecuteInSequence };
             RunFunction(instanceObj, analyzer.name, "AnalyzeCode.Analyze", "RunEnd", objList, 2);
         }
 
@@ -3283,7 +3294,7 @@ namespace ExcelTool.ViewModel
         private void Analyze(IXLWorksheet sheet, string filePath, Analyzer analyzer, Param param, bool isExecuteInSequence, object instanceObj)
         {
             ++analyzeSheetInvokeCount;
-            object[] objList = new object[] { param, sheet, filePath, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), isExecuteInSequence, analyzeSheetInvokeCount };
+            object[] objList = new object[] { param, sheet, filePath, GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), analyzer.globalizationSetter, isExecuteInSequence, analyzeSheetInvokeCount };
             RunFunction(instanceObj, analyzer.name, "AnalyzeCode.Analyze", "AnalyzeSheet", objList, 3);
         }
 
@@ -3291,7 +3302,7 @@ namespace ExcelTool.ViewModel
         {
             XLWorkbook workbook = (XLWorkbook)setResultParams[0];
             string filePath = setResultParams[1].ToString();
-            string analyzerName = (string)setResultParams[2];
+            Analyzer analyzer = (Analyzer)setResultParams[2];
             int totalCount = (int)setResultParams[3];
             Param param = (Param)setResultParams[4];
             bool isExecuteInSequence = (bool)setResultParams[5];
@@ -3300,8 +3311,8 @@ namespace ExcelTool.ViewModel
             currentOutputtingDictionary.AddOrUpdate(filePath, GetNowSs(), (key, oldValue) => GetNowSs());
 
             ++setResultInvokeCount;
-            object[] objList = new object[] { param, workbook, filePath.Split('|')[1], GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), isExecuteInSequence, setResultInvokeCount, totalCount };
-            RunFunction(instanceObj, analyzerName, "AnalyzeCode.Analyze", "SetResult", objList, 3);
+            object[] objList = new object[] { param, workbook, filePath.Split('|')[1], GlobalObjects.GlobalObjects.GetGlobalParam(instanceObj), analyzer.globalizationSetter, isExecuteInSequence, setResultInvokeCount, totalCount };
+            RunFunction(instanceObj, analyzer.name, "AnalyzeCode.Analyze", "SetResult", objList, 3);
             return filePath;
         }
 

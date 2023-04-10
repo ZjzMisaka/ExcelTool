@@ -1,6 +1,7 @@
 ﻿using CustomizableMessageBox;
 using DocumentFormat.OpenXml.Bibliography;
 using ExcelTool.Helper;
+using GlobalObjects.Model;
 using GlobalObjects;
 using Highlighting;
 using ICSharpCode.AvalonEdit;
@@ -46,6 +47,7 @@ namespace ExcelTool.ViewModel
         private RoslynHost _host;
         private RoslynCodeEditor editor;
         private Dictionary<string, ParamInfo> paramDicForChange;
+        private GlobalizationSetter globalizationSetterForChange;
         private ItemsControl itemsControl;
         private bool loadFailed;
         private DocumentViewModel documentViewModel;
@@ -151,13 +153,13 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private bool btnEditParamIsEnabled = false;
-        public bool BtnEditParamIsEnabled
+        private bool btnEditIsEnabled = false;
+        public bool BtnEditIsEnabled
         {
-            get { return btnEditParamIsEnabled; }
+            get { return btnEditIsEnabled; }
             set
             {
-                SetProperty<bool>(ref btnEditParamIsEnabled, value);
+                SetProperty<bool>(ref btnEditIsEnabled, value);
             }
         }
 
@@ -183,6 +185,7 @@ namespace ExcelTool.ViewModel
         public ICommand CbAnalyzersSelectionChangedCommand { get; set; }
         public ICommand BtnDeleteClickCommand { get; set; }
         public ICommand BtnEditParamClickCommand { get; set; }
+        public ICommand BtnEditGlobalizationClickCommand { get; set; }
         public ICommand ItemLoadedCommand { get; set; }
         public ICommand BtnSaveClickCommand { get; set; }
 
@@ -204,6 +207,7 @@ namespace ExcelTool.ViewModel
             CbAnalyzersSelectionChangedCommand = new RelayCommand(CbAnalyzersSelectionChanged);
             BtnDeleteClickCommand = new RelayCommand(BtnDeleteClick);
             BtnEditParamClickCommand = new RelayCommand(BtnEditParamClick);
+            BtnEditGlobalizationClickCommand = new RelayCommand(BtnEditGlobalizationClick);
             ItemLoadedCommand = new RelayCommand<object>(ItemLoaded);
             BtnSaveClickCommand = new RelayCommand(BtnSaveClick);
 
@@ -599,12 +603,13 @@ namespace ExcelTool.ViewModel
             }
 
             BtnDeleteIsEnabled = SelectedAnalyzersIndex >= 1 ? true : false;
-            BtnEditParamIsEnabled = SelectedAnalyzersIndex >= 1 ? true : false;
+            BtnEditIsEnabled = SelectedAnalyzersIndex >= 1 ? true : false;
 
             if (SelectedAnalyzersIndex == 0)
             {
                 editor.Text = GlobalObjects.GlobalObjects.GetDefaultCode();
                 paramDicForChange = new Dictionary<string, ParamInfo>();
+                globalizationSetterForChange = new GlobalizationSetter();
                 return;
             }
             Analyzer analyzer = JsonHelper.TryDeserializeObject<Analyzer>($".\\Analyzers\\{SelectedAnalyzersItem}.json");
@@ -616,6 +621,7 @@ namespace ExcelTool.ViewModel
             editor.Text = analyzer.code;
 
             paramDicForChange = analyzer.paramDic;
+            globalizationSetterForChange = analyzer.globalizationSetter;
         }
 
         private void BtnDeleteClick()
@@ -905,6 +911,209 @@ namespace ExcelTool.ViewModel
             paramEditor.ShowDialog();
         }
 
+        private void BtnEditGlobalizationClick()
+        {
+            GlobalizationEditor globalizationEditor = new GlobalizationEditor();
+
+            RowDefinition rowDefinitionSet = new RowDefinition();
+            rowDefinitionSet.Height = new GridLength(40);
+            globalizationEditor.g_set.RowDefinitions.Add(rowDefinitionSet);
+
+            RowDefinition rowDefinition = new RowDefinition();
+            globalizationEditor.g_main.RowDefinitions.Add(rowDefinition);
+
+            RowDefinition rowDefinitionOk = new RowDefinition();
+            rowDefinitionOk.Height = new GridLength(40);
+            globalizationEditor.g_btn.RowDefinitions.Add(rowDefinitionOk);
+
+            ColumnDefinition columnDefinitionL = new ColumnDefinition();
+            globalizationEditor.g_main.ColumnDefinitions.Add(columnDefinitionL);
+
+            ColumnDefinition columnDefinitionML = new ColumnDefinition();
+            columnDefinitionML.Width = new GridLength(20);
+            globalizationEditor.g_main.ColumnDefinitions.Add(columnDefinitionML);
+
+            ColumnDefinition columnDefinitionM = new ColumnDefinition();
+            globalizationEditor.g_main.ColumnDefinitions.Add(columnDefinitionM);
+
+            ColumnDefinition columnDefinitionMR = new ColumnDefinition();
+            columnDefinitionMR.Width = new GridLength(20);
+            globalizationEditor.g_main.ColumnDefinitions.Add(columnDefinitionMR);
+
+            ColumnDefinition columnDefinitionR = new ColumnDefinition();
+            globalizationEditor.g_main.ColumnDefinitions.Add(columnDefinitionR);
+
+            CheckBox enableGlobalizationCheckBox = new CheckBox();
+            enableGlobalizationCheckBox.Content = Application.Current.FindResource("EnableGlobalizationForParamSetter").ToString();
+            enableGlobalizationCheckBox.HorizontalAlignment = HorizontalAlignment.Right;
+            enableGlobalizationCheckBox.Margin = new Thickness(0, 0, 10, 0);
+            if (globalizationSetterForChange != null && globalizationSetterForChange.globalizationList != null && globalizationSetterForChange.globalizationList.Count > 0)
+            {
+                enableGlobalizationCheckBox.IsChecked = globalizationSetterForChange.enableGlobalizationForParamSetter;
+            }
+            globalizationEditor.g_set.Children.Add(enableGlobalizationCheckBox);
+
+            StackPanel sp = new StackPanel();
+            sp.Orientation = Orientation.Horizontal;
+            sp.HorizontalAlignment = HorizontalAlignment.Left;
+            Grid.SetRow(sp, 0);
+            Grid.SetColumnSpan(sp, 5);
+            globalizationEditor.g_set.Children.Add(sp);
+
+            Label defaultLanguageNameLabel = new Label();
+            defaultLanguageNameLabel.VerticalContentAlignment = VerticalAlignment.Center;
+            defaultLanguageNameLabel.HorizontalAlignment = HorizontalAlignment.Left;
+            defaultLanguageNameLabel.Content = Application.Current.FindResource("DefaultLanguageName").ToString();
+            defaultLanguageNameLabel.Margin = new Thickness(10, 0, 0, 0);
+            sp.Children.Add(defaultLanguageNameLabel);
+
+            TextBox defaultLanguageNameTextBox = new TextBox();
+            defaultLanguageNameTextBox.Height = 25;
+            defaultLanguageNameTextBox.HorizontalAlignment = HorizontalAlignment.Left;
+            defaultLanguageNameTextBox.Margin = new Thickness(10, 0, 0, 0);
+            if (globalizationSetterForChange != null && globalizationSetterForChange.globalizationList != null && globalizationSetterForChange.globalizationList.Count > 0)
+            {
+                defaultLanguageNameTextBox.Text = globalizationSetterForChange.defaultLanguageName;
+            }
+            sp.Children.Add(defaultLanguageNameTextBox);
+
+            TextBlock textBlockTitleL = new TextBlock();
+            textBlockTitleL.Text = Application.Current.FindResource("LanguageName").ToString();
+            textBlockTitleL.Margin = new Thickness(15, 0, 0, 0);
+            textBlockTitleL.Height = 25;
+            textBlockTitleL.HorizontalAlignment = HorizontalAlignment.Left;
+            textBlockTitleL.VerticalAlignment = VerticalAlignment.Top;
+            Grid.SetRow(textBlockTitleL, 0);
+            Grid.SetColumn(textBlockTitleL, 0);
+            globalizationEditor.g_main.Children.Add(textBlockTitleL);
+
+            TextBlock textBlockTitleM = new TextBlock();
+            textBlockTitleM.Text = Application.Current.FindResource("StrID").ToString();
+            textBlockTitleM.Margin = new Thickness(15, 0, 0, 0);
+            textBlockTitleM.Height = 25;
+            textBlockTitleM.HorizontalAlignment = HorizontalAlignment.Left;
+            textBlockTitleM.VerticalAlignment = VerticalAlignment.Top;
+            Grid.SetRow(textBlockTitleM, 0);
+            Grid.SetColumn(textBlockTitleM, 2);
+            globalizationEditor.g_main.Children.Add(textBlockTitleM);
+
+            TextBlock textBlockTitleR = new TextBlock();
+            textBlockTitleR.Text = Application.Current.FindResource("Str").ToString();
+            textBlockTitleR.Margin = new Thickness(15, 0, 0, 0);
+            textBlockTitleR.Height = 25;
+            textBlockTitleR.HorizontalAlignment = HorizontalAlignment.Left;
+            textBlockTitleR.VerticalAlignment = VerticalAlignment.Top;
+            Grid.SetRow(textBlockTitleR, 0);
+            Grid.SetColumn(textBlockTitleR, 4);
+            globalizationEditor.g_main.Children.Add(textBlockTitleR);
+
+            TextEditor textEditorL = new TextEditor();
+            textEditorL.Margin = new Thickness(0, 25, 0, 0);
+            textEditorL.ShowLineNumbers = true;
+            textEditorL.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorL.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorL.Background = Theme.ThemeControlBackground;
+            textEditorL.Foreground = Theme.ThemeControlForeground;
+            if (globalizationSetterForChange != null && globalizationSetterForChange.globalizationList != null && globalizationSetterForChange.globalizationList.Count > 0)
+            {
+                foreach (Globalization globalization in globalizationSetterForChange.globalizationList)
+                {
+                    textEditorL.Text += $"{globalization.languageName}\n";
+                }
+            }
+            Grid.SetRow(textEditorL, 0);
+            Grid.SetColumn(textEditorL, 0);
+            globalizationEditor.g_main.Children.Add(textEditorL);
+
+            TextBlock textBlockML = new TextBlock();
+            textBlockML.Margin = new Thickness(0, 25, 0, 0);
+            textBlockML.Text = "=";
+            textBlockML.HorizontalAlignment = HorizontalAlignment.Center;
+            textBlockML.VerticalAlignment = VerticalAlignment.Center;
+            Grid.SetRow(textBlockML, 0);
+            Grid.SetColumn(textBlockML, 1);
+            globalizationEditor.g_main.Children.Add(textBlockML);
+
+            TextEditor textEditorM = new TextEditor();
+            textEditorM.Dispatcher.Invoke(() =>
+            {
+                textEditorM.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("param");
+            });
+            textEditorM.Margin = new Thickness(0, 25, 0, 0);
+            textEditorM.ShowLineNumbers = true;
+            textEditorM.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorM.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorM.Background = Theme.ThemeControlBackground;
+            textEditorM.Foreground = Theme.ThemeControlForeground;
+            if (globalizationSetterForChange != null && globalizationSetterForChange.globalizationList != null && globalizationSetterForChange.globalizationList.Count > 0)
+            {
+                foreach (Globalization globalization in globalizationSetterForChange.globalizationList)
+                {
+                    textEditorM.Text += $"{globalization.logCode}\n";
+                }
+            }
+            Grid.SetRow(textEditorM, 0);
+            Grid.SetColumn(textEditorM, 2);
+            globalizationEditor.g_main.Children.Add(textEditorM);
+
+            TextBlock textBlockMR = new TextBlock();
+            textBlockMR.Margin = new Thickness(0, 25, 0, 0);
+            textBlockMR.Text = "=";
+            textBlockMR.HorizontalAlignment = HorizontalAlignment.Center;
+            textBlockMR.VerticalAlignment = VerticalAlignment.Center;
+            Grid.SetRow(textBlockMR, 0);
+            Grid.SetColumn(textBlockMR, 3);
+            globalizationEditor.g_main.Children.Add(textBlockMR);
+
+            TextEditor textEditorR = new TextEditor();
+            textEditorR.Margin = new Thickness(0, 25, 0, 0);
+            textEditorR.ShowLineNumbers = true;
+            textEditorR.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorR.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            textEditorR.Background = Theme.ThemeControlBackground;
+            textEditorR.Foreground = Theme.ThemeControlForeground;
+            if (globalizationSetterForChange != null && globalizationSetterForChange.globalizationList != null && globalizationSetterForChange.globalizationList.Count > 0)
+            {
+                foreach (Globalization globalization in globalizationSetterForChange.globalizationList)
+                {
+                    textEditorR.Text += $"{globalization.logText}\n";
+                }
+            }
+            Grid.SetRow(textEditorR, 0);
+            Grid.SetColumn(textEditorR, 4);
+            globalizationEditor.g_main.Children.Add(textEditorR);
+
+            Button btnOk = new Button();
+            btnOk.HorizontalAlignment = HorizontalAlignment.Stretch;
+            btnOk.Content = Application.Current.FindResource("Ok").ToString();
+            btnOk.Click += (s, ex) =>
+            {
+                List<string> languageNameList = textEditorL.Text.Replace("\r", "").Split('\n').Where(str => str.Trim() != "").ToList();
+                List<string> codeList = textEditorM.Text.Replace("\r", "").Split('\n').ToList();
+                List<string> textList = textEditorR.Text.Replace("\r", "").Split('\n').ToList();
+                if (languageNameList.Count <= codeList.Count && languageNameList.Count <= textList.Count)
+                {
+                    GlobalizationSetter changedGlobalizationSetter = new GlobalizationSetter();
+                    for (int i = 0; i < languageNameList.Count; ++i)
+                    {
+                        changedGlobalizationSetter.Add(languageNameList[i], codeList[i], textList[i]);
+                    }
+
+                    changedGlobalizationSetter.defaultLanguageName = defaultLanguageNameTextBox.Text;
+                    changedGlobalizationSetter.enableGlobalizationForParamSetter = (bool)enableGlobalizationCheckBox.IsChecked;
+
+                    globalizationSetterForChange = changedGlobalizationSetter;
+                }
+
+                globalizationEditor.Close();
+            };
+            Grid.SetRow(btnOk, 0);
+            Grid.SetColumnSpan(btnOk, 5);
+            globalizationEditor.g_btn.Children.Add(btnOk);
+
+            globalizationEditor.ShowDialog();
+        }
+
         private void ItemLoaded(object e)
         {
             itemsControl = (ItemsControl)(((RoutedEventArgs)e).Source);
@@ -962,6 +1171,7 @@ namespace ExcelTool.ViewModel
             analyzer.code = editor.Text;
             analyzer.name = newName;
             analyzer.paramDic = paramDicForChange;
+            analyzer.globalizationSetter = globalizationSetterForChange;
 
             FileHelper.SavaAnalyzerJson(newName, analyzer, true);
 
