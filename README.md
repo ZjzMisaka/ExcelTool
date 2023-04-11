@@ -11,29 +11,30 @@ Plug-in extension function, batch processing, and output of results to Excel fil
 - [x] English
 
 ### Main interface
-- Select retrieval information and processing logic (plug-in) through the drop-down box, make sure they are correspond one by one
-- Can set incoming parameters, set search root directory and default output directory, output file name
-- There are two execution modes: sequential execution and simultaneous execution
-- The above content can be automatically filled in by selecting a saved rule from the rule drop-down box
-    - After selecting a rule, you can set monitoring to monitor some folders and files, and automatically execute this rule when there is a change
+- Select retrieval information and processing logic (plug-in) through the drop-down box, make sure they are correspond one by one. 
+- Can set incoming parameters, set search root directory and default output directory, output file name. 
+- There are two execution modes: sequential execution and simultaneous execution. 
+- The above content can be automatically filled in by selecting a saved rule from the rule drop-down box. 
+    - After selecting a rule, you can set monitoring to monitor some folders and files, and automatically execute this rule when there is a change. 
 
 ### Search information setting interface
 **Used to set the specified Sheet that needs to find the specified Excel file in the specified path**
-- The search method can be selected all, complete match, partial contain and regular expression
+- The search method can be selected all, complete match, partial contain and regular expression. 
 
 ### Processing logic (plug-in coding) interface
 **Used to set the processing logic for a certain type of Sheet and the output logic after processing**
 - Write code in the editor, and it will be executed in sequence during operation.
 - Parameters can be set, plug-in users can edit the parameters in the main interface, and pass them to the code to use at runtime.  
+- Parameter description and running log output can be multilingualized. 
 
 #### Coding related
-- Automatic completion and coloring throughout the process, you can add dll files to the Dlls folder by yourself, and you can directly reference them after adding
-- Encoding content depends on the [ClosedXML](https://github.com/ClosedXML/ClosedXML) open source library
-- Can use additional provided functions and properties to perform on-the-fly
-    - Real-time output of Log in the Log area of the main interface
-    - Hang and wait, read user input
-    - Additional Excel file operations
-- When a compilation error or a running error occurs, the relevant debugging information will appear in the log area at the bottom of the main interface
+- Automatic completion and coloring throughout the process, you can add dll files to the Dlls folder by yourself, and you can directly reference them after adding. 
+- Encoding content depends on the [ClosedXML](https://github.com/ClosedXML/ClosedXML) open source library. 
+- Can use additional provided functions and properties to perform on-the-fly. 
+    - Real-time output of Log in the Log area of the main interface. 
+    - Hang and wait, read user input. 
+    - Additional Excel file operations. 
+- When a compilation error or a running error occurs, the relevant debugging information will appear in the log area at the bottom of the main interface. 
 
 ##### GlobalDic (static class)
 ```c#
