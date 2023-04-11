@@ -90,7 +90,7 @@
       <Version>0.9.6</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.1</Version>
+      <Version>13.0.3</Version>
     </PackageReference>
     <PackageReference Include="RoslynPad.Editor.Windows" Version="4.4.0" />
     <PackageReference Include="SmartThreadPool.dll">
