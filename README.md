@@ -1,6 +1,6 @@
 # ExcelTool
 ![ICON](https://om.namanime.com/Pictures/ExcelTool/ExcelTool.ico)  
-Plug-in extension function, batch processing, and output of results to Excel file.  
+Perform batch reading, analysis, and output operations of Excel by executing pre-written c# scripts. 
 [中文ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_zh-CN.md) | [日本語ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_ja-JP.md)  
 [View example](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [Gif image when executing](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
