@@ -1,6 +1,6 @@
 # ExcelTool
 ![ICON](https://om.namanime.com/Pictures/ExcelTool/ExcelTool.ico)  
-事前に作成したc#スクリプトを実行することにより、excelの一括読み取り、分析、出力操作を行う。
+事前に作成したc#スクリプトを実行することにより、excelの一括読み取り、分析、出力操作を行う。  
 [中文ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_zh-CN.md) | [English ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README.md)  
 [例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [実行中のgif画像](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)

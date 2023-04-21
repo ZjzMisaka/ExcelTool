@@ -1,6 +1,6 @@
 # ExcelTool
 ![ICON](https://om.namanime.com/Pictures/ExcelTool/ExcelTool.ico)  
-通过执行预编写好的c#脚本, 进行Excel的批量读取, 分析, 输出操作. 
+通过执行预编写好的c#脚本, 进行Excel的批量读取, 分析, 输出操作.  
 [English ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README.md) | [日本語ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_ja-JP.md)  
 [查看示例](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
 [执行时的gif图](https://www.namanime.com/ZjzMisaka/ExcelTool/ExcelTool.gif?20220603)
