@@ -2523,6 +2523,8 @@ namespace ExcelTool.ViewModel
             analyzeSheetInvokeCount = 0;
             setResultInvokeCount = 0;
             analyzerListForSetResult = new ConcurrentDictionary<string, Analyzer>();
+            currentAnalizingDictionary = new ConcurrentDictionary<string, long>();
+            currentOutputtingDictionary = new ConcurrentDictionary<string, long>();
             GlobalObjects.GlobalObjects.ClearGlobalParamDic();
 
             GlobalDic.Reset();
@@ -3219,11 +3221,55 @@ namespace ExcelTool.ViewModel
 
             currentAnalizingDictionary.AddOrUpdate(sheetExplainerIndex + "|" + filePath, GetNowSs(), (key, oldValue) => GetNowSs());
 
-            XLWorkbook workbook = null;
+            
 
             try
             {
-                workbook = new XLWorkbook(filePath);
+                using (XLWorkbook workbook = new XLWorkbook(filePath))
+                {
+                    foreach (IXLWorksheet sheet in workbook.Worksheets)
+                    {
+                        if (sheetExplainer.sheetNames.Key == FindingMethod.SAME)
+                        {
+                            foreach (String str in sheetExplainer.sheetNames.Value)
+                            {
+                                if (sheet.Name.Equals(str))
+                                {
+                                    Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
+                                }
+                            }
+                        }
+                        else if (sheetExplainer.sheetNames.Key == FindingMethod.CONTAIN)
+                        {
+                            foreach (String str in sheetExplainer.sheetNames.Value)
+                            {
+                                if (sheet.Name.Contains(str))
+                                {
+                                    Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
+                                }
+                            }
+                        }
+                        else if (sheetExplainer.sheetNames.Key == FindingMethod.REGEX)
+                        {
+                            foreach (String str in sheetExplainer.sheetNames.Value)
+                            {
+                                Regex rgx = new Regex(str);
+                                if (rgx.IsMatch(sheet.Name))
+                                {
+                                    Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
+                                }
+                            }
+                        }
+                        else if (sheetExplainer.sheetNames.Key == FindingMethod.ALL)
+                        {
+                            Regex rgx = new Regex("[\\s\\S]*");
+                            if (rgx.IsMatch(sheet.Name))
+                            {
+                                Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
+                            }
+                        }
+                    }
+                }
             }
             catch
             {
@@ -3232,48 +3278,6 @@ namespace ExcelTool.ViewModel
                 return methodResult;
             }
 
-            foreach (IXLWorksheet sheet in workbook.Worksheets)
-            {
-                if (sheetExplainer.sheetNames.Key == FindingMethod.SAME)
-                {
-                    foreach (String str in sheetExplainer.sheetNames.Value)
-                    {
-                        if (sheet.Name.Equals(str))
-                        {
-                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
-                        }
-                    }
-                }
-                else if (sheetExplainer.sheetNames.Key == FindingMethod.CONTAIN)
-                {
-                    foreach (String str in sheetExplainer.sheetNames.Value)
-                    {
-                        if (sheet.Name.Contains(str))
-                        {
-                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
-                        }
-                    }
-                }
-                else if (sheetExplainer.sheetNames.Key == FindingMethod.REGEX)
-                {
-                    foreach (String str in sheetExplainer.sheetNames.Value)
-                    {
-                        Regex rgx = new Regex(str);
-                        if (rgx.IsMatch(sheet.Name))
-                        {
-                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
-                        }
-                    }
-                }
-                else if (sheetExplainer.sheetNames.Key == FindingMethod.ALL)
-                {
-                    Regex rgx = new Regex("[\\s\\S]*");
-                    if (rgx.IsMatch(sheet.Name))
-                    {
-                        Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, instanceObj);
-                    }
-                }
-            }
             methodResult.AddOrUpdate(ReadFileReturnType.FILEPATH, sheetExplainerIndex + "|" + filePath, (key, oldValue) => null);
             return methodResult;
         }
