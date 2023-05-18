@@ -1412,7 +1412,7 @@ namespace ExcelTool.ViewModel
                     textBlockKey.Margin = new Thickness(0, 5, 0, 0);
                     textBlockKey.Height = 25;
                     string desCribeText = analyzer.paramDic[key].describe;
-                    if (analyzer.globalizationSetter.enableGlobalizationForParamSetter)
+                    if (analyzer.globalizationSetter != null && analyzer.globalizationSetter.enableGlobalizationForParamSetter)
                     {
                         desCribeText = analyzer.globalizationSetter.Find(language, analyzer.paramDic[key].describe);
                     }
@@ -1475,7 +1475,7 @@ namespace ExcelTool.ViewModel
                                 radioButton.VerticalContentAlignment = VerticalAlignment.Top;
                                 radioButton.GroupName = $"{analyzerName}_{key}_{groupIndex}";
                                 string desCribeTextRb = possibleValue.describe;
-                                if (analyzer.globalizationSetter.enableGlobalizationForParamSetter)
+                                if (analyzer.globalizationSetter != null && analyzer.globalizationSetter.enableGlobalizationForParamSetter)
                                 {
                                     desCribeTextRb = analyzer.globalizationSetter.Find(language, possibleValue.value);
                                 }
@@ -1566,7 +1566,7 @@ namespace ExcelTool.ViewModel
                                 checkBox.HorizontalAlignment = HorizontalAlignment.Stretch;
                                 checkBox.VerticalContentAlignment = VerticalAlignment.Top;
                                 string desCribeTextCb = possibleValue.describe;
-                                if (analyzer.globalizationSetter.enableGlobalizationForParamSetter)
+                                if (analyzer.globalizationSetter != null && analyzer.globalizationSetter.enableGlobalizationForParamSetter)
                                 {
                                     desCribeTextCb = analyzer.globalizationSetter.Find(language, possibleValue.value);
                                 }
@@ -2577,7 +2577,10 @@ namespace ExcelTool.ViewModel
                 SheetExplainer sheetExplainer = sheetExplainers[i];
                 Analyzer analyzer = analyzers[i];
 
-                analyzer.globalizationSetter.currentLanguageName = language;
+                if (analyzer.globalizationSetter != null)
+                {
+                    analyzer.globalizationSetter.currentLanguageName = language;
+                }
 
                 List<string> allFilePathList = new List<string>();
                 foreach (string str in sheetExplainer.pathes)
