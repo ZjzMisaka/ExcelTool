@@ -3159,15 +3159,6 @@ namespace ExcelTool.ViewModel
         {
             try
             {
-                MethodInfo objMI = runOption.InstanceObject.Type.GetMethod(functionName);
-                if (objMI == null)
-                {
-                    if (Logger.IsOutputMethodNotFoundWarning)
-                    {
-                        Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", functionName));
-                    }
-                    return;
-                }
                 runOption.MethodName = functionName;
                 runOption.ParamList = objList;
                 ScriptRunner.Run(runOption);
@@ -3175,16 +3166,27 @@ namespace ExcelTool.ViewModel
             }
             catch (Exception e)
             {
-                if (e.InnerException != null)
+                if (e.Data.Contains("Type") && (string)e.Data["Type"] == "MethodNotFound")
                 {
-                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzerName}.{functionName}(): \n{e.InnerException.StackTrace}");
+                    if (Logger.IsOutputMethodNotFoundWarning)
+                    {
+                        Logger.Warn(Application.Current.FindResource("MethodNotFound").ToString().Replace("{0}", functionName));
+                    }
+                    return;
                 }
                 else
                 {
-                    Logger.Error($"\n    {e.Message}\n    {analyzerName}.{functionName}(): \n{e.StackTrace}");
+                    if (e.InnerException != null)
+                    {
+                        Logger.Error($"\n    {e.InnerException.Message}\n    {analyzerName}.{functionName}(): \n{e.InnerException.StackTrace}");
+                    }
+                    else
+                    {
+                        Logger.Error($"\n    {e.Message}\n    {analyzerName}.{functionName}(): \n{e.StackTrace}");
+                    }
+                    runNotSuccessed = true;
+                    Stop();
                 }
-                runNotSuccessed = true;
-                Stop();
             }
         }
 
