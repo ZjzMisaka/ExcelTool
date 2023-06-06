@@ -2680,30 +2680,16 @@ namespace ExcelTool.ViewModel
                 {
                     if (Running.UserStop)
                     {
-                        WaitThreadStop(runBeforeAnalyzeSheetThread);
-                        // try
-                        // {
-                        //     runBeforeAnalyzeSheetThread.Abort();
-                        // }
-                        // catch (Exception)
-                        // {
-                        //     // DO NOTHING
-                        // }
+                        runBeforeAnalyzeSheetThread.Interrupt();
+                        runBeforeAnalyzeSheetThread.Join();
                         FinishRunning(true);
                         return false;
                     }
                     long timeCostSs = GetNowSs() - startTime;
                     if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                     {
-                        WaitThreadStop(runBeforeAnalyzeSheetThread);
-                        // try
-                        // {
-                        //     runBeforeAnalyzeSheetThread.Abort();
-                        // }
-                        // catch (Exception)
-                        // {
-                        //     // DO NOTHING
-                        // }
+                        runBeforeAnalyzeSheetThread.Interrupt();
+                        runBeforeAnalyzeSheetThread.Join();
                         if (!isAuto)
                         {
                             CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
@@ -2825,16 +2811,16 @@ namespace ExcelTool.ViewModel
                     {
                         if (Running.UserStop)
                         {
-                            WaitThreadStop(runBeforeSetResultThread);
-                            // runBeforeSetResultThread.Abort();
+                            runBeforeSetResultThread.Interrupt();
+                            runBeforeSetResultThread.Join();
                             FinishRunning(true);
                             return false;
                         }
                         long timeCostSs = GetNowSs() - startTime;
                         if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                         {
-                            WaitThreadStop(runBeforeSetResultThread);
-                            // runBeforeSetResultThread.Abort();
+                            runBeforeSetResultThread.Interrupt();
+                            runBeforeSetResultThread.Join();
                             if (!isAuto)
                             {
                                 CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
@@ -2942,16 +2928,16 @@ namespace ExcelTool.ViewModel
                     {
                         if (Running.UserStop)
                         {
-                            WaitThreadStop(runEndThread);
-                            // runEndThread.Abort();
+                            runEndThread.Interrupt();
+                            runEndThread.Join();
                             FinishRunning(true);
                             return false;
                         }
                         long timeCostSs = GetNowSs() - startTime;
                         if (perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
                         {
-                            WaitThreadStop(runEndThread);
-                            // runEndThread.Abort();
+                            runEndThread.Interrupt();
+                            runEndThread.Join();
 
                             if (!isAuto)
                             {
@@ -3432,28 +3418,28 @@ namespace ExcelTool.ViewModel
             }
             if (runBeforeAnalyzeSheetThread != null && runBeforeAnalyzeSheetThread.IsAlive)
             {
-                WaitThreadStop(runBeforeAnalyzeSheetThread);
-                // runBeforeAnalyzeSheetThread.Abort();
+                runBeforeAnalyzeSheetThread.Interrupt();
+                runBeforeAnalyzeSheetThread.Join();
             }
             if (runBeforeSetResultThread != null && runBeforeSetResultThread.IsAlive)
             {
-                WaitThreadStop(runBeforeSetResultThread);
-                // runBeforeSetResultThread.Abort();
+                runBeforeSetResultThread.Interrupt();
+                runBeforeSetResultThread.Join();
             }
             if (runEndThread != null && runEndThread.IsAlive)
             {
-                WaitThreadStop(runEndThread);
-                // runEndThread.Abort();
+                runEndThread.Interrupt();
+                runEndThread.Join();
             }
             if (isCloseWindow)
             {
                 if (fileSystemWatcherInvokeThread != null && fileSystemWatcherInvokeThread.IsAlive)
                 {
-                    WaitThreadStop(fileSystemWatcherInvokeThread);
-                    // fileSystemWatcherInvokeThread.Abort();
+                    fileSystemWatcherInvokeThread.Interrupt();
+                    fileSystemWatcherInvokeThread.Join();
                 }
-                WaitThreadStop(runningThread);
-                // runningThread.Abort();
+                runningThread.Interrupt();
+                runningThread.Join();
             }
         }
 
@@ -3492,21 +3478,6 @@ namespace ExcelTool.ViewModel
 
             teLog.Background = ThemeBackground;
             teLog.Foreground = ThemeControlForeground;
-        }
-
-        private void WaitThreadStop(Thread thread)
-        {
-            int count = 0;
-            while (thread.IsAlive)
-            {
-                if (freshInterval * count > 10000)
-                {
-                    throw new Exception("Thread can't stop");
-                }
-                // Wait until finish
-                Thread.Sleep(freshInterval);
-                ++count;
-            }
         }
     }
 
