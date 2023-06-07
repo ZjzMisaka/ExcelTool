@@ -17,8 +17,6 @@
     <sys:String x:Key="MenuTheme">主题 (_T)</sys:String>
     <sys:String x:Key="MenuLanguage">语言 (_L)</sys:String>
     <sys:String x:Key="SetLanguage">设置语言</sys:String>
-    <sys:String x:Key="MenuDLLSecurityCheck">DLL文件安全检查 (_D)</sys:String>
-    <sys:String x:Key="DLLSecurityCheck">DLL文件安全检查</sys:String>
     <sys:String x:Key="IsEnable">是否启用</sys:String>
     <sys:String x:Key="MenuThreadRelated">线程相关 (_T)</sys:String>
     <sys:String x:Key="MenuMaxThreadCount">最大线程数 (_M)</sys:String>
@@ -144,7 +142,6 @@
     <sys:String x:Key="FileIsDamaged">文件{0}损坏</sys:String>
     <sys:String x:Key="MethodNotFound">函数{0}未找到</sys:String>
     <sys:String x:Key="FileNotFound">文件{0}未找到</sys:String>
-    <sys:String x:Key="UnblockDllsCopiedFromTheWeb" xml:space="preserve">.Dll文件 "{0}" 不被支持或者可能获取自网络或其他计算机, 请先添加信任并重启软件. &#13;&#10;1. 右击文件打开属性&#13;&#10;2. 点击常规标签页里的解除锁定按钮&#13;&#10;3. 点击确定&#13;&#10;&#13;&#10;如需绕过安全检查, 请修改设置. </sys:String>
     <sys:String x:Key="FileNotSupported">.Dll文件 "{0}" 不被支持. </sys:String>
     <sys:String x:Key="Code" xml:space="preserve">using ClosedXML.Excel;
 using GlobalObjects;
@@ -230,10 +227,6 @@ namespace AnalyzeCode
         }
     }
 }</sys:String>
-    <sys:String x:Key="NoAction">无操作</sys:String>
-    <sys:String x:Key="CloseTheProgramOnly">仅关闭程序</sys:String>
-    <sys:String x:Key="BanSecurityCheckWithoutRestart">今后不再进行安全检查 (重启程序后生效)</sys:String>
-    <sys:String x:Key="BanSecurityCheckWithRestart">今后不再进行安全检查并重启程序</sys:String>
     <sys:String x:Key="FileNameEmptyError">文件名不能为空</sys:String>
     <sys:String x:Key="ErrorWhileParsingJsonFile">解析Json文件时出现错误: {0}</sys:String>
     <sys:String x:Key="ReplaceFile">同名文件已经存在, 是否替换? {0}</sys:String>

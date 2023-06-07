@@ -17,8 +17,6 @@
     <sys:String x:Key="MenuTheme">テーマ (_T)</sys:String>
     <sys:String x:Key="MenuLanguage">言語 (_L)</sys:String>
     <sys:String x:Key="SetLanguage">言語設定</sys:String>
-    <sys:String x:Key="MenuDLLSecurityCheck">DLLファイルセキュリティーチェック (_D)</sys:String>
-    <sys:String x:Key="DLLSecurityCheck">DLLファイルセキュリティーチェック</sys:String>
     <sys:String x:Key="IsEnable">有効にするかどうか</sys:String>
     <sys:String x:Key="MenuThreadRelated">スレッド関連 (_T)</sys:String>
     <sys:String x:Key="MenuMaxThreadCount">スレッドの最大数 (_M)</sys:String>
@@ -143,7 +141,6 @@
     <sys:String x:Key="FileIsDamaged">ファイル{0}が破損している</sys:String>
     <sys:String x:Key="MethodNotFound">関数{0}が見つかりません</sys:String>
     <sys:String x:Key="FileNotFound">ファイル{0}が見つかりません</sys:String>
-    <sys:String x:Key="UnblockDllsCopiedFromTheWeb" xml:space="preserve">.Dllファイル「{0}」がサポートされていないかネットワークまたはほかのコンピュータから取得されましたから、先に許可して、ソフトウェアを再起動してください。&#13;&#10;1. ファイルを右クリックして「プロパティ」を開く&#13;&#10;2. 「全般」タブの「許可する」ボタンをクリックする&#13;&#10;3. 「OK」ボタンをクリックする&#13;&#10;セキュリティチェックをバイパスするには、設定を変更してください。</sys:String>
     <sys:String x:Key="FileNotSupported">.Dllファイル{0}はサポートされていません</sys:String>
     <sys:String x:Key="Code" xml:space="preserve">using ClosedXML.Excel;
 using GlobalObjects;
@@ -229,10 +226,6 @@ namespace AnalyzeCode
         }
     }
 }</sys:String>
-    <sys:String x:Key="NoAction">そのまま何もしない</sys:String>
-    <sys:String x:Key="CloseTheProgramOnly">プログラムを閉じるだけ</sys:String>
-    <sys:String x:Key="BanSecurityCheckWithoutRestart">今後、セキュリティチェックは不要になる（プログラムの再起動後に有効になります）</sys:String>
-    <sys:String x:Key="BanSecurityCheckWithRestart">今後、セキュリティチェックは不要になって、プログラムを再起動する</sys:String>
     <sys:String x:Key="FileNameEmptyError">ファイル名を空にすることはできません</sys:String>
     <sys:String x:Key="ErrorWhileParsingJsonFile">Jsonファイルの解析中にエラーが発生しました: {0}</sys:String>
     <sys:String x:Key="ReplaceFile">同じ名前のファイルが既に存在します。置き換えますか? {0}</sys:String>

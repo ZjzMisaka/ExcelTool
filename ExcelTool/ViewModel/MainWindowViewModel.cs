@@ -473,7 +473,6 @@ namespace ExcelTool.ViewModel
         public ICommand MenuOpenCommand { get; set; }
         public ICommand ChangeThemeCommand { get; set; }
         public ICommand ChangeLanguageCommand { get; set; }
-        public ICommand MenuDllSecurityCheckCommand { get; set; }
         public ICommand MenuSetStrCommand { get; set; }
         public ICommand OpenSourceCodeUrlCommand { get; set; }
         public ICommand BtnOpenSheetExplainerEditorClickCommand { get; set; }
@@ -548,7 +547,6 @@ namespace ExcelTool.ViewModel
             MenuOpenCommand = new RelayCommand<object>(MenuOpen);
             ChangeThemeCommand = new RelayCommand(ChangeTheme);
             ChangeLanguageCommand = new RelayCommand(ChangeLanguage);
-            MenuDllSecurityCheckCommand = new RelayCommand(MenuDllSecurityCheck);
             MenuSetStrCommand = new RelayCommand<object>(MenuSetStr);
             OpenSourceCodeUrlCommand = new RelayCommand(OpenSourceCodeUrl);
             BtnOpenSheetExplainerEditorClickCommand = new RelayCommand(BtnOpenSheetExplainerEditorClick);
@@ -857,29 +855,6 @@ namespace ExcelTool.ViewModel
             
             language = cultureDic[comboBox.SelectedItem.ToString()];
             IniHelper.SetLanguage(language);
-        }
-
-        private void MenuDllSecurityCheck()
-        {
-            CheckBox checkBox = new CheckBox();
-            checkBox.HorizontalAlignment = HorizontalAlignment.Left;
-            checkBox.Margin = new Thickness(5);
-            checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
-            checkBox.IsChecked = IniHelper.GetSecurityCheck();
-            int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("DLLSecurityCheck").ToString(), Application.Current.FindResource("Setting").ToString());
-            if (res == 3)
-            {
-                return;
-            }
-
-            if ((bool)checkBox.IsChecked)
-            {
-                IniHelper.SetSecurityCheck(true);
-            }
-            else
-            {
-                IniHelper.SetSecurityCheck(false);
-            }
         }
 
         private void MenuSetStr(object sender)
