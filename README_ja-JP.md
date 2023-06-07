@@ -116,7 +116,7 @@ bool ContainsKey(string key);
 // ---- 実行状況 ----
 // 時間のかかるロジックを実行する場合、ユーザーが実行を停止したかどうかを判断して、時間内にロジックを終了することができます。
 bool UserStop { get => userStop; set => userStop = value; }
-// 現在のロジックが実行されているかどうかを判断します。常に true であるはずです。
+// 現在のロジックが実行されているかどうかを判断します。
 bool NowRunning { get => nowRunning; set => nowRunning = value; }
 ```
 

@@ -116,7 +116,7 @@ bool ContainsKey(string key);
 // ---- 运行状况 ----
 // 在执行耗时逻辑时可以判断用户有没有停止运行, 以便及时退出逻辑. 
 bool UserStop { get => userStop; set => userStop = value; }
-// 判断当前逻辑是不是正在执行. 应当永远是true.
+// 判断当前逻辑是不是正在执行. 
 bool NowRunning { get => nowRunning; set => nowRunning = value; }
 ```
 

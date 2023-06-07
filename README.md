@@ -116,7 +116,7 @@ bool ContainsKey(string key);
 // ---- operating status ----
 // When executing time-consuming logic, it can be judged whether the user has stopped running, so as to exit the logic in time.
 bool UserStop { get => userStop; set => userStop = value; }
-// Determine whether the current logic is being executed. It should always be true.
+// Determine whether the current logic is being executed. 
 bool NowRunning { get => nowRunning; set => nowRunning = value; }
 ```
 
