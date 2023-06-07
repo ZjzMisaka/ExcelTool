@@ -17,8 +17,6 @@
     <sys:String x:Key="MenuTheme">Theme (_T)</sys:String>
     <sys:String x:Key="MenuLanguage">_Language</sys:String>
     <sys:String x:Key="SetLanguage">Language setting</sys:String>
-    <sys:String x:Key="MenuDLLSecurityCheck">_DLL file security check</sys:String>
-    <sys:String x:Key="DLLSecurityCheck">DLL file security check</sys:String>
     <sys:String x:Key="IsEnable">Is enable</sys:String>
     <sys:String x:Key="MenuThreadRelated">_Thread related</sys:String>
     <sys:String x:Key="MenuMaxThreadCount">_Maximum number of threads</sys:String>
@@ -143,7 +141,6 @@
     <sys:String x:Key="FileIsDamaged">File {0} is damaged</sys:String>
     <sys:String x:Key="MethodNotFound">Method {0} not found</sys:String>
     <sys:String x:Key="FileNotFound">File {0} not found</sys:String>
-    <sys:String x:Key="UnblockDllsCopiedFromTheWeb" xml:space="preserve">The .dll file {0} is not supported or may copied from the web or another computer, please unblock to use the dll file and restart the software. &#13;&#10;1. Right clicking on the Assembly file and selecting properties&#13;&#10;2. Click Unblock button under the General tab&#13;&#10;3. Click Apply and then OK&#13;&#10;To bypass the security check, please modify the settings. </sys:String>
     <sys:String x:Key="FileNotSupported">The .Dll file "{0}" is not supported.</sys:String>
     <sys:String x:Key="Code" xml:space="preserve">using ClosedXML.Excel;
 using GlobalObjects;
@@ -229,10 +226,6 @@ namespace AnalyzeCode
         }
     }
 }</sys:String>
-    <sys:String x:Key="NoAction">No action</sys:String>
-    <sys:String x:Key="CloseTheProgramOnly">Close the program only</sys:String>
-    <sys:String x:Key="BanSecurityCheckWithoutRestart">Security checks will not be performed in the future (it will take effect after restarting the program)</sys:String>
-    <sys:String x:Key="BanSecurityCheckWithRestart">No more security checks in the future, and restart the program</sys:String>
     <sys:String x:Key="FileNameEmptyError">Filename cannot be empty</sys:String>
     <sys:String x:Key="ErrorWhileParsingJsonFile">Error while parsing Json file: {0}</sys:String>
     <sys:String x:Key="ReplaceFile">A file with the same name already exists, do you want to replace it? {0}</sys:String>

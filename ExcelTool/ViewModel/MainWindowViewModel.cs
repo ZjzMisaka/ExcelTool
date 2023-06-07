@@ -473,7 +473,6 @@ namespace ExcelTool.ViewModel
         public ICommand MenuOpenCommand { get; set; }
         public ICommand ChangeThemeCommand { get; set; }
         public ICommand ChangeLanguageCommand { get; set; }
-        public ICommand MenuDllSecurityCheckCommand { get; set; }
         public ICommand MenuSetStrCommand { get; set; }
         public ICommand OpenSourceCodeUrlCommand { get; set; }
         public ICommand BtnOpenSheetExplainerEditorClickCommand { get; set; }
@@ -548,7 +547,6 @@ namespace ExcelTool.ViewModel
             MenuOpenCommand = new RelayCommand<object>(MenuOpen);
             ChangeThemeCommand = new RelayCommand(ChangeTheme);
             ChangeLanguageCommand = new RelayCommand(ChangeLanguage);
-            MenuDllSecurityCheckCommand = new RelayCommand(MenuDllSecurityCheck);
             MenuSetStrCommand = new RelayCommand<object>(MenuSetStr);
             OpenSourceCodeUrlCommand = new RelayCommand(OpenSourceCodeUrl);
             BtnOpenSheetExplainerEditorClickCommand = new RelayCommand(BtnOpenSheetExplainerEditorClick);
@@ -857,29 +855,6 @@ namespace ExcelTool.ViewModel
             
             language = cultureDic[comboBox.SelectedItem.ToString()];
             IniHelper.SetLanguage(language);
-        }
-
-        private void MenuDllSecurityCheck()
-        {
-            CheckBox checkBox = new CheckBox();
-            checkBox.HorizontalAlignment = HorizontalAlignment.Left;
-            checkBox.Margin = new Thickness(5);
-            checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
-            checkBox.IsChecked = IniHelper.GetSecurityCheck();
-            int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("DLLSecurityCheck").ToString(), Application.Current.FindResource("Setting").ToString());
-            if (res == 3)
-            {
-                return;
-            }
-
-            if ((bool)checkBox.IsChecked)
-            {
-                IniHelper.SetSecurityCheck(true);
-            }
-            else
-            {
-                IniHelper.SetSecurityCheck(false);
-            }
         }
 
         private void MenuSetStr(object sender)
@@ -2680,30 +2655,16 @@ namespace ExcelTool.ViewModel
                 {
                     if (Running.UserStop)
                     {
-                        WaitThreadStop(runBeforeAnalyzeSheetThread);
-                        // try
-                        // {
-                        //     runBeforeAnalyzeSheetThread.Abort();
-                        // }
-                        // catch (Exception)
-                        // {
-                        //     // DO NOTHING
-                        // }
+                        runBeforeAnalyzeSheetThread.Interrupt();
+                        runBeforeAnalyzeSheetThread.Join();
                         FinishRunning(true);
                         return false;
                     }
                     long timeCostSs = GetNowSs() - startTime;
                     if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                     {
-                        WaitThreadStop(runBeforeAnalyzeSheetThread);
-                        // try
-                        // {
-                        //     runBeforeAnalyzeSheetThread.Abort();
-                        // }
-                        // catch (Exception)
-                        // {
-                        //     // DO NOTHING
-                        // }
+                        runBeforeAnalyzeSheetThread.Interrupt();
+                        runBeforeAnalyzeSheetThread.Join();
                         if (!isAuto)
                         {
                             CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
@@ -2825,16 +2786,16 @@ namespace ExcelTool.ViewModel
                     {
                         if (Running.UserStop)
                         {
-                            WaitThreadStop(runBeforeSetResultThread);
-                            // runBeforeSetResultThread.Abort();
+                            runBeforeSetResultThread.Interrupt();
+                            runBeforeSetResultThread.Join();
                             FinishRunning(true);
                             return false;
                         }
                         long timeCostSs = GetNowSs() - startTime;
                         if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                         {
-                            WaitThreadStop(runBeforeSetResultThread);
-                            // runBeforeSetResultThread.Abort();
+                            runBeforeSetResultThread.Interrupt();
+                            runBeforeSetResultThread.Join();
                             if (!isAuto)
                             {
                                 CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"RunBeforeAnalyzeSheet\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
@@ -2942,16 +2903,16 @@ namespace ExcelTool.ViewModel
                     {
                         if (Running.UserStop)
                         {
-                            WaitThreadStop(runEndThread);
-                            // runEndThread.Abort();
+                            runEndThread.Interrupt();
+                            runEndThread.Join();
                             FinishRunning(true);
                             return false;
                         }
                         long timeCostSs = GetNowSs() - startTime;
                         if (perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
                         {
-                            WaitThreadStop(runEndThread);
-                            // runEndThread.Abort();
+                            runEndThread.Interrupt();
+                            runEndThread.Join();
 
                             if (!isAuto)
                             {
@@ -3432,28 +3393,28 @@ namespace ExcelTool.ViewModel
             }
             if (runBeforeAnalyzeSheetThread != null && runBeforeAnalyzeSheetThread.IsAlive)
             {
-                WaitThreadStop(runBeforeAnalyzeSheetThread);
-                // runBeforeAnalyzeSheetThread.Abort();
+                runBeforeAnalyzeSheetThread.Interrupt();
+                runBeforeAnalyzeSheetThread.Join();
             }
             if (runBeforeSetResultThread != null && runBeforeSetResultThread.IsAlive)
             {
-                WaitThreadStop(runBeforeSetResultThread);
-                // runBeforeSetResultThread.Abort();
+                runBeforeSetResultThread.Interrupt();
+                runBeforeSetResultThread.Join();
             }
             if (runEndThread != null && runEndThread.IsAlive)
             {
-                WaitThreadStop(runEndThread);
-                // runEndThread.Abort();
+                runEndThread.Interrupt();
+                runEndThread.Join();
             }
             if (isCloseWindow)
             {
                 if (fileSystemWatcherInvokeThread != null && fileSystemWatcherInvokeThread.IsAlive)
                 {
-                    WaitThreadStop(fileSystemWatcherInvokeThread);
-                    // fileSystemWatcherInvokeThread.Abort();
+                    fileSystemWatcherInvokeThread.Interrupt();
+                    fileSystemWatcherInvokeThread.Join();
                 }
-                WaitThreadStop(runningThread);
-                // runningThread.Abort();
+                runningThread.Interrupt();
+                runningThread.Join();
             }
         }
 
@@ -3492,21 +3453,6 @@ namespace ExcelTool.ViewModel
 
             teLog.Background = ThemeBackground;
             teLog.Foreground = ThemeControlForeground;
-        }
-
-        private void WaitThreadStop(Thread thread)
-        {
-            int count = 0;
-            while (thread.IsAlive)
-            {
-                if (freshInterval * count > 10000)
-                {
-                    throw new Exception("Thread can't stop");
-                }
-                // Wait until finish
-                Thread.Sleep(freshInterval);
-                ++count;
-            }
         }
     }
 

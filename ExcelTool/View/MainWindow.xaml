@@ -50,7 +50,6 @@
                         <MenuItem Header="{DynamicResource MenuSetting}">
                             <MenuItem Header="{DynamicResource MenuTheme}" Command="{Binding ChangeThemeCommand}" />
                             <MenuItem Header="{DynamicResource MenuLanguage}" Command="{Binding ChangeLanguageCommand}" />
-                            <MenuItem Header="{DynamicResource MenuDLLSecurityCheck}" Command="{Binding MenuDllSecurityCheckCommand}" />
                             <MenuItem Header="{DynamicResource MenuThreadRelated}">
                                 <MenuItem Header="{DynamicResource MenuMaxThreadCount}" Name="menu_max_thread_count" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}"/>
                                 <MenuItem Header="{DynamicResource MenuTotalTimeoutLimitAnalyze}" Name="menu_total_timeout_limit_analyze" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />

@@ -446,31 +446,6 @@ namespace ExcelTool
             return data["Value"]["DefaultOutputFileName"];
         }
 
-        public static void SetSecurityCheck(bool securityCheck)
-        {
-            if (!File.Exists("Setting.ini"))
-            {
-                return;
-            }
-
-            FileIniDataParser parser = new FileIniDataParser();
-            IniData data = parser.ReadFile("Setting.ini");
-            data["Check"]["SecurityCheck"] = securityCheck.ToString();
-            parser.WriteFile("Setting.ini", data);
-        }
-
-        public static bool GetSecurityCheck()
-        {
-            if (!File.Exists("Setting.ini"))
-            {
-                return true;
-            }
-
-            FileIniDataParser parser = new FileIniDataParser();
-            IniData data = parser.ReadFile("Setting.ini");
-            return bool.Parse(data["Check"]["SecurityCheck"]);
-        }
-
         public static void SetShowSpaces(bool showSpaces)
         {
             if (!File.Exists("Setting.ini"))
