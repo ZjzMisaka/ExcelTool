@@ -1,5 +1,5 @@
 # ExcelTool
-![ICON](https://om.namanime.com/Pictures/ExcelTool/ExcelTool.ico)  
+![ICON](https://raw.githubusercontent.com/ZjzMisaka/ExcelTool/main/ExcelTool/ExcelTool.ico)  
 Perform batch reading, analysis, and output operations of Excel by executing pre-written c# scripts.  
 [中文ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_zh-CN.md) | [日本語ReadMe](https://github.com/ZjzMisaka/ExcelTool/blob/main/README_ja-JP.md)  
 [View example](https://github.com/ZjzMisaka/AnalyzersForExcelTool)  
