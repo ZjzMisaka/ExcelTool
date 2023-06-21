@@ -20,6 +20,7 @@
     <sys:String x:Key="IsEnable">是否启用</sys:String>
     <sys:String x:Key="MenuThreadRelated">线程相关 (_T)</sys:String>
     <sys:String x:Key="MenuMaxThreadCount">最大线程数 (_M)</sys:String>
+    <sys:String x:Key="MenuEnableTimeoutSetting">启用超时时间设置 (_E)</sys:String>
     <sys:String x:Key="MenuTotalTimeoutLimitAnalyze">分析阶段超时时间 (_T)</sys:String>
     <sys:String x:Key="MenuPerTimeoutLimitAnalyze">单次分析超时时间 (_P)</sys:String>
     <sys:String x:Key="MenuTotalTimeoutLimitOutput">输出阶段超时时间 (_T)</sys:String>
@@ -27,6 +28,7 @@
     <sys:String x:Key="MenuFileSystemWatcherInvokeDalay">监视文件响应时间 (_D)</sys:String>
     <sys:String x:Key="MenuFreshInterval">线程中界面刷新间隔 (_F)</sys:String>
     <sys:String x:Key="MaxThreadCount">最大线程数</sys:String>
+    <sys:String x:Key="EnableTimeoutSetting">启用超时时间设置</sys:String>
     <sys:String x:Key="TotalTimeoutLimitAnalyze">分析阶段超时时间 (ms)</sys:String>
     <sys:String x:Key="PerTimeoutLimitAnalyze">单次分析超时时间 (ms)</sys:String>
     <sys:String x:Key="TotalTimeoutLimitOutput">输出阶段超时时间 (ms)</sys:String>
@@ -57,7 +59,6 @@
     <sys:String x:Key="HideCursorWhileTyping">输入时隐藏光标</sys:String>
     <sys:String x:Key="WordWrap">自动换行</sys:String>
     <sys:String x:Key="ShowLineNumbers">显示行号</sys:String>
-
 
     <sys:String x:Key="Analyzer">表格文件处理逻辑</sys:String>
     <sys:String x:Key="SheetExplainer">检索信息</sys:String>

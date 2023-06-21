@@ -20,6 +20,7 @@
     <sys:String x:Key="IsEnable">Is enable</sys:String>
     <sys:String x:Key="MenuThreadRelated">_Thread related</sys:String>
     <sys:String x:Key="MenuMaxThreadCount">_Maximum number of threads</sys:String>
+    <sys:String x:Key="MenuEnableTimeoutSetting">Enable timeout setting (_E)</sys:String>
     <sys:String x:Key="MenuTotalTimeoutLimitAnalyze">Analysis stage timeout (_T)</sys:String>
     <sys:String x:Key="MenuPerTimeoutLimitAnalyze">Single analysis timeout (_P)</sys:String>
     <sys:String x:Key="MenuTotalTimeoutLimitOutput">Output stage timeout (_T)</sys:String>
@@ -27,6 +28,7 @@
     <sys:String x:Key="MenuFileSystemWatcherInvokeDalay">Watch file response time (_D)</sys:String>
     <sys:String x:Key="MenuFreshInterval">Interface refresh interval in thread (_F)</sys:String>
     <sys:String x:Key="MaxThreadCount">_Maximum number of threads</sys:String>
+    <sys:String x:Key="EnableTimeoutSetting">Enable timeout setting</sys:String>
     <sys:String x:Key="TotalTimeoutLimitAnalyze">Analysis stage timeout (ms)</sys:String>
     <sys:String x:Key="PerTimeoutLimitAnalyze">Single analysis timeout (ms)</sys:String>
     <sys:String x:Key="TotalTimeoutLimitOutput">Output stage timeout (ms)</sys:String>

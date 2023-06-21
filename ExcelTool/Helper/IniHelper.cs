@@ -26,6 +26,7 @@ namespace ExcelTool
             IniData parsedINIDataToBeSaved = new IniData();
             parsedINIDataToBeSaved.Sections.AddSection("Thread");
             parsedINIDataToBeSaved["Thread"].AddKey("MaxThreadCount", "25");
+            parsedINIDataToBeSaved["Thread"].AddKey("EnableTimeoutSetting", "False");
             parsedINIDataToBeSaved["Thread"].AddKey("TotalTimeoutLimitAnalyze", "120000");
             parsedINIDataToBeSaved["Thread"].AddKey("PerTimeoutLimitAnalyze", "60000");
             parsedINIDataToBeSaved["Thread"].AddKey("TotalTimeoutLimitOutput", "120000");
@@ -90,6 +91,31 @@ namespace ExcelTool
             FileIniDataParser parser = new FileIniDataParser();
             IniData data = parser.ReadFile("Setting.ini");
             return Int32.Parse(data["Thread"]["MaxThreadCount"]);
+        }
+
+        public static void SetEnableTimeoutSetting(bool isEnableTimeoutSetting)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Thread"]["EnableTimeoutSetting"] = isEnableTimeoutSetting.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+
+        public static bool GetEnableTimeoutSetting()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return false;
+            }
+
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Thread"]["EnableTimeoutSetting"]);
         }
 
         public static void SetTotalTimeoutLimitAnalyze(int count)

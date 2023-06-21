@@ -127,7 +127,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
 |allFilePathList|List\<string>|分析されるすべてのファイルパスのリスト||
 |globalizationSetter|GlobalizationSetter|国際化文字列の取得|globalizationSetter.Find("Code");|
-|isExecuteInSequence|bool|順番実行するかどうか||
+|isExecuteInSequence|bool|順番実行する||
 
 ##### AnalyzeSheet関数
 |パラメータ|タイプ|説明|メモ|
@@ -137,7 +137,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |filePath|string|ファイルパス||
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
 |globalizationSetter|GlobalizationSetter|国際化文字列の取得|globalizationSetter.Find("Code");|
-|isExecuteInSequence|bool|順番実行するかどうか||
+|isExecuteInSequence|bool|順番実行する||
 |invokeCount|int|この分析関数が呼び出された回数|最初の呼び出しでの値は1です|
 
 ##### RunBeforeSetResult関数
@@ -148,7 +148,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
 |allFilePathList|List\<string>|分析されたすべてのファイルパスのリスト||
 |globalizationSetter|GlobalizationSetter|国際化文字列の取得|globalizationSetter.Find("Code");|
-|isExecuteInSequence|bool|順番実行するかどうか||
+|isExecuteInSequence|bool|順番実行する||
 
 ##### SetResult関数
 |パラメータ|タイプ|説明|メモ|
@@ -158,7 +158,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |filePath|string|ファイルパス||
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
 |globalizationSetter|GlobalizationSetter|国際化文字列の取得|globalizationSetter.Find("Code");|
-|isExecuteInSequence|bool|順番実行するかどうか||
+|isExecuteInSequence|bool|順番実行する||
 |invokeCount|int|この出力関数が呼び出された回数|最初の呼び出しでの値は1です|
 |totalCount|int|出力関数を呼び出す必要がある合計回数|最後の呼び出しは、invokeCountがtotalCountと同じ場合です|
 
@@ -170,7 +170,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |globalObjects|Object|グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。||
 |allFilePathList|List\<string>|分析されたすべてのファイルパスのリスト||
 |globalizationSetter|GlobalizationSetter|国際化文字列の取得|globalizationSetter.Find("Code");|
-|isExecuteInSequence|bool|順番実行するかどうか||
+|isExecuteInSequence|bool|順番実行する||
 
 # 使用されるオープンソースライブラリ
 |オープンソースライブラリ|オープンソースプロトコル|

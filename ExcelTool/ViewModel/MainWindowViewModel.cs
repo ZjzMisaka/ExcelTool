@@ -59,6 +59,7 @@ namespace ExcelTool.ViewModel
         private int analyzeSheetInvokeCount;
         private int setResultInvokeCount;
         private int maxThreadCount;
+        private bool enableTimeoutSetting;
         private int totalTimeoutLimitAnalyze;
         private int perTimeoutLimitAnalyze;
         private int totalTimeoutLimitOutput;
@@ -474,6 +475,7 @@ namespace ExcelTool.ViewModel
         public ICommand ChangeThemeCommand { get; set; }
         public ICommand ChangeLanguageCommand { get; set; }
         public ICommand MenuSetStrCommand { get; set; }
+        public ICommand MenuSetCheckboxCommand { get; set; }
         public ICommand OpenSourceCodeUrlCommand { get; set; }
         public ICommand BtnOpenSheetExplainerEditorClickCommand { get; set; }
         public ICommand BtnOpenAnalyzerEditorClickCommand { get; set; }
@@ -548,6 +550,7 @@ namespace ExcelTool.ViewModel
             ChangeThemeCommand = new RelayCommand(ChangeTheme);
             ChangeLanguageCommand = new RelayCommand(ChangeLanguage);
             MenuSetStrCommand = new RelayCommand<object>(MenuSetStr);
+            MenuSetCheckboxCommand = new RelayCommand<object>(MenuSetCheckbox);
             OpenSourceCodeUrlCommand = new RelayCommand(OpenSourceCodeUrl);
             BtnOpenSheetExplainerEditorClickCommand = new RelayCommand(BtnOpenSheetExplainerEditorClick);
             BtnOpenAnalyzerEditorClickCommand = new RelayCommand(BtnOpenAnalyzerEditorClick);
@@ -630,6 +633,7 @@ namespace ExcelTool.ViewModel
             TbOutputNameText = IniHelper.GetOutputFileName();
 
             maxThreadCount = IniHelper.GetMaxThreadCount();
+            enableTimeoutSetting = IniHelper.GetEnableTimeoutSetting();
             totalTimeoutLimitAnalyze = IniHelper.GetTotalTimeoutLimitAnalyze();
             perTimeoutLimitAnalyze = IniHelper.GetPerTimeoutLimitAnalyze();
             totalTimeoutLimitOutput = IniHelper.GetTotalTimeoutLimitOutput();
@@ -989,6 +993,34 @@ namespace ExcelTool.ViewModel
                     CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
                 }
                 IniHelper.SetFreshInterval(freshInterval);
+            }
+        }
+
+        private void MenuSetCheckbox(object sender)
+        {
+            CheckBox checkBox = new CheckBox();
+            checkBox.Margin = new Thickness(5);
+            checkBox.Height = 30;
+            checkBox.VerticalContentAlignment = VerticalAlignment.Center;
+            checkBox.Content = Application.Current.FindResource("IsEnable").ToString();
+
+            if (((MenuItem)sender).Name == "menu_enable_timeout_setting")
+            {
+                checkBox.IsChecked = IniHelper.GetEnableTimeoutSetting();
+                int res = CustomizableMessageBox.MessageBox.Show(new RefreshList { checkBox, new ButtonSpacer(1, GridUnitType.Star, true), Application.Current.FindResource("Ok").ToString(), Application.Current.FindResource("Cancel").ToString() }, Application.Current.FindResource("EnableTimeoutSetting").ToString(), Application.Current.FindResource("Setting").ToString());
+                if (res == 3)
+                {
+                    return;
+                }
+                try
+                {
+                    enableTimeoutSetting = (bool)checkBox.IsChecked;
+                }
+                catch (Exception ex)
+                {
+                    CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, ex.Message, Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                }
+                IniHelper.SetEnableTimeoutSetting(enableTimeoutSetting);
             }
         }
 
@@ -2661,7 +2693,7 @@ namespace ExcelTool.ViewModel
                         return false;
                     }
                     long timeCostSs = GetNowSs() - startTime;
-                    if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
+                    if (enableTimeoutSetting && perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                     {
                         runBeforeAnalyzeSheetThread.Interrupt();
                         runBeforeAnalyzeSheetThread.Join();
@@ -2708,10 +2740,10 @@ namespace ExcelTool.ViewModel
                 {
                     long nowSs = GetNowSs();
                     long totalTimeCostSs = nowSs - startSs;
-                    if (Running.UserStop || (totalTimeoutLimitAnalyze > 0 && totalTimeCostSs >= totalTimeoutLimitAnalyze))
+                    if (Running.UserStop || (enableTimeoutSetting && totalTimeoutLimitAnalyze > 0 && totalTimeCostSs >= totalTimeoutLimitAnalyze))
                     {
                         smartThreadPoolAnalyze.Dispose();
-                        if (totalTimeoutLimitAnalyze > 0 && totalTimeCostSs >= totalTimeoutLimitAnalyze)
+                        if (enableTimeoutSetting && totalTimeoutLimitAnalyze > 0 && totalTimeCostSs >= totalTimeoutLimitAnalyze)
                         {
                             if (!isAuto)
                             {
@@ -2737,7 +2769,7 @@ namespace ExcelTool.ViewModel
                         if (currentAnalizingDictionary.TryGetValue(key, out value))
                         {
                             long timeCostSs = GetNowSs() - currentAnalizingDictionary[key];
-                            if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
+                            if (enableTimeoutSetting && perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                             {
                                 smartThreadPoolAnalyze.Dispose();
                                 if (!isAuto)
@@ -2792,7 +2824,7 @@ namespace ExcelTool.ViewModel
                             return false;
                         }
                         long timeCostSs = GetNowSs() - startTime;
-                        if (perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
+                        if (enableTimeoutSetting && perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                         {
                             runBeforeSetResultThread.Interrupt();
                             runBeforeSetResultThread.Join();
@@ -2831,10 +2863,10 @@ namespace ExcelTool.ViewModel
                     {
                         long nowSs = GetNowSs();
                         long totalTimeCostSs = nowSs - startSs;
-                        if (Running.UserStop || (totalTimeoutLimitOutput > 0 && totalTimeCostSs >= totalTimeoutLimitOutput))
+                        if (Running.UserStop || (enableTimeoutSetting && totalTimeoutLimitOutput > 0 && totalTimeCostSs >= totalTimeoutLimitOutput))
                         {
                             smartThreadPoolOutput.Dispose();
-                            if (totalTimeoutLimitOutput > 0 && totalTimeCostSs >= totalTimeoutLimitOutput)
+                            if (enableTimeoutSetting && totalTimeoutLimitOutput > 0 && totalTimeCostSs >= totalTimeoutLimitOutput)
                             {
                                 if (!isAuto)
                                 {
@@ -2859,7 +2891,7 @@ namespace ExcelTool.ViewModel
                             if (currentOutputtingDictionary.TryGetValue(key, out value))
                             {
                                 long timeCostSs = GetNowSs() - currentOutputtingDictionary[key];
-                                if (perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
+                                if (enableTimeoutSetting && perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
                                 {
                                     smartThreadPoolOutput.Dispose();
                                     if (!isAuto)
@@ -2909,7 +2941,7 @@ namespace ExcelTool.ViewModel
                             return false;
                         }
                         long timeCostSs = GetNowSs() - startTime;
-                        if (perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
+                        if (enableTimeoutSetting && perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
                         {
                             runEndThread.Interrupt();
                             runEndThread.Join();

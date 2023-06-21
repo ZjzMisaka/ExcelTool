@@ -52,6 +52,7 @@
                             <MenuItem Header="{DynamicResource MenuLanguage}" Command="{Binding ChangeLanguageCommand}" />
                             <MenuItem Header="{DynamicResource MenuThreadRelated}">
                                 <MenuItem Header="{DynamicResource MenuMaxThreadCount}" Name="menu_max_thread_count" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}"/>
+                                <MenuItem Header="{DynamicResource MenuEnableTimeoutSetting}" Name="menu_enable_timeout_setting" Command="{Binding MenuSetCheckboxCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
                                 <MenuItem Header="{DynamicResource MenuTotalTimeoutLimitAnalyze}" Name="menu_total_timeout_limit_analyze" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
                                 <MenuItem Header="{DynamicResource MenuPerTimeoutLimitAnalyze}" Name="menu_per_timeout_limit_analyze" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
                                 <MenuItem Header="{DynamicResource MenuTotalTimeoutLimitOutput}" Name="menu_total_timeout_limit_output" Command="{Binding MenuSetStrCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
