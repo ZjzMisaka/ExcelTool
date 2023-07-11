@@ -186,4 +186,4 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |[CommunityToolkit/WindowsCommunityToolkit (Microsoft.Toolkit.Mvvm)](https://github.com/CommunityToolkit/WindowsCommunityToolkit)|MIT|
 |[microsoft/XamlBehaviorsWpf](https://github.com/microsoft/XamlBehaviorsWpf)|MIT|
 |[ZjzMisaka/CustomizableMessageBox](https://github.com/ZjzMisaka/CustomizableMessageBox)|WTFPL|
-|[ZjzMisaka/RoslynScriptRunner](https://github.com/ZjzMisaka/RoslynScriptRunner)|WTFPL|
+|[ZjzMisaka/RoslynScriptRunner](https://github.com/ZjzMisaka/RoslynScriptRunner)|[OMSPL](https://github.com/ZjzMisaka/OMSPL/blob/main/LICENSE)|
