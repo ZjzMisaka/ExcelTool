@@ -100,7 +100,7 @@
     <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.410601">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="ZjzMisaka.RoslynScriptRunner" Version="1.4.2" />
+    <PackageReference Include="ZjzMisaka.RoslynScriptRunner" Version="1.5.1" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
