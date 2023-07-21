@@ -2641,7 +2641,7 @@ namespace ExcelTool.ViewModel
                 InstanceObject instanceObj = null;
                 try
                 {
-                    instanceObj = InstanceObject.GetInstanceObject(analyzer.code, runOption);
+                    instanceObj = new InstanceObject(analyzer.code, runOption);
                 }
                 catch (Exception e)
                 {
