@@ -144,6 +144,7 @@
     <sys:String x:Key="MethodNotFound">関数{0}が見つかりません</sys:String>
     <sys:String x:Key="FileNotFound">ファイル{0}が見つかりません</sys:String>
     <sys:String x:Key="FileNotSupported">.Dllファイル{0}はサポートされていません</sys:String>
+    <sys:String x:Key="UnrecognizedParameter">パラメータを認識できません</sys:String>
     <sys:String x:Key="Code" xml:space="preserve">using ClosedXML.Excel;
 using GlobalObjects;
 using GlobalObjects.Model;

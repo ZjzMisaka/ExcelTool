@@ -144,6 +144,7 @@
     <sys:String x:Key="MethodNotFound">函数{0}未找到</sys:String>
     <sys:String x:Key="FileNotFound">文件{0}未找到</sys:String>
     <sys:String x:Key="FileNotSupported">.Dll文件 "{0}" 不被支持. </sys:String>
+    <sys:String x:Key="UnrecognizedParameter">参数无法识别</sys:String>
     <sys:String x:Key="Code" xml:space="preserve">using ClosedXML.Excel;
 using GlobalObjects;
 using GlobalObjects.Model;

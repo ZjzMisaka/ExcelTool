@@ -1312,6 +1312,10 @@ namespace ExcelTool.ViewModel
             paramStr = ParamHelper.EncodeFromEscaped(paramStr);
 
             Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
+            if (paramDicEachAnalyzer == null) 
+            {
+                return;
+            }
 
             List<String> analyzersList = TeAnalyzersDocument.Text.Split('\n').Where(str => str.Trim() != "").ToList();
 
@@ -2267,6 +2271,10 @@ namespace ExcelTool.ViewModel
             string paramStr = FormatTeParams();
             paramStr = ParamHelper.EncodeFromEscaped(paramStr);
             Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
+            if (paramDicEachAnalyzer == null)
+            {
+                return;
+            }
 
             List<SheetExplainer> sheetExplainers = new List<SheetExplainer>();
             List<Analyzer> analyzer = new List<Analyzer>();
@@ -2408,6 +2416,10 @@ namespace ExcelTool.ViewModel
 
                             string paramStr = ParamHelper.EncodeFromEscaped(rule.param);
                             Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer = ParamHelper.GetParamDicEachAnalyzer(paramStr);
+                            if (paramDicEachAnalyzer == null)
+                            {
+                                return;
+                            }
 
                             ResetLog(true);
 

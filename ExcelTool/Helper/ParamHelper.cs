@@ -1,9 +1,12 @@
-﻿using GlobalObjects;
+﻿using CustomizableMessageBox;
+using GlobalObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using static CustomizableMessageBox.MessageBox;
 
 namespace ExcelTool.Helper
 {
@@ -47,73 +50,83 @@ namespace ExcelTool.Helper
 
             int startIndex = 0;
             int index = 0;
-            while (index <= paramStr.Length - 1)
+
+            try
             {
-                string tempStr = paramStr.Substring(startIndex);
-                int tempIndex = tempStr.IndexOf("|");
-                string tempParam = "";
-                if (tempIndex == -1)
+                while (index <= paramStr.Length - 1)
                 {
-                    tempParam = tempStr;
-
-                    index = paramStr.Length + 1;
-                }
-                else
-                {
-                    tempParam = tempStr.Substring(0, tempIndex);
-                }
-                if (tempParam.Contains("{"))
-                {
-                    tempIndex = tempStr.IndexOf("}");
-                    tempParam = tempStr.Substring(0, tempIndex + 1);
-
-                    int lIndex = tempParam.IndexOf("{");
-                    int rIndex = tempParam.IndexOf("}");
-                    string analyzerName = tempParam.Substring(0, lIndex);
-                    string tempParamInTempParam = tempParam.Substring(lIndex + 1, rIndex - lIndex - 1);
-                    string[] splitedParams = tempParamInTempParam.Split('|');
-                    Dictionary<string, string> paramDic = new Dictionary<string, string>();
-                    foreach (string param in splitedParams)
+                    string tempStr = paramStr.Substring(startIndex);
+                    int tempIndex = tempStr.IndexOf("|");
+                    string tempParam = "";
+                    if (tempIndex == -1)
                     {
-                        string[] kv = param.Split(':');
-                        if (kv.Length == 2)
-                        {
-                            paramDic.Add(kv[0], kv[1]);
-                        }
+                        tempParam = tempStr;
+
+                        index = paramStr.Length + 1;
                     }
-                    if (paramDicEachAnalyzer.ContainsKey(analyzerName))
+                    else
                     {
-                        foreach (string key in paramDic.Keys)
+                        tempParam = tempStr.Substring(0, tempIndex);
+                    }
+                    if (tempParam.Contains("{"))
+                    {
+                        tempIndex = tempStr.IndexOf("}");
+                        tempParam = tempStr.Substring(0, tempIndex + 1);
+
+                        int lIndex = tempParam.IndexOf("{");
+                        int rIndex = tempParam.IndexOf("}");
+                        string analyzerName = tempParam.Substring(0, lIndex);
+                        string tempParamInTempParam = tempParam.Substring(lIndex + 1, rIndex - lIndex - 1);
+                        string[] splitedParams = tempParamInTempParam.Split('|');
+                        Dictionary<string, string> paramDic = new Dictionary<string, string>();
+                        foreach (string param in splitedParams)
                         {
-                            if (!paramDicEachAnalyzer[analyzerName].ContainsKey(key))
+                            string[] kv = param.Split(':');
+                            if (kv.Length == 2)
                             {
-                                paramDicEachAnalyzer[analyzerName].Add(key, paramDic[key]);
+                                paramDic.Add(kv[0], kv[1]);
                             }
+                        }
+                        if (paramDicEachAnalyzer.ContainsKey(analyzerName))
+                        {
+                            foreach (string key in paramDic.Keys)
+                            {
+                                if (!paramDicEachAnalyzer[analyzerName].ContainsKey(key))
+                                {
+                                    paramDicEachAnalyzer[analyzerName].Add(key, paramDic[key]);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            paramDicEachAnalyzer.Add(analyzerName, paramDic);
                         }
                     }
                     else
                     {
-                        paramDicEachAnalyzer.Add(analyzerName, paramDic);
-                    }
-                }
-                else
-                {
-                    string[] kv = tempParam.Split(':');
-                    if (kv.Length == 2)
-                    {
-                        if (!paramDicEachAnalyzer.ContainsKey("public"))
+                        string[] kv = tempParam.Split(':');
+                        if (kv.Length == 2)
                         {
-                            paramDicEachAnalyzer.Add("public", new Dictionary<string, string>());
+                            if (!paramDicEachAnalyzer.ContainsKey("public"))
+                            {
+                                paramDicEachAnalyzer.Add("public", new Dictionary<string, string>());
+                            }
+                            paramDicEachAnalyzer["public"].Add(kv[0], kv[1]);
                         }
-                        paramDicEachAnalyzer["public"].Add(kv[0], kv[1]);
                     }
+                    if (tempIndex != -1)
+                    {
+                        index = startIndex + tempIndex + 1;
+                    }
+                    startIndex = index;
                 }
-                if (tempIndex != -1)
-                {
-                    index = startIndex + tempIndex + 1;
-                }
-                startIndex = index;
             }
+            catch (Exception e)
+            {
+                CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, Application.Current.FindResource("UnrecognizedParameter").ToString(), Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
+                paramDicEachAnalyzer = null;
+            }
+            
 
             return paramDicEachAnalyzer;
         }
