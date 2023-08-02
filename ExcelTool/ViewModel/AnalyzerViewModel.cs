@@ -43,6 +43,7 @@ namespace ExcelTool.ViewModel
     [SupportedOSPlatform("windows7.0")]
     class AnalyzerViewModel : ObservableObject
     {
+        private Analyzer analyzer;
         private readonly ObservableCollection<DocumentViewModel> _documents;
         private RoslynHost _host;
         private RoslynCodeEditor editor;
@@ -153,16 +154,6 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private bool btnEditIsEnabled = false;
-        public bool BtnEditIsEnabled
-        {
-            get { return btnEditIsEnabled; }
-            set
-            {
-                SetProperty<bool>(ref btnEditIsEnabled, value);
-            }
-        }
-
         private ObservableCollection<DocumentViewModel> itemsSource;
         public ObservableCollection<DocumentViewModel> ItemsSource
         {
@@ -212,6 +203,8 @@ namespace ExcelTool.ViewModel
             BtnSaveClickCommand = new RelayCommand(BtnSaveClick);
 
             ModernWpf.ThemeManager.Current.ActualApplicationThemeChanged += ActualApplicationThemeChanged;
+
+            this.analyzer = new Analyzer();
         }
 
         private void WindowLoaded(RoutedEventArgs e)
@@ -603,16 +596,16 @@ namespace ExcelTool.ViewModel
             }
 
             BtnDeleteIsEnabled = SelectedAnalyzersIndex >= 1 ? true : false;
-            BtnEditIsEnabled = SelectedAnalyzersIndex >= 1 ? true : false;
 
             if (SelectedAnalyzersIndex == 0)
             {
+                this.analyzer = new Analyzer();
                 editor.Text = GlobalObjects.GlobalObjects.GetDefaultCode();
                 paramDicForChange = new Dictionary<string, ParamInfo>();
                 globalizationSetterForChange = new GlobalizationSetter();
                 return;
             }
-            Analyzer analyzer = JsonHelper.TryDeserializeObject<Analyzer>($".\\Analyzers\\{SelectedAnalyzersItem}.json");
+            this.analyzer = JsonHelper.TryDeserializeObject<Analyzer>($".\\Analyzers\\{SelectedAnalyzersItem}.json");
             if (analyzer == null)
             {
                 SelectedAnalyzersIndex = 0;
@@ -902,13 +895,16 @@ namespace ExcelTool.ViewModel
                     paramDicForChange = changedParamDic;
                 }
 
-                paramEditor.Close();
+                paramEditor.DialogResult = true;
             };
             Grid.SetRow(btnOk, 1);
             Grid.SetColumnSpan(btnOk, 5);
             paramEditor.g_btn.Children.Add(btnOk);
 
-            paramEditor.ShowDialog();
+            if ((bool)paramEditor.ShowDialog())
+            {
+                this.analyzer.paramDic = paramDicForChange;
+            }
         }
 
         private void BtnEditGlobalizationClick()
@@ -1105,13 +1101,16 @@ namespace ExcelTool.ViewModel
                     globalizationSetterForChange = changedGlobalizationSetter;
                 }
 
-                globalizationEditor.Close();
+                globalizationEditor.DialogResult = true;
             };
             Grid.SetRow(btnOk, 0);
             Grid.SetColumnSpan(btnOk, 5);
             globalizationEditor.g_btn.Children.Add(btnOk);
 
-            globalizationEditor.ShowDialog();
+            if ((bool)globalizationEditor.ShowDialog())
+            {
+                this.analyzer.globalizationSetter = globalizationSetterForChange;
+            }
         }
 
         private void ItemLoaded(object e)

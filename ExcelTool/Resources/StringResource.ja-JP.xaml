@@ -162,7 +162,8 @@ namespace AnalyzeCode
         /// &lt;param name="param">着信パラメータ&lt;/param>
         /// &lt;param name="globalObject">グローバルに存在し、現在の行番号など、他の呼び出しで使用する必要のあるデータを保存できます。&lt;/param>
         /// &lt;param name="allFilePathList">分析されるすべてのファイルパスのリスト&lt;/param>
-        /// &lt;param name="globalizationSetter">国際化文字列の取得&lt;/param><sys:String x:Key="ParameterEditor">パラメータエクセル</sys:String>
+        /// &lt;param name="globalizationSetter">国際化文字列の取得&lt;/param>
+        /// &lt;param name="isExecuteInSequence">順番実行する&lt;/param>
         public void RunBeforeAnalyzeSheet(Param param, ref Object globalObject, List&lt;string> allFilePathList, GlobalizationSetter globalizationSetter, bool isExecuteInSequence)
         {
             
