@@ -3372,6 +3372,10 @@ namespace ExcelTool.ViewModel
 
         private void RenewSmartThreadPoolAnalyze(STPStartInfo stp)
         {
+            if (smartThreadPoolAnalyze != null)
+            {
+                smartThreadPoolAnalyze.Dispose();
+            }
             smartThreadPoolAnalyze = new SmartThreadPool(stp);
             if (maxThreadCount > 0)
             {
@@ -3381,6 +3385,10 @@ namespace ExcelTool.ViewModel
 
         private void RenewSmartThreadPoolOutput(STPStartInfo stp)
         {
+            if (smartThreadPoolOutput != null)
+            {
+                smartThreadPoolOutput.Dispose();
+            }
             smartThreadPoolOutput = new SmartThreadPool(stp);
             if (maxThreadCount > 0)
             {
