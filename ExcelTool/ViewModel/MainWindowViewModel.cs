@@ -2306,7 +2306,7 @@ namespace ExcelTool.ViewModel
             SetStartRunningBtnState();
             if (!CbExecuteInSequenceIsChecked)
             {
-                _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked, CbIsShowSavedMessageBox);
+                _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked);
                 while (Running.NowRunning)
                 {
                     await Task.Delay(freshInterval);
@@ -2316,7 +2316,7 @@ namespace ExcelTool.ViewModel
             {
                 for (int i = 0; i < sheetExplainers.Count; ++i)
                 {
-                    if (!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked, CbIsShowSavedMessageBox))
+                    if (!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked))
                     {
                         break;
                     }
@@ -2444,7 +2444,7 @@ namespace ExcelTool.ViewModel
                             SetStartRunningBtnState();
                             if (!rule.executeInSequence)
                             {
-                                _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence, CbIsShowSavedMessageBox);
+                                _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence);
                                 while (Running.NowRunning)
                                 {
                                     Thread.Sleep(freshInterval);
@@ -2454,7 +2454,7 @@ namespace ExcelTool.ViewModel
                             {
                                 for (int i = 0; i < sheetExplainers.Count; ++i)
                                 {
-                                    if (!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence, CbIsShowSavedMessageBox))
+                                    if (!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence))
                                     {
                                         break;
                                     }
@@ -2539,7 +2539,7 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private async Task<bool> StartLogic(List<SheetExplainer> sheetExplainers, List<Analyzer> analyzers, Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string basePath, string outputPath, string outputName, bool isAuto, bool isExecuteInSequence, bool isAutoOpenIsChecked)
+        private async Task<bool> StartLogic(List<SheetExplainer> sheetExplainers, List<Analyzer> analyzers, Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string basePath, string outputPath, string outputName, bool isAuto, bool isExecuteInSequence)
         {
             Dictionary<SheetExplainer, List<string>> filePathListDic = new Dictionary<SheetExplainer, List<string>>();
 
@@ -2991,7 +2991,7 @@ namespace ExcelTool.ViewModel
                     {
                         filePath = $"{resPath}/{outputName}.xlsx";
                     }
-                    FileHelper.SaveWorkbook(isAuto, filePath, workbook, CbIsAutoOpenIsChecked, isExecuteInSequence, isAutoOpenIsChecked);
+                    FileHelper.SaveWorkbook(isAuto, filePath, workbook, CbIsAutoOpenIsChecked, isExecuteInSequence, CbIsShowSavedMessageBox);
                 }
                 foreach (string name in Output.GetAllWorkbooks().Keys)
                 {
@@ -3004,7 +3004,7 @@ namespace ExcelTool.ViewModel
                     {
                         filePath = $"{resPath}/{name}.xlsx";
                     }
-                    FileHelper.SaveWorkbook(isAuto, filePath, Output.GetWorkbook(name), CbIsAutoOpenIsChecked, isExecuteInSequence, isAutoOpenIsChecked);
+                    FileHelper.SaveWorkbook(isAuto, filePath, Output.GetWorkbook(name), CbIsAutoOpenIsChecked, isExecuteInSequence, CbIsShowSavedMessageBox);
                 }
             }
 
