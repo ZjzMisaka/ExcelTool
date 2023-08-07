@@ -448,6 +448,16 @@ namespace ExcelTool.ViewModel
             }
         }
 
+        private bool cbIsShowSavedMessageBox;
+        public bool CbIsShowSavedMessageBox
+        {
+            get { return cbIsShowSavedMessageBox; }
+            set
+            {
+                SetProperty<bool>(ref cbIsShowSavedMessageBox, value);
+            }
+        }
+
         private bool btnStopIsEnabled = false;
         public bool BtnStopIsEnabled
         {
@@ -739,6 +749,14 @@ namespace ExcelTool.ViewModel
             else
             {
                 IniHelper.SetIsAutoOpen(false);
+            }
+            if (CbIsShowSavedMessageBox == true)
+            {
+                IniHelper.SetIsShowSavedMessageBox(true);
+            }
+            else
+            {
+                IniHelper.SetIsShowSavedMessageBox(false);
             }
         }
 
@@ -2288,7 +2306,7 @@ namespace ExcelTool.ViewModel
             SetStartRunningBtnState();
             if (!CbExecuteInSequenceIsChecked)
             {
-                _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked);
+                _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked, CbIsShowSavedMessageBox);
                 while (Running.NowRunning)
                 {
                     await Task.Delay(freshInterval);
@@ -2298,7 +2316,7 @@ namespace ExcelTool.ViewModel
             {
                 for (int i = 0; i < sheetExplainers.Count; ++i)
                 {
-                    if (!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked))
+                    if (!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked, CbIsShowSavedMessageBox))
                     {
                         break;
                     }
@@ -2426,7 +2444,7 @@ namespace ExcelTool.ViewModel
                             SetStartRunningBtnState();
                             if (!rule.executeInSequence)
                             {
-                                _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence);
+                                _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence, CbIsShowSavedMessageBox);
                                 while (Running.NowRunning)
                                 {
                                     Thread.Sleep(freshInterval);
@@ -2436,7 +2454,7 @@ namespace ExcelTool.ViewModel
                             {
                                 for (int i = 0; i < sheetExplainers.Count; ++i)
                                 {
-                                    if (!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence))
+                                    if (!await StartLogic(new List<SheetExplainer> { sheetExplainers[i] }, new List<Analyzer> { analyzer[i] }, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence, CbIsShowSavedMessageBox))
                                     {
                                         break;
                                     }
@@ -2521,7 +2539,7 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private async Task<bool> StartLogic(List<SheetExplainer> sheetExplainers, List<Analyzer> analyzers, Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string basePath, string outputPath, string outputName, bool isAuto, bool isExecuteInSequence)
+        private async Task<bool> StartLogic(List<SheetExplainer> sheetExplainers, List<Analyzer> analyzers, Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string basePath, string outputPath, string outputName, bool isAuto, bool isExecuteInSequence, bool isAutoOpenIsChecked)
         {
             Dictionary<SheetExplainer, List<string>> filePathListDic = new Dictionary<SheetExplainer, List<string>>();
 
@@ -2973,7 +2991,7 @@ namespace ExcelTool.ViewModel
                     {
                         filePath = $"{resPath}/{outputName}.xlsx";
                     }
-                    FileHelper.SaveWorkbook(isAuto, filePath, workbook, CbIsAutoOpenIsChecked, isExecuteInSequence);
+                    FileHelper.SaveWorkbook(isAuto, filePath, workbook, CbIsAutoOpenIsChecked, isExecuteInSequence, isAutoOpenIsChecked);
                 }
                 foreach (string name in Output.GetAllWorkbooks().Keys)
                 {
@@ -2986,7 +3004,7 @@ namespace ExcelTool.ViewModel
                     {
                         filePath = $"{resPath}/{name}.xlsx";
                     }
-                    FileHelper.SaveWorkbook(isAuto, filePath, Output.GetWorkbook(name), CbIsAutoOpenIsChecked, isExecuteInSequence);
+                    FileHelper.SaveWorkbook(isAuto, filePath, Output.GetWorkbook(name), CbIsAutoOpenIsChecked, isExecuteInSequence, isAutoOpenIsChecked);
                 }
             }
 

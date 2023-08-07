@@ -197,7 +197,7 @@ namespace ExcelTool.Helper
             return newParamsList;
         }
 
-        public static void SaveWorkbook(bool isAuto, string filePath, XLWorkbook workbook, bool isAutoOpen, bool isExecuteInSequence)
+        public static void SaveWorkbook(bool isAuto, string filePath, XLWorkbook workbook, bool isAutoOpen, bool isExecuteInSequence, bool isAutoOpenIsChecked)
         {
             bool saveResult = false;
             SaveFile(isAuto, isExecuteInSequence, filePath, workbook, out saveResult);
@@ -207,7 +207,10 @@ namespace ExcelTool.Helper
                 if (!isAuto && !isExecuteInSequence)
                 {
                     Logger.Error(fileNotSavedStr);
-                    CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString().ToString() }, fileNotSavedStr, Application.Current.FindResource("Info").ToString());
+                    if (isAutoOpenIsChecked)
+                    {
+                        CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString().ToString() }, fileNotSavedStr, Application.Current.FindResource("Info").ToString());
+                    }
                 }
                 else
                 {
@@ -254,7 +257,10 @@ namespace ExcelTool.Helper
                 {
                     CustomizableMessageBox.MessageBox.CloseNow();
                 };
-                CustomizableMessageBox.MessageBox.Show(new RefreshList { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, fileSavedStr, Application.Current.FindResource("Info").ToString());
+                if (isAutoOpenIsChecked)
+                {
+                    CustomizableMessageBox.MessageBox.Show(new RefreshList { btnClose, new ButtonSpacer(40), btnOpenFile, btnOpenPath }, fileSavedStr, Application.Current.FindResource("Info").ToString());
+                }
             }
             else
             {

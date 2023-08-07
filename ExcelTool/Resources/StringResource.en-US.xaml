@@ -80,6 +80,7 @@
     <sys:String x:Key="ToBeDeletedSoon">To be deleted soon: {0}</sys:String>
     <sys:String x:Key="ClearTemp">Clear temporary config</sys:String>
     <sys:String x:Key="AutomaticallyOpening">Opens automatically when finished</sys:String>
+    <sys:String x:Key="ShowSavedMessageBox">Show save result message box</sys:String>
     <sys:String x:Key="Stop">Stop</sys:String>
     <sys:String x:Key="Start">Start</sys:String>
     <sys:String x:Key="AnalyzerEditor">Analyzere ditor</sys:String>

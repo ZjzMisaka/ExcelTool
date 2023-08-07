@@ -42,6 +42,7 @@ namespace ExcelTool
             parsedINIDataToBeSaved["Window"].AddKey("SheetExplainerEditorHeight", "450");
             parsedINIDataToBeSaved["Window"].AddKey("IsExecuteInSequence", "False");
             parsedINIDataToBeSaved["Window"].AddKey("IsAutoOpen", "False");
+            parsedINIDataToBeSaved["Window"].AddKey("IsShowSavedMessageBox", "True");
             parsedINIDataToBeSaved["Window"].AddKey("Theme", "Light");
             parsedINIDataToBeSaved["Window"].AddKey("Language", Thread.CurrentThread.CurrentUICulture.Name);
             parsedINIDataToBeSaved.Sections.AddSection("Value");
@@ -341,6 +342,29 @@ namespace ExcelTool
             IniData data = parser.ReadFile("Setting.ini");
             return bool.Parse(data["Window"]["IsAutoOpen"]);
         }
+
+        public static void SetIsShowSavedMessageBox(bool isShowSavedMessageBox)
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return;
+            }
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            data["Window"]["IsShowSavedMessageBox"] = isShowSavedMessageBox.ToString();
+            parser.WriteFile("Setting.ini", data);
+        }
+        public static bool GetIsShowSavedMessageBox()
+        {
+            if (!File.Exists("Setting.ini"))
+            {
+                return false;
+            }
+            FileIniDataParser parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Setting.ini");
+            return bool.Parse(data["Window"]["IsShowSavedMessageBox"]);
+        }
+
 
         public static void SetTheme(string theme)
         {
