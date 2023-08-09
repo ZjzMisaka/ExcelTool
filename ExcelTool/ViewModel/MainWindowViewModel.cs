@@ -34,7 +34,7 @@ using ModernWpf;
 using static CustomizableMessageBox.MessageBox;
 using Microsoft.CodeAnalysis;
 using System.Runtime.Versioning;
-using RoslynScriptRunner;
+using DynamicScriptRunner;
 using FileHelper = ExcelTool.Helper.FileHelper;
 
 namespace ExcelTool.ViewModel
