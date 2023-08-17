@@ -3180,18 +3180,16 @@ namespace ExcelTool.ViewModel
             }
             catch (Exception e)
             {
+                if (e.InnerException != null)
                 {
-                    if (e.InnerException != null)
-                    {
-                        Logger.Error($"\n    {e.InnerException.Message}\n    {analyzerName}.{functionName}(): \n{e.InnerException.StackTrace}");
-                    }
-                    else
-                    {
-                        Logger.Error($"\n    {e.Message}\n    {analyzerName}.{functionName}(): \n{e.StackTrace}");
-                    }
-                    runNotSuccessed = true;
-                    Stop();
+                    Logger.Error($"\n    {e.InnerException.Message}\n    {analyzerName}.{functionName}(): \n{e.InnerException.StackTrace}");
                 }
+                else
+                {
+                    Logger.Error($"\n    {e.Message}\n    {analyzerName}.{functionName}(): \n{e.StackTrace}");
+                }
+                runNotSuccessed = true;
+                Stop();
             }
         }
 
