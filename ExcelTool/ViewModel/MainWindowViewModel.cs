@@ -34,8 +34,8 @@ using ModernWpf;
 using static CustomizableMessageBox.MessageBox;
 using Microsoft.CodeAnalysis;
 using System.Runtime.Versioning;
-using DynamicScriptRunner;
 using FileHelper = ExcelTool.Helper.FileHelper;
+using DynamicScriptExecutor;
 
 namespace ExcelTool.ViewModel
 {
@@ -2605,7 +2605,7 @@ namespace ExcelTool.ViewModel
             };
             RenewSmartThreadPoolOutput(stpOutput);
 
-            Dictionary<Analyzer, Tuple<RunOption, SheetExplainer>> compilerDic = new Dictionary<Analyzer, Tuple<RunOption, SheetExplainer>>();
+            Dictionary<Analyzer, Tuple<ExecOption, SheetExplainer>> compilerDic = new Dictionary<Analyzer, Tuple<ExecOption, SheetExplainer>>();
             int totalCount = 0;
             for (int i = 0; i < sheetExplainers.Count; ++i)
             {
@@ -2662,16 +2662,16 @@ namespace ExcelTool.ViewModel
                 }
                 filePathListDic.Add(sheetExplainer, allFilePathList);
 
-                RunOption runOption = new RunOption();
-                runOption.ExtraDllFolderList = new List<string>
+                ExecOption execOption = new ExecOption();
+                execOption.ExtraDllFolderList = new List<string>
                 {
                     Path.Combine(Environment.CurrentDirectory, "Dlls")
                 };
-                runOption.ClassName = "AnalyzeCode.Analyze";
+                execOption.ClassName = "AnalyzeCode.Analyze";
                 InstanceObject instanceObj = null;
                 try
                 {
-                    instanceObj = new InstanceObject(analyzer.code, runOption);
+                    instanceObj = new InstanceObject(analyzer.code, execOption);
                 }
                 catch (Exception e)
                 {
@@ -2686,13 +2686,13 @@ namespace ExcelTool.ViewModel
                     return false;
                 }
 
-                runOption.InstanceObject = instanceObj;
+                execOption.InstanceObject = instanceObj;
 
-                GlobalObjects.GlobalObjects.SetGlobalParam(runOption, new Object());
-                Tuple<RunOption, SheetExplainer> cresultTuple = new Tuple<RunOption, SheetExplainer>(runOption, sheetExplainer);
+                GlobalObjects.GlobalObjects.SetGlobalParam(execOption, new Object());
+                Tuple<ExecOption, SheetExplainer> cresultTuple = new Tuple<ExecOption, SheetExplainer>(execOption, sheetExplainer);
                 compilerDic.Add(analyzer, cresultTuple);
 
-                runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(runOption, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, allFilePathList, isExecuteInSequence));
+                runBeforeAnalyzeSheetThread = new Thread(() => RunBeforeAnalyzeSheet(execOption, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, allFilePathList, isExecuteInSequence));
                 runBeforeAnalyzeSheetThread.Start();
 
                 while (runBeforeAnalyzeSheetThread.IsAlive)
@@ -2739,7 +2739,7 @@ namespace ExcelTool.ViewModel
                     readFileParams.Add(analyzer);
                     readFileParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name));
                     readFileParams.Add(isExecuteInSequence);
-                    readFileParams.Add(runOption);
+                    readFileParams.Add(execOption);
                     smartThreadPoolAnalyze.QueueWorkItem(new Func<List<object>, object>(ReadFile), readFileParams);
                 }
             }
@@ -2822,9 +2822,9 @@ namespace ExcelTool.ViewModel
                 {
                     long startTime = GetNowSs();
 
-                    RunOption runOption = compilerDic[analyzer].Item1;
+                    ExecOption execOption = compilerDic[analyzer].Item1;
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
-                    runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(runOption, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer], isExecuteInSequence));
+                    runBeforeSetResultThread = new Thread(() => RunBeforeSetResult(execOption, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer], isExecuteInSequence));
                     runBeforeSetResultThread.Start();
                     while (runBeforeSetResultThread.IsAlive)
                     {
@@ -2939,9 +2939,9 @@ namespace ExcelTool.ViewModel
                 {
                     long startTime = GetNowSs();
 
-                    RunOption runOption = compilerDic[analyzer].Item1;
+                    ExecOption execOption = compilerDic[analyzer].Item1;
                     SheetExplainer sheetExplainer = compilerDic[analyzer].Item2;
-                    runEndThread = new Thread(() => RunEnd(runOption, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer], isExecuteInSequence));
+                    runEndThread = new Thread(() => RunEnd(execOption, workbook, ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name), analyzer, filePathListDic[sheetExplainer], isExecuteInSequence));
                     runEndThread.Start();
                     while (runEndThread.IsAlive)
                     {
@@ -3160,15 +3160,15 @@ namespace ExcelTool.ViewModel
             BtnStopIsEnabled = false;
         }
 
-        private void RunFunction(RunOption runOption, string analyzerName, string className, string functionName, object[] objList, int globalParamIndex)
+        private void RunFunction(ExecOption execOption, string analyzerName, string className, string functionName, object[] objList, int globalParamIndex)
         {
             try
             {
-                RunOption runOptionTemp = runOption.Copy();
-                runOptionTemp.MethodName = functionName;
-                runOptionTemp.ParamList = objList;
-                ScriptRunner.Run(runOptionTemp);
-                GlobalObjects.GlobalObjects.SetGlobalParam(runOption, objList[globalParamIndex]);
+                ExecOption execOptionTemp = execOption.Copy();
+                execOptionTemp.MethodName = functionName;
+                execOptionTemp.ParamList = objList;
+                ScriptExecutor.Exec(execOptionTemp);
+                GlobalObjects.GlobalObjects.SetGlobalParam(execOption, objList[globalParamIndex]);
             }
             catch (MissingMethodException e)
             {
@@ -3195,22 +3195,22 @@ namespace ExcelTool.ViewModel
             }
         }
 
-        private void RunBeforeAnalyzeSheet(RunOption runOption, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
+        private void RunBeforeAnalyzeSheet(ExecOption execOption, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
         {
-            object[] objList = new object[] { param, GlobalObjects.GlobalObjects.GetGlobalParam(runOption), allFilePathList, analyzer.globalizationSetter, isExecuteInSequence };
-            RunFunction(runOption, analyzer.name, "AnalyzeCode.Analyze", "RunBeforeAnalyzeSheet", objList, 1);
+            object[] objList = new object[] { param, GlobalObjects.GlobalObjects.GetGlobalParam(execOption), allFilePathList, analyzer.globalizationSetter, isExecuteInSequence };
+            RunFunction(execOption, analyzer.name, "AnalyzeCode.Analyze", "RunBeforeAnalyzeSheet", objList, 1);
         }
 
-        private void RunBeforeSetResult(RunOption runOption, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
+        private void RunBeforeSetResult(ExecOption execOption, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
         {
-            object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(runOption), allFilePathList, analyzer.globalizationSetter, isExecuteInSequence };
-            RunFunction(runOption, analyzer.name, "AnalyzeCode.Analyze", "RunBeforeSetResult", objList, 2);
+            object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(execOption), allFilePathList, analyzer.globalizationSetter, isExecuteInSequence };
+            RunFunction(execOption, analyzer.name, "AnalyzeCode.Analyze", "RunBeforeSetResult", objList, 2);
         }
 
-        private void RunEnd(RunOption runOption, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
+        private void RunEnd(ExecOption execOption, XLWorkbook workbook, Param param, Analyzer analyzer, List<String> allFilePathList, bool isExecuteInSequence)
         {
-            object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(runOption), allFilePathList, analyzer.globalizationSetter, isExecuteInSequence };
-            RunFunction(runOption, analyzer.name, "AnalyzeCode.Analyze", "RunEnd", objList, 2);
+            object[] objList = new object[] { param, workbook, GlobalObjects.GlobalObjects.GetGlobalParam(execOption), allFilePathList, analyzer.globalizationSetter, isExecuteInSequence };
+            RunFunction(execOption, analyzer.name, "AnalyzeCode.Analyze", "RunEnd", objList, 2);
         }
 
         [DllImport("kernel32.dll")]
@@ -3252,7 +3252,7 @@ namespace ExcelTool.ViewModel
             Analyzer analyzer = (Analyzer)readFileParams[3];
             Param param = (Param)readFileParams[4];
             bool isExecuteInSequence = (bool)readFileParams[5];
-            RunOption runOption = (RunOption)readFileParams[6];
+            ExecOption execOption = (ExecOption)readFileParams[6];
 
             ConcurrentDictionary<ReadFileReturnType, object> methodResult = new ConcurrentDictionary<ReadFileReturnType, object>();
             methodResult.AddOrUpdate(ReadFileReturnType.ANALYZER, analyzer, (key, oldValue) => null);
@@ -3286,7 +3286,7 @@ namespace ExcelTool.ViewModel
                         {
                             if (sheet.Name.Equals(str))
                             {
-                                Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, runOption);
+                                Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, execOption);
                             }
                         }
                     }
@@ -3296,7 +3296,7 @@ namespace ExcelTool.ViewModel
                         {
                             if (sheet.Name.Contains(str))
                             {
-                                Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, runOption);
+                                Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, execOption);
                             }
                         }
                     }
@@ -3307,7 +3307,7 @@ namespace ExcelTool.ViewModel
                             Regex rgx = new Regex(str);
                             if (rgx.IsMatch(sheet.Name))
                             {
-                                Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, runOption);
+                                Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, execOption);
                             }
                         }
                     }
@@ -3316,7 +3316,7 @@ namespace ExcelTool.ViewModel
                         Regex rgx = new Regex("[\\s\\S]*");
                         if (rgx.IsMatch(sheet.Name))
                         {
-                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, runOption);
+                            Analyze(sheet, filePath, analyzer, param, isExecuteInSequence, execOption);
                         }
                     }
                 }
@@ -3345,11 +3345,11 @@ namespace ExcelTool.ViewModel
             return (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
         }
 
-        private void Analyze(IXLWorksheet sheet, string filePath, Analyzer analyzer, Param param, bool isExecuteInSequence, RunOption runOption)
+        private void Analyze(IXLWorksheet sheet, string filePath, Analyzer analyzer, Param param, bool isExecuteInSequence, ExecOption execOption)
         {
             ++analyzeSheetInvokeCount;
-            object[] objList = new object[] { param, sheet, filePath, GlobalObjects.GlobalObjects.GetGlobalParam(runOption), analyzer.globalizationSetter, isExecuteInSequence, analyzeSheetInvokeCount };
-            RunFunction(runOption, analyzer.name, "AnalyzeCode.Analyze", "AnalyzeSheet", objList, 3);
+            object[] objList = new object[] { param, sheet, filePath, GlobalObjects.GlobalObjects.GetGlobalParam(execOption), analyzer.globalizationSetter, isExecuteInSequence, analyzeSheetInvokeCount };
+            RunFunction(execOption, analyzer.name, "AnalyzeCode.Analyze", "AnalyzeSheet", objList, 3);
         }
 
         private string SetResult(List<object> setResultParams)
@@ -3360,13 +3360,13 @@ namespace ExcelTool.ViewModel
             int totalCount = (int)setResultParams[3];
             Param param = (Param)setResultParams[4];
             bool isExecuteInSequence = (bool)setResultParams[5];
-            RunOption runOption = (RunOption)setResultParams[6];
+            ExecOption execOption = (ExecOption)setResultParams[6];
 
             currentOutputtingDictionary.AddOrUpdate(filePath, GetNowSs(), (key, oldValue) => GetNowSs());
 
             ++setResultInvokeCount;
-            object[] objList = new object[] { param, workbook, filePath.Split('|')[1], GlobalObjects.GlobalObjects.GetGlobalParam(runOption), analyzer.globalizationSetter, isExecuteInSequence, setResultInvokeCount, totalCount };
-            RunFunction(runOption, analyzer.name, "AnalyzeCode.Analyze", "SetResult", objList, 3);
+            object[] objList = new object[] { param, workbook, filePath.Split('|')[1], GlobalObjects.GlobalObjects.GetGlobalParam(execOption), analyzer.globalizationSetter, isExecuteInSequence, setResultInvokeCount, totalCount };
+            RunFunction(execOption, analyzer.name, "AnalyzeCode.Analyze", "SetResult", objList, 3);
             return filePath;
         }
 
