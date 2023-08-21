@@ -183,7 +183,7 @@ bool NowRunning { get => nowRunning; set => nowRunning = value; }
 |[amibar/SmartThreadPool](https://github.com/amibar/SmartThreadPool)|MS-PL|
 |[punker76/gong-wpf-dragdrop](https://github.com/punker76/gong-wpf-dragdrop)|BSD-3-Clause|
 |[Kinnara/ModernWpf](https://github.com/Kinnara/ModernWpf)|MIT|
-|[CommunityToolkit/WindowsCommunityToolkit (Microsoft.Toolkit.Mvvm)](https://github.com/CommunityToolkit/WindowsCommunityToolkit)|MIT|
+|[~~Microsoft.Toolkit.Mvvm~~ CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet)|MIT|
 |[microsoft/XamlBehaviorsWpf](https://github.com/microsoft/XamlBehaviorsWpf)|MIT|
 |[ZjzMisaka/CustomizableMessageBox](https://github.com/ZjzMisaka/CustomizableMessageBox)|WTFPL|
 |[ZjzMisaka/DynamicScriptExecutor](https://github.com/ZjzMisaka/DynamicScriptExecutor)|[OMSPL](https://github.com/ZjzMisaka/OMSPL/blob/main/LICENSE)|
