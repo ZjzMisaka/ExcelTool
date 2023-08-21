@@ -5,8 +5,6 @@ using GongSolutions.Wpf.DragDrop;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Highlighting;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -36,6 +34,8 @@ using Microsoft.CodeAnalysis;
 using System.Runtime.Versioning;
 using FileHelper = ExcelTool.Helper.FileHelper;
 using DynamicScriptExecutor;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace ExcelTool.ViewModel
 {

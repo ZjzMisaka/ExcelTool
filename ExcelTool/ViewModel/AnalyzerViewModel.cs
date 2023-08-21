@@ -13,8 +13,6 @@ using Microsoft.CodeAnalysis.CSharp.Scripting.Hosting;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.Scripting.Hosting;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
 using ModernWpf;
 using Newtonsoft.Json;
 using RoslynPad.Editor;
@@ -37,6 +35,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using static CustomizableMessageBox.MessageBox;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace ExcelTool.ViewModel
 {
