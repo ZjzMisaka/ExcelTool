@@ -2780,7 +2780,7 @@ namespace ExcelTool.ViewModel
                         long value = new long();
                         if (currentAnalizingDictionary.TryGetValue(key, out value))
                         {
-                            long timeCostSs = GetNowSs() - currentAnalizingDictionary[key];
+                            long timeCostSs = GetNowSs() - value;
                             if (enableTimeoutSetting && perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                             {
                                 smartThreadPoolAnalyze.Dispose();
@@ -2902,7 +2902,7 @@ namespace ExcelTool.ViewModel
                             long value = new long();
                             if (currentOutputtingDictionary.TryGetValue(key, out value))
                             {
-                                long timeCostSs = GetNowSs() - currentOutputtingDictionary[key];
+                                long timeCostSs = GetNowSs() - value;
                                 if (enableTimeoutSetting && perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
                                 {
                                     smartThreadPoolOutput.Dispose();
