@@ -126,8 +126,8 @@
     <sys:String x:Key="SuccessfullySaved">保存成功</sys:String>
     <sys:String x:Key="Copied">已复制到剪贴板</sys:String>
     <sys:String x:Key="ParameterEditor">参数编辑器</sys:String>
-    <sys:String x:Key="ActiveThreads">活跃线程</sys:String>
-    <sys:String x:Key="InUseThreads">使用中的线程</sys:String>
+    <sys:String x:Key="RunningThreads">运行中的线程</sys:String>
+    <sys:String x:Key="WaitingThreads">等待中的线程</sys:String>
     <sys:String x:Key="SelectFile">请选择文件</sys:String>
     <sys:String x:Key="File">文件</sys:String>
     <sys:String x:Key="ParamKey">参数键</sys:String>

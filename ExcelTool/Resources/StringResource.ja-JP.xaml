@@ -126,8 +126,8 @@
     <sys:String x:Key="SuccessfullySaved">正常に保存されました</sys:String>
     <sys:String x:Key="Copied">クリップボードにコピーしました</sys:String>
     <sys:String x:Key="ParameterEditor">パラメータエディタ</sys:String>
-    <sys:String x:Key="ActiveThreads">アクティブスレッド</sys:String>
-    <sys:String x:Key="InUseThreads">使用中のスレッド</sys:String>
+    <sys:String x:Key="RunningThreads">実行中のスレッド</sys:String>
+    <sys:String x:Key="WaitingThreads">待機中のスレッド</sys:String>
     <sys:String x:Key="SelectFile">ファイルを選択してください</sys:String>
     <sys:String x:Key="File">ファイル</sys:String>
     <sys:String x:Key="ParamKey">パラメータキー</sys:String>

@@ -1,5 +1,4 @@
-﻿using Amib.Threading;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using GlobalObjects;
 using Microsoft.CSharp;
 using Newtonsoft.Json;

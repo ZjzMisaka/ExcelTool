@@ -1,5 +1,4 @@
-﻿using Amib.Threading;
-using ExcelTool.Helper;
+﻿using ExcelTool.Helper;
 using GlobalObjects;
 using GongSolutions.Wpf.DragDrop;
 using ICSharpCode.AvalonEdit;
@@ -36,6 +35,7 @@ using FileHelper = ExcelTool.Helper.FileHelper;
 using DynamicScriptExecutor;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PowerThreadPool;
 
 namespace ExcelTool.ViewModel
 {
@@ -43,8 +43,7 @@ namespace ExcelTool.ViewModel
     class MainWindowViewModel : ObservableObject, IDropTarget
     {
         private enum ReadFileReturnType { ANALYZER, FILEPATH };
-        private SmartThreadPool smartThreadPoolAnalyze = null;
-        private SmartThreadPool smartThreadPoolOutput = null;
+        private PowerPool powerPool = null;
         private Thread runningThread;
         private Thread runBeforeAnalyzeSheetThread;
         private Thread runBeforeSetResultThread;
@@ -2303,7 +2302,6 @@ namespace ExcelTool.ViewModel
 
             ResetLog(false);
 
-            SetStartRunningBtnState();
             if (!CbExecuteInSequenceIsChecked)
             {
                 _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, TbBasePathText, TbOutputPathText, TbOutputNameText, false, CbExecuteInSequenceIsChecked);
@@ -2327,7 +2325,6 @@ namespace ExcelTool.ViewModel
                 }
             }
             SaveParam(paramStr, false);
-            SetFinishRunningBtnState();
         }
 
         // ---------------------------------------------------- Common Logic
@@ -2441,7 +2438,6 @@ namespace ExcelTool.ViewModel
 
                             ResetLog(true);
 
-                            SetStartRunningBtnState();
                             if (!rule.executeInSequence)
                             {
                                 _ = StartLogic(sheetExplainers, analyzer, paramDicEachAnalyzer, rule.basePath, rule.outputPath, rule.outputName, true, rule.executeInSequence);
@@ -2464,7 +2460,6 @@ namespace ExcelTool.ViewModel
                                     }
                                 }
                             }
-                            SetFinishRunningBtnState();
                         }
                         finally
                         {
@@ -2539,6 +2534,31 @@ namespace ExcelTool.ViewModel
             }
         }
 
+        private void AnalyzeThreadCallback<T>(ExecuteResult<T> res)
+        {
+            ConcurrentDictionary<ReadFileReturnType, Object> methodResult = res.Result as ConcurrentDictionary<ReadFileReturnType, Object>;
+
+            if (methodResult.ContainsKey(ReadFileReturnType.FILEPATH))
+            {
+                string filePath = methodResult[ReadFileReturnType.FILEPATH].ToString();
+
+                currentAnalizingDictionary.TryRemove(filePath, out _);
+            }
+        }
+
+
+        private void OutputThreadCallback<T>(ExecuteResult<T> res)
+        {
+            ConcurrentDictionary<ReadFileReturnType, Object> methodResult = res.Result as ConcurrentDictionary<ReadFileReturnType, Object>;
+
+            if (methodResult.ContainsKey(ReadFileReturnType.FILEPATH))
+            {
+                string filePath = methodResult[ReadFileReturnType.FILEPATH].ToString();
+
+                currentOutputtingDictionary.TryRemove(filePath, out _);
+            }
+        }
+
         private async Task<bool> StartLogic(List<SheetExplainer> sheetExplainers, List<Analyzer> analyzers, Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string basePath, string outputPath, string outputName, bool isAuto, bool isExecuteInSequence)
         {
             Dictionary<SheetExplainer, List<string>> filePathListDic = new Dictionary<SheetExplainer, List<string>>();
@@ -2563,47 +2583,7 @@ namespace ExcelTool.ViewModel
 
             runNotSuccessed = false;
 
-            STPStartInfo stpAnalyze = new STPStartInfo();
-            stpAnalyze.CallToPostExecute = CallToPostExecute.WhenWorkItemNotCanceled;
-            stpAnalyze.PostExecuteWorkItemCallback = delegate (IWorkItemResult wir)
-            {
-                ConcurrentDictionary<ReadFileReturnType, Object> methodResult = null;
-                try
-                {
-                    methodResult = (ConcurrentDictionary<ReadFileReturnType, Object>)wir.GetResult();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex.Message + "\n" + ex.StackTrace);
-                }
-
-                if (methodResult.ContainsKey(ReadFileReturnType.FILEPATH))
-                {
-                    string filePath = methodResult[ReadFileReturnType.FILEPATH].ToString();
-                    analyzerListForSetResult.TryAdd(filePath, (Analyzer)methodResult[ReadFileReturnType.ANALYZER]);
-
-                    currentAnalizingDictionary.TryRemove(filePath, out _);
-                }
-            };
-            RenewSmartThreadPoolAnalyze(stpAnalyze);
-
-            STPStartInfo stpOutput = new STPStartInfo();
-            stpOutput.CallToPostExecute = CallToPostExecute.WhenWorkItemNotCanceled;
-            stpOutput.PostExecuteWorkItemCallback = delegate (IWorkItemResult wir)
-            {
-                string filePath = null;
-                try
-                {
-                    filePath = wir.GetResult().ToString();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex.Message + "\n" + ex.StackTrace);
-                }
-
-                currentOutputtingDictionary.TryRemove(filePath, out _);
-            };
-            RenewSmartThreadPoolOutput(stpOutput);
+            RenewthreadPool();
 
             Dictionary<Analyzer, Tuple<ExecOption, SheetExplainer>> compilerDic = new Dictionary<Analyzer, Tuple<ExecOption, SheetExplainer>>();
             int totalCount = 0;
@@ -2740,13 +2720,12 @@ namespace ExcelTool.ViewModel
                     readFileParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzer.name));
                     readFileParams.Add(isExecuteInSequence);
                     readFileParams.Add(execOption);
-                    smartThreadPoolAnalyze.QueueWorkItem(new Func<List<object>, object>(ReadFile), readFileParams);
+                    powerPool.QueueWorkItem(new Func<List<object>, object>(ReadFile), readFileParams, AnalyzeThreadCallback);
                 }
             }
 
             long startSs = GetNowSs();
-            smartThreadPoolAnalyze.Join();
-            while (smartThreadPoolAnalyze.CurrentWorkItemsCount > 0)
+            while (powerPool.RunningThreadCount > 0)
             {
                 try
                 {
@@ -2754,7 +2733,7 @@ namespace ExcelTool.ViewModel
                     long totalTimeCostSs = nowSs - startSs;
                     if (Running.UserStop || (enableTimeoutSetting && totalTimeoutLimitAnalyze > 0 && totalTimeCostSs >= totalTimeoutLimitAnalyze))
                     {
-                        smartThreadPoolAnalyze.Dispose();
+                        powerPool.Stop();
                         if (enableTimeoutSetting && totalTimeoutLimitAnalyze > 0 && totalTimeCostSs >= totalTimeoutLimitAnalyze)
                         {
                             if (!isAuto)
@@ -2783,7 +2762,7 @@ namespace ExcelTool.ViewModel
                             long timeCostSs = GetNowSs() - value;
                             if (enableTimeoutSetting && perTimeoutLimitAnalyze > 0 && timeCostSs >= perTimeoutLimitAnalyze)
                             {
-                                smartThreadPoolAnalyze.Dispose();
+                                powerPool.Stop();
                                 if (!isAuto)
                                 {
                                     CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{key.Split('|')[1]}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitAnalyze / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
@@ -2799,19 +2778,19 @@ namespace ExcelTool.ViewModel
                         }
                     }
 
-                    LProcessContent = $"{smartThreadPoolAnalyze.CurrentWorkItemsCount}/{totalCount} | {Application.Current.FindResource("ActiveThreads").ToString()}: {smartThreadPoolAnalyze.ActiveThreads} | {Application.Current.FindResource("InUseThreads").ToString()}: {smartThreadPoolAnalyze.InUseThreads}";
+                    LProcessContent = $"{Application.Current.FindResource("RunningThreads").ToString()}: {powerPool.RunningThreadCount} | {Application.Current.FindResource("WaitingThreads").ToString()}: {powerPool.WaitingThreadCount}";
                     TbStatusText = $"{sb}";
                     await Task.Delay(freshInterval);
                 }
                 catch (Exception e)
                 {
-                    smartThreadPoolAnalyze.Dispose();
+                    powerPool.Stop();
                     Logger.Error($"{Application.Current.FindResource("ExceptionHasBeenThrowed").ToString()} \n{e.Message}");
                     FinishRunning(true);
                     return false;
                 }
             }
-            smartThreadPoolAnalyze.Dispose();
+            powerPool.Stop();
 
             // 输出结果
             using (var workbook = new XLWorkbook())
@@ -2865,11 +2844,10 @@ namespace ExcelTool.ViewModel
                     setResultParams.Add(ParamHelper.MergePublicParam(paramDicEachAnalyzer, analyzerListForSetResult[filePath].name));
                     setResultParams.Add(isExecuteInSequence);
                     setResultParams.Add(compilerDic[analyzerListForSetResult[filePath]].Item1);
-                    smartThreadPoolOutput.QueueWorkItem(new Func<List<object>, string>(SetResult), setResultParams);
+                    powerPool.QueueWorkItem(new Func<List<object>, string>(SetResult), setResultParams, OutputThreadCallback);
                 }
                 startSs = GetNowSs();
-                smartThreadPoolOutput.Join();
-                while (smartThreadPoolOutput.CurrentWorkItemsCount > 0)
+                while (powerPool.RunningThreadCount > 0)
                 {
                     try
                     {
@@ -2877,7 +2855,7 @@ namespace ExcelTool.ViewModel
                         long totalTimeCostSs = nowSs - startSs;
                         if (Running.UserStop || (enableTimeoutSetting && totalTimeoutLimitOutput > 0 && totalTimeCostSs >= totalTimeoutLimitOutput))
                         {
-                            smartThreadPoolOutput.Dispose();
+                            powerPool.Stop();
                             if (enableTimeoutSetting && totalTimeoutLimitOutput > 0 && totalTimeCostSs >= totalTimeoutLimitOutput)
                             {
                                 if (!isAuto)
@@ -2905,7 +2883,7 @@ namespace ExcelTool.ViewModel
                                 long timeCostSs = GetNowSs() - value;
                                 if (enableTimeoutSetting && perTimeoutLimitOutput > 0 && timeCostSs >= perTimeoutLimitOutput)
                                 {
-                                    smartThreadPoolOutput.Dispose();
+                                    powerPool.Stop();
                                     if (!isAuto)
                                     {
                                         CustomizableMessageBox.MessageBox.Show(new RefreshList { new ButtonSpacer(), Application.Current.FindResource("Ok").ToString() }, $"{key.Split('|')[1]}\n{Application.Current.FindResource("Timeout").ToString()}. \n{perTimeoutLimitOutput / 1000.0}(s)", Application.Current.FindResource("Error").ToString(), MessageBoxImage.Error);
@@ -2921,19 +2899,19 @@ namespace ExcelTool.ViewModel
                             }
                         }
 
-                        LProcessContent = $"{smartThreadPoolOutput.CurrentWorkItemsCount}/{totalCount} | {Application.Current.FindResource("ActiveThreads").ToString()}: {smartThreadPoolOutput.ActiveThreads} | {Application.Current.FindResource("InUseThreads").ToString()}: {smartThreadPoolOutput.InUseThreads}";
+                        LProcessContent = $"{Application.Current.FindResource("RunningThreads").ToString()}: {powerPool.RunningThreadCount} | {Application.Current.FindResource("WaitingThreads").ToString()}: {powerPool.WaitingThreadCount}";
                         TbStatusText = $"{sb.ToString()}";
                         await Task.Delay(freshInterval);
                     }
                     catch (Exception e)
                     {
-                        smartThreadPoolOutput.Dispose();
+                        powerPool.Stop();
                         Logger.Error($"{Application.Current.FindResource("ExceptionHasBeenThrowed").ToString()} \n{e.Message}");
                         FinishRunning(true);
                         return false;
                     }
                 }
-                smartThreadPoolOutput.Dispose();
+                powerPool.Stop();
 
                 foreach (Analyzer analyzer in compilerDic.Keys)
                 {
@@ -3079,10 +3057,10 @@ namespace ExcelTool.ViewModel
         {
             while (!windowsClosing)
             {
-                TeLog.Dispatcher.Invoke(() =>
+                TeLog.Dispatcher.Invoke((Delegate)(() =>
                 {
                     string logTemp = Logger.Get();
-                    if (!String.IsNullOrEmpty(logTemp))
+                    if (!string.IsNullOrEmpty(logTemp))
                     {
                         if (TeLog.Text.Length > TeLog.Text.LastIndexOf('\n') + 1)
                         {
@@ -3124,7 +3102,21 @@ namespace ExcelTool.ViewModel
                     {
                         TeLog.IsReadOnly = true;
                     }
-                });
+
+                    if (this.powerPool != null)
+                    {
+                        if (this.powerPool.RunningThreadCount > 0)
+                        {
+                            BtnStartIsEnabled = false;
+                            BtnStopIsEnabled = true;
+                        }
+                        else
+                        {
+                            BtnStartIsEnabled = true;
+                            BtnStopIsEnabled = false;
+                        }
+                    }
+                }));
 
                 Thread.Sleep(freshInterval);
             }
@@ -3146,18 +3138,6 @@ namespace ExcelTool.ViewModel
 
             TbStatusText = "";
             LProcessContent = "";
-        }
-
-        private void SetStartRunningBtnState()
-        {
-            BtnStartIsEnabled = false;
-            BtnStopIsEnabled = true;
-        }
-
-        private void SetFinishRunningBtnState()
-        {
-            BtnStartIsEnabled = true;
-            BtnStopIsEnabled = false;
         }
 
         private void RunFunction(ExecOption execOption, string analyzerName, string className, string functionName, object[] objList, int globalParamIndex)
@@ -3368,30 +3348,19 @@ namespace ExcelTool.ViewModel
             return filePath;
         }
 
-        private void RenewSmartThreadPoolAnalyze(STPStartInfo stp)
+        private void RenewthreadPool()
         {
-            if (smartThreadPoolAnalyze != null)
+            if (powerPool != null)
             {
-                smartThreadPoolAnalyze.Dispose();
+                powerPool.Stop();
             }
-            smartThreadPoolAnalyze = new SmartThreadPool(stp);
+            ThreadPoolOption threadPoolOption = new ThreadPoolOption();
             if (maxThreadCount > 0)
             {
-                smartThreadPoolAnalyze.MaxThreads = maxThreadCount;
+                threadPoolOption.MaxThreads = maxThreadCount;
             }
-        }
-
-        private void RenewSmartThreadPoolOutput(STPStartInfo stp)
-        {
-            if (smartThreadPoolOutput != null)
-            {
-                smartThreadPoolOutput.Dispose();
-            }
-            smartThreadPoolOutput = new SmartThreadPool(stp);
-            if (maxThreadCount > 0)
-            {
-                smartThreadPoolOutput.MaxThreads = maxThreadCount;
-            }
+            powerPool = new PowerPool(threadPoolOption);
+            Running.Controller = new PowerPoolController(powerPool);
         }
 
         private void SetAutoStatusAll()
@@ -3419,22 +3388,22 @@ namespace ExcelTool.ViewModel
 
         private void CheckAndCloseThreads(bool isCloseWindow)
         {
-            if (smartThreadPoolAnalyze != null && !smartThreadPoolAnalyze.IsShuttingdown)
+            if (powerPool != null)
             {
                 try
                 {
-                    smartThreadPoolAnalyze.Shutdown();
+                    powerPool.Stop();
                 }
                 catch
                 {
                     // DO NOTHING
                 }
             }
-            if (smartThreadPoolOutput != null && !smartThreadPoolOutput.IsShuttingdown)
+            if (powerPool != null)
             {
                 try
                 {
-                    smartThreadPoolOutput.Shutdown();
+                    powerPool.Stop();
                 }
                 catch
                 {
