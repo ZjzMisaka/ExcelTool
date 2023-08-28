@@ -2541,7 +2541,7 @@ namespace ExcelTool.ViewModel
             if (methodResult.ContainsKey(ReadFileReturnType.FILEPATH))
             {
                 string filePath = methodResult[ReadFileReturnType.FILEPATH].ToString();
-
+                analyzerListForSetResult.TryAdd(filePath, (Analyzer)methodResult[ReadFileReturnType.ANALYZER]);
                 currentAnalizingDictionary.TryRemove(filePath, out _);
             }
         }
@@ -2549,14 +2549,9 @@ namespace ExcelTool.ViewModel
 
         private void OutputThreadCallback<T>(ExecuteResult<T> res)
         {
-            ConcurrentDictionary<ReadFileReturnType, Object> methodResult = res.Result as ConcurrentDictionary<ReadFileReturnType, Object>;
+            string filePath = res.Result as string;
 
-            if (methodResult.ContainsKey(ReadFileReturnType.FILEPATH))
-            {
-                string filePath = methodResult[ReadFileReturnType.FILEPATH].ToString();
-
-                currentOutputtingDictionary.TryRemove(filePath, out _);
-            }
+            currentOutputtingDictionary.TryRemove(filePath, out _);
         }
 
         private async Task<bool> StartLogic(List<SheetExplainer> sheetExplainers, List<Analyzer> analyzers, Dictionary<string, Dictionary<string, string>> paramDicEachAnalyzer, string basePath, string outputPath, string outputName, bool isAuto, bool isExecuteInSequence)
