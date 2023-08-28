@@ -3105,7 +3105,7 @@ namespace ExcelTool.ViewModel
 
                     if (this.powerPool != null)
                     {
-                        if (this.powerPool.RunningThreadCount > 0)
+                        if (Running.NowRunning || this.powerPool.RunningThreadCount > 0)
                         {
                             BtnStartIsEnabled = false;
                             BtnStopIsEnabled = true;
