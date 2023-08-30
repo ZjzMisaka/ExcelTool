@@ -706,6 +706,9 @@ namespace ExcelTool.ViewModel
                 }
             });
             runningThread.Start();
+
+            powerPool = new PowerPool(new ThreadPoolOption());
+            Running.Controller = new PowerPoolController(powerPool);
         }
         private void WindowClosing(CancelEventArgs eventArgs)
         {
@@ -2721,7 +2724,7 @@ namespace ExcelTool.ViewModel
             }
 
             long startSs = GetNowSs();
-            while (powerPool.RunningThreadCount > 0)
+            while (powerPool.RunningWorkerCount > 0)
             {
                 try
                 {
@@ -2774,7 +2777,7 @@ namespace ExcelTool.ViewModel
                         }
                     }
 
-                    LProcessContent = $"{Application.Current.FindResource("RunningThreads").ToString()}: {powerPool.RunningThreadCount} | {Application.Current.FindResource("WaitingThreads").ToString()}: {powerPool.WaitingThreadCount}";
+                    LProcessContent = $"{Application.Current.FindResource("RunningThreads").ToString()}: {powerPool.RunningWorkerCount} | {Application.Current.FindResource("WaitingThreads").ToString()}: {powerPool.WaitingWorkCount}";
                     TbStatusText = $"{sb}";
                     await Task.Delay(freshInterval);
                 }
@@ -2843,7 +2846,7 @@ namespace ExcelTool.ViewModel
                     powerPool.QueueWorkItem(new Func<List<object>, string>(SetResult), setResultParams, OutputThreadCallback);
                 }
                 startSs = GetNowSs();
-                while (powerPool.RunningThreadCount > 0)
+                while (powerPool.RunningWorkerCount > 0)
                 {
                     try
                     {
@@ -2895,7 +2898,7 @@ namespace ExcelTool.ViewModel
                             }
                         }
 
-                        LProcessContent = $"{Application.Current.FindResource("RunningThreads").ToString()}: {powerPool.RunningThreadCount} | {Application.Current.FindResource("WaitingThreads").ToString()}: {powerPool.WaitingThreadCount}";
+                        LProcessContent = $"{Application.Current.FindResource("RunningThreads").ToString()}: {powerPool.RunningWorkerCount} | {Application.Current.FindResource("WaitingThreads").ToString()}: {powerPool.WaitingWorkCount}";
                         TbStatusText = $"{sb.ToString()}";
                         await Task.Delay(freshInterval);
                     }
@@ -3101,7 +3104,7 @@ namespace ExcelTool.ViewModel
 
                     if (this.powerPool != null)
                     {
-                        if (Running.NowRunning || this.powerPool.RunningThreadCount > 0)
+                        if (Running.NowRunning || this.powerPool.RunningWorkerCount > 0)
                         {
                             BtnStartIsEnabled = false;
                             BtnStopIsEnabled = true;
@@ -3350,13 +3353,14 @@ namespace ExcelTool.ViewModel
             {
                 powerPool.Stop();
             }
+
             ThreadPoolOption threadPoolOption = new ThreadPoolOption();
             if (maxThreadCount > 0)
             {
                 threadPoolOption.MaxThreads = maxThreadCount;
             }
-            powerPool = new PowerPool(threadPoolOption);
-            Running.Controller = new PowerPoolController(powerPool);
+            threadPoolOption.DestroyThreadOption = new DestroyThreadOption() { MinThreads = 0 };
+            powerPool.ThreadPoolOption = threadPoolOption;
         }
 
         private void SetAutoStatusAll()
