@@ -2724,7 +2724,7 @@ namespace ExcelTool.ViewModel
             }
 
             long startSs = GetNowSs();
-            while (powerPool.RunningWorkerCount > 0)
+            while (powerPool.ThreadPoolRunning)
             {
                 try
                 {
@@ -2846,7 +2846,7 @@ namespace ExcelTool.ViewModel
                     powerPool.QueueWorkItem(new Func<List<object>, string>(SetResult), setResultParams, OutputThreadCallback);
                 }
                 startSs = GetNowSs();
-                while (powerPool.RunningWorkerCount > 0)
+                while (powerPool.ThreadPoolRunning)
                 {
                     try
                     {
@@ -3104,7 +3104,7 @@ namespace ExcelTool.ViewModel
 
                     if (this.powerPool != null)
                     {
-                        if (Running.NowRunning || this.powerPool.RunningWorkerCount > 0)
+                        if (Running.NowRunning || this.powerPool.ThreadPoolRunning)
                         {
                             BtnStartIsEnabled = false;
                             BtnStopIsEnabled = true;
