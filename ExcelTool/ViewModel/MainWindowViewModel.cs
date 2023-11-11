@@ -707,7 +707,7 @@ namespace ExcelTool.ViewModel
             });
             runningThread.Start();
 
-            powerPool = new PowerPool(new ThreadPoolOption());
+            powerPool = new PowerPool(new PowerPoolOption());
             Running.Controller = new PowerPoolController(powerPool);
         }
         private void WindowClosing(CancelEventArgs eventArgs)
@@ -2724,7 +2724,7 @@ namespace ExcelTool.ViewModel
             }
 
             long startSs = GetNowSs();
-            while (powerPool.ThreadPoolRunning)
+            while (powerPool.PoolRunning)
             {
                 try
                 {
@@ -2846,7 +2846,7 @@ namespace ExcelTool.ViewModel
                     powerPool.QueueWorkItem(new Func<List<object>, string>(SetResult), setResultParams, OutputThreadCallback);
                 }
                 startSs = GetNowSs();
-                while (powerPool.ThreadPoolRunning)
+                while (powerPool.PoolRunning)
                 {
                     try
                     {
@@ -3104,7 +3104,7 @@ namespace ExcelTool.ViewModel
 
                     if (this.powerPool != null)
                     {
-                        if (Running.NowRunning || this.powerPool.ThreadPoolRunning)
+                        if (Running.NowRunning || this.powerPool.PoolRunning)
                         {
                             BtnStartIsEnabled = false;
                             BtnStopIsEnabled = true;
@@ -3354,13 +3354,13 @@ namespace ExcelTool.ViewModel
                 powerPool.Stop();
             }
 
-            ThreadPoolOption threadPoolOption = new ThreadPoolOption();
+            PowerPoolOption threadPoolOption = new PowerPoolOption();
             if (maxThreadCount > 0)
             {
                 threadPoolOption.MaxThreads = maxThreadCount;
             }
             threadPoolOption.DestroyThreadOption = new DestroyThreadOption() { MinThreads = 0 };
-            powerPool.ThreadPoolOption = threadPoolOption;
+            powerPool.PowerPoolOption = threadPoolOption;
         }
 
         private void SetAutoStatusAll()
