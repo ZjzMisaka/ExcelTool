@@ -3390,25 +3390,7 @@ namespace ExcelTool.ViewModel
         {
             if (powerPool != null)
             {
-                try
-                {
-                    powerPool.Stop();
-                }
-                catch
-                {
-                    // DO NOTHING
-                }
-            }
-            if (powerPool != null)
-            {
-                try
-                {
-                    powerPool.Stop();
-                }
-                catch
-                {
-                    // DO NOTHING
-                }
+                powerPool.Dispose();
             }
             if (runBeforeAnalyzeSheetThread != null && runBeforeAnalyzeSheetThread.IsAlive)
             {
@@ -3434,8 +3416,6 @@ namespace ExcelTool.ViewModel
                 }
                 runningThread.Interrupt();
                 runningThread.Join();
-
-                powerPool.Dispose();
             }
         }
 
