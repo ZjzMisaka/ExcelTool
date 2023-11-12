@@ -3434,6 +3434,8 @@ namespace ExcelTool.ViewModel
                 }
                 runningThread.Interrupt();
                 runningThread.Join();
+
+                powerPool.Dispose();
             }
         }
 
