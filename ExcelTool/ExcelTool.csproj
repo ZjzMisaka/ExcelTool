@@ -68,7 +68,7 @@
     <PackageReference Include="ClosedXML">
       <Version>0.102.1</Version>
     </PackageReference>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="CustomizableMessageBox">
       <Version>2.3.4</Version>
     </PackageReference>
@@ -91,7 +91,7 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.3</Version>
     </PackageReference>
-    <PackageReference Include="PowerThreadPool" Version="2.2.0" />
+    <PackageReference Include="PowerThreadPool" Version="2.5.5" />
     <PackageReference Include="RoslynPad.Editor.Windows" Version="4.4.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.410601">
