@@ -36,7 +36,8 @@ using DynamicScriptExecutor;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PowerThreadPool;
-using PowerThreadPool.Option;
+using PowerThreadPool.Results;
+using PowerThreadPool.Options;
 
 namespace ExcelTool.ViewModel
 {
