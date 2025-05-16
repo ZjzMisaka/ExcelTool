@@ -3389,7 +3389,7 @@ namespace ExcelTool.ViewModel
 
         private void CheckAndCloseThreads(bool isCloseWindow)
         {
-            if (powerPool != null)
+            if (isCloseWindow && powerPool != null)
             {
                 powerPool.Dispose();
             }
